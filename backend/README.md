@@ -2,7 +2,7 @@
 
 ## 技术判断
 
-当前平台包含 28 个工具和少量写入场景，本地机器也没有 Docker。第一阶段采用 Node.js 内置 HTTP 服务与 SQLite，可零依赖启动并完成真实持久化；API 契约、实体边界和字段命名按模块化单体设计，生产阶段可以替换为 NestJS + PostgreSQL。
+当前种子平台包含 28 个工具，并已按 1,500–2,000 条目录容量改为服务端分页。第一阶段采用 Node.js 内置 HTTP 服务与 SQLite，可零 npm 依赖启动并完成真实持久化；API 契约、实体边界和字段命名按模块化单体设计，生产阶段可以替换为 NestJS + PostgreSQL。
 
 SQLite 负责当前 MVP，不建议直接作为高并发公开生产数据库。正式上线前应迁移 PostgreSQL、托管对象存储和独立管理端。
 
@@ -27,6 +27,14 @@ SQLite 负责当前 MVP，不建议直接作为高并发公开生产数据库。
 - `GET /api/v1/tools/:idOrSlug`
 - `GET /api/v1/articles?kind=tutorial|news`
 - `GET /api/v1/articles/:idOrSlug`
+
+`bootstrap` 只返回分类计数、文章、专题和单个推广工具，不再内嵌全量普通工具。工具首屏、搜索和筛选统一通过 `/api/v1/tools` 获取；该接口默认返回24条普通工具并使用 `limit` / `offset` 分页。
+
+### 本地授权目录导入
+
+`npm run catalog:import` 支持 CSV、JSON 和 NDJSON 文件，负责 URL 安全校验、来源分类映射、来源键幂等、官网地址去重和导入报告。新增记录默认进入 `review`，不会直接发布；命令不包含第三方网站抓取逻辑。
+
+来源和批次记录存储在 `tool_sources` 与 `catalog_import_batches`。字段与命令示例见根目录的 `AI工具批量导入与合规说明-2026-07-14.md`。
 
 资讯记录额外返回 `source` 与 `sourceUrl`，前端详情页提供官方原始发布入口。当前内容同步会更新本轮策划工具和资讯，同时归档被替换的旧推广位与占位资讯。
 

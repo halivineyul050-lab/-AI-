@@ -31,7 +31,7 @@ updated: 2026-07-13
 | API 根地址 | `http://127.0.0.1:4173/api/v1` | 所有公开 API 的统一前缀 |
 | 就绪检查 | <http://127.0.0.1:4173/api/v1/health/ready> | 检查服务和数据库是否可用 |
 | 存活检查 | <http://127.0.0.1:4173/api/v1/health/live> | 检查 Node.js 服务进程是否存活 |
-| 页面初始化数据 | <http://127.0.0.1:4173/api/v1/site/bootstrap> | 返回分类、工具、文章和专题 |
+| 页面初始化数据 | <http://127.0.0.1:4173/api/v1/site/bootstrap> | 返回分类计数、文章、专题和推广工具 |
 | 工具列表 | <http://127.0.0.1:4173/api/v1/tools> | 工具搜索、筛选、排序和分页 |
 | 文章列表 | <http://127.0.0.1:4173/api/v1/articles> | 教程和资讯内容 |
 | 管理接口根地址 | `http://127.0.0.1:4173/api/admin/v1` | 本机可匿名读取脱敏监控；管理操作需要令牌 |
@@ -55,12 +55,13 @@ GET /api/v1/site/bootstrap
 
 一次返回前端初始化所需的：
 
-- 工具分类
-- 工具数据
+- 工具分类及全站分类计数
 - 教程
 - AI资讯
 - 精选专题
-- 推广工具
+- 单个推广工具
+
+普通工具不再随初始化接口全量返回。前端首屏通过工具列表接口获取24条，后续按 `limit` / `offset` 加载更多；搜索和筛选也始终由该接口在服务端执行。
 
 ### 3. 工具列表与搜索
 
@@ -227,7 +228,7 @@ Authorization: Bearer <NIKE_ADMIN_TOKEN>
 
 - SQLite WAL
 - 外键约束
-- 三个版本化迁移
+- 四个版本化迁移
 - 投稿审核状态
 - 管理操作审计日志
 - 事件和跳转数据定期清理
@@ -258,7 +259,7 @@ npm run dev
 npm test
 ```
 
-当前测试结果：`15/15` 通过。
+当前测试结果：`23/23` 通过。
 
 ## 六、代码位置
 
@@ -269,6 +270,8 @@ npm test
 | `server.mjs` | HTTP服务、路由、安全和静态文件服务 |
 | `backend/schema.sql` | 初始数据库结构 |
 | `backend/migrations/` | 数据库增量迁移 |
+| `backend/tool-import.mjs` | 授权工具目录规范化、去重和事务入库 |
+| `scripts/import-tool-catalog.mjs` | CSV、JSON、NDJSON 本地导入命令 |
 | `backend/database.mjs` | 数据访问和事务 |
 | `backend/validation.mjs` | 输入校验和安全限制 |
 | `backend/seed-data.json` | 初始内容种子 |

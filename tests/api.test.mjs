@@ -46,21 +46,24 @@ test("health and bootstrap expose persisted content", async () => {
 
   const bootstrap = await request("/api/v1/site/bootstrap");
   assert.equal(bootstrap.response.status, 200);
-  assert.equal(bootstrap.body.data.tools.length, 28);
-  assert.equal(bootstrap.body.data.categories.length, 9);
+  assert.equal(Object.hasOwn(bootstrap.body.data, "tools"), false);
+  assert.ok(bootstrap.body.data.categories.length >= 9);
   assert.equal(bootstrap.body.data.tutorials.length, 5);
   assert.equal(bootstrap.body.data.newsItems.length, 7);
   assert.equal(bootstrap.body.data.collections.length, 3);
-  const sponsor = bootstrap.body.data.tools.find((tool) => tool.sponsored);
+  const sponsor = bootstrap.body.data.sponsor;
   assert.equal(sponsor.id, "orange-dream-factory");
   assert.equal(sponsor.name, "橙星梦工厂");
-  assert.equal(bootstrap.body.data.tools.some((tool) => tool.id === "wawawriter"), false);
+  assert.equal(sponsor.sponsored, true);
+  const allCategory = bootstrap.body.data.categories.find((category) => category.id === "all");
+  const organicCount = Number(app.db.prepare("SELECT COUNT(*) AS count FROM tools WHERE status = 'published' AND is_sponsored = 0").get().count);
+  assert.equal(allCategory.toolCount, organicCount);
   const gptNews = bootstrap.body.data.newsItems.find((item) => item.id === "news-openai-gpt-5-6");
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 3);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 3);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 4);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 4);
 });
 
 test("brand icon is served with the expected media type", async () => {
@@ -86,6 +89,26 @@ test("tool API combines search and structured filters", async () => {
   assert.equal(detail.response.status, 200);
   assert.equal(detail.body.data.id, "doubao");
   assert.match(detail.body.data.officialUrl, /^\/r\/tools\/doubao/);
+
+  const featureSearch = await request("/api/v1/tools?q=%E5%85%A8%E6%A0%88%E5%BC%80%E5%8F%91");
+  assert.equal(featureSearch.response.status, 200);
+  assert.ok(featureSearch.body.data.some((tool) => tool.id === "cursor"));
+});
+
+test("tool API paginates the organic catalog without overlaps", async () => {
+  const first = await request("/api/v1/tools?sort=name&limit=5&offset=0");
+  const second = await request("/api/v1/tools?sort=name&limit=5&offset=5");
+  assert.equal(first.response.status, 200);
+  assert.equal(first.body.data.length, 5);
+  assert.equal(first.body.meta.limit, 5);
+  assert.equal(first.body.meta.offset, 0);
+  assert.ok(first.body.meta.total >= 10);
+  assert.equal(second.body.meta.offset, 5);
+  assert.equal(second.body.data.length, 5);
+  assert.equal(first.body.data.some((tool) => tool.sponsored), false);
+  assert.equal(second.body.data.some((tool) => tool.sponsored), false);
+  const firstIds = new Set(first.body.data.map((tool) => tool.id));
+  assert.equal(second.body.data.some((tool) => firstIds.has(tool.id)), false);
 });
 
 test("submission is validated, persisted and idempotent", async () => {

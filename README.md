@@ -13,7 +13,7 @@
 <p align="center">
   <img alt="Node.js 22.5+" src="https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLite-内置-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-15%20passing-0f766e">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-23%20passing-0f766e">
   <img alt="Dependencies" src="https://img.shields.io/badge/npm_dependencies-0-f97316">
 </p>
 
@@ -24,7 +24,7 @@
 当前种子数据包含：
 
 - 28 个 AI 工具（27 个普通工具、1 个推广工具）
-- 9 个工具分类
+- 16 个主分类（含为大目录预留的智能体、设计、学习、模型等分类）
 - 12 篇教程与资讯内容
 - 3 个工具专题
 - 资讯来源名称与官方原始链接
@@ -59,6 +59,7 @@
 
 - Node.js 内置 HTTP 服务与 SQLite 数据库
 - 版本化数据库迁移和自动种子数据同步
+- 授权 CSV、JSON、NDJSON 工具目录的幂等导入、来源追踪与重复合并
 - REST API、统一错误响应和请求 ID
 - 投稿幂等、输入校验和审核审计记录
 - 埋点事件批量上报与事件 ID 去重
@@ -155,13 +156,33 @@ Authorization: Bearer <token>
 
 令牌只保存在当前页面内存中，刷新或锁定页面后会被清除。生产环境必须配置稳定的数据库路径和高强度分析盐值；共享令牌管理默认关闭，建议使用账号体系、短会话、MFA、RBAC 和 CSRF 防护替代。
 
+## 批量导入工具目录
+
+项目支持从本地授权文件批量导入工具，不会联网抓取或绕过第三方网站的 robots.txt。模板位于 `imports/tool-catalog.template.csv`。
+
+先进行事务演练，所有写入都会回滚：
+
+```powershell
+npm run catalog:import -- --input imports/my-authorized-tools.csv --provider authorized-export --dry-run
+```
+
+确认报告后导入审核队列：
+
+```powershell
+npm run catalog:import -- --input imports/my-authorized-tools.csv --provider authorized-export
+```
+
+仅经过人工核验的数据才建议添加 `--publish`。摘要和详情默认不会从外部文件导入；只有明确拥有相应使用权时才可添加 `--accept-editorial-text`。
+
+完整字段、去重规则和合规边界见 [AI工具批量导入与合规说明-2026-07-14.md](AI工具批量导入与合规说明-2026-07-14.md)。
+
 ## 常用 API
 
 | 方法 | 地址 | 作用 |
 |---|---|---|
 | `GET` | `/api/v1/health` | 服务与数据库健康检查 |
-| `GET` | `/api/v1/site/bootstrap` | 用户端初始化聚合数据 |
-| `GET` | `/api/v1/tools` | 搜索、筛选、排序和分页工具 |
+| `GET` | `/api/v1/site/bootstrap` | 分类计数、内容、专题与推广位初始化数据 |
+| `GET` | `/api/v1/tools` | 普通工具的搜索、筛选、排序和分页（默认24条） |
 | `GET` | `/api/v1/tools/:slug` | 工具详情 |
 | `GET` | `/api/v1/articles` | 教程与资讯列表 |
 | `POST` | `/api/v1/tool-submissions` | 提交工具审核 |
@@ -180,7 +201,7 @@ Authorization: Bearer <token>
 npm test
 ```
 
-当前共 `15` 项自动化测试，覆盖：
+当前共 `23` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -188,6 +209,8 @@ npm test
 - 订阅去重、事件去重和官网跳转
 - URL 私网拦截与 DNS Rebinding 防护
 - 监控聚合、时间窗口、事件脱敏和管理鉴权
+- 目录导入迁移、演练回滚、来源幂等、官网去重和不安全 URL 拒绝
+- 1,001 条合成授权目录的分页稳定性和 Bootstrap 体积上限
 
 ## 项目结构
 
@@ -201,13 +224,15 @@ npm test
 ├── server.mjs                             # HTTP、API、安全和静态文件服务
 ├── backend/
 │   ├── database.mjs                       # 数据访问、迁移与内容同步
+│   ├── tool-import.mjs                    # 授权目录规范化、去重与入库
 │   ├── monitoring.mjs                     # 监控指标聚合
 │   ├── validation.mjs                     # 请求与 URL 校验
 │   ├── schema.sql                         # 数据库基础结构
 │   ├── seed-data.json                     # 工具与内容种子数据
 │   └── migrations/                        # 数据库迁移
 ├── tests/                                 # API、监控和安全测试
-├── scripts/                               # 数据维护脚本
+├── imports/                               # 本地授权目录导入模板
+├── scripts/                               # 数据维护与目录导入命令
 └── *.md                                   # 产品分析、接口与内容资料
 ```
 

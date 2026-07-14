@@ -767,6 +767,29 @@ img {
   gap: 10px;
 }
 
+.tool-pagination {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 1440px;
+  margin: 24px auto 0;
+}
+
+.tool-pagination[hidden] {
+  display: none;
+}
+
+.tool-pagination p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.tool-load-more {
+  min-width: 148px;
+  justify-content: center;
+}
+
 .tool-card {
   position: relative;
   display: flex;
@@ -924,9 +947,19 @@ img {
   color: var(--blue);
 }
 
+.tool-badge.price-trial {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
 .tool-badge.price-paid {
   background: var(--coral-soft);
   color: var(--coral);
+}
+
+.tool-badge.price-contact {
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .tool-card-footer {

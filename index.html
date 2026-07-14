@@ -10,9 +10,9 @@
   <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260713-1">
   <link rel="preconnect" href="https://www.google.com">
   <link rel="preconnect" href="https://images.unsplash.com">
-  <link rel="stylesheet" href="styles.css?v=20260713-10">
+  <link rel="stylesheet" href="styles.css?v=20260714-1">
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="app.js?v=20260713-16"></script>
+  <script defer src="app.js?v=20260714-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -131,9 +131,12 @@
             <span>价格</span>
             <select id="price-filter">
               <option value="all">全部价格</option>
+              <option value="unknown">价格待核验</option>
               <option value="free">免费</option>
               <option value="freemium">免费增值</option>
+              <option value="trial">限时试用</option>
               <option value="paid">付费</option>
+              <option value="contact">联系询价</option>
             </select>
           </label>
           <label class="select-control">
@@ -150,6 +153,7 @@
             <span>语言</span>
             <select id="language-filter">
               <option value="all">全部语言</option>
+              <option value="unknown">语言待核验</option>
               <option value="zh">中文友好</option>
               <option value="multi">多语言</option>
             </select>
@@ -162,6 +166,13 @@
         <section class="sponsor-strip" id="sponsor-strip" aria-label="推广工具"></section>
 
         <div class="tool-grid" id="tool-grid"></div>
+
+        <div class="tool-pagination" id="tool-pagination" hidden>
+          <button class="secondary-button tool-load-more" id="tool-load-more" type="button">
+            <i data-lucide="plus"></i><span>加载更多</span>
+          </button>
+          <p id="tool-pagination-status" aria-live="polite"></p>
+        </div>
 
         <div class="empty-state" id="empty-state" hidden>
           <i data-lucide="search-x"></i>

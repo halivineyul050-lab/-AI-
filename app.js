@@ -747,12 +747,26 @@ const state = {
   favorites: new Set(readLocalArray("nike-favorites")),
   topics: new Set(readLocalArray("nike-topics")),
   compare: new Set(),
-  activeView: "tools"
+  activeView: "tools",
+  toolLimit: 24,
+  toolTotal: tools.filter((tool) => !tool.sponsored).length,
+  toolHasMore: false,
+  toolLoading: false,
+  toolError: false,
+  toolRetryAppend: false,
+  toolServerMode: false
 };
 
-const priceLabels = { free: "免费", freemium: "免费增值", paid: "付费" };
+const priceLabels = {
+  unknown: "价格待核验",
+  free: "免费",
+  freemium: "免费增值",
+  trial: "限时试用",
+  paid: "付费",
+  contact: "联系询价"
+};
 const platformLabels = { web: "Web", desktop: "桌面端", mobile: "移动端", api: "API" };
-const languageLabels = { zh: "中文友好", multi: "多语言" };
+const languageLabels = { unknown: "语言待核验", zh: "中文友好", multi: "多语言" };
 const topicSlugMap = {
   "AI智能体": "ai-agents",
   "视频生成": "video-generation",
@@ -764,7 +778,11 @@ const topicSlugMap = {
 };
 const categoryMap = Object.fromEntries(categories.map((category) => [category.id, category]));
 const toolMap = Object.fromEntries(tools.map((tool) => [tool.id, tool]));
+let sponsoredTool = tools.find((tool) => tool.sponsored) || null;
+let rankingTools = tools.filter((tool) => !tool.sponsored).sort((a, b) => b.popular - a.popular).slice(0, 6);
 let backendAvailable = false;
+let toolRequestVersion = 0;
+let searchDebounceTimer = null;
 let eventQueue = [];
 let eventFlushTimer = null;
 let eventRetryDelay = 3000;
@@ -777,10 +795,10 @@ let adImpressionTimer = null;
 
 function rebuildDataMaps() {
   Object.keys(categoryMap).forEach((key) => delete categoryMap[key]);
-  Object.keys(toolMap).forEach((key) => delete toolMap[key]);
   Object.keys(articleMap).forEach((key) => delete articleMap[key]);
   categories.forEach((category) => { categoryMap[category.id] = category; });
   tools.forEach((tool) => { toolMap[tool.id] = tool; });
+  if (sponsoredTool) toolMap[sponsoredTool.id] = sponsoredTool;
   [...tutorials, ...newsItems].forEach((article) => { articleMap[article.id] = article; });
 }
 
@@ -814,13 +832,12 @@ async function loadBackendData() {
       const data = payload.data;
       const valid = data
         && Array.isArray(data.categories)
-        && Array.isArray(data.tools)
         && Array.isArray(data.tutorials)
         && Array.isArray(data.newsItems)
         && Array.isArray(data.collections);
       if (!valid) throw new Error("后端初始化数据格式无效");
       categories.splice(0, categories.length, ...data.categories);
-      tools.splice(0, tools.length, ...data.tools);
+      sponsoredTool = data.sponsor || null;
       tutorials.splice(0, tutorials.length, ...data.tutorials);
       newsItems.splice(0, newsItems.length, ...data.newsItems);
       collections.splice(0, collections.length, ...data.collections);
@@ -834,6 +851,111 @@ async function loadBackendData() {
   }
   backendAvailable = false;
   document.documentElement.dataset.backend = "fallback";
+}
+
+function buildToolQuery(offset = 0, limit = state.toolLimit) {
+  const params = new URLSearchParams({ limit: String(limit), offset: String(offset), sort: state.sort });
+  if (state.query.trim()) params.set("q", state.query.trim());
+  if (state.category !== "all") params.set("category", state.category);
+  if (state.price !== "all") params.set("price", state.price);
+  if (state.platform !== "all") params.set("platform", state.platform);
+  if (state.language !== "all") params.set("language", state.language);
+  return params;
+}
+
+function filterToolsLocally(items) {
+  const query = state.query.trim().toLocaleLowerCase("zh-CN");
+  return items.filter((tool) => {
+    if (tool.sponsored) return false;
+    if (state.category !== "all" && tool.category !== state.category) return false;
+    if (state.price !== "all" && tool.price !== state.price) return false;
+    if (state.platform !== "all" && !tool.platforms.includes(state.platform)) return false;
+    if (state.language !== "all" && tool.language !== state.language) return false;
+    if (state.favoritesOnly && !state.favorites.has(tool.id)) return false;
+    if (!query) return true;
+    const haystack = [
+      tool.name,
+      tool.summary,
+      tool.description,
+      categoryMap[tool.category]?.name,
+      ...tool.features,
+      ...tool.useCases,
+      ...tool.badges
+    ].join(" ").toLocaleLowerCase("zh-CN");
+    return haystack.includes(query);
+  });
+}
+
+async function loadFavoriteToolResults(requestVersion) {
+  const ids = [...state.favorites].slice(0, 100);
+  const settled = await Promise.allSettled(ids.map((id) => apiRequest(`/api/v1/tools/${encodeURIComponent(id)}`)));
+  if (requestVersion !== toolRequestVersion) return false;
+  const favoriteTools = settled
+    .filter((result) => result.status === "fulfilled")
+    .map((result) => result.value.data);
+  tools.splice(0, tools.length, ...favoriteTools);
+  rebuildDataMaps();
+  const filtered = filterToolsLocally(favoriteTools);
+  state.toolTotal = filtered.length;
+  state.toolHasMore = false;
+  return true;
+}
+
+async function loadToolResults({ append = false } = {}) {
+  if (!backendAvailable) return false;
+  const requestVersion = ++toolRequestVersion;
+  state.toolLoading = true;
+  state.toolError = false;
+  state.toolRetryAppend = append;
+  renderToolPagination();
+  try {
+    if (state.favoritesOnly) {
+      const applied = await loadFavoriteToolResults(requestVersion);
+      if (!applied) return false;
+    } else {
+      const offset = append ? tools.length : 0;
+      const payload = await apiRequest(`/api/v1/tools?${buildToolQuery(offset)}`);
+      if (requestVersion !== toolRequestVersion) return false;
+      const items = Array.isArray(payload.data) ? payload.data : [];
+      if (append) {
+        const known = new Set(tools.map((tool) => tool.id));
+        tools.push(...items.filter((tool) => !known.has(tool.id)));
+      } else {
+        tools.splice(0, tools.length, ...items);
+      }
+      rebuildDataMaps();
+      state.toolTotal = Number(payload.meta?.total) || 0;
+      state.toolHasMore = tools.length < state.toolTotal;
+    }
+    state.toolServerMode = true;
+    return true;
+  } catch {
+    if (requestVersion !== toolRequestVersion) return false;
+    state.toolError = true;
+    if (!state.toolServerMode) {
+      state.toolTotal = getFilteredTools().length;
+      state.toolHasMore = false;
+    }
+    return false;
+  } finally {
+    if (requestVersion === toolRequestVersion) {
+      state.toolLoading = false;
+      renderTools();
+    }
+  }
+}
+
+async function loadRankingTools() {
+  if (!backendAvailable) return;
+  try {
+    const payload = await apiRequest("/api/v1/tools?sort=popular&limit=6&offset=0");
+    if (Array.isArray(payload.data)) {
+      rankingTools = payload.data;
+      rankingTools.forEach((tool) => { toolMap[tool.id] = tool; });
+    }
+  } catch {
+    // 精选页可继续使用内置的离线榜单。
+  }
 }
 
 function readLocalArray(key) {
@@ -985,11 +1107,12 @@ function showToast(message) {
 
 function renderNavigation() {
   const naturalTools = tools.filter((tool) => !tool.sponsored);
-  document.getElementById("tool-total-nav").textContent = naturalTools.length;
+  const allCount = categories.find((category) => category.id === "all")?.toolCount ?? naturalTools.length;
+  document.getElementById("tool-total-nav").textContent = allCount;
   document.getElementById("category-nav").innerHTML = categories.map((category) => {
-    const count = category.id === "all"
+    const count = category.toolCount ?? (category.id === "all"
       ? naturalTools.length
-      : naturalTools.filter((tool) => tool.category === category.id).length;
+      : naturalTools.filter((tool) => tool.category === category.id).length);
     return `
       <button class="category-button ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${category.id}">
         <i data-lucide="${category.icon}"></i>
@@ -1015,26 +1138,8 @@ function renderNavigation() {
 }
 
 function getFilteredTools() {
-  const query = state.query.trim().toLocaleLowerCase("zh-CN");
-  const filtered = tools.filter((tool) => {
-    if (tool.sponsored) return false;
-    if (state.category !== "all" && tool.category !== state.category) return false;
-    if (state.price !== "all" && tool.price !== state.price) return false;
-    if (state.platform !== "all" && !tool.platforms.includes(state.platform)) return false;
-    if (state.language !== "all" && tool.language !== state.language) return false;
-    if (state.favoritesOnly && !state.favorites.has(tool.id)) return false;
-    if (!query) return true;
-    const haystack = [
-      tool.name,
-      tool.summary,
-      tool.description,
-      categoryMap[tool.category]?.name,
-      ...tool.features,
-      ...tool.useCases,
-      ...tool.badges
-    ].join(" ").toLocaleLowerCase("zh-CN");
-    return haystack.includes(query);
-  });
+  if (state.toolServerMode && !state.favoritesOnly) return tools;
+  const filtered = filterToolsLocally(tools);
 
   return filtered.sort((a, b) => {
     if (state.sort === "popular") return b.popular - a.popular;
@@ -1085,7 +1190,7 @@ function renderToolCard(tool, rank) {
 }
 
 function renderSponsor() {
-  const sponsor = tools.find((tool) => tool.sponsored);
+  const sponsor = sponsoredTool;
   const strip = document.getElementById("sponsor-strip");
   if (!sponsor) {
     strip.hidden = true;
@@ -1114,7 +1219,10 @@ function renderTools() {
   grid.innerHTML = filtered.map(renderToolCard).join("");
   empty.hidden = filtered.length !== 0;
   grid.hidden = filtered.length === 0;
-  document.getElementById("result-count").textContent = `${filtered.length} 个工具`;
+  const total = state.toolServerMode ? state.toolTotal : filtered.length;
+  document.getElementById("result-count").textContent = state.toolServerMode && filtered.length < total
+    ? `已显示 ${filtered.length} / ${total}`
+    : `${total} 个工具`;
   document.getElementById("favorite-count").textContent = state.favorites.size;
   document.getElementById("compare-count").textContent = state.compare.size;
   document.getElementById("favorite-toggle").setAttribute("aria-pressed", String(state.favoritesOnly));
@@ -1125,8 +1233,25 @@ function renderTools() {
   renderNavigation();
   syncFilterControls();
   updateQueryString();
+  renderToolPagination();
   refreshIcons();
   bindImageFallbacks(grid);
+}
+
+function renderToolPagination() {
+  const pagination = document.getElementById("tool-pagination");
+  if (!pagination) return;
+  const canPaginate = state.toolServerMode && !state.favoritesOnly
+    && (state.toolHasMore || state.toolLoading || state.toolError);
+  pagination.hidden = !canPaginate;
+  const button = document.getElementById("tool-load-more");
+  const label = button.querySelector("span");
+  button.disabled = state.toolLoading;
+  label.textContent = state.toolLoading ? "正在加载…" : state.toolError ? "重试加载" : "加载更多";
+  document.getElementById("tool-pagination-status").textContent = state.toolServerMode
+    ? `已加载 ${tools.length} 个，共 ${state.toolTotal} 个`
+    : "";
+  document.getElementById("tool-grid").setAttribute("aria-busy", String(state.toolLoading));
 }
 
 function syncFilterControls() {
@@ -1166,8 +1291,17 @@ function resetFilters() {
   state.favoritesOnly = false;
   document.getElementById("filter-panel").classList.remove("is-open");
   document.getElementById("mobile-filter-toggle").setAttribute("aria-expanded", "false");
-  renderTools();
+  void refreshToolResults();
   track("filter_apply", { action: "reset" });
+}
+
+function refreshToolResults() {
+  window.clearTimeout(searchDebounceTimer);
+  if (backendAvailable) return loadToolResults({ append: false });
+  state.toolTotal = getFilteredTools().length;
+  state.toolHasMore = false;
+  renderTools();
+  return Promise.resolve(false);
 }
 
 function toggleFavorite(toolId) {
@@ -1177,7 +1311,8 @@ function toggleFavorite(toolId) {
   if (adding) state.favorites.add(toolId);
   else state.favorites.delete(toolId);
   saveLocalArray("nike-favorites", state.favorites);
-  renderTools();
+  if (state.favoritesOnly) void refreshToolResults();
+  else renderTools();
   requestAnimationFrame(() => {
     const nextFocus = document.querySelector(`[data-favorite-id="${toolId}"]`) || document.getElementById("favorite-toggle");
     nextFocus?.focus();
@@ -1401,8 +1536,7 @@ function renderCollections() {
       </div>
     </article>`).join("");
 
-  const ranking = tools.filter((tool) => !tool.sponsored).sort((a, b) => b.popular - a.popular).slice(0, 6);
-  document.getElementById("ranking-list").innerHTML = ranking.map((tool, index) => `
+  document.getElementById("ranking-list").innerHTML = rankingTools.map((tool, index) => `
     <div class="ranking-row">
       <span class="rank-number">${String(index + 1).padStart(2, "0")}</span>
       <button class="rank-tool" type="button" data-related-id="${tool.id}">${logoMarkup(tool)}<strong>${escapeHTML(tool.name)}</strong></button>
@@ -1579,7 +1713,7 @@ function bindEvents() {
     if (!button) return;
     state.category = button.dataset.category;
     setActiveView("tools");
-    renderTools();
+    void refreshToolResults();
     track("category_click", { category_id: state.category, source_position: "sidebar" });
   });
 
@@ -1587,7 +1721,7 @@ function bindEvents() {
     const button = event.target.closest("[data-category]");
     if (!button) return;
     state.category = button.dataset.category;
-    renderTools();
+    void refreshToolResults();
     track("category_click", { category_id: state.category, source_position: "task_tabs" });
   });
 
@@ -1607,40 +1741,41 @@ function bindEvents() {
     state.query = searchInput.value;
     document.getElementById("search-clear").hidden = !state.query;
     if (state.activeView !== "tools") setActiveView("tools");
-    renderTools();
+    window.clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = window.setTimeout(() => void refreshToolResults(), 300);
   });
-  document.getElementById("search-form").addEventListener("submit", (event) => {
+  document.getElementById("search-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     state.query = searchInput.value.trim();
     setActiveView("tools");
-    renderTools();
-    track("search_submit", { query: state.query, result_count: getFilteredTools().length, scope: "tools" });
+    await refreshToolResults();
+    track("search_submit", { query: state.query, result_count: state.toolServerMode ? state.toolTotal : getFilteredTools().length, scope: "tools" });
   });
   document.getElementById("search-clear").addEventListener("click", () => {
     state.query = "";
     searchInput.value = "";
     searchInput.focus();
-    renderTools();
+    void refreshToolResults();
   });
 
   document.getElementById("price-filter").addEventListener("change", (event) => {
     state.price = event.target.value;
-    renderTools();
+    void refreshToolResults();
     track("filter_apply", { filter_key: "price", value: state.price });
   });
   document.getElementById("platform-filter").addEventListener("change", (event) => {
     state.platform = event.target.value;
-    renderTools();
+    void refreshToolResults();
     track("filter_apply", { filter_key: "platform", value: state.platform });
   });
   document.getElementById("language-filter").addEventListener("change", (event) => {
     state.language = event.target.value;
-    renderTools();
+    void refreshToolResults();
     track("filter_apply", { filter_key: "language", value: state.language });
   });
   document.getElementById("sort-select").addEventListener("change", (event) => {
     state.sort = event.target.value;
-    renderTools();
+    void refreshToolResults();
   });
   document.getElementById("reset-filters").addEventListener("click", resetFilters);
   document.getElementById("empty-reset").addEventListener("click", resetFilters);
@@ -1648,8 +1783,12 @@ function bindEvents() {
   document.getElementById("favorite-toggle").addEventListener("click", () => {
     state.favoritesOnly = !state.favoritesOnly;
     setActiveView("tools");
-    renderTools();
+    void refreshToolResults();
     if (state.favoritesOnly && state.favorites.size === 0) showToast("还没有收藏工具");
+  });
+
+  document.getElementById("tool-load-more").addEventListener("click", () => {
+    void loadToolResults({ append: state.toolError ? state.toolRetryAppend : true });
   });
 
   document.getElementById("grid-view-button").addEventListener("click", () => {
@@ -1850,6 +1989,7 @@ async function initialize() {
   localStorage.removeItem("nike-newsletter");
   await loadBackendData();
   loadInitialState();
+  if (backendAvailable) await Promise.all([loadToolResults(), loadRankingTools()]);
   renderNavigation();
   renderSponsor();
   renderTools();

@@ -7,7 +7,8 @@ const schemaPath = resolve(import.meta.dirname, "schema.sql");
 const migrations = [
   { version: 1, name: "initial_schema", sql: readFileSync(schemaPath, "utf8") },
   { version: 2, name: "lookup_tokens", sql: readFileSync(resolve(import.meta.dirname, "migrations", "002_lookup_tokens.sql"), "utf8") },
-  { version: 3, name: "article_sources", sql: readFileSync(resolve(import.meta.dirname, "migrations", "003_article_sources.sql"), "utf8") }
+  { version: 3, name: "article_sources", sql: readFileSync(resolve(import.meta.dirname, "migrations", "003_article_sources.sql"), "utf8") },
+  { version: 4, name: "tool_catalog_imports", sql: readFileSync(resolve(import.meta.dirname, "migrations", "004_tool_catalog_imports.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -66,10 +67,11 @@ export function seedDatabase(db, seedData) {
 
     const insertTool = db.prepare(`
       INSERT INTO tools (
-        id, slug, name, domain, official_url, category_id, summary, description,
+        id, slug, name, domain, official_url, canonical_url, category_id, summary, description,
         pricing_type, language, login_requirement, region, content_updated_date,
-        editor_score, popularity, is_sponsored
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        editor_score, popularity, data_quality_status, first_published_at,
+        last_verified_at, is_sponsored
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const insertPlatform = db.prepare("INSERT INTO tool_platforms (tool_id, platform, position) VALUES (?, ?, ?)");
     const insertFeature = db.prepare("INSERT INTO tool_features (tool_id, feature, position) VALUES (?, ?, ?)");
@@ -83,6 +85,7 @@ export function seedDatabase(db, seedData) {
         tool.name,
         tool.domain,
         tool.officialUrl,
+        tool.officialUrl,
         tool.category,
         tool.summary,
         tool.description,
@@ -93,6 +96,9 @@ export function seedDatabase(db, seedData) {
         tool.updated,
         tool.score,
         tool.popular,
+        "verified",
+        tool.updated,
+        tool.updated,
         tool.sponsored ? 1 : 0
       );
       tool.platforms.forEach((platform, index) => insertPlatform.run(tool.id, platform, index));
@@ -174,15 +180,17 @@ export function syncCuratedContent(db, seedData) {
   return runTransaction(db, () => {
     const upsertTool = db.prepare(`
       INSERT INTO tools (
-        id, slug, name, domain, official_url, category_id, summary, description,
+        id, slug, name, domain, official_url, canonical_url, category_id, summary, description,
         pricing_type, language, login_requirement, region, content_updated_date,
-        editor_score, popularity, is_sponsored, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')
+        editor_score, popularity, data_quality_status, first_published_at,
+        last_verified_at, is_sponsored, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')
       ON CONFLICT(id) DO UPDATE SET
         slug = excluded.slug,
         name = excluded.name,
         domain = excluded.domain,
         official_url = excluded.official_url,
+        canonical_url = excluded.canonical_url,
         category_id = excluded.category_id,
         summary = excluded.summary,
         description = excluded.description,
@@ -193,6 +201,9 @@ export function syncCuratedContent(db, seedData) {
         content_updated_date = excluded.content_updated_date,
         editor_score = excluded.editor_score,
         popularity = excluded.popularity,
+        data_quality_status = excluded.data_quality_status,
+        first_published_at = COALESCE(tools.first_published_at, excluded.first_published_at),
+        last_verified_at = excluded.last_verified_at,
         is_sponsored = excluded.is_sponsored,
         status = 'published',
         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
@@ -211,6 +222,7 @@ export function syncCuratedContent(db, seedData) {
         tool.name,
         tool.domain,
         tool.officialUrl,
+        tool.officialUrl,
         tool.category,
         tool.summary,
         tool.description,
@@ -221,6 +233,9 @@ export function syncCuratedContent(db, seedData) {
         tool.updated,
         tool.score,
         tool.popular,
+        "verified",
+        tool.updated,
+        tool.updated,
         tool.sponsored ? 1 : 0
       );
       relationTables.forEach(([table, column, property]) => {
@@ -288,6 +303,7 @@ function hydrateTool(db, row, placement = "detail_drawer") {
     slug: row.slug,
     name: row.name,
     domain: row.domain,
+    logoUrl: row.logo_url || "",
     officialUrl: `/r/tools/${encodeURIComponent(row.id)}?placement=${encodeURIComponent(placement)}`,
     category: row.category_id,
     summary: row.summary,
@@ -311,6 +327,7 @@ function hydrateTool(db, row, placement = "detail_drawer") {
     updated: row.content_updated_date,
     score: row.editor_score,
     popular: row.popularity,
+    quality: row.data_quality_status || "basic",
     badges: rowsToStrings(
       db.prepare("SELECT badge FROM tool_badges WHERE tool_id = ? ORDER BY position").all(row.id),
       "badge"
@@ -342,10 +359,18 @@ export function listTools(db, filters = {}) {
   const params = [];
 
   if (filters.q) {
-    where.push("(t.name LIKE ? ESCAPE '\\' OR t.summary LIKE ? ESCAPE '\\' OR t.description LIKE ? ESCAPE '\\')");
+    where.push(`(
+      t.name LIKE ? ESCAPE '\\'
+      OR t.summary LIKE ? ESCAPE '\\'
+      OR t.description LIKE ? ESCAPE '\\'
+      OR EXISTS (SELECT 1 FROM categories c WHERE c.id = t.category_id AND c.name LIKE ? ESCAPE '\\')
+      OR EXISTS (SELECT 1 FROM tool_features tf WHERE tf.tool_id = t.id AND tf.feature LIKE ? ESCAPE '\\')
+      OR EXISTS (SELECT 1 FROM tool_use_cases tuc WHERE tuc.tool_id = t.id AND tuc.use_case LIKE ? ESCAPE '\\')
+      OR EXISTS (SELECT 1 FROM tool_badges tb WHERE tb.tool_id = t.id AND tb.badge LIKE ? ESCAPE '\\')
+    )`);
     const escaped = String(filters.q).replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
     const like = `%${escaped}%`;
-    params.push(like, like, like);
+    params.push(like, like, like, like, like, like, like);
   }
   if (filters.category && filters.category !== "all") {
     where.push("t.category_id = ?");
@@ -364,13 +389,14 @@ export function listTools(db, filters = {}) {
     params.push(filters.platform);
   }
   if (filters.sponsored === false) where.push("t.is_sponsored = 0");
+  if (filters.sponsored === true) where.push("t.is_sponsored = 1");
 
   const orderBy = {
-    popular: "t.popularity DESC, t.editor_score DESC, t.name ASC",
-    latest: "t.content_updated_date DESC, t.editor_score DESC, t.name ASC",
-    name: "t.name COLLATE NOCASE ASC",
-    recommended: "t.is_sponsored ASC, t.editor_score DESC, t.popularity DESC, t.name ASC"
-  }[filters.sort] || "t.is_sponsored ASC, t.editor_score DESC, t.popularity DESC, t.name ASC";
+    popular: "t.popularity DESC, t.editor_score DESC, t.name ASC, t.id ASC",
+    latest: "t.content_updated_date DESC, t.editor_score DESC, t.name ASC, t.id ASC",
+    name: "t.name COLLATE NOCASE ASC, t.id ASC",
+    recommended: "t.is_sponsored ASC, t.editor_score DESC, t.popularity DESC, t.name ASC, t.id ASC"
+  }[filters.sort] || "t.is_sponsored ASC, t.editor_score DESC, t.popularity DESC, t.name ASC, t.id ASC";
 
   const limit = Math.min(Math.max(Number(filters.limit) || 100, 1), 500);
   const offset = Math.max(Number(filters.offset) || 0, 0);
@@ -449,7 +475,7 @@ export function getCollections(db) {
 export function getBootstrap(db) {
   return {
     categories: getCategories(db),
-    tools: listTools(db, { limit: 500 }).items,
+    sponsor: listTools(db, { sponsored: true, limit: 1 }).items[0] || null,
     tutorials: listArticles(db, "tutorial"),
     newsItems: listArticles(db, "news"),
     collections: getCollections(db)

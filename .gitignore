@@ -9,3 +9,5 @@ node_modules/
 Thumbs.db
 .vscode/
 .idea/
+imports/*
+!imports/tool-catalog.template.csv

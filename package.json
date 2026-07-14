@@ -8,7 +8,8 @@
     "start": "node --env-file-if-exists=.env --no-warnings server.mjs",
     "dev": "node --env-file-if-exists=.env --no-warnings --watch server.mjs",
     "test": "node --no-warnings --test --test-concurrency=1 tests/*.test.mjs",
-    "seed:export": "node scripts/export-seed.mjs"
+    "seed:export": "node scripts/export-seed.mjs",
+    "catalog:import": "node --env-file-if-exists=.env --no-warnings scripts/import-tool-catalog.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

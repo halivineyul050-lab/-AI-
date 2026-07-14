@@ -403,6 +403,7 @@ export function buildApplication(options = {}) {
           platform: url.searchParams.get("platform") || "all",
           language: url.searchParams.get("language") || url.searchParams.get("lang") || "all",
           sort: (url.searchParams.get("sort") || "recommended") === "newest" ? "latest" : (url.searchParams.get("sort") || "recommended"),
+          sponsored: false,
           limit: url.searchParams.get("limit") || 24,
           offset: url.searchParams.get("offset") || 0
         });
