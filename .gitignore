@@ -1,0 +1,11 @@
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.log
+.env
+node_modules/
+.agents/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

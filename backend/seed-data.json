@@ -1,0 +1,1197 @@
+{
+  "categories": [
+    {
+      "id": "all",
+      "name": "全部工具",
+      "icon": "layout-grid"
+    },
+    {
+      "id": "chat",
+      "name": "AI 对话",
+      "icon": "messages-square"
+    },
+    {
+      "id": "writing",
+      "name": "AI 写作",
+      "icon": "pen-line"
+    },
+    {
+      "id": "image",
+      "name": "AI 图像",
+      "icon": "image"
+    },
+    {
+      "id": "video",
+      "name": "AI 视频",
+      "icon": "clapperboard"
+    },
+    {
+      "id": "office",
+      "name": "AI 办公",
+      "icon": "briefcase-business"
+    },
+    {
+      "id": "coding",
+      "name": "AI 编程",
+      "icon": "code-2"
+    },
+    {
+      "id": "audio",
+      "name": "AI 音频",
+      "icon": "audio-lines"
+    },
+    {
+      "id": "search",
+      "name": "AI 搜索",
+      "icon": "search-check"
+    }
+  ],
+  "tools": [
+    {
+      "id": "doubao",
+      "name": "豆包",
+      "domain": "doubao.com",
+      "officialUrl": "https://www.doubao.com/",
+      "category": "chat",
+      "summary": "面向中文场景的多模态助手，覆盖问答、写作、图片与办公任务。",
+      "description": "适合日常问答、资料整理、文案创作和多模态内容处理。产品提供网页、桌面和移动端，中文交互门槛较低。",
+      "price": "free",
+      "platforms": [
+        "web",
+        "desktop",
+        "mobile"
+      ],
+      "language": "zh",
+      "features": [
+        "长文本与文档分析",
+        "图像生成与编辑",
+        "语音和多轮对话",
+        "桌面端任务协作"
+      ],
+      "useCases": [
+        "办公协作",
+        "内容创作",
+        "学习研究"
+      ],
+      "login": "部分功能需要登录",
+      "region": "中国大陆可用",
+      "updated": "2026-07-07",
+      "score": 99,
+      "popular": 98,
+      "badges": [
+        "中文",
+        "多端"
+      ]
+    },
+    {
+      "id": "kimi",
+      "name": "Kimi",
+      "domain": "kimi.com",
+      "officialUrl": "https://www.kimi.com/",
+      "category": "chat",
+      "summary": "擅长长文阅读、资料检索和中文写作的通用AI助手。",
+      "description": "围绕长上下文、联网检索和中文知识工作打造，适合阅读报告、汇总资料和形成结构化输出。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "zh",
+      "features": [
+        "长文档解析",
+        "联网资料检索",
+        "结构化写作",
+        "文件批量处理"
+      ],
+      "useCases": [
+        "研究分析",
+        "文档总结",
+        "中文写作"
+      ],
+      "login": "需要登录",
+      "region": "中国大陆可用",
+      "updated": "2026-07-05",
+      "score": 96,
+      "popular": 92,
+      "badges": [
+        "长文本",
+        "中文"
+      ]
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "domain": "deepseek.com",
+      "officialUrl": "https://chat.deepseek.com/",
+      "category": "chat",
+      "summary": "兼顾推理、代码与通用问答的大模型助手，支持深度思考模式。",
+      "description": "在数学推理、代码解释和复杂问题拆解方面表现突出，可作为学习、研究和开发场景中的通用助手。",
+      "price": "free",
+      "platforms": [
+        "web",
+        "mobile",
+        "api"
+      ],
+      "language": "zh",
+      "features": [
+        "复杂推理",
+        "代码生成与解释",
+        "数学问题求解",
+        "开放API"
+      ],
+      "useCases": [
+        "逻辑推理",
+        "程序开发",
+        "学习答疑"
+      ],
+      "login": "网页端需要登录",
+      "region": "中国大陆可用",
+      "updated": "2026-06-28",
+      "score": 97,
+      "popular": 97,
+      "badges": [
+        "推理",
+        "API"
+      ]
+    },
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "domain": "chatgpt.com",
+      "officialUrl": "https://chatgpt.com/",
+      "category": "chat",
+      "summary": "覆盖对话、研究、代码与多模态创作的综合AI工作空间。",
+      "description": "提供通用对话、文件处理、图像理解、联网研究和编码协作等能力，适合跨任务工作流。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "desktop",
+        "mobile",
+        "api"
+      ],
+      "language": "multi",
+      "features": [
+        "多模态对话",
+        "深度研究",
+        "数据与文件分析",
+        "代码协作"
+      ],
+      "useCases": [
+        "通用办公",
+        "研究",
+        "开发"
+      ],
+      "login": "部分能力需要订阅",
+      "region": "部分地区受限",
+      "updated": "2026-07-09",
+      "score": 98,
+      "popular": 99,
+      "badges": [
+        "多模态",
+        "生态"
+      ]
+    },
+    {
+      "id": "claude",
+      "name": "Claude",
+      "domain": "claude.ai",
+      "officialUrl": "https://claude.ai/",
+      "category": "writing",
+      "summary": "注重长文本、写作质量和复杂任务协作的AI助手。",
+      "description": "适合深入阅读、专业写作、代码协作与Agent任务，输出风格稳定，强调长上下文和任务连贯性。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "desktop",
+        "mobile",
+        "api"
+      ],
+      "language": "multi",
+      "features": [
+        "长文本写作",
+        "文档分析",
+        "代码协作",
+        "Agent工作流"
+      ],
+      "useCases": [
+        "专业写作",
+        "研究分析",
+        "软件开发"
+      ],
+      "login": "需要登录",
+      "region": "部分地区受限",
+      "updated": "2026-07-10",
+      "score": 96,
+      "popular": 95,
+      "badges": [
+        "长文本",
+        "Agent"
+      ]
+    },
+    {
+      "id": "notion-ai",
+      "name": "Notion AI",
+      "domain": "notion.so",
+      "officialUrl": "https://www.notion.so/product/ai",
+      "category": "office",
+      "summary": "嵌入文档和知识库的AI协作能力，适合团队信息整理。",
+      "description": "在团队文档、项目空间和知识库中完成总结、检索、写作与资料问答，减少跨工具切换。",
+      "price": "paid",
+      "platforms": [
+        "web",
+        "desktop",
+        "mobile"
+      ],
+      "language": "multi",
+      "features": [
+        "知识库问答",
+        "会议纪要",
+        "文档生成",
+        "团队空间检索"
+      ],
+      "useCases": [
+        "团队知识库",
+        "项目管理",
+        "会议协作"
+      ],
+      "login": "需要账号与订阅",
+      "region": "全球可用",
+      "updated": "2026-06-21",
+      "score": 88,
+      "popular": 86,
+      "badges": [
+        "知识库",
+        "协作"
+      ]
+    },
+    {
+      "id": "gamma",
+      "name": "Gamma",
+      "domain": "gamma.app",
+      "officialUrl": "https://gamma.app/",
+      "category": "office",
+      "summary": "通过主题和内容提示快速生成演示文稿、网页与文档。",
+      "description": "适合从大纲快速形成结构清晰的演示内容，并在网页与文档形态之间复用。",
+      "price": "freemium",
+      "platforms": [
+        "web"
+      ],
+      "language": "multi",
+      "features": [
+        "AI生成PPT",
+        "主题自动排版",
+        "网页式分享",
+        "协作编辑"
+      ],
+      "useCases": [
+        "演示汇报",
+        "课程材料",
+        "方案展示"
+      ],
+      "login": "需要登录",
+      "region": "全球可用",
+      "updated": "2026-07-01",
+      "score": 91,
+      "popular": 89,
+      "badges": [
+        "PPT",
+        "排版"
+      ]
+    },
+    {
+      "id": "notebooklm",
+      "name": "NotebookLM",
+      "domain": "notebooklm.google",
+      "officialUrl": "https://notebooklm.google/",
+      "category": "office",
+      "summary": "以用户资料为依据的研究笔记工具，支持问答与音频概览。",
+      "description": "围绕自有文档建立可追溯的知识空间，回答会引用资料来源，适合专题研究和学习。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "multi",
+      "features": [
+        "资料引用问答",
+        "音频概览",
+        "主题笔记",
+        "多来源整合"
+      ],
+      "useCases": [
+        "专题研究",
+        "课程学习",
+        "资料复盘"
+      ],
+      "login": "需要Google账号",
+      "region": "部分地区受限",
+      "updated": "2026-07-06",
+      "score": 94,
+      "popular": 93,
+      "badges": [
+        "研究",
+        "可溯源"
+      ]
+    },
+    {
+      "id": "midjourney",
+      "name": "Midjourney",
+      "domain": "midjourney.com",
+      "officialUrl": "https://www.midjourney.com/",
+      "category": "image",
+      "summary": "面向视觉创作的图像生成平台，擅长风格表达和画面质感。",
+      "description": "通过文本或参考图生成高质量视觉内容，适合概念设计、插画、品牌视觉和创意探索。",
+      "price": "paid",
+      "platforms": [
+        "web"
+      ],
+      "language": "multi",
+      "features": [
+        "文本生成图像",
+        "风格参考",
+        "局部重绘",
+        "图像扩展"
+      ],
+      "useCases": [
+        "概念设计",
+        "插画",
+        "营销视觉"
+      ],
+      "login": "需要账号与订阅",
+      "region": "全球可用",
+      "updated": "2026-06-30",
+      "score": 93,
+      "popular": 94,
+      "badges": [
+        "高质感",
+        "创意"
+      ]
+    },
+    {
+      "id": "jimeng",
+      "name": "即梦AI",
+      "domain": "jimeng.jianying.com",
+      "officialUrl": "https://jimeng.jianying.com/",
+      "category": "image",
+      "summary": "支持图片、视频与数字人创作的一站式中文生成平台。",
+      "description": "提供中文提示词友好的图像与视频生成能力，覆盖海报、角色、运镜和短视频创作。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "zh",
+      "features": [
+        "中文文生图",
+        "图生视频",
+        "智能画布",
+        "数字人素材"
+      ],
+      "useCases": [
+        "社媒配图",
+        "短视频",
+        "视觉草图"
+      ],
+      "login": "需要登录",
+      "region": "中国大陆可用",
+      "updated": "2026-07-08",
+      "score": 95,
+      "popular": 96,
+      "badges": [
+        "中文",
+        "图像视频"
+      ]
+    },
+    {
+      "id": "liblib",
+      "name": "LiblibAI",
+      "domain": "liblib.art",
+      "officialUrl": "https://www.liblib.art/",
+      "category": "image",
+      "summary": "连接模型社区和在线创作流程的中文AI图像平台。",
+      "description": "可发现模型与工作流，也能直接在线生成图像，适合需要模型控制和社区素材的创作者。",
+      "price": "freemium",
+      "platforms": [
+        "web"
+      ],
+      "language": "zh",
+      "features": [
+        "模型社区",
+        "在线生图",
+        "工作流复用",
+        "创作者发布"
+      ],
+      "useCases": [
+        "模型探索",
+        "电商视觉",
+        "插画创作"
+      ],
+      "login": "需要登录",
+      "region": "中国大陆可用",
+      "updated": "2026-07-02",
+      "score": 90,
+      "popular": 91,
+      "badges": [
+        "模型社区",
+        "中文"
+      ]
+    },
+    {
+      "id": "runway",
+      "name": "Runway",
+      "domain": "runwayml.com",
+      "officialUrl": "https://runwayml.com/",
+      "category": "video",
+      "summary": "面向创意团队的视频生成与AI后期制作平台。",
+      "description": "从文本、图片和已有视频生成新片段，并提供抠像、运动控制和后期处理能力。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "api"
+      ],
+      "language": "multi",
+      "features": [
+        "文本生成视频",
+        "运动控制",
+        "视频重绘",
+        "团队项目"
+      ],
+      "useCases": [
+        "广告短片",
+        "概念预演",
+        "视频后期"
+      ],
+      "login": "需要登录",
+      "region": "全球可用",
+      "updated": "2026-06-25",
+      "score": 92,
+      "popular": 90,
+      "badges": [
+        "视频生成",
+        "后期"
+      ]
+    },
+    {
+      "id": "kling",
+      "name": "可灵AI",
+      "domain": "klingai.com",
+      "officialUrl": "https://klingai.com/",
+      "category": "video",
+      "summary": "支持文生视频、图生视频和创意特效的生成式视频平台。",
+      "description": "适合从静态创意快速生成动态片段，并通过首尾帧、运动与镜头控制完善效果。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "multi",
+      "features": [
+        "文生视频",
+        "图生视频",
+        "首尾帧控制",
+        "创意特效"
+      ],
+      "useCases": [
+        "营销视频",
+        "动态海报",
+        "故事短片"
+      ],
+      "login": "需要登录",
+      "region": "多地区可用",
+      "updated": "2026-07-04",
+      "score": 93,
+      "popular": 94,
+      "badges": [
+        "视频",
+        "多地区"
+      ]
+    },
+    {
+      "id": "trae",
+      "name": "TRAE",
+      "domain": "trae.ai",
+      "officialUrl": "https://www.trae.ai/",
+      "category": "coding",
+      "summary": "面向项目开发的AI原生IDE，支持代码理解和智能体协作。",
+      "description": "通过项目级上下文理解代码，支持从需求拆解到修改、运行和调试的连续开发流程。",
+      "price": "free",
+      "platforms": [
+        "desktop"
+      ],
+      "language": "multi",
+      "features": [
+        "项目级代码理解",
+        "Agent开发模式",
+        "终端协作",
+        "多模型选择"
+      ],
+      "useCases": [
+        "应用开发",
+        "代码重构",
+        "项目维护"
+      ],
+      "login": "需要登录",
+      "region": "多地区可用",
+      "updated": "2026-07-11",
+      "score": 96,
+      "popular": 95,
+      "badges": [
+        "IDE",
+        "Agent"
+      ]
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "domain": "cursor.com",
+      "officialUrl": "https://cursor.com/",
+      "category": "coding",
+      "summary": "将AI对话、代码补全和项目级编辑整合进开发环境。",
+      "description": "适合在大型代码库中查询、修改和生成代码，支持多文件编辑、规则配置和智能体任务。",
+      "price": "freemium",
+      "platforms": [
+        "desktop"
+      ],
+      "language": "multi",
+      "features": [
+        "代码库问答",
+        "多文件编辑",
+        "自动补全",
+        "Agent模式"
+      ],
+      "useCases": [
+        "全栈开发",
+        "重构",
+        "代码理解"
+      ],
+      "login": "需要登录",
+      "region": "全球可用",
+      "updated": "2026-07-03",
+      "score": 94,
+      "popular": 96,
+      "badges": [
+        "IDE",
+        "代码库"
+      ]
+    },
+    {
+      "id": "github-copilot",
+      "name": "GitHub Copilot",
+      "domain": "github.com",
+      "officialUrl": "https://github.com/features/copilot",
+      "category": "coding",
+      "summary": "覆盖编辑器、代码托管与协作流程的AI编程助手。",
+      "description": "深度融入GitHub和主流编辑器，提供代码补全、对话、评审与任务协作。",
+      "price": "paid",
+      "platforms": [
+        "desktop",
+        "web",
+        "api"
+      ],
+      "language": "multi",
+      "features": [
+        "代码补全",
+        "代码评审",
+        "仓库问答",
+        "Issue任务协作"
+      ],
+      "useCases": [
+        "团队开发",
+        "代码评审",
+        "开源协作"
+      ],
+      "login": "需要GitHub账号",
+      "region": "全球可用",
+      "updated": "2026-06-29",
+      "score": 90,
+      "popular": 92,
+      "badges": [
+        "GitHub",
+        "团队"
+      ]
+    },
+    {
+      "id": "suno",
+      "name": "Suno",
+      "domain": "suno.com",
+      "officialUrl": "https://suno.com/",
+      "category": "audio",
+      "summary": "通过文字描述快速生成包含人声、编曲和歌词的完整音乐。",
+      "description": "适合音乐灵感、短视频配乐和快速样曲创作，可控制主题、风格与歌词。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "multi",
+      "features": [
+        "文本生成音乐",
+        "歌词创作",
+        "风格控制",
+        "歌曲延展"
+      ],
+      "useCases": [
+        "短视频配乐",
+        "音乐样曲",
+        "内容创作"
+      ],
+      "login": "需要登录",
+      "region": "全球可用",
+      "updated": "2026-06-26",
+      "score": 89,
+      "popular": 91,
+      "badges": [
+        "音乐",
+        "人声"
+      ]
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "domain": "elevenlabs.io",
+      "officialUrl": "https://elevenlabs.io/",
+      "category": "audio",
+      "summary": "提供高自然度语音生成、配音与多语言音频处理。",
+      "description": "适合播客、有声内容、视频配音和语音应用开发，提供多语言语音和API。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "api"
+      ],
+      "language": "multi",
+      "features": [
+        "文本转语音",
+        "多语言配音",
+        "声音设计",
+        "语音API"
+      ],
+      "useCases": [
+        "视频配音",
+        "有声内容",
+        "语音应用"
+      ],
+      "login": "需要登录",
+      "region": "全球可用",
+      "updated": "2026-07-01",
+      "score": 87,
+      "popular": 88,
+      "badges": [
+        "配音",
+        "API"
+      ]
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity",
+      "domain": "perplexity.ai",
+      "officialUrl": "https://www.perplexity.ai/",
+      "category": "search",
+      "summary": "强调来源引用和追问能力的AI搜索与研究工具。",
+      "description": "通过联网检索组织答案并展示引用，适合快速了解主题、核查来源和继续深入研究。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "multi",
+      "features": [
+        "联网检索",
+        "来源引用",
+        "研究模式",
+        "连续追问"
+      ],
+      "useCases": [
+        "资料搜索",
+        "事实核查",
+        "市场研究"
+      ],
+      "login": "基础搜索可免登录",
+      "region": "全球可用",
+      "updated": "2026-07-08",
+      "score": 94,
+      "popular": 93,
+      "badges": [
+        "引用",
+        "研究"
+      ]
+    },
+    {
+      "id": "metaso",
+      "name": "秘塔AI搜索",
+      "domain": "metaso.cn",
+      "officialUrl": "https://metaso.cn/",
+      "category": "search",
+      "summary": "面向中文资料检索、研究报告和知识问答的AI搜索引擎。",
+      "description": "聚合中文互联网与学术等来源，提供结构化回答、原文引用和研究型输出。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "zh",
+      "features": [
+        "中文联网搜索",
+        "来源引用",
+        "研究报告",
+        "学术检索"
+      ],
+      "useCases": [
+        "中文研究",
+        "行业资料",
+        "学术查询"
+      ],
+      "login": "基础搜索可免登录",
+      "region": "中国大陆可用",
+      "updated": "2026-07-06",
+      "score": 92,
+      "popular": 90,
+      "badges": [
+        "中文",
+        "研究"
+      ]
+    },
+    {
+      "id": "tencent-yuanbao",
+      "name": "腾讯元宝",
+      "domain": "yuanbao.tencent.com",
+      "officialUrl": "https://yuanbao.tencent.com/",
+      "category": "chat",
+      "summary": "腾讯推出的中文AI助手，覆盖联网问答、文档解析、写作与多模态任务。",
+      "description": "适合日常问答、文件归纳、内容创作和资料整理，提供网页端与移动端服务，面向中文用户降低综合AI任务的使用门槛。",
+      "price": "free",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "zh",
+      "features": [
+        "联网问答",
+        "文档解析",
+        "多模态理解",
+        "中文内容创作"
+      ],
+      "useCases": [
+        "日常问答",
+        "资料整理",
+        "中文办公"
+      ],
+      "login": "部分功能需要登录",
+      "region": "中国大陆可用",
+      "updated": "2026-07-13",
+      "score": 94,
+      "popular": 95,
+      "badges": [
+        "中文",
+        "多端"
+      ]
+    },
+    {
+      "id": "manus",
+      "name": "Manus",
+      "domain": "manus.im",
+      "officialUrl": "https://manus.im/",
+      "category": "office",
+      "summary": "面向任务执行和工作流自动化的通用AI智能体，可从回答进一步完成实际工作。",
+      "description": "围绕任务规划、工具调用、网页操作和结果交付组织复杂工作流，适合研究、运营和跨应用知识任务。",
+      "price": "freemium",
+      "platforms": [
+        "web"
+      ],
+      "language": "multi",
+      "features": [
+        "任务规划与执行",
+        "工具和网页调用",
+        "工作流自动化",
+        "交付物生成"
+      ],
+      "useCases": [
+        "专题研究",
+        "运营任务",
+        "办公自动化"
+      ],
+      "login": "需要登录",
+      "region": "部分地区受限",
+      "updated": "2026-07-13",
+      "score": 93,
+      "popular": 94,
+      "badges": [
+        "Agent",
+        "自动化"
+      ]
+    },
+    {
+      "id": "hailuo-ai",
+      "name": "海螺AI",
+      "domain": "hailuoai.video",
+      "officialUrl": "https://hailuoai.video/",
+      "category": "video",
+      "summary": "面向创作者的AI视频与图像生成平台，可由文字或照片生成社交内容。",
+      "description": "提供文生视频、图生视频、图像生成和轻量创意内容能力，适合短视频、广告素材与社交媒体创作。",
+      "price": "freemium",
+      "platforms": [
+        "web",
+        "mobile"
+      ],
+      "language": "multi",
+      "features": [
+        "文生视频",
+        "图生视频",
+        "AI图像",
+        "社交内容模板"
+      ],
+      "useCases": [
+        "短视频创作",
+        "广告素材",
+        "社交媒体"
+      ],
+      "login": "基础浏览免登录，生成需要登录",
+      "region": "全球可用",
+      "updated": "2026-07-13",
+      "score": 92,
+      "popular": 93,
+      "badges": [
+        "视频",
+        "多模态"
+      ]
+    },
+    {
+      "id": "vidu",
+      "name": "Vidu AI",
+      "domain": "vidu.cn",
+      "officialUrl": "https://www.vidu.cn/",
+      "category": "video",
+      "summary": "将文字和图像转化为动态视频的生成平台，重点强化主体与角色一致性。",
+      "description": "围绕文本、参考图和主体一致性生成创意视频，适合角色短片、产品动态展示和连续镜头制作。",
+      "price": "freemium",
+      "platforms": [
+        "web"
+      ],
+      "language": "multi",
+      "features": [
+        "文生视频",
+        "图生视频",
+        "主体一致性",
+        "参考图控制"
+      ],
+      "useCases": [
+        "角色短片",
+        "产品视频",
+        "创意分镜"
+      ],
+      "login": "生成需要登录",
+      "region": "全球可用",
+      "updated": "2026-07-13",
+      "score": 91,
+      "popular": 91,
+      "badges": [
+        "一致性",
+        "视频"
+      ]
+    },
+    {
+      "id": "recraft",
+      "name": "Recraft",
+      "domain": "recraft.ai",
+      "officialUrl": "https://www.recraft.ai/",
+      "category": "image",
+      "summary": "面向设计师和团队的AI视觉平台，覆盖写实图像、矢量图、风格和样机。",
+      "description": "结合文本生成、矢量生成、自定义风格和Mockup能力，适合品牌设计、电商素材和可编辑视觉资产生产。",
+      "price": "freemium",
+      "platforms": [
+        "web"
+      ],
+      "language": "multi",
+      "features": [
+        "写实图像生成",
+        "矢量图生成",
+        "自定义风格",
+        "产品样机"
+      ],
+      "useCases": [
+        "品牌视觉",
+        "电商设计",
+        "矢量素材"
+      ],
+      "login": "需要登录",
+      "region": "全球可用",
+      "updated": "2026-07-13",
+      "score": 92,
+      "popular": 90,
+      "badges": [
+        "设计",
+        "矢量"
+      ]
+    },
+    {
+      "id": "napkin-ai",
+      "name": "Napkin AI",
+      "domain": "napkin.ai",
+      "officialUrl": "https://www.napkin.ai/",
+      "category": "office",
+      "summary": "把文字内容转化为流程图、信息图和演示视觉的商业叙事工具。",
+      "description": "面向报告、演示和内容营销，将已有文字快速转换为可编辑视觉表达，减少非设计人员制作图示的时间。",
+      "price": "freemium",
+      "platforms": [
+        "web"
+      ],
+      "language": "multi",
+      "features": [
+        "文字转视觉",
+        "流程图",
+        "信息图",
+        "演示素材"
+      ],
+      "useCases": [
+        "商业报告",
+        "演示文稿",
+        "内容营销"
+      ],
+      "login": "需要登录",
+      "region": "全球可用",
+      "updated": "2026-07-13",
+      "score": 89,
+      "popular": 87,
+      "badges": [
+        "可视化",
+        "办公"
+      ]
+    },
+    {
+      "id": "devin",
+      "name": "Devin",
+      "domain": "devin.ai",
+      "officialUrl": "https://devin.ai/",
+      "category": "coding",
+      "summary": "面向工程团队的AI软件工程智能体，支持并行云端任务和完整开发流程。",
+      "description": "可承担代码理解、功能实现、问题修复和验证等工程任务，并通过并行云端智能体扩展团队开发能力。",
+      "price": "paid",
+      "platforms": [
+        "web"
+      ],
+      "language": "multi",
+      "features": [
+        "代码库理解",
+        "功能实现",
+        "自动调试",
+        "并行云端智能体"
+      ],
+      "useCases": [
+        "软件开发",
+        "问题修复",
+        "工程自动化"
+      ],
+      "login": "需要账号与付费方案",
+      "region": "部分地区受限",
+      "updated": "2026-07-13",
+      "score": 91,
+      "popular": 92,
+      "badges": [
+        "Agent",
+        "工程"
+      ]
+    },
+    {
+      "id": "orange-dream-factory",
+      "name": "橙星梦工厂",
+      "domain": "mgc.funshion.com",
+      "officialUrl": "https://mgc.funshion.com/",
+      "category": "video",
+      "summary": "面向AI漫剧的全流程创作与分发平台，覆盖剧本、资产、分镜和成片预览。",
+      "description": "提供剧本生成与解析、全剧资产设定、分镜视频和成片预览，并通过无限画布与团队协作支持漫剧项目交付。",
+      "price": "freemium",
+      "platforms": [
+        "web"
+      ],
+      "language": "zh",
+      "features": [
+        "剧本生成与解析",
+        "全剧资产设定",
+        "分镜视频与成片预览",
+        "无限画布与团队协作"
+      ],
+      "useCases": [
+        "AI漫剧",
+        "短剧制作",
+        "团队内容生产"
+      ],
+      "login": "创作功能需要手机号登录",
+      "region": "中国大陆可用",
+      "updated": "2026-07-13",
+      "score": 90,
+      "popular": 89,
+      "badges": [
+        "漫剧",
+        "全流程"
+      ],
+      "sponsored": true
+    }
+  ],
+  "tutorials": [
+    {
+      "id": "guide-research",
+      "type": "研究",
+      "title": "从10份资料到一份可追溯报告：NotebookLM研究工作流",
+      "excerpt": "用来源分组、关键问题和引用核验搭建稳定的专题研究流程。",
+      "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-12",
+      "readTime": "8分钟"
+    },
+    {
+      "id": "guide-video",
+      "type": "视频",
+      "title": "首尾帧、运镜与节奏：AI短视频生成的四步拆解",
+      "excerpt": "把模糊创意拆成分镜、画面、运动和剪辑四个可控制环节。",
+      "image": "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-10",
+      "readTime": "11分钟"
+    },
+    {
+      "id": "guide-coding",
+      "type": "开发",
+      "title": "让AI编程助手读懂项目：规则、上下文和验收清单",
+      "excerpt": "用项目规则、任务边界和自动化测试减少AI修改代码的返工。",
+      "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-08",
+      "readTime": "9分钟"
+    },
+    {
+      "id": "guide-slides",
+      "type": "办公",
+      "title": "不是一键生成：如何把AI大纲变成可汇报的演示文稿",
+      "excerpt": "先定义受众和结论，再用Gamma完成结构、视觉和分享交付。",
+      "image": "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-05",
+      "readTime": "7分钟"
+    },
+    {
+      "id": "guide-image",
+      "type": "图像",
+      "title": "建立可复用的AI视觉风格：参考图、提示词和版本管理",
+      "excerpt": "从一次性抽卡转向可复现的视觉系统，适合品牌和内容团队。",
+      "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-02",
+      "readTime": "10分钟"
+    }
+  ],
+  "newsItems": [
+    {
+      "id": "news-openai-gpt-5-6",
+      "type": "模型",
+      "title": "OpenAI发布GPT-5.6，面向复杂目标扩展前沿智能",
+      "excerpt": "GPT-5.6于7月9日发布，OpenAI将其定位为可随任务规模扩展、服务复杂专业工作的前沿模型。",
+      "image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-09",
+      "readTime": "5分钟",
+      "body": "OpenAI在官方发布中将GPT-5.6定位为面向宏大目标和复杂专业工作的前沿模型。同期公布的内容还包括部署安全资料，以及GPT-5.6成为Microsoft 365 Copilot首选模型的产品动态。",
+      "source": "OpenAI",
+      "sourceUrl": "https://openai.com/index/gpt-5-6/"
+    },
+    {
+      "id": "news-anthropic-hard-questions",
+      "type": "治理",
+      "title": "Anthropic公开征集AI难题，并承诺展示回应过程",
+      "excerpt": "Anthropic邀请公众提交最棘手的AI问题，强调在回答过程中公开判断依据与工作方法。",
+      "image": "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-09",
+      "readTime": "4分钟",
+      "body": "Anthropic在7月9日发布“Inviting hard questions”，向公众征集关于AI最困难的问题，并承诺在后续回应中展示其工作过程。这一动作把模型能力之外的透明度、治理和公众参与推到更显著的位置。",
+      "source": "Anthropic",
+      "sourceUrl": "https://www.anthropic.com/news/hard-questions"
+    },
+    {
+      "id": "news-meta-muse-spark-1-1",
+      "type": "模型",
+      "title": "Meta发布Muse Spark 1.1并开放模型API预览",
+      "excerpt": "新模型聚焦智能体任务，在工具与计算机使用、编码和多模态理解方面进行升级。",
+      "image": "https://images.unsplash.com/photo-1676299081847-824916de030a?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-09",
+      "readTime": "6分钟",
+      "body": "Meta称Muse Spark 1.1是面向智能体任务的多模态推理模型，强化了工具调用、计算机操作、编码和多模态理解。模型可在Meta AI的Thinking模式中使用，开发者还能通过Meta Model API公共预览进行接入。",
+      "source": "Meta AI",
+      "sourceUrl": "https://ai.meta.com/blog/introducing-muse-spark-meta-model-api/"
+    },
+    {
+      "id": "news-google-managed-agents",
+      "type": "开发",
+      "title": "Gemini API扩展Managed Agents，加入后台任务与远程MCP",
+      "excerpt": "Google为托管智能体增加异步后台执行、远程MCP、自定义函数和凭据刷新能力。",
+      "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-07",
+      "readTime": "6分钟",
+      "body": "Google在Gemini API的Managed Agents中加入后台执行、远程MCP服务器、自定义函数调用和跨交互凭据刷新。开发者可通过统一端点让智能体在隔离云端沙箱中完成推理、代码执行、文件管理与网页信息处理。",
+      "source": "Google",
+      "sourceUrl": "https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api/"
+    },
+    {
+      "id": "news-meta-muse-image-video",
+      "type": "多模态",
+      "title": "Meta推出Muse Image并预览原生音频视频模型Muse Video",
+      "excerpt": "Muse Image强调精确编辑、多参考图组合与智能体工具调用，Muse Video加入原生音频支持。",
+      "image": "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-07-07",
+      "readTime": "7分钟",
+      "body": "Meta Superintelligence Labs发布Muse Image并预览Muse Video。Muse Image支持多参考图组合、精确编辑、搜索与代码工具调用和自我修正；Muse Video基于相同预训练底座，强调视觉质量与原生音频生成。",
+      "source": "Meta AI",
+      "sourceUrl": "https://ai.meta.com/blog/introducing-muse-image-muse-video-msl/"
+    },
+    {
+      "id": "news-anthropic-sonnet-5",
+      "type": "模型",
+      "title": "Anthropic发布Claude Sonnet 5，覆盖编码、智能体与专业工作",
+      "excerpt": "Sonnet 5定位于规模化专业任务，在编码、智能体执行与知识工作方面提供前沿性能。",
+      "image": "https://images.unsplash.com/photo-1535378917042-10a22c95931a?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-06-30",
+      "readTime": "5分钟",
+      "body": "Anthropic在6月30日发布Claude Sonnet 5，将其定位为面向编码、智能体和专业工作的规模化前沿模型。对于工具导航平台，值得关注的是模型能力正从单轮内容生成继续转向可执行的工程与专业任务。",
+      "source": "Anthropic",
+      "sourceUrl": "https://www.anthropic.com/news/claude-sonnet-5"
+    },
+    {
+      "id": "news-anthropic-claude-science",
+      "type": "研究",
+      "title": "Claude Science工作台开放，面向科学研究提供可审计产物",
+      "excerpt": "新的科学研究工作台整合常用工具和软件包，并提供算力资源与可追溯的研究交付物。",
+      "image": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=720&q=80",
+      "date": "2026-06-30",
+      "readTime": "5分钟",
+      "body": "Claude Science是一款可定制的科学研究工作台，整合研究人员常用工具和软件包，支持灵活计算资源并输出可审计产物。它体现了通用助手进一步向垂直专业工作台演进的趋势。",
+      "source": "Anthropic",
+      "sourceUrl": "https://www.anthropic.com/news/claude-science-ai-workbench"
+    }
+  ],
+  "collections": [
+    {
+      "title": "中文研究组合",
+      "description": "从联网检索、资料归纳到可追溯输出。",
+      "icon": "scan-search",
+      "accent": "#0f766e",
+      "toolIds": [
+        "metaso",
+        "kimi",
+        "notebooklm"
+      ]
+    },
+    {
+      "title": "短视频创作线",
+      "description": "从静态视觉到动态镜头与配音。",
+      "icon": "clapperboard",
+      "accent": "#c2410c",
+      "toolIds": [
+        "jimeng",
+        "kling",
+        "elevenlabs"
+      ]
+    },
+    {
+      "title": "AI开发工作台",
+      "description": "覆盖需求理解、项目修改和代码评审。",
+      "icon": "terminal-square",
+      "accent": "#1d5fa7",
+      "toolIds": [
+        "trae",
+        "cursor",
+        "github-copilot"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="泥壳AI工具站运营监控台">
+  <title>运营监控台 · 泥壳AI</title>
+  <link rel="icon" href="/brand-icon-192.png?v=20260713-1" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260713-1">
+  <link rel="stylesheet" href="admin.css?v=20260713-2">
+  <script defer src="admin-icons.js?v=20260713-1"></script>
+  <script defer src="admin.js?v=20260713-2"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <div class="admin-shell">
+    <aside class="sidebar" aria-label="后台导航">
+      <a class="brand" href="/" aria-label="返回泥壳AI工具站">
+        <span class="brand-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260713-1" alt=""></span>
+        <span class="brand-copy"><strong>泥壳AI</strong><small>运营监控台</small></span>
+      </a>
+
+      <nav class="side-nav" aria-label="页面区域">
+        <a class="side-nav-item is-active" href="#overview" aria-current="page">
+          <i data-lucide="layout-dashboard" aria-hidden="true"></i><span>数据概览</span>
+        </a>
+        <a class="side-nav-item" href="#traffic">
+          <i data-lucide="chart-no-axes-combined" aria-hidden="true"></i><span>访问趋势</span>
+        </a>
+        <a class="side-nav-item" href="#content">
+          <i data-lucide="mouse-pointer-click" aria-hidden="true"></i><span>内容表现</span>
+        </a>
+        <a class="side-nav-item" href="#events">
+          <i data-lucide="radio" aria-hidden="true"></i><span>实时事件</span>
+        </a>
+        <a class="side-nav-item" href="#reviews">
+          <i data-lucide="clipboard-check" aria-hidden="true"></i><span>投稿审核</span>
+          <span class="nav-badge" id="review-nav-count" hidden>0</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <div class="connection-summary">
+          <span class="status-dot is-connecting" id="sidebar-status-dot" aria-hidden="true"></span>
+          <span><strong id="sidebar-status">正在连接</strong><small id="sidebar-updated">等待首次同步</small></span>
+        </div>
+        <a class="back-link" href="/">
+          <i data-lucide="arrow-left" aria-hidden="true"></i><span>返回工具站</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="main" id="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">OPERATIONS CENTER</p>
+          <h1>运营监控</h1>
+        </div>
+        <div class="topbar-actions">
+          <div class="live-chip" id="live-chip" role="status" aria-live="polite">
+            <span class="live-pulse" aria-hidden="true"></span>
+            <span id="live-label">实时更新</span>
+          </div>
+          <div class="segmented" aria-label="统计时间窗口">
+            <button class="segment is-active" type="button" data-window="24h" aria-pressed="true">24 小时</button>
+            <button class="segment" type="button" data-window="7d" aria-pressed="false">7 天</button>
+          </div>
+          <button class="icon-button" id="pause-button" type="button" aria-label="暂停自动更新" title="暂停自动更新">
+            <i data-lucide="pause" aria-hidden="true"></i>
+          </button>
+          <button class="icon-button" id="refresh-button" type="button" aria-label="立即刷新" title="立即刷新">
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <div class="notice is-error" id="global-error" role="alert" hidden>
+          <i data-lucide="triangle-alert" aria-hidden="true"></i>
+          <span id="global-error-message">监控数据暂时不可用</span>
+          <button id="error-retry" type="button">重试</button>
+        </div>
+
+        <section class="section" id="overview" aria-labelledby="overview-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">当前窗口</p>
+              <h2 id="overview-title">核心指标</h2>
+            </div>
+            <p class="section-note" id="overview-note">每 5 秒同步一次</p>
+          </div>
+
+          <div class="kpi-grid" id="kpi-grid" aria-busy="true">
+            <article class="kpi-card" data-kpi="pageViews">
+              <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="eye" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
+              <p>页面浏览</p><strong class="kpi-value">—</strong><small>当前时间窗口</small>
+            </article>
+            <article class="kpi-card" data-kpi="uniqueVisitors">
+              <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="users" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
+              <p>独立访客</p><strong class="kpi-value">—</strong><small>去重访客数</small>
+            </article>
+            <article class="kpi-card" data-kpi="searches">
+              <div class="kpi-card-head"><span class="kpi-icon coral"><i data-lucide="search" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
+              <p>站内搜索</p><strong class="kpi-value">—</strong><small>用户搜索行为</small>
+            </article>
+            <article class="kpi-card" data-kpi="outboundClicks">
+              <div class="kpi-card-head"><span class="kpi-icon coral"><i data-lucide="mouse-pointer-2" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
+              <p>官网点击</p><strong class="kpi-value">—</strong><small>有效出站点击</small>
+            </article>
+            <article class="kpi-card" data-kpi="clickThroughRate">
+              <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="percent" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
+              <p>点击转化率</p><strong class="kpi-value">—</strong><small>浏览至官网</small>
+            </article>
+            <article class="kpi-card" data-kpi="pendingSubmissions">
+              <div class="kpi-card-head"><span class="kpi-icon amber"><i data-lucide="inbox" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
+              <p>待审投稿</p><strong class="kpi-value">—</strong><small>仅显示数量</small>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel chart-panel" id="traffic" aria-labelledby="traffic-title">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">TRAFFIC</p>
+              <h2 id="traffic-title">访问与转化趋势</h2>
+            </div>
+            <div class="chart-legend" aria-label="图例">
+              <span><i class="legend-line brand" aria-hidden="true"></i>页面浏览</span>
+              <span><i class="legend-line coral" aria-hidden="true"></i>官网点击</span>
+            </div>
+          </div>
+          <div class="chart-wrap" id="trend-chart-wrap">
+            <svg id="trend-chart" viewBox="0 0 960 310" preserveAspectRatio="none" role="img" aria-labelledby="chart-title chart-desc">
+              <title id="chart-title">页面浏览与官网点击趋势</title>
+              <desc id="chart-desc">正在加载趋势数据</desc>
+            </svg>
+            <div class="chart-empty" id="chart-empty" hidden>当前时间窗口还没有趋势数据</div>
+            <div class="chart-tooltip" id="chart-tooltip" role="tooltip" hidden></div>
+          </div>
+        </section>
+
+        <section class="content-grid" id="content" aria-label="转化与内容表现">
+          <article class="panel funnel-panel" aria-labelledby="funnel-title">
+            <div class="panel-head compact">
+              <div><p class="eyebrow">FUNNEL</p><h2 id="funnel-title">用户转化漏斗</h2></div>
+            </div>
+            <div class="funnel" id="funnel-list"></div>
+          </article>
+
+          <article class="panel" aria-labelledby="tools-title">
+            <div class="panel-head compact">
+              <div><p class="eyebrow">TOOLS</p><h2 id="tools-title">热门工具</h2></div>
+              <span class="panel-meta" id="tools-total">—</span>
+            </div>
+            <div class="rank-list" id="top-tools-list"></div>
+          </article>
+
+          <article class="panel" aria-labelledby="searches-title">
+            <div class="panel-head compact">
+              <div><p class="eyebrow">SEARCH</p><h2 id="searches-title">热门搜索</h2></div>
+              <span class="panel-meta" id="searches-total">—</span>
+            </div>
+            <div class="search-list" id="top-searches-list"></div>
+          </article>
+        </section>
+
+        <section class="monitoring-grid" id="events" aria-label="实时事件与系统健康">
+          <article class="panel event-panel" aria-labelledby="events-title">
+            <div class="panel-head compact">
+              <div><p class="eyebrow">LIVE EVENTS</p><h2 id="events-title">最近事件</h2></div>
+              <span class="live-caption"><span class="status-dot is-online" aria-hidden="true"></span>自动流入</span>
+            </div>
+            <div class="event-list" id="event-list"></div>
+          </article>
+
+          <article class="panel health-panel" aria-labelledby="health-title">
+            <div class="panel-head compact">
+              <div><p class="eyebrow">SYSTEM</p><h2 id="health-title">系统健康</h2></div>
+              <span class="health-badge is-checking" id="health-badge">检查中</span>
+            </div>
+            <dl class="health-list" id="health-list">
+              <div><dt>应用服务</dt><dd>—</dd></div>
+              <div><dt>数据库</dt><dd>—</dd></div>
+              <div><dt>事件延迟</dt><dd>—</dd></div>
+              <div><dt>运行时长</dt><dd>—</dd></div>
+              <div><dt>数据生成于</dt><dd>—</dd></div>
+            </dl>
+          </article>
+        </section>
+
+        <section class="panel review-panel" id="reviews" aria-labelledby="reviews-title">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">REVIEW QUEUE</p>
+              <h2 id="reviews-title">投稿审核队列</h2>
+            </div>
+            <span class="security-label"><i data-lucide="shield-check" aria-hidden="true"></i>敏感数据保护</span>
+          </div>
+
+          <div class="review-lock" id="review-lock">
+            <span class="lock-icon"><i data-lucide="lock-keyhole" aria-hidden="true"></i></span>
+            <div class="lock-copy">
+              <h3>输入管理令牌后查看投稿</h3>
+              <p>实时监控为本机只读，投稿联系方式与审核操作需 Bearer Token。令牌仅保存在当前页面内存中。</p>
+            </div>
+            <form class="token-form" id="token-form">
+              <label for="admin-token">管理员 Bearer Token</label>
+              <div class="token-input-wrap">
+                <i data-lucide="key-round" aria-hidden="true"></i>
+                <input id="admin-token" name="token" type="password" autocomplete="off" required placeholder="输入 NIKE_ADMIN_TOKEN">
+                <button class="reveal-button" id="reveal-token" type="button" aria-label="显示令牌" title="显示令牌"><i data-lucide="eye" aria-hidden="true"></i></button>
+              </div>
+              <button class="primary-button" type="submit"><i data-lucide="unlock-keyhole" aria-hidden="true"></i>解锁审核队列</button>
+              <p class="form-error" id="token-error" role="alert" hidden></p>
+            </form>
+          </div>
+
+          <div class="review-workspace" id="review-workspace" hidden>
+            <div class="review-toolbar">
+              <div>
+                <strong id="review-count">0 条待审</strong>
+                <span id="review-sync">尚未同步</span>
+              </div>
+              <div class="toolbar-actions">
+                <button class="secondary-button" id="review-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新</button>
+                <button class="secondary-button" id="review-lock-button" type="button"><i data-lucide="lock" aria-hidden="true"></i>锁定</button>
+              </div>
+            </div>
+            <div class="review-table-wrap">
+              <table class="review-table">
+                <caption class="sr-only">待审核工具投稿</caption>
+                <thead><tr><th scope="col">工具</th><th scope="col">联系方式</th><th scope="col">提交时间</th><th scope="col">来源</th><th scope="col">操作</th></tr></thead>
+                <tbody id="review-table-body"></tbody>
+              </table>
+              <div class="table-empty" id="review-empty" hidden>
+                <i data-lucide="circle-check-big" aria-hidden="true"></i><strong>待审队列已清空</strong><span>新投稿会在这里出现</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog class="review-dialog" id="review-dialog" aria-labelledby="dialog-title">
+    <form id="review-form">
+      <div class="dialog-head">
+        <div><p class="eyebrow">REVIEW</p><h2 id="dialog-title">审核投稿</h2></div>
+        <button class="icon-button" id="dialog-close" type="button" aria-label="关闭审核窗口"><i data-lucide="x" aria-hidden="true"></i></button>
+      </div>
+      <div class="dialog-tool" id="dialog-tool"></div>
+      <input id="review-id" type="hidden">
+      <fieldset class="status-options">
+        <legend>审核结果</legend>
+        <label><input type="radio" name="review-status" value="approved" checked><span><i data-lucide="badge-check" aria-hidden="true"></i>通过</span></label>
+        <label><input type="radio" name="review-status" value="rejected"><span><i data-lucide="circle-x" aria-hidden="true"></i>驳回</span></label>
+        <label><input type="radio" name="review-status" value="duplicate"><span><i data-lucide="copy-x" aria-hidden="true"></i>重复</span></label>
+      </fieldset>
+      <label class="field-label" for="review-note">审核备注 <span>可选，最多 500 字</span></label>
+      <textarea id="review-note" maxlength="500" rows="4" placeholder="记录判断依据，例如：资料完整，官网可正常访问"></textarea>
+      <p class="form-error" id="review-error" role="alert" hidden></p>
+      <div class="dialog-actions">
+        <button class="secondary-button" id="dialog-cancel" type="button">取消</button>
+        <button class="primary-button" id="review-submit" type="submit"><i data-lucide="send" aria-hidden="true"></i>提交审核</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

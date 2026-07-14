@@ -1,0 +1,16 @@
+{
+  "name": "nike-ai-tools-directory",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "泥壳AI工具站全栈原型，Node.js + SQLite 零外部依赖运行。",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env --no-warnings server.mjs",
+    "dev": "node --env-file-if-exists=.env --no-warnings --watch server.mjs",
+    "test": "node --no-warnings --test --test-concurrency=1 tests/*.test.mjs",
+    "seed:export": "node scripts/export-seed.mjs"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

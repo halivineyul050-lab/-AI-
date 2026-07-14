@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="泥壳AI工具站，按任务发现、筛选和比较实用的AI工具。">
+  <title>泥壳AI工具站 - 按任务发现AI工具</title>
+  <link rel="icon" href="/brand-icon-192.png?v=20260713-1" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260713-1">
+  <link rel="preconnect" href="https://www.google.com">
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="styles.css?v=20260713-10">
+  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script defer src="app.js?v=20260713-16"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="主导航">
+      <div class="brand-block">
+        <a class="brand" href="#tools" data-view-link="tools" aria-label="泥壳AI工具站首页">
+          <span class="brand-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260713-1" alt=""></span>
+          <span class="brand-copy"><strong>泥壳AI</strong><small>工具站</small></span>
+        </a>
+        <button class="icon-button sidebar-close" id="sidebar-close" type="button" aria-label="关闭导航" title="关闭导航">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="primary-nav" aria-label="内容导航">
+        <button class="nav-item is-active" type="button" data-view="tools">
+          <i data-lucide="layout-grid"></i><span>工具库</span><span class="nav-count" id="tool-total-nav">20</span>
+        </button>
+        <button class="nav-item" type="button" data-view="discover">
+          <i data-lucide="compass"></i><span>发现</span>
+        </button>
+        <button class="nav-item" type="button" data-view="tutorials">
+          <i data-lucide="book-open"></i><span>教程</span>
+        </button>
+        <button class="nav-item" type="button" data-view="news">
+          <i data-lucide="newspaper"></i><span>资讯</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-section">
+        <div class="section-label">工具分类</div>
+        <div class="category-nav" id="category-nav"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="submit-tool-button" id="submit-tool-open" type="button">
+          <i data-lucide="circle-plus"></i><span>提交工具</span>
+        </button>
+        <div class="sidebar-links">
+          <a href="/admin.html">后台监控</a>
+          <button type="button" data-toast="广告合作资料将在正式版开放">广告合作</button>
+          <button type="button" data-toast="关于页面将在正式版开放">关于我们</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="sidebar-scrim" id="sidebar-scrim"></div>
+
+    <main class="main-area" id="main-content">
+      <header class="topbar">
+        <button class="icon-button mobile-menu-button" id="mobile-menu-open" type="button" aria-label="打开导航" title="打开导航">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <div class="mobile-brand" aria-hidden="true">
+          <span class="brand-mark brand-mark-small"><img src="/brand-icon-192.png?v=20260713-1" alt=""></span>
+          <strong>泥壳AI</strong>
+        </div>
+
+        <form class="global-search" id="search-form" role="search">
+          <i data-lucide="search" aria-hidden="true"></i>
+          <label class="sr-only" for="global-search-input">搜索AI工具</label>
+          <input id="global-search-input" type="search" autocomplete="off" placeholder="搜索工具、任务或能力">
+          <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索" title="清空搜索" hidden>
+            <i data-lucide="x"></i>
+          </button>
+        </form>
+
+        <div class="topbar-actions">
+          <button class="icon-button action-with-count" id="favorite-toggle" type="button" aria-label="只看收藏" aria-pressed="false" title="只看收藏">
+            <i data-lucide="bookmark"></i><span id="favorite-count">0</span>
+          </button>
+          <button class="icon-button action-with-count" id="compare-open" type="button" aria-label="打开工具对比" title="工具对比">
+            <i data-lucide="columns-3"></i><span id="compare-count">0</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="view is-visible" id="tools-view" data-view-section="tools">
+        <div class="page-header">
+          <div>
+            <p class="eyebrow">AI TOOL DIRECTORY</p>
+            <div class="title-row">
+              <h1>AI 工具库</h1>
+              <span class="result-badge" id="result-count" aria-live="polite">20 个工具</span>
+            </div>
+            <p class="page-summary">按工作任务筛选工具，查看价格、平台和适用场景。</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="secondary-button mobile-filter-button" id="mobile-filter-toggle" type="button" aria-expanded="false">
+              <i data-lucide="sliders-horizontal"></i><span>筛选</span>
+            </button>
+            <label class="select-control sort-control">
+              <span class="sr-only">排序方式</span>
+              <i data-lucide="arrow-up-down"></i>
+              <select id="sort-select">
+                <option value="recommended">综合推荐</option>
+                <option value="popular">本周热门</option>
+                <option value="newest">最近更新</option>
+                <option value="name">名称排序</option>
+              </select>
+            </label>
+            <div class="segmented-control" aria-label="工具展示方式">
+              <button class="is-active" id="grid-view-button" type="button" aria-label="网格视图" aria-pressed="true" title="网格视图"><i data-lucide="grid-2x2"></i></button>
+              <button id="list-view-button" type="button" aria-label="列表视图" aria-pressed="false" title="列表视图"><i data-lucide="list"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="task-tabs" id="task-tabs" aria-label="热门任务"></div>
+
+        <section class="filter-panel" id="filter-panel" aria-label="工具筛选">
+          <label class="select-control">
+            <span>价格</span>
+            <select id="price-filter">
+              <option value="all">全部价格</option>
+              <option value="free">免费</option>
+              <option value="freemium">免费增值</option>
+              <option value="paid">付费</option>
+            </select>
+          </label>
+          <label class="select-control">
+            <span>平台</span>
+            <select id="platform-filter">
+              <option value="all">全部平台</option>
+              <option value="web">网页端</option>
+              <option value="desktop">桌面端</option>
+              <option value="mobile">移动端</option>
+              <option value="api">API</option>
+            </select>
+          </label>
+          <label class="select-control">
+            <span>语言</span>
+            <select id="language-filter">
+              <option value="all">全部语言</option>
+              <option value="zh">中文友好</option>
+              <option value="multi">多语言</option>
+            </select>
+          </label>
+          <button class="text-button reset-button" id="reset-filters" type="button">
+            <i data-lucide="rotate-ccw"></i><span>重置</span>
+          </button>
+        </section>
+
+        <section class="sponsor-strip" id="sponsor-strip" aria-label="推广工具"></section>
+
+        <div class="tool-grid" id="tool-grid"></div>
+
+        <div class="empty-state" id="empty-state" hidden>
+          <i data-lucide="search-x"></i>
+          <h2>没有匹配的工具</h2>
+          <p>试试更短的关键词，或清除筛选条件。</p>
+          <button class="secondary-button" type="button" id="empty-reset"><i data-lucide="rotate-ccw"></i><span>清除筛选</span></button>
+        </div>
+      </section>
+
+      <section class="view" id="discover-view" data-view-section="discover" hidden>
+        <div class="page-header compact-header">
+          <div>
+            <p class="eyebrow">CURATED COLLECTIONS</p>
+            <h1>精选发现</h1>
+            <p class="page-summary">围绕真实工作流整理的工具组合。</p>
+          </div>
+        </div>
+
+        <div class="collection-grid" id="collection-grid"></div>
+
+        <section class="ranking-section">
+          <div class="section-heading">
+            <div><p class="eyebrow">WEEKLY SIGNAL</p><h2>本周趋势</h2></div>
+            <button class="text-button" type="button" data-toast="趋势榜每周一更新"><i data-lucide="calendar-days"></i><span>本周</span></button>
+          </div>
+          <div class="ranking-list" id="ranking-list"></div>
+        </section>
+      </section>
+
+      <section class="view" id="tutorials-view" data-view-section="tutorials" hidden>
+        <div class="page-header compact-header">
+          <div>
+            <p class="eyebrow">PRACTICAL GUIDES</p>
+            <h1>实用教程</h1>
+            <p class="page-summary">从具体任务出发，快速掌握工具组合与工作流。</p>
+          </div>
+          <div class="content-tabs" aria-label="教程分类">
+            <button class="is-active" type="button">全部</button>
+            <button type="button">办公</button>
+            <button type="button">创作</button>
+            <button type="button">开发</button>
+          </div>
+        </div>
+        <div class="article-list" id="tutorial-list"></div>
+      </section>
+
+      <section class="view" id="news-view" data-view-section="news" hidden>
+        <div class="page-header compact-header">
+          <div>
+            <p class="eyebrow">AI INDUSTRY BRIEF</p>
+            <h1>AI 资讯</h1>
+            <p class="page-summary">产品发布、模型更新与行业动态。</p>
+          </div>
+          <div class="date-chip"><i data-lucide="calendar"></i><span>2026年7月13日</span></div>
+        </div>
+        <div class="news-layout">
+          <div class="article-list" id="news-list"></div>
+          <aside class="news-sidebar">
+            <div class="section-heading"><div><p class="eyebrow">TOPICS</p><h2>热门主题</h2></div></div>
+            <div class="topic-cloud" id="topic-cloud"></div>
+            <div class="newsletter-panel">
+              <i data-lucide="mail"></i>
+              <h3>泥壳周报</h3>
+              <p>每周精选工具、教程与行业变化。</p>
+              <form id="newsletter-form">
+                <label class="sr-only" for="newsletter-email">邮箱</label>
+                <input id="newsletter-email" type="email" required placeholder="name@example.com">
+                <label class="newsletter-consent"><input id="newsletter-consent" type="checkbox" required><span>同意接收周报并接受隐私政策</span></label>
+                <button class="primary-button" type="submit">订阅周报</button>
+              </form>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <span>© 2026 泥壳AI工具站</span>
+        <nav aria-label="页脚导航">
+          <button type="button" data-toast="收录标准将在正式版开放">收录标准</button>
+          <button type="button" data-toast="隐私政策将在正式版开放">隐私政策</button>
+          <button type="button" data-toast="反馈入口将在正式版开放">问题反馈</button>
+        </nav>
+      </footer>
+    </main>
+  </div>
+
+  <div class="drawer-scrim" id="drawer-scrim"></div>
+  <aside class="tool-drawer" id="tool-drawer" aria-hidden="true" aria-label="工具详情">
+    <div class="drawer-header">
+      <button class="icon-button" id="drawer-close" type="button" aria-label="关闭工具详情" title="关闭"><i data-lucide="x"></i></button>
+    </div>
+    <div class="drawer-content" id="drawer-content"></div>
+  </aside>
+
+  <div class="compare-tray" id="compare-tray" hidden>
+    <div class="compare-tray-content">
+      <div class="compare-mini-list" id="compare-mini-list"></div>
+      <div class="compare-tray-actions">
+        <button class="text-button" id="compare-clear" type="button">清空</button>
+        <button class="primary-button" id="compare-tray-open" type="button"><i data-lucide="columns-3"></i><span>开始对比</span></button>
+      </div>
+    </div>
+  </div>
+
+  <dialog class="app-dialog compare-dialog" id="compare-dialog">
+    <div class="dialog-header">
+      <div><p class="eyebrow">COMPARE TOOLS</p><h2>工具对比</h2></div>
+      <button class="icon-button dialog-close" type="button" data-dialog-close="compare-dialog" aria-label="关闭对比" title="关闭"><i data-lucide="x"></i></button>
+    </div>
+    <div class="compare-table-wrap" id="compare-table-wrap"></div>
+  </dialog>
+
+  <dialog class="app-dialog submit-dialog" id="submit-dialog">
+    <div class="dialog-header">
+      <div><p class="eyebrow">SUBMIT A TOOL</p><h2>提交AI工具</h2></div>
+      <button class="icon-button dialog-close" type="button" data-dialog-close="submit-dialog" aria-label="关闭提交表单" title="关闭"><i data-lucide="x"></i></button>
+    </div>
+    <form class="submit-form" id="submit-form">
+      <label>工具名称<input name="name" required maxlength="60" placeholder="工具或产品名称"></label>
+      <label>官方网站<input name="url" type="url" required placeholder="https://"></label>
+      <label>主要分类
+        <select name="category" required>
+          <option value="">请选择</option>
+        </select>
+      </label>
+      <label>一句话介绍<textarea name="summary" rows="3" required maxlength="180" placeholder="说明核心能力和适用场景"></textarea></label>
+      <label>联系邮箱<input name="email" type="email" required placeholder="name@company.com"></label>
+      <label class="sr-only" aria-hidden="true">公司传真<input name="company" tabindex="-1" autocomplete="off"></label>
+      <label class="checkbox-row"><input name="confirm" type="checkbox" required><span>我确认提交信息真实有效</span></label>
+      <div class="dialog-actions">
+        <button class="secondary-button" type="button" data-dialog-close="submit-dialog">取消</button>
+        <button class="primary-button" type="submit"><i data-lucide="send"></i><span>提交审核</span></button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
