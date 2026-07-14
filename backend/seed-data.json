@@ -26,6 +26,11 @@
       "icon": "clapperboard"
     },
     {
+      "id": "comic",
+      "name": "AI 漫剧",
+      "icon": "panels-top-left"
+    },
+    {
       "id": "office",
       "name": "AI 办公",
       "icon": "briefcase-business"
@@ -993,12 +998,14 @@
     {
       "id": "orange-dream-factory",
       "name": "橙星梦工厂",
-      "domain": "mgc.funshion.com",
-      "officialUrl": "https://mgc.funshion.com/",
-      "category": "video",
+      "domain": "ai.fun.tv",
+      "officialUrl": "https://ai.fun.tv/",
+      "logoUrl": "https://mgc.funshion.com/assets/logo-a6ljc2-6.ico",
+      "category": "comic",
+      "categorySortOrder": 0,
       "summary": "面向AI漫剧的全流程创作与分发平台，覆盖剧本、资产、分镜和成片预览。",
       "description": "提供剧本生成与解析、全剧资产设定、分镜视频和成片预览，并通过无限画布与团队协作支持漫剧项目交付。",
-      "price": "freemium",
+      "price": "unknown",
       "platforms": [
         "web"
       ],

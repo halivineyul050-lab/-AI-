@@ -44,15 +44,17 @@ function designRecord(overrides = {}) {
 }
 
 test("catalog migration adds provenance tables and honest unknown values", () => {
-  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 4);
-  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 4);
+  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 5);
+  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 5);
   assert.ok(db.prepare("SELECT 1 FROM categories WHERE id = 'design'").get());
+  assert.ok(db.prepare("SELECT 1 FROM categories WHERE id = 'comic'").get());
   const columns = db.prepare("PRAGMA table_info(tools)").all().map((row) => row.name);
   assert.ok(columns.includes("canonical_url"));
   assert.ok(columns.includes("data_quality_status"));
+  assert.ok(columns.includes("category_sort_order"));
 });
 
-test("version 4 migration preserves populated version 3 tools and relations", () => {
+test("version 4 and 5 migrations preserve populated version 3 tools and relations", () => {
   const upgradePath = join(testDir, "upgrade-v3.db");
   const legacy = new DatabaseSync(upgradePath);
   legacy.exec(readFileSync(resolve(import.meta.dirname, "..", "backend", "schema.sql"), "utf8"));
@@ -85,6 +87,8 @@ test("version 4 migration preserves populated version 3 tools and relations", ()
     const tool = upgraded.prepare("SELECT * FROM tools WHERE id = 'legacy-tool'").get();
     assert.equal(tool.canonical_url, "https://legacy.example.com/");
     assert.equal(tool.data_quality_status, "verified");
+    assert.equal(tool.category_sort_order, 1000);
+    assert.equal(upgraded.prepare("SELECT name FROM categories WHERE id = 'comic'").get().name, "AI 漫剧");
     assert.equal(upgraded.prepare("SELECT COUNT(*) AS count FROM tool_platforms WHERE tool_id = 'legacy-tool'").get().count, 1);
     assert.equal(upgraded.prepare("PRAGMA foreign_key_check").all().length, 0);
   } finally {

@@ -8,7 +8,8 @@ const migrations = [
   { version: 1, name: "initial_schema", sql: readFileSync(schemaPath, "utf8") },
   { version: 2, name: "lookup_tokens", sql: readFileSync(resolve(import.meta.dirname, "migrations", "002_lookup_tokens.sql"), "utf8") },
   { version: 3, name: "article_sources", sql: readFileSync(resolve(import.meta.dirname, "migrations", "003_article_sources.sql"), "utf8") },
-  { version: 4, name: "tool_catalog_imports", sql: readFileSync(resolve(import.meta.dirname, "migrations", "004_tool_catalog_imports.sql"), "utf8") }
+  { version: 4, name: "tool_catalog_imports", sql: readFileSync(resolve(import.meta.dirname, "migrations", "004_tool_catalog_imports.sql"), "utf8") },
+  { version: 5, name: "comic_category", sql: readFileSync(resolve(import.meta.dirname, "migrations", "005_comic_category.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -58,7 +59,7 @@ export function seedDatabase(db, seedData) {
 
   return runTransaction(db, () => {
     const insertCategory = db.prepare(`
-      INSERT INTO categories (id, name, icon, sort_order)
+      INSERT OR IGNORE INTO categories (id, name, icon, sort_order)
       VALUES (?, ?, ?, ?)
     `);
     seedData.categories.forEach((category, index) => {
@@ -67,11 +68,11 @@ export function seedDatabase(db, seedData) {
 
     const insertTool = db.prepare(`
       INSERT INTO tools (
-        id, slug, name, domain, official_url, canonical_url, category_id, summary, description,
+        id, slug, name, domain, official_url, canonical_url, logo_url, category_id, category_sort_order, summary, description,
         pricing_type, language, login_requirement, region, content_updated_date,
         editor_score, popularity, data_quality_status, first_published_at,
         last_verified_at, is_sponsored
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const insertPlatform = db.prepare("INSERT INTO tool_platforms (tool_id, platform, position) VALUES (?, ?, ?)");
     const insertFeature = db.prepare("INSERT INTO tool_features (tool_id, feature, position) VALUES (?, ?, ?)");
@@ -86,7 +87,9 @@ export function seedDatabase(db, seedData) {
         tool.domain,
         tool.officialUrl,
         tool.officialUrl,
+        tool.logoUrl || "",
         tool.category,
+        tool.categorySortOrder ?? 1000,
         tool.summary,
         tool.description,
         tool.price,
@@ -180,18 +183,20 @@ export function syncCuratedContent(db, seedData) {
   return runTransaction(db, () => {
     const upsertTool = db.prepare(`
       INSERT INTO tools (
-        id, slug, name, domain, official_url, canonical_url, category_id, summary, description,
+        id, slug, name, domain, official_url, canonical_url, logo_url, category_id, category_sort_order, summary, description,
         pricing_type, language, login_requirement, region, content_updated_date,
         editor_score, popularity, data_quality_status, first_published_at,
         last_verified_at, is_sponsored, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published')
       ON CONFLICT(id) DO UPDATE SET
         slug = excluded.slug,
         name = excluded.name,
         domain = excluded.domain,
         official_url = excluded.official_url,
         canonical_url = excluded.canonical_url,
+        logo_url = CASE WHEN excluded.logo_url <> '' THEN excluded.logo_url ELSE tools.logo_url END,
         category_id = excluded.category_id,
+        category_sort_order = excluded.category_sort_order,
         summary = excluded.summary,
         description = excluded.description,
         pricing_type = excluded.pricing_type,
@@ -223,7 +228,9 @@ export function syncCuratedContent(db, seedData) {
         tool.domain,
         tool.officialUrl,
         tool.officialUrl,
+        tool.logoUrl || "",
         tool.category,
+        tool.categorySortOrder ?? 1000,
         tool.summary,
         tool.description,
         tool.price,
@@ -340,7 +347,7 @@ export function getCategories(db) {
   return db.prepare(`
     SELECT c.id, c.name, c.icon, COUNT(t.id) AS tool_count
     FROM categories c
-    LEFT JOIN tools t ON t.category_id = c.id AND t.status = 'published' AND t.is_sponsored = 0
+    LEFT JOIN tools t ON t.category_id = c.id AND t.status = 'published'
     WHERE c.status = 'published'
     GROUP BY c.id
     ORDER BY c.sort_order, c.name
@@ -391,12 +398,15 @@ export function listTools(db, filters = {}) {
   if (filters.sponsored === false) where.push("t.is_sponsored = 0");
   if (filters.sponsored === true) where.push("t.is_sponsored = 1");
 
-  const orderBy = {
+  const selectedOrder = {
     popular: "t.popularity DESC, t.editor_score DESC, t.name ASC, t.id ASC",
     latest: "t.content_updated_date DESC, t.editor_score DESC, t.name ASC, t.id ASC",
     name: "t.name COLLATE NOCASE ASC, t.id ASC",
-    recommended: "t.is_sponsored ASC, t.editor_score DESC, t.popularity DESC, t.name ASC, t.id ASC"
-  }[filters.sort] || "t.is_sponsored ASC, t.editor_score DESC, t.popularity DESC, t.name ASC, t.id ASC";
+    recommended: "t.editor_score DESC, t.popularity DESC, t.name ASC, t.id ASC"
+  }[filters.sort] || "t.editor_score DESC, t.popularity DESC, t.name ASC, t.id ASC";
+  const orderBy = filters.category && filters.category !== "all"
+    ? `t.category_sort_order ASC, ${selectedOrder}`
+    : selectedOrder;
 
   const limit = Math.min(Math.max(Number(filters.limit) || 100, 1), 500);
   const offset = Math.max(Number(filters.offset) || 0, 0);

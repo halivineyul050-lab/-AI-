@@ -4,6 +4,7 @@ const categories = [
   { id: "writing", name: "AI 写作", icon: "pen-line" },
   { id: "image", name: "AI 图像", icon: "image" },
   { id: "video", name: "AI 视频", icon: "clapperboard" },
+  { id: "comic", name: "AI 漫剧", icon: "panels-top-left" },
   { id: "office", name: "AI 办公", icon: "briefcase-business" },
   { id: "coding", name: "AI 编程", icon: "code-2" },
   { id: "audio", name: "AI 音频", icon: "audio-lines" },
@@ -554,12 +555,14 @@ const tools = [
   {
     id: "orange-dream-factory",
     name: "橙星梦工厂",
-    domain: "mgc.funshion.com",
-    officialUrl: "https://mgc.funshion.com/",
-    category: "video",
+    domain: "ai.fun.tv",
+    officialUrl: "https://ai.fun.tv/",
+    logoUrl: "https://mgc.funshion.com/assets/logo-a6ljc2-6.ico",
+    category: "comic",
+    categorySortOrder: 0,
     summary: "面向AI漫剧的全流程创作与分发平台，覆盖剧本、资产、分镜和成片预览。",
     description: "提供剧本生成与解析、全剧资产设定、分镜视频和成片预览，并通过无限画布与团队协作支持漫剧项目交付。",
-    price: "freemium",
+    price: "unknown",
     platforms: ["web"],
     language: "zh",
     features: ["剧本生成与解析", "全剧资产设定", "分镜视频与成片预览", "无限画布与团队协作"],
@@ -866,7 +869,7 @@ function buildToolQuery(offset = 0, limit = state.toolLimit) {
 function filterToolsLocally(items) {
   const query = state.query.trim().toLocaleLowerCase("zh-CN");
   return items.filter((tool) => {
-    if (tool.sponsored) return false;
+    if (tool.sponsored && state.category === "all") return false;
     if (state.category !== "all" && tool.category !== state.category) return false;
     if (state.price !== "all" && tool.price !== state.price) return false;
     if (state.platform !== "all" && !tool.platforms.includes(state.platform)) return false;
@@ -986,10 +989,18 @@ function refreshIcons() {
 
 function logoMarkup(tool, extraClass = "") {
   const initial = escapeHTML(tool.name.trim().slice(0, 1).toUpperCase());
-  const src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(tool.domain)}&sz=128`;
+  const fallbackSrc = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(tool.domain)}&sz=128`;
+  let src = fallbackSrc;
+  try {
+    const explicit = new URL(String(tool.logoUrl || ""), document.baseURI);
+    if (explicit.protocol === "https:" || explicit.origin === location.origin) src = explicit.href;
+  } catch {
+    // 缺少或无效的显式 Logo 时使用官网域名 favicon。
+  }
+  const fallbackAttribute = src === fallbackSrc ? "" : ` data-fallback-src="${escapeHTML(fallbackSrc)}"`;
   return `
     <span class="tool-logo ${extraClass}" aria-hidden="true">
-      <img src="${src}" alt="" data-fallback loading="lazy" width="48" height="48">
+      <img src="${escapeHTML(src)}" alt="" data-fallback${fallbackAttribute} loading="lazy" referrerpolicy="no-referrer" width="48" height="48">
       <span class="logo-fallback" hidden>${initial}</span>
     </span>`;
 }
@@ -1006,8 +1017,18 @@ function bindImageFallbacks(root = document) {
       const fallback = image.nextElementSibling;
       if (fallback) fallback.hidden = false;
     };
-    image.addEventListener("error", showFallback, { once: true });
-    if (image.complete && image.naturalWidth === 0) showFallback();
+    const handleError = () => {
+      const fallbackSrc = image.dataset.fallbackSrc;
+      if (fallbackSrc) {
+        delete image.dataset.fallbackSrc;
+        image.src = fallbackSrc;
+        return;
+      }
+      image.removeEventListener("error", handleError);
+      showFallback();
+    };
+    image.addEventListener("error", handleError);
+    if (image.complete && image.naturalWidth === 0) handleError();
   });
 }
 
@@ -1112,7 +1133,7 @@ function renderNavigation() {
   document.getElementById("category-nav").innerHTML = categories.map((category) => {
     const count = category.toolCount ?? (category.id === "all"
       ? naturalTools.length
-      : naturalTools.filter((tool) => tool.category === category.id).length);
+      : tools.filter((tool) => tool.category === category.id).length);
     return `
       <button class="category-button ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${category.id}">
         <i data-lucide="${category.icon}"></i>
@@ -1142,6 +1163,8 @@ function getFilteredTools() {
   const filtered = filterToolsLocally(tools);
 
   return filtered.sort((a, b) => {
+    const categoryOrder = (a.categorySortOrder ?? 1000) - (b.categorySortOrder ?? 1000);
+    if (state.category !== "all" && categoryOrder !== 0) return categoryOrder;
     if (state.sort === "popular") return b.popular - a.popular;
     if (state.sort === "newest") return b.updated.localeCompare(a.updated);
     if (state.sort === "name") return a.name.localeCompare(b.name, "zh-CN");
@@ -1178,6 +1201,7 @@ function renderToolCard(tool, rank) {
       </div>
       <p class="tool-summary">${escapeHTML(tool.summary)}</p>
       <div class="badge-row">
+        ${tool.sponsored ? '<span class="tool-badge sponsored-badge">推广</span>' : ""}
         <span class="tool-badge price-${tool.price}">${priceLabels[tool.price]}</span>
         ${platformBadges}
         <span class="tool-badge">${languageLabels[tool.language]}</span>

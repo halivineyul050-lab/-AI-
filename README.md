@@ -13,7 +13,7 @@
 <p align="center">
   <img alt="Node.js 22.5+" src="https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLite-内置-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-24%20passing-0f766e">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-25%20passing-0f766e">
   <img alt="Dependencies" src="https://img.shields.io/badge/npm_dependencies-0-f97316">
 </p>
 
@@ -24,20 +24,21 @@
 当前种子数据包含：
 
 - 28 个 AI 工具（27 个普通工具、1 个推广工具）
-- 16 个主分类（含为大目录预留的智能体、设计、学习、模型等分类）
+- 17 个主分类（新增“AI 漫剧”，同时保留智能体、设计、学习、模型等目录）
 - 12 篇教程与资讯内容
 - 3 个工具专题
 - 资讯来源名称与官方原始链接
 
-内容资料更新日期：`2026-07-13`。
+内容资料更新日期：`2026-07-14`。
 
-当前本地数据库已完成一批官方来源扩充：`130` 条工具记录，其中 `129` 条已发布（`128` 条普通工具 + `1` 条推广工具），另有 `101` 条官方来源追踪记录。
+当前本地数据库已完成官方来源扩充：`139` 条工具记录，其中 `138` 条已发布（`137` 条普通工具 + `1` 条推广工具），另有 `110` 条官方来源追踪记录。“AI 漫剧”分类现有 `10` 个工具，橙星梦工厂以清晰的推广标识固定在分类首位。
 
 ## 核心功能
 
 ### 用户端
 
 - AI 工具分类、搜索、筛选和排序
+- AI 漫剧专属分类、分类内固定推荐顺序与工具 Logo 多级回退
 - 网格与列表两种浏览方式
 - 工具详情、功能介绍、价格和平台信息
 - 工具收藏与多工具对比

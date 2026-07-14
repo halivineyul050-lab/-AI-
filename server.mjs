@@ -202,7 +202,7 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
     "default-src 'self'",
     isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://www.google.com https://images.unsplash.com",
+    "img-src 'self' data: https://www.google.com https://images.unsplash.com https://mgc.funshion.com https://static.rayvision.com https://r2.animeaistudio.com https://www.ihuiying.com https://static.kuaimanju.com.tangshuang.net https://ai.qinglingdesign.cn https://www.mantur.ai https://www.julinghui.com https://anifusion.ai https://content.dashtoon.ai",
     "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -396,14 +396,15 @@ export function buildApplication(options = {}) {
 
       if (method === "GET" && pathname === "/api/v1/tools") {
         rateLimit(`${ip}:read`, 120, 60_000);
+        const category = url.searchParams.get("category") || "all";
         const result = listTools(db, {
           q: url.searchParams.get("q") || "",
-          category: url.searchParams.get("category") || "all",
+          category,
           price: url.searchParams.get("price") || "all",
           platform: url.searchParams.get("platform") || "all",
           language: url.searchParams.get("language") || url.searchParams.get("lang") || "all",
           sort: (url.searchParams.get("sort") || "recommended") === "newest" ? "latest" : (url.searchParams.get("sort") || "recommended"),
-          sponsored: false,
+          sponsored: category === "all" ? false : undefined,
           limit: url.searchParams.get("limit") || 24,
           offset: url.searchParams.get("offset") || 0
         });

@@ -937,6 +937,12 @@ img {
   font-weight: 600;
 }
 
+.sponsored-badge {
+  border-color: #fed7aa;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
 .tool-badge.price-free {
   background: #e9f7ed;
   color: var(--success);

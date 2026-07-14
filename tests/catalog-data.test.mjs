@@ -21,9 +21,9 @@ function normalizedUrl(value) {
   return url.toString().replace(/\/$/, "").toLowerCase();
 }
 
-test("official catalog batch contains 101 independently authored, mapped records", () => {
-  assert.equal(files.length, 3);
-  assert.equal(records.length, 101);
+test("official catalog batch contains 110 independently authored, mapped records", () => {
+  assert.equal(files.length, 4);
+  assert.equal(records.length, 110);
 
   const sourceKeys = new Set();
   const names = new Set();
@@ -64,4 +64,8 @@ test("official catalog batch contains 101 independently authored, mapped records
     assert.ok(Array.isArray(record.useCases) && record.useCases.length >= 1 && record.useCases.length <= 3);
     assert.equal(record.verifiedAt, "2026-07-14");
   });
+
+  const comicRecords = records.filter((record) => mapping[record.sourceCategory] === "comic");
+  assert.equal(comicRecords.length, 9);
+  assert.ok(comicRecords.every((record) => /^https:\/\//.test(record.logoUrl)), "AI漫剧工具必须提供已核验 Logo URL");
 });

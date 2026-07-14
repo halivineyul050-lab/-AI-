@@ -56,14 +56,19 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(sponsor.name, "橙星梦工厂");
   assert.equal(sponsor.sponsored, true);
   const allCategory = bootstrap.body.data.categories.find((category) => category.id === "all");
+  const comicCategory = bootstrap.body.data.categories.find((category) => category.id === "comic");
   const organicCount = Number(app.db.prepare("SELECT COUNT(*) AS count FROM tools WHERE status = 'published' AND is_sponsored = 0").get().count);
   assert.equal(allCategory.toolCount, organicCount);
+  assert.equal(comicCategory.name, "AI 漫剧");
+  assert.equal(comicCategory.toolCount, 1);
+  assert.equal(sponsor.category, "comic");
+  assert.equal(sponsor.logoUrl, "https://mgc.funshion.com/assets/logo-a6ljc2-6.ico");
   const gptNews = bootstrap.body.data.newsItems.find((item) => item.id === "news-openai-gpt-5-6");
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 4);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 4);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 5);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 5);
 });
 
 test("brand icon is served with the expected media type", async () => {
@@ -109,6 +114,16 @@ test("tool API paginates the organic catalog without overlaps", async () => {
   assert.equal(second.body.data.some((tool) => tool.sponsored), false);
   const firstIds = new Set(first.body.data.map((tool) => tool.id));
   assert.equal(second.body.data.some((tool) => firstIds.has(tool.id)), false);
+});
+
+test("AI comic category includes the disclosed sponsor and pins Orange Dream Factory first", async () => {
+  const result = await request("/api/v1/tools?category=comic&sort=name&limit=24&offset=0");
+  assert.equal(result.response.status, 200);
+  assert.equal(result.body.meta.total, 1);
+  assert.equal(result.body.data[0].id, "orange-dream-factory");
+  assert.equal(result.body.data[0].sponsored, true);
+  assert.equal(result.body.data[0].category, "comic");
+  assert.match(result.body.data[0].logoUrl, /^https:\/\//);
 });
 
 test("submission is validated, persisted and idempotent", async () => {
