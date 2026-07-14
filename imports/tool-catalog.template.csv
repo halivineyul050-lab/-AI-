@@ -1,2 +1,2 @@
-sourceKey,sourceDetailUrl,sourceListingUrl,sourceCategory,name,officialUrl,logoUrl,pricingType,language,platforms,summary,description,verifiedAt
-example-001,https://source.example.com/tools/1,https://source.example.com/category/design,AI设计工具,示例AI工具,https://example.com/,,unknown,unknown,web,"","",2026-07-14
+sourceKey,sourceDetailUrl,sourceListingUrl,sourceCategory,name,officialUrl,logoUrl,pricingType,language,platforms,summary,description,features,useCases,verifiedAt
+example-001,https://source.example.com/tools/1,https://source.example.com/category/design,AI设计工具,示例AI工具,https://example.com/,,unknown,unknown,web,"","","生成设计草稿|版式辅助","视觉设计|内容创作",2026-07-14

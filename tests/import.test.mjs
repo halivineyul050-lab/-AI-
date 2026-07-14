@@ -36,6 +36,8 @@ function designRecord(overrides = {}) {
     pricingType: "unknown",
     language: "unknown",
     platforms: "web|desktop",
+    features: "协作画布|模板辅助",
+    useCases: "视觉设计|内容创作",
     verifiedAt: "2026-07-14",
     ...overrides
   };
@@ -108,6 +110,7 @@ test("authorized catalog import is review-first and idempotent", () => {
   const first = importToolCatalog(db, [designRecord()], {
     provider: "authorized-fixture",
     categoryMapping,
+    acceptEditorialText: true,
     now: "2026-07-14T00:00:00.000Z"
   });
   assert.equal(first.inserted, 1);
@@ -119,15 +122,24 @@ test("authorized catalog import is review-first and idempotent", () => {
   assert.equal(tool.language, "unknown");
   assert.equal(tool.canonical_url, "https://product.example.org/");
   assert.equal(db.prepare("SELECT COUNT(*) AS count FROM tool_sources WHERE tool_id = ?").get(tool.id).count, 1);
+  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM tool_features WHERE tool_id = ?").get(tool.id).count, 2);
+  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM tool_use_cases WHERE tool_id = ?").get(tool.id).count, 2);
 
-  const second = importToolCatalog(db, [designRecord({ logoUrl: "https://product.example.org/logo.png" })], {
+  const second = importToolCatalog(db, [designRecord({
+    logoUrl: "https://product.example.org/logo.png",
+    summary: "经过独立核验后更新的示例摘要，用于确认来源批次可以安全刷新自有编辑内容。",
+    features: "模板辅助|团队协作|品牌设计"
+  })], {
     provider: "authorized-fixture",
     categoryMapping,
+    acceptEditorialText: true,
     now: "2026-07-14T01:00:00.000Z"
   });
   assert.equal(second.inserted, 0);
   assert.equal(second.updated, 1);
   assert.equal(db.prepare("SELECT COUNT(*) AS count FROM tools WHERE name = ?").get("合规目录示例工具").count, 1);
+  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM tool_features WHERE tool_id = ?").get(tool.id).count, 3);
+  assert.match(db.prepare("SELECT summary FROM tools WHERE id = ?").get(tool.id).summary, /更新的示例摘要/);
 });
 
 test("canonical URL matches an existing curated tool instead of cloning it", () => {

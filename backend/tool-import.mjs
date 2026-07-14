@@ -50,6 +50,17 @@ function normalizePlatforms(value) {
   return normalized.length ? normalized : ["web"];
 }
 
+function normalizeTextArray(value, { maxItems = 8, maxLength = 80 } = {}) {
+  const values = Array.isArray(value)
+    ? value
+    : String(value || "").split(/[|;；\n]/);
+  return [...new Set(values
+    .map((item) => String(item).trim().replaceAll("\u0000", ""))
+    .filter(Boolean)
+    .map((item) => item.slice(0, maxLength)))]
+    .slice(0, maxItems);
+}
+
 function slugBase(value) {
   return String(value || "")
     .normalize("NFKD")
@@ -105,7 +116,9 @@ export function normalizeCatalogRecord(db, input, options = {}) {
     sourceCategory,
     pricingType,
     language,
-    logoUrl
+    logoUrl,
+    features: input.features,
+    useCases: input.useCases
   });
   return {
     provider,
@@ -125,6 +138,8 @@ export function normalizeCatalogRecord(db, input, options = {}) {
     verifiedDate,
     summary: options.acceptEditorialText ? readText(input.summary, "summary", { max: 180 }) : "",
     description: options.acceptEditorialText ? readText(input.description, "description", { max: 4000 }) : "",
+    features: options.acceptEditorialText ? normalizeTextArray(input.features, { maxItems: 6, maxLength: 80 }) : [],
+    useCases: options.acceptEditorialText ? normalizeTextArray(input.useCases, { maxItems: 5, maxLength: 80 }) : [],
     contentHash: hash(contentKey),
     stableSuffix: hash(`${provider}:${sourceKey}`, 8)
   };
@@ -162,6 +177,19 @@ function genericEditorialCopy(record, categoryName) {
   };
 }
 
+function replaceImportedRelations(db, toolId, record) {
+  ["tool_platforms", "tool_features", "tool_use_cases", "tool_badges"].forEach((table) => {
+    db.prepare(`DELETE FROM ${table} WHERE tool_id = ?`).run(toolId);
+  });
+  const insertPlatform = db.prepare("INSERT INTO tool_platforms (tool_id, platform, position) VALUES (?, ?, ?)");
+  record.platforms.forEach((platform, position) => insertPlatform.run(toolId, platform, position));
+  const insertFeature = db.prepare("INSERT INTO tool_features (tool_id, feature, position) VALUES (?, ?, ?)");
+  record.features.forEach((feature, position) => insertFeature.run(toolId, feature, position));
+  const insertUseCase = db.prepare("INSERT INTO tool_use_cases (tool_id, use_case, position) VALUES (?, ?, ?)");
+  record.useCases.forEach((useCase, position) => insertUseCase.run(toolId, useCase, position));
+  db.prepare("INSERT INTO tool_badges (tool_id, badge, position) VALUES (?, '官网核验', 0)").run(toolId);
+}
+
 function insertTool(db, record, options) {
   const readableBase = slugBase(record.name);
   const slug = uniqueIdentifier(db, readableBase || `tool-${record.stableSuffix}`, record.stableSuffix, "slug");
@@ -169,6 +197,7 @@ function insertTool(db, record, options) {
   const categoryName = db.prepare("SELECT name FROM categories WHERE id = ?").get(record.categoryId).name;
   const copy = genericEditorialCopy(record, categoryName);
   const status = options.publish ? "published" : "review";
+  const quality = options.acceptEditorialText ? "enriched" : "basic";
   const now = options.now;
 
   db.prepare(`
@@ -177,7 +206,7 @@ function insertTool(db, record, options) {
       summary, description, pricing_type, language, login_requirement, region,
       content_updated_date, editor_score, popularity, data_quality_status,
       first_published_at, last_verified_at, imported_at, is_sponsored, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'basic', ?, ?, ?, 0, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
   `).run(
     id,
     slug,
@@ -196,18 +225,46 @@ function insertTool(db, record, options) {
     record.verifiedDate,
     45,
     35,
+    quality,
     options.publish ? now : null,
     record.verifiedDate,
     now,
     status
   );
-  const insertPlatform = db.prepare("INSERT INTO tool_platforms (tool_id, platform, position) VALUES (?, ?, ?)");
-  record.platforms.forEach((platform, position) => insertPlatform.run(id, platform, position));
-  db.prepare("INSERT INTO tool_badges (tool_id, badge, position) VALUES (?, '待核验', 0)").run(id);
+  replaceImportedRelations(db, id, record);
   return id;
 }
 
-function updateMatchedTool(db, toolId, record) {
+function updateMatchedTool(db, toolId, record, match, options) {
+  const existing = db.prepare("SELECT imported_at, status FROM tools WHERE id = ?").get(toolId);
+  if (match === "source" && existing?.imported_at && options.acceptEditorialText === true) {
+    const categoryName = db.prepare("SELECT name FROM categories WHERE id = ?").get(record.categoryId).name;
+    const copy = genericEditorialCopy(record, categoryName);
+    db.prepare(`
+      UPDATE tools SET
+        name = ?, domain = ?, official_url = ?, canonical_url = ?, logo_url = ?,
+        category_id = ?, summary = ?, description = ?, pricing_type = ?, language = ?,
+        content_updated_date = ?, data_quality_status = 'enriched', last_verified_at = ?,
+        updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+      WHERE id = ?
+    `).run(
+      record.name,
+      record.domain,
+      record.officialUrl,
+      record.canonicalUrl,
+      record.logoUrl,
+      record.categoryId,
+      copy.summary,
+      copy.description,
+      record.pricingType,
+      record.language,
+      record.verifiedDate,
+      record.verifiedDate,
+      toolId
+    );
+    replaceImportedRelations(db, toolId, record);
+    return;
+  }
   db.prepare(`
     UPDATE tools SET
       canonical_url = CASE WHEN canonical_url = '' THEN ? ELSE canonical_url END,
@@ -307,7 +364,7 @@ export function importToolCatalog(db, records, options = {}) {
         let toolId;
         if (existing) {
           toolId = existing.toolId;
-          updateMatchedTool(db, toolId, record);
+          updateMatchedTool(db, toolId, record, existing.match, options);
           if (existing.match === "source") report.updated += 1;
           else report.duplicates += 1;
         } else {

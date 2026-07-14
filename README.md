@@ -13,7 +13,7 @@
 <p align="center">
   <img alt="Node.js 22.5+" src="https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLite-内置-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-23%20passing-0f766e">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-24%20passing-0f766e">
   <img alt="Dependencies" src="https://img.shields.io/badge/npm_dependencies-0-f97316">
 </p>
 
@@ -30,6 +30,8 @@
 - 资讯来源名称与官方原始链接
 
 内容资料更新日期：`2026-07-13`。
+
+当前本地数据库已完成一批官方来源扩充：`130` 条工具记录，其中 `129` 条已发布（`128` 条普通工具 + `1` 条推广工具），另有 `101` 条官方来源追踪记录。
 
 ## 核心功能
 
@@ -174,6 +176,13 @@ npm run catalog:import -- --input imports/my-authorized-tools.csv --provider aut
 
 仅经过人工核验的数据才建议添加 `--publish`。摘要和详情默认不会从外部文件导入；只有明确拥有相应使用权时才可添加 `--accept-editorial-text`。
 
+本项目内置的官网独立核验批次可先演练再导入：
+
+```powershell
+npm run catalog:import:official -- --dry-run
+npm run catalog:import:official
+```
+
 完整字段、去重规则和合规边界见 [AI工具批量导入与合规说明-2026-07-14.md](AI工具批量导入与合规说明-2026-07-14.md)。
 
 ## 常用 API
@@ -201,7 +210,7 @@ npm run catalog:import -- --input imports/my-authorized-tools.csv --provider aut
 npm test
 ```
 
-当前共 `23` 项自动化测试，覆盖：
+当前共 `24` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
