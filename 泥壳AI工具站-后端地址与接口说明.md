@@ -213,6 +213,8 @@ Authorization: Bearer <NIKE_ADMIN_TOKEN>
 
 监控后台每 5 秒更新，支持 24 小时/7 天窗口、暂停和手动刷新。匿名只读模式仅展示脱敏聚合数据；输入 `.env` 中的 `NIKE_ADMIN_TOKEN` 后可维护工具、分类、资讯/教程和首页专题，上传工具 Logo，并查看投稿联系方式和执行审核。
 
+公开页面还提供 `POST /api/v1/feedback`，用于接收内容纠错、功能问题、建议和合作咨询。提交必须携带当前隐私同意版本；反馈会进入 `feedback_messages` 待处理队列，不会在公开 API 返回联系方式。
+
 内容编辑使用乐观锁：读取详情时记录 `revision`，更新时原样提交。如果记录已经被其他操作修改，接口返回 `409 revision_conflict`。删除操作为归档，不物理删除内容。每次新增、更新、归档和 Logo 上传都会写入 `audit_logs` 并递增 `/api/v1/content/version`。后台保存的记录带有 `cms_managed_at` 标记，服务重启时不会被种子同步覆盖。
 
 ## 四、数据库
@@ -240,7 +242,7 @@ Authorization: Bearer <NIKE_ADMIN_TOKEN>
 
 - SQLite WAL
 - 外键约束
-- 五个版本化迁移
+- 七个版本化迁移
 - 投稿审核状态
 - 管理操作审计日志
 - 事件和跳转数据定期清理

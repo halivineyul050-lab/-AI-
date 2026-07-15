@@ -10,7 +10,8 @@ const migrations = [
   { version: 3, name: "article_sources", sql: readFileSync(resolve(import.meta.dirname, "migrations", "003_article_sources.sql"), "utf8") },
   { version: 4, name: "tool_catalog_imports", sql: readFileSync(resolve(import.meta.dirname, "migrations", "004_tool_catalog_imports.sql"), "utf8") },
   { version: 5, name: "comic_category", sql: readFileSync(resolve(import.meta.dirname, "migrations", "005_comic_category.sql"), "utf8") },
-  { version: 6, name: "content_management", sql: readFileSync(resolve(import.meta.dirname, "migrations", "006_content_management.sql"), "utf8") }
+  { version: 6, name: "content_management", sql: readFileSync(resolve(import.meta.dirname, "migrations", "006_content_management.sql"), "utf8") },
+  { version: 7, name: "feedback_messages", sql: readFileSync(resolve(import.meta.dirname, "migrations", "007_feedback.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -612,6 +613,15 @@ export function unsubscribeNewsletter(db, token) {
   return Number(result.changes) === 1;
 }
 
+export function createFeedback(db, input) {
+  const id = randomUUID();
+  db.prepare(`
+    INSERT INTO feedback_messages (id, category, message, contact_email, page_url, consent_version)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(id, input.category, input.message, input.contactEmail || null, input.pageUrl, input.consentVersion);
+  return { id, status: "pending", submittedAt: new Date().toISOString() };
+}
+
 export function insertEvents(db, events, context) {
   const insert = db.prepare(`
     INSERT OR IGNORE INTO analytics_events (
@@ -672,6 +682,7 @@ export function getAdminSummary(db) {
     tools: scalar("SELECT COUNT(*) AS count FROM tools WHERE status = 'published'"),
     articles: scalar("SELECT COUNT(*) AS count FROM articles WHERE status = 'published'"),
     pendingSubmissions: scalar("SELECT COUNT(*) AS count FROM tool_submissions WHERE status = 'pending'"),
+    pendingFeedback: scalar("SELECT COUNT(*) AS count FROM feedback_messages WHERE status = 'pending'"),
     activeSubscribers: scalar("SELECT COUNT(*) AS count FROM newsletter_subscriptions WHERE status = 'active'"),
     events: scalar("SELECT COUNT(*) AS count FROM analytics_events"),
     outboundClicks: scalar("SELECT COUNT(*) AS count FROM outbound_clicks")

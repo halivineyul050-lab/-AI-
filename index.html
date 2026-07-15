@@ -10,9 +10,9 @@
   <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260713-1">
   <link rel="preconnect" href="https://www.google.com">
   <link rel="preconnect" href="https://images.unsplash.com">
-  <link rel="stylesheet" href="styles.css?v=20260715-6">
+  <link rel="stylesheet" href="styles.css?v=20260715-7">
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="app.js?v=20260715-2"></script>
+  <script defer src="app.js?v=20260715-3"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -302,14 +302,39 @@
         <div class="about-principles"><div><p class="eyebrow">EDITORIAL PRINCIPLES</p><h2>让工具信息更可信，也更好用。</h2></div><div class="principle-list"><span><i data-lucide="check"></i>以任务和场景组织，而不是只堆产品名称</span><span><i data-lucide="check"></i>区分自然收录、推广内容和待核验信息</span><span><i data-lucide="check"></i>持续更新产品状态、价格和官方链接</span></div></div>
       </section>
 
+      <section class="view policy-view" id="standards-view" data-view-section="standards" hidden>
+        <div class="policy-hero"><div><p class="eyebrow">EDITORIAL STANDARD</p><h1>我们如何选择 AI 工具。</h1><p>收录不是把网址堆在一起，而是帮助你判断一个工具能不能解决真实问题。</p></div><span class="policy-hero-icon"><i data-lucide="badge-check"></i></span></div>
+        <div class="policy-layout"><aside class="policy-index"><span>目录</span><a href="#standards-criteria">收录条件</a><a href="#standards-process">收录流程</a><a href="#standards-labels">内容标识</a></aside><div class="policy-content">
+          <section id="standards-criteria"><p class="eyebrow">WHAT WE LOOK FOR</p><h2>收录条件</h2><div class="criteria-grid"><article><i data-lucide="target"></i><h3>有明确用途</h3><p>能清楚说明解决什么任务、适合哪些人，而不是只用“全能”“颠覆”描述。</p></article><article><i data-lucide="globe-2"></i><h3>官网可核验</h3><p>有可访问的官方页面、产品说明或公开资料，链接和品牌信息能够被复核。</p></article><article><i data-lucide="refresh-cw"></i><h3>值得持续关注</h3><p>产品仍在维护或具有稳定使用价值，价格、状态和能力会持续更新。</p></article></div></section>
+          <section id="standards-process"><p class="eyebrow">OUR PROCESS</p><h2>收录流程</h2><ol class="process-list"><li><b>01</b><div><h3>发现与提交</h3><p>来自公开资料、用户投稿或编辑主动发现。</p></div></li><li><b>02</b><div><h3>基础核验</h3><p>检查官网、产品定位、链接状态和分类归属。</p></div></li><li><b>03</b><div><h3>编辑整理</h3><p>补充适用场景、价格、平台和一句话说明。</p></div></li><li><b>04</b><div><h3>上线复核</h3><p>发布后持续关注更新，过期或失效内容会调整状态。</p></div></li></ol></section>
+          <section id="standards-labels"><p class="eyebrow">CLEAR LABELS</p><h2>内容标识</h2><div class="label-explain"><span class="tool-badge sponsored-badge">推广</span><p>表示产品方为获得展示或内容合作支付了费用，不代表平台对产品效果作保证。</p><span class="tool-badge price-free">免费</span><p>表示当前公开资料显示有免费使用入口，具体额度和限制以官网为准。</p><span class="tool-badge">待核验</span><p>表示价格、语言或能力信息尚未完成最新核对，欢迎反馈更正。</p></div></section>
+          <div class="policy-cta"><div><h2>发现一个值得收录的工具？</h2><p>把产品信息提交给我们，编辑会先核验再决定是否收录。</p></div><button class="primary-button" type="button" id="standards-submit" data-dialog-open="submit-dialog"><i data-lucide="send"></i><span>提交工具</span></button></div>
+        </div></div>
+      </section>
+
+      <section class="view policy-view" id="privacy-view" data-view-section="privacy" hidden>
+        <div class="policy-hero privacy-hero"><div><p class="eyebrow">PRIVACY POLICY · 2026-07</p><h1>我们尽量少收集，也把用途说清楚。</h1><p>这份说明适用于泥壳AI工具站的公开页面、投稿、周报、反馈和后台运营数据。</p></div><span class="policy-hero-icon"><i data-lucide="lock-keyhole"></i></span></div>
+        <div class="policy-layout"><aside class="policy-index"><span>目录</span><a href="#privacy-collect">收集什么</a><a href="#privacy-use">如何使用</a><a href="#privacy-retain">保存多久</a><a href="#privacy-rights">你的权利</a></aside><div class="policy-content privacy-content">
+          <section id="privacy-collect"><p class="eyebrow">DATA WE HANDLE</p><h2>收集什么</h2><p>浏览工具站时，我们会处理保障页面运行和统计效果所需的信息：</p><ul><li>匿名访客标识、会话标识、访问页面、搜索和工具点击事件。</li><li>投稿时提交的工具名称、官网、分类、介绍和联系邮箱。</li><li>订阅周报时提交的邮箱、订阅主题和同意版本。</li><li>问题反馈中的反馈类型、内容、可选联系邮箱和提交页面。</li><li>后台管理操作产生的审计记录。IP 地址只以加盐哈希形式保存。</li></ul></section>
+          <section id="privacy-use"><p class="eyebrow">WHY WE USE IT</p><h2>如何使用</h2><p>这些信息只用于提供和改进泥壳AI工具站：处理投稿和反馈、发送已同意订阅的周报、统计工具发现与官网点击、识别异常请求、维护内容质量和保障服务安全。</p><p>我们不会出售个人信息，也不会把匿名行为事件用于识别具体个人。推广合作会单独标识，不会因为推广关系修改自然排序的说明口径。</p></section>
+          <section id="privacy-retain"><p class="eyebrow">RETENTION</p><h2>保存多久</h2><div class="retention-table"><div><strong>匿名事件与官网点击</strong><span>默认 90 天，之后自动清理</span></div><div><strong>投稿与问题反馈</strong><span>在处理完成和必要的运营期限内保存</span></div><div><strong>周报订阅</strong><span>直到退订、压制或要求删除</span></div><div><strong>审计记录</strong><span>按安全、合规和运营需要保留</span></div></div></section>
+          <section id="privacy-rights"><p class="eyebrow">YOUR CHOICES</p><h2>你的权利</h2><p>你可以申请查看、更正或删除你提交的邮箱、投稿和反馈信息，也可以随时退订周报。请通过问题反馈页面说明需要处理的内容；为了避免误处理，我们可能需要核对提交时使用的邮箱。</p></section>
+          <p class="policy-updated">最后更新：2026 年 7 月。产品功能或法律要求发生变化时，我们会更新这份说明。</p>
+        </div></div>
+      </section>
+
+      <section class="view feedback-view" id="feedback-view" data-view-section="feedback" hidden>
+        <div class="feedback-layout"><div class="feedback-intro"><p class="eyebrow">HELP US IMPROVE</p><h1>告诉我们哪里还可以更好。</h1><p>发现链接失效、工具信息不准确，或者有新的栏目建议，都可以告诉我们。</p><div class="feedback-points"><span><i data-lucide="link-2-off"></i>链接或 Logo 问题</span><span><i data-lucide="message-circle"></i>内容和分类建议</span><span><i data-lucide="bug"></i>页面功能异常</span></div></div><div class="feedback-card"><p class="eyebrow">SEND FEEDBACK</p><h2>问题反馈</h2><form id="feedback-form"><label>反馈类型<select name="category" required><option value="content">内容不准确</option><option value="bug">页面或功能问题</option><option value="suggestion">功能建议</option><option value="cooperation">合作咨询</option><option value="other">其他</option></select></label><label>具体内容<textarea name="message" rows="7" minlength="10" maxlength="2000" required placeholder="请尽量描述具体页面、工具名称或复现步骤"></textarea></label><label>联系邮箱 <span class="optional-label">可选</span><input name="contactEmail" type="email" placeholder="方便我们回复你"></label><label class="sr-only" aria-hidden="true">公司<input name="company" tabindex="-1" autocomplete="off"></label><label class="checkbox-row"><input name="consentAccepted" type="checkbox" required><span>我同意按照<a href="#privacy" data-view-link="privacy">隐私政策</a>处理这次反馈</span></label><div class="feedback-actions"><button class="secondary-button" type="button" data-view-link="tools">返回工具库</button><button class="primary-button" type="submit"><i data-lucide="send"></i><span>提交反馈</span></button></div></form></div></div>
+      </section>
+
       <footer class="site-footer">
         <span>© 2026 泥壳AI工具站</span>
         <nav aria-label="页脚导航">
           <button type="button" data-view-link="advertise">广告合作</button>
           <button type="button" data-view-link="about">关于我们</button>
-          <button type="button" data-toast="收录标准将在正式版开放">收录标准</button>
-          <button type="button" data-toast="隐私政策将在正式版开放">隐私政策</button>
-          <button type="button" data-toast="反馈入口将在正式版开放">问题反馈</button>
+          <button type="button" data-view-link="standards">收录标准</button>
+          <button type="button" data-view-link="privacy">隐私政策</button>
+          <button type="button" data-view-link="feedback">问题反馈</button>
         </nav>
       </footer>
     </main>

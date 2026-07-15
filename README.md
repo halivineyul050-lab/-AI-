@@ -213,6 +213,7 @@ npm run logos:verify
 | `POST` | `/api/v1/tool-submissions` | 提交工具审核 |
 | `GET` | `/api/v1/tool-submissions/:code/status` | 查询投稿审核状态 |
 | `POST` | `/api/v1/newsletter/subscriptions` | 订阅周报 |
+| `POST` | `/api/v1/feedback` | 提交内容纠错、功能问题和建议 |
 | `DELETE` | `/api/v1/newsletter/subscriptions/:token` | 退订周报 |
 | `POST` | `/api/v1/events/batch` | 批量上报行为事件 |
 | `GET` | `/r/tools/:slug` | 记录官网点击并跳转 |
@@ -229,7 +230,7 @@ npm run logos:verify
 npm test
 ```
 
-当前共 `31` 项自动化测试，覆盖：
+当前共 `32` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -242,6 +243,7 @@ npm test
 - 138 个 Logo 资产、哈希、MIME、静态路由和目录穿越防护
 - CMS 增删改查、发布可见性、修订冲突、审计记录和重启持久化
 - Logo 上传签名校验、危险 SVG 拒绝和本地静态资源服务
+- 问题反馈的同意校验、字段校验和待处理入库
 
 ## 项目结构
 

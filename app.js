@@ -1705,7 +1705,7 @@ function renderContentViews() {
 }
 
 function setActiveView(viewName, updateHash = true, shouldTrack = true) {
-  const validViews = ["tools", "discover", "tutorials", "news", "advertise", "about"];
+  const validViews = ["tools", "discover", "tutorials", "news", "advertise", "about", "standards", "privacy", "feedback"];
   const nextView = validViews.includes(viewName) ? viewName : "tools";
   const previousView = state.activeView;
   state.activeView = nextView;
@@ -1830,7 +1830,7 @@ function loadInitialState() {
   if (["recommended", "popular", "newest", "name"].includes(params.get("sort"))) state.sort = params.get("sort");
   state.favoritesOnly = params.get("favorites") === "1";
   const hashView = location.hash.replace("#", "");
-  if (["tools", "discover", "tutorials", "news", "advertise", "about"].includes(hashView)) state.activeView = hashView;
+  if (["tools", "discover", "tutorials", "news", "advertise", "about", "standards", "privacy", "feedback"].includes(hashView)) state.activeView = hashView;
 }
 
 function bindEvents() {
@@ -1998,6 +1998,7 @@ function bindEvents() {
   });
 
   document.getElementById("submit-tool-open").addEventListener("click", openSubmitDialog);
+  document.getElementById("standards-submit").addEventListener("click", openSubmitDialog);
   document.querySelectorAll("[data-dialog-close]").forEach((button) => {
     button.addEventListener("click", () => closeDialog(button.dataset.dialogClose));
   });
@@ -2073,6 +2074,35 @@ function bindEvents() {
       } else {
         showToast("服务暂不可用，请稍后重试");
       }
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+
+  document.getElementById("feedback-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
+    const submitButton = form.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+    try {
+      if (!backendAvailable) throw new TypeError("Backend unavailable");
+      await apiRequest("/api/v1/feedback", {
+        method: "POST",
+        body: JSON.stringify({
+          category: data.category,
+          message: data.message,
+          contactEmail: data.contactEmail || "",
+          pageUrl: `${location.pathname}${location.hash}`,
+          consentAccepted: data.consentAccepted === "on",
+          consentVersion: "2026-07",
+          company: data.company || ""
+        })
+      });
+      form.reset();
+      showToast("反馈已收到，感谢你的建议");
+    } catch (error) {
+      showToast(error.status ? error.message : "服务暂不可用，请稍后重试");
     } finally {
       submitButton.disabled = false;
     }

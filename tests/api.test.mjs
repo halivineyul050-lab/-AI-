@@ -68,8 +68,8 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 6);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 6);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 7);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 7);
 });
 
 test("brand icon is served with the expected media type", async () => {
@@ -245,6 +245,36 @@ test("newsletter subscription is persisted and repeated calls are idempotent", a
   assert.equal(unsubscribed.body.data.status, "unsubscribed");
 });
 
+test("feedback requires consent and is persisted for review", async () => {
+  const denied = await request("/api/v1/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ category: "bug", message: "工具详情页面的链接显示异常。", consentAccepted: false })
+  });
+  assert.equal(denied.response.status, 422);
+  assert.equal(denied.body.code, "consent_required");
+
+  const accepted = await request("/api/v1/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      category: "content",
+      message: "ChatGPT 工具页面的价格信息需要重新核验。",
+      contactEmail: "feedback@example.com",
+      pageUrl: "/#feedback",
+      consentVersion: "2026-07",
+      consentAccepted: true,
+      company: ""
+    })
+  });
+  assert.equal(accepted.response.status, 201);
+  assert.equal(accepted.body.data.status, "pending");
+  const row = app.db.prepare("SELECT category, contact_email, status FROM feedback_messages WHERE id = ?").get(accepted.body.data.id);
+  assert.equal(row.category, "content");
+  assert.equal(row.contact_email, "feedback@example.com");
+  assert.equal(row.status, "pending");
+});
+
 test("event ingestion deduplicates by event id", async () => {
   const payload = {
     visitorId: "visitor-integration-0001",
@@ -297,6 +327,7 @@ test("admin endpoints require a token and expose operational totals", async () =
   assert.equal(allowed.response.status, 200);
   assert.equal(allowed.body.data.tools, 28);
   assert.equal(allowed.body.data.pendingSubmissions, 1);
+  assert.equal(allowed.body.data.pendingFeedback, 1);
   assert.equal(allowed.body.data.activeSubscribers, 0);
   assert.equal(allowed.body.data.events, 1);
   assert.equal(allowed.body.data.outboundClicks, 1);

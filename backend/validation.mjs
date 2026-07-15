@@ -141,6 +141,30 @@ export function validateSubscription(body) {
   };
 }
 
+export function validateFeedback(body) {
+  assertAllowedKeys(body, ["category", "message", "contactEmail", "pageUrl", "consentVersion", "consentAccepted", "company"]);
+  if (body.company) return { honeypot: true };
+  if (body.consentAccepted !== true) {
+    throw new HttpError(422, "consent_required", "请确认同意隐私政策", { field: "consentAccepted" });
+  }
+  const categories = new Set(["content", "bug", "suggestion", "cooperation", "other"]);
+  const category = readText(body.category, "category", 3, 20);
+  if (!categories.has(category)) throw new HttpError(422, "invalid_category", "反馈类型无效", { field: "category" });
+  const consentVersion = readText(body.consentVersion || currentConsentVersion, "consentVersion", 4, 20);
+  if (consentVersion !== currentConsentVersion) {
+    throw new HttpError(409, "consent_version_outdated", "隐私政策已更新，请刷新页面后重试");
+  }
+  const contactEmail = body.contactEmail ? normalizeEmail(body.contactEmail) : "";
+  const pageUrl = body.pageUrl ? readText(body.pageUrl, "pageUrl", 1, 500) : "";
+  return {
+    category,
+    message: readText(body.message, "message", 10, 2000),
+    contactEmail,
+    pageUrl,
+    consentVersion: currentConsentVersion
+  };
+}
+
 const eventNames = new Set([
   "page_view",
   "search_submit",

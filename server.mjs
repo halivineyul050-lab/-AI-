@@ -15,6 +15,7 @@ import {
 } from "./backend/content-admin.mjs";
 
 import {
+  createFeedback,
   createSubmission,
   findSubmissionByIdempotencyKey,
   getAdminSummary,
@@ -41,6 +42,7 @@ import {
   HttpError,
   readJsonBody,
   validateEventBatch,
+  validateFeedback,
   validateReview,
   validateSubmission,
   validateSubscription
@@ -513,6 +515,17 @@ export function buildApplication(options = {}) {
         const input = validateSubscription(await readJsonBody(request));
         const subscription = upsertNewsletterSubscription(db, input);
         sendData(response, subscription, { message: "订阅意向已记录" }, subscription.existing ? 200 : 201);
+        return;
+      }
+
+      if (method === "POST" && pathname === "/api/v1/feedback") {
+        rateLimit(`${ip}:feedback`, 5, 60 * 60_000);
+        const input = validateFeedback(await readJsonBody(request));
+        if (input.honeypot) {
+          sendData(response, { id: randomUUID(), status: "pending" }, null, 201);
+          return;
+        }
+        sendData(response, createFeedback(db, input), { message: "反馈已收到" }, 201);
         return;
       }
 
