@@ -74,29 +74,45 @@ function responseText(payload) {
   return parts.find((part) => part.type === "output_text" && typeof part.text === "string")?.text || "";
 }
 
-async function generateArticle(items, { apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage }) {
+async function requestArticle(items, { apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage, structured }) {
+  const systemText = "你是泥壳AI工具站的资讯编辑。只根据给定来源写一篇中文AI行业资讯。不要编造未在来源中出现的数字、人物、时间或功能，不要长段复制原文。文章要有清晰标题、摘要和正文，适合直接发布；正文应说明事件、背景、对工具用户的影响和来源边界。";
+  const inputText = JSON.stringify({ sources: items });
+  const requestBody = {
+    model,
+    reasoning: { effort: reasoningEffort },
+    store: !disableResponseStorage,
+    input: [
+      { role: "system", content: [{ type: "input_text", text: structured ? systemText : `${systemText} 只输出一个合法JSON对象，不要Markdown代码块。` }] },
+      { role: "user", content: [{ type: "input_text", text: inputText }] }
+    ]
+  };
+  if (structured) {
+    requestBody.text = { format: { type: "json_schema", name: "ai_news_article", strict: true, schema: articleSchema() } };
+  }
   const response = await fetch(responseEndpoint(baseUrl, apiPath), {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      reasoning: { effort: reasoningEffort },
-      store: !disableResponseStorage,
-      text: { format: { type: "json_schema", name: "ai_news_article", strict: true, schema: articleSchema() } },
-      input: [
-        {
-          role: "system",
-          content: [{ type: "input_text", text: "你是泥壳AI工具站的资讯编辑。只根据给定来源写一篇中文AI行业资讯。不要编造未在来源中出现的数字、人物、时间或功能，不要长段复制原文。文章要有清晰标题、摘要和正文，适合直接发布；正文应说明事件、背景、对工具用户的影响和来源边界。" }]
-        },
-        { role: "user", content: [{ type: "input_text", text: JSON.stringify({ sources: items }) }] }
-      ]
-    })
+    body: JSON.stringify(requestBody)
   });
   if (!response.ok) throw new Error(`AI Responses API returned ${response.status}: ${(await response.text()).slice(0, 300)}`);
-  const payload = await response.json();
-  const content = responseText(payload);
-  if (!content) throw new Error("AI API returned no article content");
-  return JSON.parse(content);
+  return response.json();
+}
+
+function parseArticleJson(content) {
+  const normalized = String(content || "").trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  return JSON.parse(normalized);
+}
+
+async function generateArticle(items, options) {
+  const first = await requestArticle(items, { ...options, structured: true });
+  let content = responseText(first);
+  if (!content) {
+    const fallbackEffort = options.reasoningEffort === "xhigh" ? "low" : options.reasoningEffort;
+    const fallback = await requestArticle(items, { ...options, structured: false, reasoningEffort: fallbackEffort });
+    content = responseText(fallback);
+  }
+  if (!content) throw new Error("AI API returned no article content after compatibility fallback");
+  return parseArticleJson(content);
 }
 
 function articleId(sourceUrl) {

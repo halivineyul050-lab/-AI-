@@ -71,3 +71,32 @@ test("publisher sends a Responses API request with the configured provider optio
     globalThis.fetch = originalFetch;
   }
 });
+
+test("publisher falls back when the provider returns reasoning without content", async () => {
+  const originalFetch = globalThis.fetch;
+  const bodies = [];
+  globalThis.fetch = async (url, options = {}) => {
+    if (String(url).endsWith("/rss.xml")) {
+      return new Response("<rss><channel><item><title>Fallback source</title><link>https://example.com/news/3</link></item></channel></rss>", { status: 200 });
+    }
+    const body = JSON.parse(options.body);
+    bodies.push(body);
+    if (body.text) return new Response(JSON.stringify({ output: [{ type: "reasoning", content: [] }] }), { status: 200 });
+    return new Response(JSON.stringify({ output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ topic: "AI", title: "Fallback", excerpt: "Summary", body: "Body", readTime: "1 minute" }) }] }] }), { status: 200 });
+  };
+  try {
+    const result = await runNewsPublisherOnce({
+      db: { prepare: () => ({ get: () => undefined }) },
+      apiKey: "test-key",
+      feeds: ["https://example.com/rss.xml"],
+      dryRun: true
+    });
+    assert.equal(result.article.title, "Fallback");
+    assert.equal(bodies.length, 2);
+    assert.equal(bodies[0].text.format.type, "json_schema");
+    assert.equal(bodies[1].text, undefined);
+    assert.equal(bodies[1].reasoning.effort, "low");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
