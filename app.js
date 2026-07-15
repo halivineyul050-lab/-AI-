@@ -1875,6 +1875,10 @@ function bindEvents() {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       setActiveView(link.dataset.viewLink);
+      if (link.dataset.feedbackCategory) {
+        const feedbackCategory = document.querySelector('#feedback-form select[name="category"]');
+        if (feedbackCategory) feedbackCategory.value = link.dataset.feedbackCategory;
+      }
     });
   });
 
