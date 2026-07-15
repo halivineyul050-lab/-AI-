@@ -23,6 +23,7 @@ import {
   recordOutboundClick,
   reviewSubmission,
   seedDatabase,
+  syncSeedToolLogos,
   syncCuratedContent,
   unsubscribeNewsletter,
   upsertNewsletterSubscription
@@ -50,6 +51,8 @@ const mimeTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".avif": "image/avif",
   ".ico": "image/x-icon"
 };
 
@@ -202,7 +205,7 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
     "default-src 'self'",
     isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://www.google.com https://images.unsplash.com https://mgc.funshion.com https://static.rayvision.com https://r2.animeaistudio.com https://www.ihuiying.com https://static.kuaimanju.com.tangshuang.net https://ai.qinglingdesign.cn https://www.mantur.ai https://www.julinghui.com https://anifusion.ai https://content.dashtoon.ai",
+    "img-src 'self' data: https://www.google.com https://images.unsplash.com",
     "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -220,9 +223,12 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
 }
 
 function serveStatic(request, response, pathname, staticDir) {
+  const logoMatch = pathname.match(/^\/assets\/tool-logos\/([a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif))$/);
   const fileName = pathname === "/" ? "index.html" : pathname.slice(1);
-  if (!staticFiles.has(fileName)) return false;
-  const filePath = resolve(staticDir, fileName);
+  if (!logoMatch && !staticFiles.has(fileName)) return false;
+  const filePath = logoMatch
+    ? resolve(staticDir, "assets", "tool-logos", logoMatch[1])
+    : resolve(staticDir, fileName);
   if (!existsSync(filePath) || !statSync(filePath).isFile()) return false;
   const content = readFileSync(filePath);
   const isAdminResource = /^admin(?:\.|$)/.test(fileName);
@@ -231,7 +237,7 @@ function serveStatic(request, response, pathname, staticDir) {
     "Content-Length": content.length,
     "Cache-Control": isAdminResource
       ? "no-store, private"
-      : fileName === "index.html" ? "no-store" : "public, max-age=300"
+      : fileName === "index.html" ? "no-store" : logoMatch ? "public, max-age=86400" : "public, max-age=300"
   });
   if (request.method === "HEAD") response.end();
   else response.end(content);
@@ -267,6 +273,7 @@ export function buildApplication(options = {}) {
   const contentSyncResult = autoSeed
     ? syncCuratedContent(db, seedData)
     : { tools: 0, newsItems: 0, retiredTools: 0, retiredNewsItems: 0 };
+  const logoSyncResult = syncSeedToolLogos(db, seedData);
   pruneOperationalData(db);
   const retentionTimer = setInterval(() => pruneOperationalData(db), 24 * 60 * 60_000);
   retentionTimer.unref();
@@ -638,6 +645,7 @@ export function buildApplication(options = {}) {
     dbPath,
     seedResult,
     contentSyncResult,
+    logoSyncResult,
     server,
     listen(port = 4173, host = "127.0.0.1") {
       return new Promise((resolveListen, reject) => {

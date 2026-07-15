@@ -223,15 +223,16 @@ Authorization: Bearer <NIKE_ADMIN_TOKEN>
 | 已发布工具 | 138 |
 | 官方来源记录 | 110 |
 | AI漫剧工具 | 10（含1条明确标识的推广工具） |
-| 分类 | 16 |
+| 分类 | 17 |
 | 文章 | 12 |
 | 专题 | 3 |
+| 本地 Logo 资产 | 138（136 官方、2 favicon 兜底） |
 
 数据库已启用：
 
 - SQLite WAL
 - 外键约束
-- 四个版本化迁移
+- 五个版本化迁移
 - 投稿审核状态
 - 管理操作审计日志
 - 事件和跳转数据定期清理
@@ -262,7 +263,7 @@ npm run dev
 npm test
 ```
 
-当前测试结果：`25/25` 通过。
+当前测试结果：`28/28` 通过。
 
 ## 六、代码位置
 
@@ -275,6 +276,8 @@ npm test
 | `backend/migrations/` | 数据库增量迁移 |
 | `backend/tool-import.mjs` | 授权工具目录规范化、去重和事务入库 |
 | `scripts/import-tool-catalog.mjs` | CSV、JSON、NDJSON 本地导入命令 |
+| `scripts/sync-tool-logos.mjs` | Logo 下载、校验、Manifest 与本地资产同步 |
+| `backend/catalog/tool-logo-manifest-2026-07-15.json` | Logo 来源、哈希、MIME 与核验记录 |
 | `backend/database.mjs` | 数据访问和事务 |
 | `backend/validation.mjs` | 输入校验和安全限制 |
 | `backend/seed-data.json` | 初始内容种子 |

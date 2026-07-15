@@ -12,7 +12,8 @@
     "description": "Firefly面向内容创作者与设计团队，整合Adobe自有模型及多家合作模型，支持从文字提示生成视觉内容，也可继续编辑图片、视频、音效和矢量素材。适合把概念草图、社交配图和品牌活动素材串联到同一创作流程。",
     "features": ["多模型内容生成", "图像与视频编辑", "音效和矢量生成", "统一创意工作区"],
     "useCases": ["品牌视觉制作", "社交内容创作", "创意概念验证"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/adobe-firefly.svg"
   },
   {
     "sourceKey": "official-stability-stable-image",
@@ -27,7 +28,8 @@
     "description": "Stable Diffusion 3.5系列可通过授权或API接入，提供Large、Turbo与Medium等不同取舍的模型版本。官网强调风格覆盖、提示词响应与多样化输出，适合开发者、设计团队和需要自部署能力的企业。",
     "features": ["多规格图像模型", "多种视觉风格", "提示词遵循", "API与授权接入"],
     "useCases": ["图像应用开发", "专业视觉生成", "企业模型部署"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/stability-stable-image.webp"
   },
   {
     "sourceKey": "official-remove-bg",
@@ -42,7 +44,8 @@
     "description": "remove.bg把主体抠取、透明背景输出和AI背景生成集中在一个流程中，可用于商品图、证件照、汽车图片和营销素材。官网同时提供批量编辑、移动端应用、设计软件集成与API，适合个人快速处理和企业规模化制作。",
     "features": ["自动背景移除", "AI背景生成", "图片批量处理", "设计工具与API集成"],
     "useCases": ["电商商品图", "证件与头像处理", "营销素材制作"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/remove-bg.png"
   },
   {
     "sourceKey": "official-scenario",
@@ -57,7 +60,8 @@
     "description": "Scenario允许团队上传风格参考训练定制模型，并在同一工作区使用多家生成模型。可视化流程编辑器、批量生成、模板共享、API与MCP连接能力，适合游戏资产、品牌内容和需要保持视觉一致性的规模化创作。",
     "features": ["定制风格模型", "多模态模型库", "可视化工作流", "API与MCP连接"],
     "useCases": ["游戏资产生产", "品牌视觉扩展", "批量创意制作"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/scenario.png"
   },
   {
     "sourceKey": "official-phot-ai",
@@ -72,7 +76,8 @@
     "description": "Phot.AI以产品图片或商品链接为输入，分析产品属性与受众语境，再生成适配广告、商品列表和社交渠道的视觉素材。平台将创意角度、静态图、视频和多版式输出放在连续流程中，适合电商与增长团队批量测试内容。",
     "features": ["产品图内容生成", "广告创意角度分析", "静态图与视频产出", "多渠道尺寸适配"],
     "useCases": ["电商商品列表", "效果广告素材", "社交渠道内容"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/phot-ai.png"
   },
   {
     "sourceKey": "official-getty-generative-ai",
@@ -87,7 +92,8 @@
     "description": "Generative AI by Getty Images面向需要商业使用确定性的企业和创意团队，可通过文字生成新图，也能修改Getty创意图库中的现有图片。产品强调受保护的生成结果与授权场景，适合广告、品牌传播和商业出版中的视觉制作。",
     "features": ["文字生成商业图片", "图库图片修改", "商业授权保障"],
     "useCases": ["品牌广告制作", "商业出版配图", "企业传播内容"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/getty-generative-ai.svg"
   },
   {
     "sourceKey": "official-stockimg-ai",
@@ -102,7 +108,8 @@
     "description": "Stockimg AI把视觉生成、内容编辑、社交账号连接和发布排期整合在一起。用户可制作品牌标识、图库图片、插画、商品图以及Reels或短视频，再通过日历和集成进行持续运营，适合小型品牌和社交媒体团队。",
     "features": ["多类型视觉生成", "社交帖子与短视频", "内容编辑", "社交发布排期"],
     "useCases": ["品牌视觉起步", "社交账号运营", "电商内容生产"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/stockimg-ai.ico"
   },
   {
     "sourceKey": "official-pixelcut",
@@ -117,7 +124,8 @@
     "description": "Pixelcut通过自然语言驱动创意代理，完成产品展示图、用户生成式广告和角色内容制作。日常编辑还覆盖去背景、扩图、修饰、阴影、放大与批量处理，并提供网页、移动应用和API，适合电商图片及营销素材生产。",
     "features": ["商品场景生成", "背景移除与扩图", "图片批量编辑", "品牌角色一致性"],
     "useCases": ["电商商品摄影", "社交广告素材", "品牌角色内容"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/pixelcut.png"
   },
   {
     "sourceKey": "official-microsoft-designer",
@@ -132,7 +140,8 @@
     "description": "Microsoft Designer面向不具备专业设计经验的用户，将文字构思转化为可继续编辑的图形作品。产品聚焦社交媒体内容、活动邀请、数字卡片和宣传图等高频场景，适合个人与小型团队快速建立版式并输出成品。",
     "features": ["文字驱动设计", "社交媒体版式", "邀请函与卡片", "在线图形编辑"],
     "useCases": ["社交帖子制作", "活动邀请设计", "个人宣传图片"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/microsoft-designer.png"
   },
   {
     "sourceKey": "official-uizard",
@@ -147,7 +156,8 @@
     "description": "Uizard将界面设计流程简化为类似演示文稿的编辑体验，支持为移动应用、网站和桌面软件构建设计稿。它适合从产品想法快速形成线框图、页面结构和可演示原型，帮助产品经理、创业团队和非专业设计者沟通方案。",
     "features": ["应用界面设计", "网站线框图", "高保真原型", "低门槛可视化编辑"],
     "useCases": ["产品概念验证", "界面原型制作", "客户方案演示"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/uizard.png"
   },
   {
     "sourceKey": "official-framer-ai",
@@ -162,7 +172,8 @@
     "description": "Framer AI在可视化画布中接收自然语言要求，将想法变成可编辑页面、区块、文案和视觉素材，并支持连续对话式修改。其代理还可编写代码组件、检查SEO、翻译站点并完成发布，适合设计师和营销团队快速交付网站。",
     "features": ["提示生成网站页面", "对话式布局修改", "代码组件编写", "SEO检查与翻译"],
     "useCases": ["营销网站搭建", "活动页面制作", "网站国际化"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/framer-ai.avif"
   },
   {
     "sourceKey": "official-visily",
@@ -177,7 +188,8 @@
     "description": "Visily允许用户从多种灵感来源开始，将产品想法转成可编辑的UI页面。平台整合线框图、原型、头脑风暴、标注、协作和分享能力，适合产品经理、客户团队和创业者在没有复杂学习成本的情况下表达产品方案。",
     "features": ["多来源生成界面", "线框图与原型", "图表和标注", "团队协作分享"],
     "useCases": ["产品方案沟通", "客户需求演示", "快速界面草图"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/visily.png"
   },
   {
     "sourceKey": "official-designs-ai",
@@ -192,7 +204,8 @@
     "description": "Designs.ai通过品牌上下文和模型路由，把需求交给不同创意智能体处理。平台可在同一工作区产出设计、图片、视频、音频、幻灯片及研究结果，并保持品牌规则一致，适合营销团队把模糊构想转化为可交付的整套活动素材。",
     "features": ["多类创意智能体", "品牌规则一致性", "模型自动路由", "跨格式内容生成"],
     "useCases": ["整合营销活动", "品牌素材扩展", "多格式内容交付"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/designs-ai.ico"
   },
   {
     "sourceKey": "official-figma-ai",
@@ -207,7 +220,8 @@
     "description": "Figma AI服务于协作式产品设计工作流，可帮助用户从提示构建原型或界面、在文件中查找所需内容，并连接设计与开发环节。它与Figma Design、Make、FigJam等产品协同，适合设计、产品和工程团队共同探索及交付数字产品。",
     "features": ["提示生成界面", "设计内容查找", "协作式原型制作", "设计与开发衔接"],
     "useCases": ["数字产品设计", "交互原型探索", "团队设计协作"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/figma-ai.png"
   },
   {
     "sourceKey": "official-miro-ai",
@@ -222,7 +236,8 @@
     "description": "Miro AI依托可视化协作画布，将团队讨论、图表、工作流和外部连接器放入共同上下文。用户可在画布上与AI协作整理想法、推进规划并形成决策材料，适合产品探索、设计工作坊、技术规划和跨团队协同。",
     "features": ["AI协作画布", "团队上下文整合", "图表与工作流", "外部连接器"],
     "useCases": ["产品探索", "设计工作坊", "跨团队规划"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/miro-ai.avif"
   },
   {
     "sourceKey": "official-adobe-express-ai",
@@ -237,7 +252,8 @@
     "description": "Adobe Express把生成图片、生成模板、文字特效、去背景、移除对象和插入对象等能力整合到轻量编辑器中。用户可在生成后继续排版和调整，适合社交媒体、活动海报、短视频及小型品牌的高频内容制作。",
     "features": ["图片与模板生成", "文字特效", "背景与对象编辑", "轻量设计排版"],
     "useCases": ["社交媒体内容", "活动海报", "小型品牌设计"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/adobe-express-ai.svg"
   },
   {
     "sourceKey": "official-synthesia",
@@ -252,7 +268,8 @@
     "description": "Synthesia可将脚本转为由AI数字人讲解的视频，并提供多语种声音、配音翻译、字幕和多语言播放器。平台还支持品牌套件、团队协作、版本控制和分析，适合培训、销售赋能、合规说明和产品介绍。",
     "features": ["文字转数字人视频", "多语言配音与翻译", "品牌与版本管理", "团队协作发布"],
     "useCases": ["企业培训", "销售赋能", "产品讲解"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/synthesia.png"
   },
   {
     "sourceKey": "official-opusclip",
@@ -267,7 +284,8 @@
     "description": "OpusClip围绕长内容再利用设计流程，自动发现片段并生成适合短视频平台的竖屏内容。它支持动态字幕、智能重构、AI补充镜头、品牌模板、团队空间和发布排期，适合播客、直播、访谈与营销视频的批量分发。",
     "features": ["长视频自动切片", "动态字幕", "智能画面重构", "社交发布排期"],
     "useCases": ["播客短片分发", "直播内容复用", "营销视频切片"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/opusclip.png"
   },
   {
     "sourceKey": "official-captions-ai",
@@ -282,7 +300,8 @@
     "description": "Captions可接收已有素材或从零开始，使用AI完成剪切、补充镜头和风格化编辑。平台还提供自动字幕、多语言翻译、数字分身、AI演员和眼神校正，适合个人创作者与营销团队快速制作可直接分享的视频。",
     "features": ["全片自动剪辑", "字幕与多语言翻译", "数字分身与AI演员", "眼神校正"],
     "useCases": ["口播视频制作", "社交短视频", "多语言营销内容"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/captions-ai.png"
   },
   {
     "sourceKey": "official-ltx-studio",
@@ -297,7 +316,8 @@
     "description": "LTX Studio将文字生视频、图片生视频、脚本生视频、视频重绘和AI分镜整合在同一生产环境，并提供模型、API和团队方案。它适合电影预演、广告概念、预告片和音乐视频等需要从故事构思推进到镜头交付的项目。",
     "features": ["脚本转视频", "AI分镜生成", "图片与视频转换", "模型与API接入"],
     "useCases": ["影视预演", "广告概念片", "音乐视频制作"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/ltx-studio.png"
   },
   {
     "sourceKey": "official-d-id",
@@ -312,7 +332,8 @@
     "description": "D-ID可创建由数字人讲述的内容，也能构建实时对话的视觉智能体。团队可以调整人物、声音、背景、布局和媒体，并通过API嵌入产品，适合营销、销售、培训、客户体验和需要多语言扩展的服务场景。",
     "features": ["数字人视频", "实时视觉智能体", "多语言生成", "API产品集成"],
     "useCases": ["互动客户服务", "培训内容", "个性化营销"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/d-id.png"
   },
   {
     "sourceKey": "official-pixverse",
@@ -327,7 +348,8 @@
     "description": "PixVerse从文字或参考图片生成动态视频，并提供模板、多镜头、对话式智能体、口型同步、视频编辑和首尾帧控制。平台还提供移动应用与API，适合短片创作、角色叙事、营销视频和企业规模化媒体生产。",
     "features": ["文生与图生视频", "多镜头叙事", "口型与音画同步", "主体和多帧控制"],
     "useCases": ["角色故事短片", "营销视频", "企业媒体生产"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/pixverse.svg"
   },
   {
     "sourceKey": "official-ai-studios",
@@ -342,7 +364,8 @@
     "description": "AI Studios提供大量数字人、视频模板、文字转视频、文档转视频、网址转视频和AI配音翻译功能。平台还包含字幕、品牌套件、录屏及互动数字人，适合企业培训、教育课程、营销内容和社交视频制作。",
     "features": ["多类型内容转视频", "数字人与视频模板", "多语言配音翻译", "互动数字人"],
     "useCases": ["企业培训视频", "在线课程", "营销讲解内容"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/ai-studios.svg"
   },
   {
     "sourceKey": "official-colossyan",
@@ -357,7 +380,8 @@
     "description": "Colossyan将文字脚本转为由AI讲师呈现的视频，并提供自定义数字人、克隆声音、品牌套件、录屏和本地化。互动视频、分支、测验、协作与SCORM交付能力，使其适合员工入职、合规培训和客户教育。",
     "features": ["文字转讲师视频", "数字人与克隆声音", "互动分支与测验", "SCORM课程交付"],
     "useCases": ["员工入职", "合规培训", "客户教育"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/colossyan.png"
   },
   {
     "sourceKey": "official-udio",
@@ -372,7 +396,8 @@
     "description": "Udio把生成式音乐创作与作品社区结合起来，用户可从文字构思开始生成歌曲，并继续试听、迭代和公开分享。它适合音乐灵感验证、内容配乐和个人歌曲创作；具体商用权限应按官方当前方案与作品条款核对。",
     "features": ["文字生成音乐", "歌曲迭代创作", "作品发现与分享"],
     "useCases": ["音乐灵感验证", "内容配乐", "个人歌曲创作"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/udio.ico"
   },
   {
     "sourceKey": "official-adobe-podcast",
@@ -387,7 +412,8 @@
     "description": "Adobe Podcast面向播客、访谈和语音内容制作，把录制、自动转写、基于文字的编辑和在线分享集中在浏览器中。其语音增强能力可改善录音清晰度，适合远程访谈、课程音频和缺少专业录音环境的创作者。",
     "features": ["网页录音", "音频自动转写", "文字式音频编辑", "语音清晰度增强"],
     "useCases": ["播客制作", "远程访谈", "课程音频"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/adobe-podcast.svg"
   },
   {
     "sourceKey": "official-murf-ai",
@@ -402,7 +428,8 @@
     "description": "Murf可生成自然语音旁白，并支持视频和音频翻译、声音克隆、声音变换与多语种配音。平台同时提供面向开发者的文字转语音API和对话式语音智能体能力，适合培训、演示、客服和应用内语音体验。",
     "features": ["文字转语音", "配音翻译", "声音克隆与变声", "语音智能体API"],
     "useCases": ["课程旁白", "多语言视频配音", "语音客服"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/murf-ai.png"
   },
   {
     "sourceKey": "official-speechify",
@@ -417,7 +444,8 @@
     "description": "Speechify可将PDF、网页、文档和图书转换为自然语音，帮助用户在不同设备上收听内容。其创作工具还包括AI配音、声音克隆、翻译与字幕，适合无障碍阅读、学习听读、旁白制作和跨语言内容处理。",
     "features": ["文档与网页朗读", "AI配音", "声音克隆", "翻译与字幕"],
     "useCases": ["无障碍阅读", "学习听读", "视频旁白制作"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/speechify.png"
   },
   {
     "sourceKey": "official-aiva",
@@ -432,7 +460,8 @@
     "description": "AIVA面向初学者和专业音乐人，可在多种音乐风格中生成新曲，并允许建立自定义风格模型、上传音频或MIDI作为影响、编辑生成轨道和下载文件。适合视频配乐、游戏原型、歌曲灵感和音乐教学。",
     "features": ["多风格音乐生成", "自定义风格模型", "音频与MIDI参考", "生成轨道编辑"],
     "useCases": ["视频配乐", "游戏音乐原型", "音乐创作教学"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/aiva.ico"
   },
   {
     "sourceKey": "official-soundraw",
@@ -447,7 +476,8 @@
     "description": "SOUNDRAW使用自有制作音乐训练生成系统，用户可组合曲风并快速生成背景音乐、播客片头或说唱节拍。内置混音控制允许逐段调整乐器、强度和时长，并可下载高质量音频或分轨用于后续制作。",
     "features": ["曲风组合生成", "乐器与能量调整", "音乐长度控制", "高质量音频与分轨导出"],
     "useCases": ["视频背景音乐", "播客片头", "说唱节拍制作"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/soundraw.png"
   },
   {
     "sourceKey": "official-kits-ai",
@@ -462,7 +492,8 @@
     "description": "Kits AI提供音乐导向的声音模型与工作流，支持定制声音、演唱风格转换、乐器生成和人声分离。官网强调免版税使用，并提供网页与桌面产品，适合音乐制作人制作样唱、和声、乐器层及创意草稿。",
     "features": ["定制声音模型", "演唱风格转换", "乐器生成", "人声分离"],
     "useCases": ["歌曲样唱", "和声与乐器层制作", "音乐创意草稿"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/kits-ai.png"
   },
   {
     "sourceKey": "official-moises",
@@ -477,6 +508,7 @@
     "description": "Moises能从歌曲中分离人声、鼓和其他乐器，让用户建立自定义伴奏并进行练习。平台还提供录制、AI分轨生成、声音工作室和多设备应用，适合乐手排练、翻唱、编曲探索和现场演出准备。",
     "features": ["人声与乐器分离", "AI伴奏分轨生成", "演奏录制", "跨设备音乐工作区"],
     "useCases": ["乐手排练", "翻唱伴奏制作", "编曲探索"],
-    "verifiedAt": "2026-07-14"
+    "verifiedAt": "2026-07-14",
+    "logoUrl": "/assets/tool-logos/moises.svg"
   }
 ]

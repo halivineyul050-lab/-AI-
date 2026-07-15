@@ -13,7 +13,7 @@
 <p align="center">
   <img alt="Node.js 22.5+" src="https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLite-内置-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-25%20passing-0f766e">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-28%20passing-0f766e">
   <img alt="Dependencies" src="https://img.shields.io/badge/npm_dependencies-0-f97316">
 </p>
 
@@ -29,9 +29,11 @@
 - 3 个工具专题
 - 资讯来源名称与官方原始链接
 
-内容资料更新日期：`2026-07-14`。
+内容资料更新日期：`2026-07-15`。
 
 当前本地数据库已完成官方来源扩充：`139` 条工具记录，其中 `138` 条已发布（`137` 条普通工具 + `1` 条推广工具），另有 `110` 条官方来源追踪记录。“AI 漫剧”分类现有 `10` 个工具，橙星梦工厂以清晰的推广标识固定在分类首位。
+
+全站 `138/138` 个已发布工具已配置本站本地 Logo 资产：`136` 个来自官网或官方静态资源，`2` 个因官网限制使用域名 favicon 兜底；Logo 清单、来源、哈希和核验日期保存在 `backend/catalog/tool-logo-manifest-2026-07-15.json`。
 
 ## 核心功能
 
@@ -184,6 +186,13 @@ npm run catalog:import:official -- --dry-run
 npm run catalog:import:official
 ```
 
+同步和验证全站 Logo：
+
+```powershell
+npm run logos:sync
+npm run logos:verify
+```
+
 完整字段、去重规则和合规边界见 [AI工具批量导入与合规说明-2026-07-14.md](AI工具批量导入与合规说明-2026-07-14.md)。
 
 ## 常用 API
@@ -211,7 +220,7 @@ npm run catalog:import:official
 npm test
 ```
 
-当前共 `24` 项自动化测试，覆盖：
+当前共 `28` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -221,6 +230,7 @@ npm test
 - 监控聚合、时间窗口、事件脱敏和管理鉴权
 - 目录导入迁移、演练回滚、来源幂等、官网去重和不安全 URL 拒绝
 - 1,001 条合成授权目录的分页稳定性和 Bootstrap 体积上限
+- 138 个 Logo 资产、哈希、MIME、静态路由和目录穿越防护
 
 ## 项目结构
 
@@ -232,6 +242,7 @@ npm test
 ├── brand-icon.svg                         # 品牌图标源文件裁切版
 ├── brand-icon-192.png                     # 页面与设备使用的轻量图标
 ├── server.mjs                             # HTTP、API、安全和静态文件服务
+├── assets/tool-logos/                     # 本地托管的工具 Logo 资产
 ├── backend/
 │   ├── database.mjs                       # 数据访问、迁移与内容同步
 │   ├── tool-import.mjs                    # 授权目录规范化、去重与入库
@@ -242,7 +253,7 @@ npm test
 │   └── migrations/                        # 数据库迁移
 ├── tests/                                 # API、监控和安全测试
 ├── imports/                               # 本地授权目录导入模板
-├── scripts/                               # 数据维护与目录导入命令
+├── scripts/                               # 数据维护、目录导入与 Logo 同步命令
 └── *.md                                   # 产品分析、接口与内容资料
 ```
 

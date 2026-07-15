@@ -343,6 +343,23 @@ function hydrateTool(db, row, placement = "detail_drawer") {
   };
 }
 
+export function syncSeedToolLogos(db, seedData) {
+  const updateLogo = db.prepare(`
+    UPDATE tools
+    SET logo_url = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    WHERE id = ? AND status <> 'archived'
+  `);
+  let updated = 0;
+  runTransaction(db, () => {
+    seedData.tools.forEach((tool) => {
+      const logoUrl = String(tool.logoUrl || "").trim();
+      if (!/^\/assets\/tool-logos\/[a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif)$/.test(logoUrl)) return;
+      updated += Number(updateLogo.run(logoUrl, tool.id).changes || 0);
+    });
+  });
+  return { updated };
+}
+
 export function getCategories(db) {
   return db.prepare(`
     SELECT c.id, c.name, c.icon, COUNT(t.id) AS tool_count

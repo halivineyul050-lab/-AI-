@@ -37,6 +37,15 @@ function canonicalizeUrl(value) {
   return url.toString();
 }
 
+function normalizeLogoUrl(value) {
+  const normalized = readText(value, "logoUrl", { max: 2048 });
+  if (!normalized) return "";
+  if (/^\/assets\/tool-logos\/[a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif)$/.test(normalized)) {
+    return normalized;
+  }
+  return canonicalizeUrl(normalized);
+}
+
 function normalizeDate(value, fallback) {
   const candidate = String(value || "").trim();
   return /^\d{4}-\d{2}-\d{2}$/.test(candidate) ? candidate : fallback.slice(0, 10);
@@ -100,7 +109,7 @@ export function normalizeCatalogRecord(db, input, options = {}) {
   const sourceListingUrl = input.sourceListingUrl ? canonicalizeUrl(input.sourceListingUrl) : "";
   const officialUrl = canonicalizeUrl(readText(input.officialUrl || input.websiteUrl, "officialUrl", { required: true }));
   const canonicalUrl = canonicalizeUrl(input.canonicalUrl || officialUrl);
-  const logoUrl = input.logoUrl ? canonicalizeUrl(input.logoUrl) : "";
+  const logoUrl = normalizeLogoUrl(input.logoUrl);
   const { categoryId, sourceCategory } = categoryForRecord(db, input, options.categoryMapping || {});
   const pricingType = allowedPricing.has(String(input.pricingType || input.price || "unknown").toLowerCase())
     ? String(input.pricingType || input.price || "unknown").toLowerCase()

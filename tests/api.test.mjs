@@ -62,7 +62,8 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(comicCategory.name, "AI 漫剧");
   assert.equal(comicCategory.toolCount, 1);
   assert.equal(sponsor.category, "comic");
-  assert.equal(sponsor.logoUrl, "https://mgc.funshion.com/assets/logo-a6ljc2-6.ico");
+  assert.equal(sponsor.logoUrl, "/assets/tool-logos/orange-dream-factory.ico");
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM tools WHERE status = 'published' AND logo_url LIKE '/assets/tool-logos/%'").get().count, 28);
   const gptNews = bootstrap.body.data.newsItems.find((item) => item.id === "news-openai-gpt-5-6");
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
@@ -80,6 +81,30 @@ test("brand icon is served with the expected media type", async () => {
   assert.equal(icon.status, 200);
   assert.equal(icon.headers.get("content-type"), "image/png");
   assert.ok((await icon.arrayBuffer()).byteLength > 10_000);
+
+  const toolLogo = await fetch(`${baseUrl}/assets/tool-logos/orange-dream-factory.ico`);
+  assert.equal(toolLogo.status, 200);
+  assert.equal(toolLogo.headers.get("content-type"), "image/x-icon");
+  assert.ok((await toolLogo.arrayBuffer()).byteLength > 100);
+
+  const traversal = await fetch(`${baseUrl}/assets/tool-logos/%2e%2e%2fserver.mjs`);
+  assert.equal(traversal.status, 404);
+});
+
+test("every seeded tool exposes a reachable local Logo asset", async () => {
+  const [toolsResponse, bootstrapResponse] = await Promise.all([
+    request("/api/v1/tools?limit=200&offset=0"),
+    request("/api/v1/site/bootstrap")
+  ]);
+  const items = [...toolsResponse.body.data, bootstrapResponse.body.data.sponsor];
+  assert.equal(items.length, 28);
+  for (const tool of items) {
+    assert.match(tool.logoUrl, /^\/assets\/tool-logos\//);
+    const logo = await fetch(`${baseUrl}${tool.logoUrl}`);
+    assert.equal(logo.status, 200, `${tool.name} Logo status`);
+    assert.match(logo.headers.get("content-type") || "", /^image\//, `${tool.name} Logo MIME`);
+    assert.ok((await logo.arrayBuffer()).byteLength > 20, `${tool.name} Logo bytes`);
+  }
 });
 
 test("tool API combines search and structured filters", async () => {
@@ -123,7 +148,7 @@ test("AI comic category includes the disclosed sponsor and pins Orange Dream Fac
   assert.equal(result.body.data[0].id, "orange-dream-factory");
   assert.equal(result.body.data[0].sponsored, true);
   assert.equal(result.body.data[0].category, "comic");
-  assert.match(result.body.data[0].logoUrl, /^https:\/\//);
+  assert.match(result.body.data[0].logoUrl, /^\/assets\/tool-logos\//);
 });
 
 test("submission is validated, persisted and idempotent", async () => {

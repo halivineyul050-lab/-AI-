@@ -63,9 +63,10 @@ test("official catalog batch contains 110 independently authored, mapped records
     assert.ok(Array.isArray(record.features) && record.features.length >= 2 && record.features.length <= 4);
     assert.ok(Array.isArray(record.useCases) && record.useCases.length >= 1 && record.useCases.length <= 3);
     assert.equal(record.verifiedAt, "2026-07-14");
+    assert.match(record.logoUrl, /^\/assets\/tool-logos\/[a-z0-9-]+\.(?:png|jpg|jpeg|webp|ico|svg|gif|avif)$/);
   });
 
   const comicRecords = records.filter((record) => mapping[record.sourceCategory] === "comic");
   assert.equal(comicRecords.length, 9);
-  assert.ok(comicRecords.every((record) => /^https:\/\//.test(record.logoUrl)), "AI漫剧工具必须提供已核验 Logo URL");
+  assert.ok(comicRecords.every((record) => /^\/assets\/tool-logos\//.test(record.logoUrl)), "AI漫剧工具必须使用本站 Logo 资产");
 });
