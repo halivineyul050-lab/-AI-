@@ -43,15 +43,18 @@ function designRecord(overrides = {}) {
   };
 }
 
-test("catalog migration adds provenance tables and honest unknown values", () => {
-  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 5);
-  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 5);
+test("catalog and CMS migrations add provenance, revisions and honest unknown values", () => {
+  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 6);
+  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 6);
   assert.ok(db.prepare("SELECT 1 FROM categories WHERE id = 'design'").get());
   assert.ok(db.prepare("SELECT 1 FROM categories WHERE id = 'comic'").get());
   const columns = db.prepare("PRAGMA table_info(tools)").all().map((row) => row.name);
   assert.ok(columns.includes("canonical_url"));
   assert.ok(columns.includes("data_quality_status"));
   assert.ok(columns.includes("category_sort_order"));
+  assert.ok(columns.includes("cms_managed_at"));
+  assert.ok(columns.includes("revision"));
+  assert.equal(db.prepare("SELECT revision FROM content_state WHERE id = 1").get().revision, 1);
 });
 
 test("version 4 and 5 migrations preserve populated version 3 tools and relations", () => {

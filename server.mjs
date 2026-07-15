@@ -4,6 +4,15 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getMonitoringSnapshot } from "./backend/monitoring.mjs";
+import {
+  archiveAdminContent,
+  createAdminContent,
+  getAdminContent,
+  getContentVersion,
+  listAdminContent,
+  saveAdminLogo,
+  updateAdminContent
+} from "./backend/content-admin.mjs";
 
 import {
   createSubmission,
@@ -386,6 +395,12 @@ export function buildApplication(options = {}) {
         return;
       }
 
+      if (method === "GET" && pathname === "/api/v1/content/version") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        sendData(response, getContentVersion(db), null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
       if (method === "GET" && pathname === "/api/v1/site/bootstrap") {
         rateLimit(`${ip}:read`, 120, 60_000);
         sendData(response, getBootstrap(db), {
@@ -604,6 +619,71 @@ export function buildApplication(options = {}) {
         if (method === "GET" && pathname === "/api/admin/v1/summary") {
           sendData(response, getAdminSummary(db));
           return;
+        }
+        if (method === "POST" && pathname === "/api/admin/v1/content/media/logos") {
+          const uploaded = saveAdminLogo(
+            db,
+            await readJsonBody(request, 1_600_000),
+            { actor: "admin-token", requestId },
+            staticDir
+          );
+          const { contentRevision, ...logo } = uploaded;
+          sendData(response, logo, { contentRevision }, 201);
+          return;
+        }
+        const contentListMatch = pathname.match(/^\/api\/admin\/v1\/content\/(tools|categories|articles|collections)$/);
+        if (contentListMatch) {
+          const contentType = contentListMatch[1];
+          if (method === "GET") {
+            const result = listAdminContent(db, contentType, {
+              q: url.searchParams.get("q") || "",
+              status: url.searchParams.get("status") || "all",
+              categoryId: url.searchParams.get("categoryId") || "",
+              kind: url.searchParams.get("kind") || "",
+              limit: url.searchParams.get("limit") || 30,
+              offset: url.searchParams.get("offset") || 0
+            });
+            sendData(response, result.items, { total: result.total, limit: result.limit, offset: result.offset });
+            return;
+          }
+          if (method === "POST") {
+            const created = createAdminContent(
+              db,
+              contentType,
+              await readJsonBody(request, 512 * 1024),
+              { actor: "admin-token", requestId }
+            );
+            sendData(response, created.item, { contentRevision: created.contentRevision }, 201);
+            return;
+          }
+        }
+        const contentItemMatch = pathname.match(/^\/api\/admin\/v1\/content\/(tools|categories|articles|collections)\/([a-z0-9-]+)$/);
+        if (contentItemMatch) {
+          const [, contentType, contentId] = contentItemMatch;
+          if (method === "GET") {
+            const item = getAdminContent(db, contentType, contentId);
+            if (!item) throw new HttpError(404, "content_not_found", "未找到该内容");
+            sendData(response, item);
+            return;
+          }
+          if (method === "PATCH") {
+            const updated = updateAdminContent(
+              db,
+              contentType,
+              contentId,
+              await readJsonBody(request, 512 * 1024),
+              { actor: "admin-token", requestId }
+            );
+            if (!updated) throw new HttpError(404, "content_not_found", "未找到该内容");
+            sendData(response, updated.item, { contentRevision: updated.contentRevision });
+            return;
+          }
+          if (method === "DELETE") {
+            const archived = archiveAdminContent(db, contentType, contentId, { actor: "admin-token", requestId });
+            if (!archived) throw new HttpError(404, "content_not_found", "未找到该内容");
+            sendData(response, archived.item, { contentRevision: archived.contentRevision });
+            return;
+          }
         }
         if (method === "GET" && pathname === "/api/admin/v1/submissions") {
           const status = url.searchParams.get("status") || "pending";

@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
-  <meta name="description" content="泥壳AI工具站运营监控台">
-  <title>运营监控台 · 泥壳AI</title>
+  <meta name="description" content="泥壳AI工具站运营与内容管理后台">
+  <title>运营与内容中心 · 泥壳AI</title>
   <link rel="icon" href="/brand-icon-192.png?v=20260713-1" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260713-1">
-  <link rel="stylesheet" href="admin.css?v=20260713-2">
+  <link rel="stylesheet" href="admin.css?v=20260715-1">
   <script defer src="admin-icons.js?v=20260713-1"></script>
-  <script defer src="admin.js?v=20260713-2"></script>
+  <script defer src="admin.js?v=20260715-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -19,7 +19,7 @@
     <aside class="sidebar" aria-label="后台导航">
       <a class="brand" href="/" aria-label="返回泥壳AI工具站">
         <span class="brand-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260713-1" alt=""></span>
-        <span class="brand-copy"><strong>泥壳AI</strong><small>运营监控台</small></span>
+        <span class="brand-copy"><strong>泥壳AI</strong><small>运营与内容中心</small></span>
       </a>
 
       <nav class="side-nav" aria-label="页面区域">
@@ -34,6 +34,9 @@
         </a>
         <a class="side-nav-item" href="#events">
           <i data-lucide="radio" aria-hidden="true"></i><span>实时事件</span>
+        </a>
+        <a class="side-nav-item" href="#cms">
+          <i data-lucide="panels-top-left" aria-hidden="true"></i><span>内容管理</span>
         </a>
         <a class="side-nav-item" href="#reviews">
           <i data-lucide="clipboard-check" aria-hidden="true"></i><span>投稿审核</span>
@@ -56,7 +59,7 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">OPERATIONS CENTER</p>
-          <h1>运营监控</h1>
+          <h1>运营与内容中心</h1>
         </div>
         <div class="topbar-actions">
           <div class="live-chip" id="live-chip" role="status" aria-live="polite">
@@ -190,6 +193,92 @@
           </article>
         </section>
 
+        <section class="cms-section section" id="cms" aria-labelledby="cms-title">
+          <div class="section-heading cms-section-heading">
+            <div>
+              <p class="eyebrow">CONTENT MANAGEMENT</p>
+              <h2 id="cms-title">内容管理</h2>
+            </div>
+            <span class="security-label"><i data-lucide="shield-check" aria-hidden="true"></i>发布操作受令牌保护</span>
+          </div>
+
+          <div class="cms-tabs" role="tablist" aria-label="内容类型">
+            <button class="cms-tab is-active" id="cms-tab-tools" type="button" role="tab" aria-selected="true" aria-controls="cms-workspace" data-cms-entity="tools"><i data-lucide="wrench" aria-hidden="true"></i>工具</button>
+            <button class="cms-tab" id="cms-tab-categories" type="button" role="tab" aria-selected="false" aria-controls="cms-workspace" data-cms-entity="categories"><i data-lucide="folder-tree" aria-hidden="true"></i>分类</button>
+            <button class="cms-tab" id="cms-tab-articles" type="button" role="tab" aria-selected="false" aria-controls="cms-workspace" data-cms-entity="articles"><i data-lucide="newspaper" aria-hidden="true"></i>文章</button>
+            <button class="cms-tab" id="cms-tab-collections" type="button" role="tab" aria-selected="false" aria-controls="cms-workspace" data-cms-entity="collections"><i data-lucide="layout-list" aria-hidden="true"></i>首页专题</button>
+          </div>
+
+          <div class="panel cms-panel">
+            <div class="cms-lock" id="cms-lock">
+              <span class="lock-icon"><i data-lucide="lock-keyhole" aria-hidden="true"></i></span>
+              <div class="lock-copy">
+                <h3>输入管理令牌后维护前端内容</h3>
+                <p>保存后内容直接进入数据库，前端刷新即可读取最新数据。令牌仅保存在当前页面内存中。</p>
+              </div>
+              <form class="token-form cms-token-form" id="cms-token-form">
+                <label for="cms-admin-token">管理员 Bearer Token</label>
+                <div class="token-input-wrap">
+                  <i data-lucide="key-round" aria-hidden="true"></i>
+                  <input id="cms-admin-token" name="token" type="password" autocomplete="off" required placeholder="输入 NIKE_ADMIN_TOKEN">
+                  <button class="reveal-button" id="cms-reveal-token" type="button" aria-label="显示令牌" title="显示令牌"><i data-lucide="eye" aria-hidden="true"></i></button>
+                </div>
+                <button class="primary-button" type="submit"><i data-lucide="unlock-keyhole" aria-hidden="true"></i>解锁内容管理</button>
+                <p class="form-error" id="cms-token-error" role="alert" hidden></p>
+              </form>
+            </div>
+
+            <div class="cms-workspace" id="cms-workspace" role="tabpanel" aria-labelledby="cms-tab-tools" hidden>
+              <div class="cms-toolbar">
+                <div class="cms-toolbar-title">
+                  <strong id="cms-list-title">工具管理</strong>
+                  <span id="cms-list-meta">尚未同步</span>
+                </div>
+                <div class="cms-toolbar-actions">
+                  <label class="cms-search" for="cms-search-input">
+                    <span class="sr-only">搜索内容</span>
+                    <i data-lucide="search" aria-hidden="true"></i>
+                    <input id="cms-search-input" type="search" placeholder="搜索工具名称或简介">
+                  </label>
+                  <select id="cms-category-filter" aria-label="按分类筛选">
+                    <option value="">全部分类</option>
+                  </select>
+                  <select id="cms-status-filter" aria-label="按状态筛选">
+                    <option value="">全部状态</option>
+                    <option value="published">已发布</option>
+                    <option value="draft">草稿</option>
+                    <option value="review">待审核</option>
+                    <option value="archived">已归档</option>
+                  </select>
+                  <button class="secondary-button cms-refresh" id="cms-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i><span>刷新</span></button>
+                  <button class="primary-button" id="cms-create" type="button"><i data-lucide="plus" aria-hidden="true"></i><span id="cms-create-label">新增工具</span></button>
+                </div>
+              </div>
+
+              <div class="cms-table-wrap" aria-live="polite">
+                <table class="cms-table">
+                  <caption class="sr-only" id="cms-table-caption">内容管理列表</caption>
+                  <thead id="cms-table-head"></thead>
+                  <tbody id="cms-table-body"></tbody>
+                </table>
+                <div class="table-empty cms-empty" id="cms-empty" hidden>
+                  <i data-lucide="inbox" aria-hidden="true"></i><strong>还没有符合条件的内容</strong><span>调整筛选条件，或新增第一条内容。</span>
+                </div>
+                <div class="cms-loading" id="cms-loading" hidden><i data-lucide="refresh-cw" aria-hidden="true"></i><span>正在读取内容</span></div>
+              </div>
+
+              <div class="cms-pagination">
+                <span id="cms-page-summary">第 1 页</span>
+                <div>
+                  <button class="secondary-button" id="cms-page-prev" type="button"><i data-lucide="chevron-left" aria-hidden="true"></i>上一页</button>
+                  <button class="secondary-button" id="cms-page-next" type="button">下一页<i data-lucide="chevron-right" aria-hidden="true"></i></button>
+                  <button class="secondary-button" id="cms-lock-button" type="button"><i data-lucide="lock" aria-hidden="true"></i>锁定</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="panel review-panel" id="reviews" aria-labelledby="reviews-title">
           <div class="panel-head">
             <div>
@@ -264,6 +353,22 @@
       <div class="dialog-actions">
         <button class="secondary-button" id="dialog-cancel" type="button">取消</button>
         <button class="primary-button" id="review-submit" type="submit"><i data-lucide="send" aria-hidden="true"></i>提交审核</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="cms-dialog" id="cms-dialog" aria-labelledby="cms-dialog-title">
+    <form id="cms-form">
+      <div class="dialog-head cms-dialog-head">
+        <div><p class="eyebrow" id="cms-dialog-eyebrow">CONTENT EDITOR</p><h2 id="cms-dialog-title">新增工具</h2></div>
+        <button class="icon-button" id="cms-dialog-close" type="button" aria-label="关闭内容编辑器"><i data-lucide="x" aria-hidden="true"></i></button>
+      </div>
+      <input id="cms-record-id" type="hidden">
+      <div class="cms-form-grid" id="cms-form-fields"></div>
+      <p class="form-error cms-form-error" id="cms-form-error" role="alert" hidden></p>
+      <div class="dialog-actions cms-dialog-actions">
+        <button class="secondary-button" id="cms-dialog-cancel" type="button">取消</button>
+        <button class="primary-button" id="cms-save" type="submit"><i data-lucide="save" aria-hidden="true"></i>保存内容</button>
       </div>
     </form>
   </dialog>

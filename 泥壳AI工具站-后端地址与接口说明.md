@@ -186,6 +186,12 @@ GET   /api/admin/v1/monitoring?hours=24
 GET   /api/admin/v1/summary
 GET   /api/admin/v1/submissions?status=pending
 PATCH /api/admin/v1/submissions/:id
+GET   /api/admin/v1/content/{tools|categories|articles|collections}
+POST  /api/admin/v1/content/{tools|categories|articles|collections}
+GET   /api/admin/v1/content/{type}/:id
+PATCH /api/admin/v1/content/{type}/:id
+DELETE /api/admin/v1/content/{type}/:id
+POST  /api/admin/v1/content/media/logos
 ```
 
 本地 `.env` 已配置开发令牌；启动命令会自动读取。也可以通过进程环境变量覆盖：
@@ -203,9 +209,11 @@ Authorization: Bearer <NIKE_ADMIN_TOKEN>
 ```
 
 > [!warning] 管理端边界
-> 当前已提供可视化实时监控和投稿审核页面，但鉴权仍是本地原型的共享令牌，没有管理员账户、MFA 和 RBAC。生产模式不允许匿名监控，并默认关闭共享令牌管理接口。
+> 当前已提供可视化实时监控、内容管理和投稿审核页面，但鉴权仍是本地原型的共享令牌，没有管理员账户、MFA 和 RBAC。生产模式不允许匿名监控，并默认关闭共享令牌管理接口。
 
-监控后台每 5 秒更新，支持 24 小时/7 天窗口、暂停和手动刷新。匿名只读模式仅展示脱敏聚合数据；输入 `.env` 中的 `NIKE_ADMIN_TOKEN` 后才显示热门搜索、最近事件和投稿联系方式，并允许审核。
+监控后台每 5 秒更新，支持 24 小时/7 天窗口、暂停和手动刷新。匿名只读模式仅展示脱敏聚合数据；输入 `.env` 中的 `NIKE_ADMIN_TOKEN` 后可维护工具、分类、资讯/教程和首页专题，上传工具 Logo，并查看投稿联系方式和执行审核。
+
+内容编辑使用乐观锁：读取详情时记录 `revision`，更新时原样提交。如果记录已经被其他操作修改，接口返回 `409 revision_conflict`。删除操作为归档，不物理删除内容。每次新增、更新、归档和 Logo 上传都会写入 `audit_logs` 并递增 `/api/v1/content/version`。后台保存的记录带有 `cms_managed_at` 标记，服务重启时不会被种子同步覆盖。
 
 ## 四、数据库
 
@@ -279,11 +287,12 @@ npm test
 | `scripts/sync-tool-logos.mjs` | Logo 下载、校验、Manifest 与本地资产同步 |
 | `backend/catalog/tool-logo-manifest-2026-07-15.json` | Logo 来源、哈希、MIME 与核验记录 |
 | `backend/database.mjs` | 数据访问和事务 |
+| `backend/content-admin.mjs` | 内容管理校验、事务、修订冲突、审计与 Logo 上传 |
 | `backend/validation.mjs` | 输入校验和安全限制 |
 | `backend/seed-data.json` | 初始内容种子 |
 | `tests/api.test.mjs` | 后端集成测试 |
 | `tests/monitoring.test.mjs` | 监控聚合与安全契约测试 |
-| `admin.html` / `admin.css` / `admin.js` | 实时监控和投稿审核后台 |
+| `admin.html` / `admin.css` / `admin.js` | 实时监控、内容管理和投稿审核后台 |
 
 ## 七、当前定位与下一阶段
 
@@ -308,5 +317,5 @@ npm test
 
 ---
 
-最后核对日期：2026-07-13
+最后核对日期：2026-07-15
 当前后端地址：`http://127.0.0.1:4173/api/v1`

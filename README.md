@@ -51,6 +51,9 @@
 
 ### 运营后台
 
+- 工具、分类、资讯/教程和首页专题的新增、编辑、发布与归档
+- 工具 Logo 本地上传、分类内排序、推荐和推广状态维护
+- 数据修订号、冲突保护、操作审计和服务重启后的人工内容保留
 - PV、UV、活跃 Session 和事件速率
 - 搜索、工具卡片、详情页和官网跳转数据
 - 用户发现到官网访问的转化漏斗
@@ -153,13 +156,15 @@ npm run dev
 
 ### 后台管理令牌
 
-本机开发环境允许匿名查看脱敏、只读的聚合监控数据。热门搜索、最近事件、投稿联系方式和审核操作需要在后台输入 `NIKE_ADMIN_TOKEN`，请求使用：
+本机开发环境允许匿名查看脱敏、只读的聚合监控数据。内容管理、热门搜索、最近事件、投稿联系方式和审核操作需要在后台输入 `NIKE_ADMIN_TOKEN`，请求使用：
 
 ```http
 Authorization: Bearer <token>
 ```
 
 令牌只保存在当前页面内存中，刷新或锁定页面后会被清除。生产环境必须配置稳定的数据库路径和高强度分析盐值；共享令牌管理默认关闭，建议使用账号体系、短会话、MFA、RBAC 和 CSRF 防护替代。
+
+后台保存的内容直接写入 SQLite，前端刷新后读取最新数据。种子文件只负责首次安装和未被后台接管的内容；带有 `cms_managed_at` 标记的人工内容不会在服务重启时被覆盖。编辑请求携带 `revision`，当其他操作已经更新同一条内容时，接口返回 `409 revision_conflict`，避免静默覆盖。
 
 ## 批量导入工具目录
 
@@ -204,6 +209,7 @@ npm run logos:verify
 | `GET` | `/api/v1/tools` | 普通工具的搜索、筛选、排序和分页（默认24条） |
 | `GET` | `/api/v1/tools/:slug` | 工具详情 |
 | `GET` | `/api/v1/articles` | 教程与资讯列表 |
+| `GET` | `/api/v1/content/version` | 获取前端内容修订号 |
 | `POST` | `/api/v1/tool-submissions` | 提交工具审核 |
 | `GET` | `/api/v1/tool-submissions/:code/status` | 查询投稿审核状态 |
 | `POST` | `/api/v1/newsletter/subscriptions` | 订阅周报 |
@@ -211,6 +217,9 @@ npm run logos:verify
 | `POST` | `/api/v1/events/batch` | 批量上报行为事件 |
 | `GET` | `/r/tools/:slug` | 记录官网点击并跳转 |
 | `GET` | `/api/admin/v1/monitoring?hours=24` | 获取实时监控快照 |
+| `GET/POST` | `/api/admin/v1/content/:type` | 查询或新增工具、分类、文章和专题 |
+| `GET/PATCH/DELETE` | `/api/admin/v1/content/:type/:id` | 查看、更新或归档单条内容 |
+| `POST` | `/api/admin/v1/content/media/logos` | 校验并上传本地工具 Logo |
 
 完整后端契约见 [backend/README.md](backend/README.md)，本地接口说明见 [泥壳AI工具站-后端地址与接口说明.md](泥壳AI工具站-后端地址与接口说明.md)。
 
@@ -220,7 +229,7 @@ npm run logos:verify
 npm test
 ```
 
-当前共 `28` 项自动化测试，覆盖：
+当前共 `31` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -231,13 +240,15 @@ npm test
 - 目录导入迁移、演练回滚、来源幂等、官网去重和不安全 URL 拒绝
 - 1,001 条合成授权目录的分页稳定性和 Bootstrap 体积上限
 - 138 个 Logo 资产、哈希、MIME、静态路由和目录穿越防护
+- CMS 增删改查、发布可见性、修订冲突、审计记录和重启持久化
+- Logo 上传签名校验、危险 SVG 拒绝和本地静态资源服务
 
 ## 项目结构
 
 ```text
 泥壳AI工具站/
 ├── index.html / styles.css / app.js       # 用户端
-├── admin.html / admin.css / admin.js      # 实时监控与投稿审核后台
+├── admin.html / admin.css / admin.js      # 实时监控、内容管理与投稿审核后台
 ├── admin-icons.js                         # 后台自托管图标渲染器
 ├── brand-icon.svg                         # 品牌图标源文件裁切版
 ├── brand-icon-192.png                     # 页面与设备使用的轻量图标
@@ -245,6 +256,7 @@ npm test
 ├── assets/tool-logos/                     # 本地托管的工具 Logo 资产
 ├── backend/
 │   ├── database.mjs                       # 数据访问、迁移与内容同步
+│   ├── content-admin.mjs                  # CMS 校验、事务、审计与媒体上传
 │   ├── tool-import.mjs                    # 授权目录规范化、去重与入库
 │   ├── monitoring.mjs                     # 监控指标聚合
 │   ├── validation.mjs                     # 请求与 URL 校验

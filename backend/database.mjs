@@ -9,7 +9,8 @@ const migrations = [
   { version: 2, name: "lookup_tokens", sql: readFileSync(resolve(import.meta.dirname, "migrations", "002_lookup_tokens.sql"), "utf8") },
   { version: 3, name: "article_sources", sql: readFileSync(resolve(import.meta.dirname, "migrations", "003_article_sources.sql"), "utf8") },
   { version: 4, name: "tool_catalog_imports", sql: readFileSync(resolve(import.meta.dirname, "migrations", "004_tool_catalog_imports.sql"), "utf8") },
-  { version: 5, name: "comic_category", sql: readFileSync(resolve(import.meta.dirname, "migrations", "005_comic_category.sql"), "utf8") }
+  { version: 5, name: "comic_category", sql: readFileSync(resolve(import.meta.dirname, "migrations", "005_comic_category.sql"), "utf8") },
+  { version: 6, name: "content_management", sql: readFileSync(resolve(import.meta.dirname, "migrations", "006_content_management.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -221,6 +222,7 @@ export function syncCuratedContent(db, seedData) {
     ];
 
     curatedTools.forEach((tool) => {
+      if (db.prepare("SELECT cms_managed_at FROM tools WHERE id = ?").get(tool.id)?.cms_managed_at) return;
       upsertTool.run(
         tool.id,
         tool.id,
@@ -252,7 +254,7 @@ export function syncCuratedContent(db, seedData) {
       });
     });
 
-    const archiveTool = db.prepare("UPDATE tools SET status = 'archived', is_sponsored = 0 WHERE id = ?");
+    const archiveTool = db.prepare("UPDATE tools SET status = 'archived', is_sponsored = 0 WHERE id = ? AND cms_managed_at IS NULL");
     retiredToolIds.forEach((id) => archiveTool.run(id));
 
     const upsertArticle = db.prepare(`
@@ -276,6 +278,7 @@ export function syncCuratedContent(db, seedData) {
         updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
     `);
     curatedNews.forEach((article) => {
+      if (db.prepare("SELECT cms_managed_at FROM articles WHERE id = ?").get(article.id)?.cms_managed_at) return;
       upsertArticle.run(
         article.id,
         article.id,
@@ -291,7 +294,7 @@ export function syncCuratedContent(db, seedData) {
       );
     });
 
-    const archiveArticle = db.prepare("UPDATE articles SET status = 'archived' WHERE id = ? AND kind = 'news'");
+    const archiveArticle = db.prepare("UPDATE articles SET status = 'archived' WHERE id = ? AND kind = 'news' AND cms_managed_at IS NULL");
     retiredNewsIds.forEach((id) => archiveArticle.run(id));
 
     return {
@@ -347,7 +350,7 @@ export function syncSeedToolLogos(db, seedData) {
   const updateLogo = db.prepare(`
     UPDATE tools
     SET logo_url = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
-    WHERE id = ? AND status <> 'archived'
+    WHERE id = ? AND status <> 'archived' AND cms_managed_at IS NULL
   `);
   let updated = 0;
   runTransaction(db, () => {
@@ -493,7 +496,13 @@ export function getCollections(db) {
     icon: row.icon,
     accent: row.accent,
     toolIds: rowsToStrings(
-      db.prepare("SELECT tool_id FROM collection_tools WHERE collection_id = ? ORDER BY position").all(row.id),
+      db.prepare(`
+        SELECT ct.tool_id
+        FROM collection_tools ct
+        JOIN tools t ON t.id = ct.tool_id AND t.status = 'published'
+        WHERE ct.collection_id = ?
+        ORDER BY ct.position
+      `).all(row.id),
       "tool_id"
     )
   }));

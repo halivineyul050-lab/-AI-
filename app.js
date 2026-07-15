@@ -822,9 +822,12 @@ let sidebarReturnFocus = null;
 let toastTimer = null;
 let adImpressionObserver = null;
 let adImpressionTimer = null;
+let contentRevision = null;
+let contentPollTimer = null;
 
 function rebuildDataMaps() {
   Object.keys(categoryMap).forEach((key) => delete categoryMap[key]);
+  Object.keys(toolMap).forEach((key) => delete toolMap[key]);
   Object.keys(articleMap).forEach((key) => delete articleMap[key]);
   categories.forEach((category) => { categoryMap[category.id] = category; });
   tools.forEach((tool) => { toolMap[tool.id] = tool; });
@@ -988,6 +991,53 @@ async function loadRankingTools() {
   }
 }
 
+async function loadCollectionTools() {
+  if (!backendAvailable) return;
+  const ids = [...new Set(collections.flatMap((collection) => collection.toolIds || []))]
+    .filter((id) => !toolMap[id]);
+  const settled = await Promise.allSettled(ids.map((id) => apiRequest(`/api/v1/tools/${encodeURIComponent(id)}`, {}, 5000)));
+  settled.forEach((result) => {
+    if (result.status === "fulfilled" && result.value?.data?.id) toolMap[result.value.data.id] = result.value.data;
+  });
+}
+
+async function refreshPublishedContent() {
+  await loadBackendData();
+  if (!backendAvailable) return;
+  if (!categoryMap[state.category]) state.category = "all";
+  await Promise.all([loadToolResults(), loadRankingTools()]);
+  await loadCollectionTools();
+  renderNavigation();
+  renderSponsor();
+  renderTools();
+  renderCollections();
+  renderContentViews();
+}
+
+async function checkContentRevision({ announce = true } = {}) {
+  if (!backendAvailable || document.hidden) return;
+  try {
+    const payload = await apiRequest("/api/v1/content/version", {}, 5000);
+    const nextRevision = Number(payload.data?.revision);
+    if (!Number.isInteger(nextRevision) || nextRevision < 1) return;
+    if (contentRevision === null) {
+      contentRevision = nextRevision;
+      return;
+    }
+    if (nextRevision === contentRevision) return;
+    contentRevision = nextRevision;
+    await refreshPublishedContent();
+    if (announce) showToast("内容已更新");
+  } catch {
+    // Content polling must never interrupt normal browsing.
+  }
+}
+
+function startContentPolling() {
+  if (contentPollTimer) window.clearInterval(contentPollTimer);
+  contentPollTimer = window.setInterval(() => void checkContentRevision(), 15_000);
+}
+
 function readLocalArray(key) {
   try {
     const parsed = JSON.parse(localStorage.getItem(key) || "[]");
@@ -1008,6 +1058,27 @@ function escapeHTML(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function safeIconName(value, fallback = "circle") {
+  const icon = String(value || "").trim().toLowerCase();
+  return /^[a-z0-9-]{1,48}$/.test(icon) ? icon : fallback;
+}
+
+function safeAccentColor(value, fallback = "#0f766e") {
+  const color = String(value || "").trim();
+  return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
+}
+
+function safeMediaUrl(value, fallback = "/brand-icon-192.png") {
+  const candidate = String(value || "").trim();
+  try {
+    const parsed = new URL(candidate, document.baseURI);
+    if (parsed.origin === location.origin || parsed.protocol === "https:") return parsed.href;
+  } catch {
+    // Invalid CMS media values use a same-origin placeholder.
+  }
+  return fallback;
 }
 
 function refreshIcons() {
@@ -1161,17 +1232,19 @@ function renderNavigation() {
     const count = category.toolCount ?? (category.id === "all"
       ? naturalTools.length
       : tools.filter((tool) => tool.category === category.id).length);
+    const categoryId = escapeHTML(category.id);
+    const categoryIcon = escapeHTML(safeIconName(category.icon, "shapes"));
     return `
-      <button class="category-button ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${category.id}">
-        <i data-lucide="${category.icon}"></i>
-        <span>${category.name}</span>
-        <span class="category-count">${count}</span>
+      <button class="category-button ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${categoryId}">
+        <i data-lucide="${categoryIcon}"></i>
+        <span>${escapeHTML(category.name)}</span>
+        <span class="category-count">${Number(count) || 0}</span>
       </button>`;
   }).join("");
 
   document.getElementById("task-tabs").innerHTML = categories.map((category) => `
-    <button class="task-tab ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${category.id}">
-      <i data-lucide="${category.icon}"></i><span>${category.name}</span>
+    <button class="task-tab ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${escapeHTML(category.id)}">
+      <i data-lucide="${escapeHTML(safeIconName(category.icon, "shapes"))}"></i><span>${escapeHTML(category.name)}</span>
     </button>`).join("");
 
   const submissionCategory = document.querySelector('#submit-form select[name="category"]');
@@ -1215,7 +1288,7 @@ function renderToolCard(tool, rank) {
             <h2>${escapeHTML(tool.name)}</h2>
             <span class="verified-dot" title="资料更新于 ${tool.updated}"><i data-lucide="refresh-cw"></i></span>
           </div>
-          <span class="tool-category">${categoryMap[tool.category].name}</span>
+          <span class="tool-category">${escapeHTML(categoryMap[tool.category]?.name || "未分类")}</span>
         </div>
         <div class="tool-card-actions">
           <button class="icon-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${tool.id}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" aria-pressed="${isFavorite}" title="${isFavorite ? "取消收藏" : "收藏"}">
@@ -1410,7 +1483,7 @@ function openCompareDialog() {
   const selected = [...state.compare].map((id) => toolMap[id]);
   const rows = [
     ["价格", (tool) => priceLabels[tool.price]],
-    ["分类", (tool) => categoryMap[tool.category].name],
+    ["分类", (tool) => categoryMap[tool.category]?.name || "未分类"],
     ["平台", (tool) => tool.platforms.map((platform) => platformLabels[platform]).join("、")],
     ["语言", (tool) => languageLabels[tool.language]],
     ["核心能力", (tool) => tool.features.slice(0, 3).join("、")],
@@ -1446,7 +1519,7 @@ function renderDrawer(tool) {
         <p>${escapeHTML(tool.summary)}</p>
         <div class="badge-row">
           <span class="tool-badge price-${tool.price}">${priceLabels[tool.price]}</span>
-          <span class="tool-badge">${categoryMap[tool.category].name}</span>
+          <span class="tool-badge">${escapeHTML(categoryMap[tool.category]?.name || "未分类")}</span>
           <span class="tool-badge">${languageLabels[tool.language]}</span>
         </div>
       </div>
@@ -1518,15 +1591,17 @@ function renderArticleDrawer(article) {
         ? ["先限定资料范围和来源质量", "用问题清单驱动检索与归纳", "输出结论时保留可追溯引用"]
         : ["明确受众、任务和最终交付形态", "为关键步骤选择不同工具而非只用一个", "用人工复核保障事实和表达质量"];
 
+  const coverUrl = escapeHTML(safeMediaUrl(article.image));
+  const sourceUrl = article.sourceUrl ? escapeHTML(safeMediaUrl(article.sourceUrl, "")) : "";
   document.getElementById("drawer-content").innerHTML = `
-    <div class="article-detail-cover"><img src="${article.image}" alt="${escapeHTML(article.title)}" width="720" height="405"></div>
+    <div class="article-detail-cover"><img src="${coverUrl}" alt="${escapeHTML(article.title)}" width="720" height="405"></div>
     <div class="article-detail-heading">
-      <div class="article-meta"><span class="article-type">${article.type}</span><span>${article.date}</span><span>${article.readTime}</span>${article.source ? `<span>来源：${escapeHTML(article.source)}</span>` : ""}</div>
+      <div class="article-meta"><span class="article-type">${escapeHTML(article.type)}</span><span>${escapeHTML(article.date)}</span><span>${escapeHTML(article.readTime)}</span>${article.source ? `<span>来源：${escapeHTML(article.source)}</span>` : ""}</div>
       <h2>${escapeHTML(article.title)}</h2>
       <p>${escapeHTML(article.excerpt)}</p>
     </div>
     ${article.body && article.body !== article.excerpt ? `<section class="detail-section"><h3>正文</h3><p>${escapeHTML(article.body)}</p></section>` : ""}
-    ${article.sourceUrl ? `<section class="detail-section"><h3>官方来源</h3><a class="article-source-link" href="${escapeHTML(article.sourceUrl)}" target="_blank" rel="noopener noreferrer nofollow">查看${escapeHTML(article.source || "原始发布")}<i data-lucide="external-link" aria-hidden="true"></i></a></section>` : ""}
+    ${sourceUrl ? `<section class="detail-section"><h3>官方来源</h3><a class="article-source-link" href="${sourceUrl}" target="_blank" rel="noopener noreferrer nofollow">查看${escapeHTML(article.source || "原始发布")}<i data-lucide="external-link" aria-hidden="true"></i></a></section>` : ""}
     <section class="detail-section">
       <h3>核心要点</h3>
       <ul class="article-key-points">${keyPoints.map((point) => `<li>${escapeHTML(point)}</li>`).join("")}</ul>
@@ -1574,15 +1649,15 @@ function closeDrawer() {
 
 function renderCollections() {
   document.getElementById("collection-grid").innerHTML = collections.map((collection) => `
-    <article class="collection-card" style="--collection-accent:${collection.accent}">
-      <i data-lucide="${collection.icon}"></i>
-      <h2>${collection.title}</h2>
-      <p>${collection.description}</p>
+    <article class="collection-card" style="--collection-accent:${safeAccentColor(collection.accent)}">
+      <i data-lucide="${escapeHTML(safeIconName(collection.icon, "folder-kanban"))}"></i>
+      <h2>${escapeHTML(collection.title)}</h2>
+      <p>${escapeHTML(collection.description)}</p>
       <div class="collection-tool-list">
         ${collection.toolIds.map((id) => {
           const tool = toolMap[id];
           if (!tool) return "";
-          return `<button class="collection-tool" type="button" data-related-id="${id}">${logoMarkup(tool)}<span>${escapeHTML(tool.name)}</span><small>${priceLabels[tool.price]}</small></button>`;
+          return `<button class="collection-tool" type="button" data-related-id="${escapeHTML(id)}">${logoMarkup(tool)}<span>${escapeHTML(tool.name)}</span><small>${escapeHTML(priceLabels[tool.price] || "")}</small></button>`;
         }).join("")}
       </div>
     </article>`).join("");
@@ -1602,13 +1677,13 @@ function renderCollections() {
 function renderArticles(targetId, items) {
   document.getElementById(targetId).innerHTML = items.map((item) => `
     <article class="article-item">
-      <div class="article-image"><img src="${item.image}" alt="${escapeHTML(item.title)}" loading="lazy" width="720" height="405"></div>
+      <div class="article-image"><img src="${escapeHTML(safeMediaUrl(item.image))}" alt="${escapeHTML(item.title)}" loading="lazy" width="720" height="405"></div>
       <div class="article-content">
-        <div class="article-meta"><span class="article-type">${item.type}</span><span>${item.date}</span><span>${item.readTime}</span>${item.source ? `<span>来源：${escapeHTML(item.source)}</span>` : ""}</div>
+        <div class="article-meta"><span class="article-type">${escapeHTML(item.type)}</span><span>${escapeHTML(item.date)}</span><span>${escapeHTML(item.readTime)}</span>${item.source ? `<span>来源：${escapeHTML(item.source)}</span>` : ""}</div>
         <h2>${escapeHTML(item.title)}</h2>
         <p>${escapeHTML(item.excerpt)}</p>
       </div>
-      <button class="icon-button" type="button" data-article-id="${item.id}" aria-label="阅读${escapeHTML(item.title)}" title="阅读文章"><i data-lucide="arrow-up-right"></i></button>
+      <button class="icon-button" type="button" data-article-id="${escapeHTML(item.id)}" aria-label="阅读${escapeHTML(item.title)}" title="阅读文章"><i data-lucide="arrow-up-right"></i></button>
     </article>`).join("");
 }
 
@@ -2032,7 +2107,13 @@ function bindEvents() {
   window.addEventListener("hashchange", () => setActiveView(location.hash.replace("#", ""), false));
   window.addEventListener("popstate", () => setActiveView(location.hash.replace("#", ""), false));
   window.addEventListener("resize", syncSidebarAccessibility);
-  window.addEventListener("pagehide", () => void flushEventQueue(true));
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) void checkContentRevision();
+  });
+  window.addEventListener("pagehide", () => {
+    if (contentPollTimer) window.clearInterval(contentPollTimer);
+    void flushEventQueue(true);
+  });
 }
 
 async function initialize() {
@@ -2040,7 +2121,11 @@ async function initialize() {
   localStorage.removeItem("nike-newsletter");
   await loadBackendData();
   loadInitialState();
-  if (backendAvailable) await Promise.all([loadToolResults(), loadRankingTools()]);
+  if (backendAvailable) {
+    await Promise.all([loadToolResults(), loadRankingTools()]);
+    await loadCollectionTools();
+    await checkContentRevision({ announce: false });
+  }
   renderNavigation();
   renderSponsor();
   renderTools();
@@ -2055,6 +2140,7 @@ async function initialize() {
   bindImageFallbacks();
   track("page_view", { page_id: state.activeView });
   observeSponsorImpression();
+  startContentPolling();
 }
 
 window.addEventListener("DOMContentLoaded", initialize);
