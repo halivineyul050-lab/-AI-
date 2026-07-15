@@ -2394,3 +2394,332 @@ button:disabled {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Visual refresh: stronger hierarchy, quieter surfaces and clearer tool cards. */
+:root {
+  --bg-page: #f4f7f6;
+  --bg-surface: #ffffff;
+  --bg-subtle: #eaf1ef;
+  --bg-strong: #162825;
+  --text-primary: #162825;
+  --text-secondary: #536762;
+  --text-muted: #788984;
+  --border: #dbe6e2;
+  --border-strong: #b9cbc5;
+  --brand: #08786f;
+  --brand-hover: #075d57;
+  --brand-soft: #e0f4ef;
+  --shadow-soft: 0 14px 34px rgba(21, 48, 43, 0.08);
+}
+
+body {
+  background: var(--bg-page);
+}
+
+.app-shell {
+  grid-template-columns: 248px minmax(0, 1fr);
+}
+
+.sidebar {
+  background: #f0f5f3;
+  border-right-color: #d5e1dd;
+}
+
+.brand-block {
+  min-height: 74px;
+  padding-inline: 20px;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.brand-copy strong {
+  font-size: 17px;
+  letter-spacing: 0.01em;
+}
+
+.primary-nav {
+  gap: 6px;
+  padding: 20px 14px 12px;
+}
+
+.nav-item {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 9px;
+}
+
+.nav-item.is-active,
+.category-button.is-active {
+  border-color: #c9e3dc;
+  background: #ffffff;
+  color: var(--brand);
+  box-shadow: 0 4px 12px rgba(24, 56, 49, 0.06);
+}
+
+.category-button {
+  min-height: 39px;
+  border-radius: 8px;
+}
+
+.sidebar-footer {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.44);
+}
+
+.submit-tool-button {
+  min-height: 44px;
+  border-color: #a8c8bf;
+  border-radius: 9px;
+  background: #ffffff;
+  color: var(--brand-hover);
+}
+
+.main-area {
+  background: var(--bg-page);
+}
+
+.topbar {
+  min-height: 74px;
+  padding: 12px 34px;
+  background: rgba(244, 247, 246, 0.94);
+  border-bottom-color: #dce6e2;
+}
+
+.global-search {
+  min-height: 48px;
+  border-color: #cddbd6;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(27, 58, 51, 0.03);
+}
+
+.global-search input {
+  height: 46px;
+  font-size: 15px;
+}
+
+.global-search:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(8, 120, 111, 0.12);
+}
+
+.action-with-count {
+  border-color: #cddbd6;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(27, 58, 51, 0.03);
+}
+
+.view {
+  padding: 38px 34px 68px;
+}
+
+.page-header {
+  margin-bottom: 26px;
+}
+
+.eyebrow {
+  margin-bottom: 8px;
+  color: var(--brand);
+  letter-spacing: 0.09em;
+}
+
+.page-header h1 {
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+.page-summary {
+  margin-top: 8px;
+  color: #60736d;
+  font-size: 15px;
+}
+
+.result-badge {
+  min-height: 28px;
+  padding-inline: 9px;
+  border: 1px solid #cbe4dc;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand-hover);
+}
+
+.select-control,
+.segmented-control {
+  min-height: 42px;
+  border-color: #cddbd6;
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(27, 58, 51, 0.025);
+}
+
+.task-tabs {
+  gap: 9px;
+  margin-bottom: 18px;
+}
+
+.task-tab {
+  min-height: 40px;
+  padding: 7px 13px;
+  border-color: #d4e1dd;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.task-tab:hover,
+.task-tab.is-active {
+  border-color: #9bd4c8;
+  background: var(--brand-soft);
+  color: var(--brand-hover);
+}
+
+.filter-panel {
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 12px;
+  border: 1px solid #d8e4e0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(27, 58, 51, 0.04);
+}
+
+.sponsor-strip {
+  min-height: 82px;
+  margin-bottom: 22px;
+  padding: 13px 16px;
+  border: 1px solid #ead7a5;
+  border-left: 4px solid #d29a18;
+  border-radius: 12px;
+  background: #fffaf0;
+  box-shadow: 0 4px 14px rgba(126, 93, 22, 0.06);
+}
+
+.sponsor-copy strong {
+  color: #473615;
+  font-size: 15px;
+}
+
+.sponsor-copy p {
+  color: #756548;
+}
+
+.sponsor-strip .tool-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.tool-grid {
+  gap: 18px;
+}
+
+.tool-card {
+  min-height: 232px;
+  padding: 18px;
+  border-color: #dce7e3;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(24, 55, 48, 0.035);
+}
+
+.tool-card:hover {
+  transform: translateY(-3px);
+  border-color: #8fc8bd;
+  box-shadow: 0 14px 28px rgba(24, 55, 48, 0.11);
+}
+
+.tool-card-header {
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.tool-logo {
+  width: 54px;
+  height: 54px;
+  border-color: #d7e4df;
+  border-radius: 12px;
+  background: #f4f8f7;
+}
+
+.tool-logo img {
+  padding: 7px;
+  border-radius: 11px;
+}
+
+.tool-name-line h2,
+.tool-name-line h3 {
+  margin-top: 2px;
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.tool-category {
+  margin-top: 6px;
+  color: #6c7e79;
+}
+
+.tool-summary {
+  min-height: 48px;
+  margin: 15px 0 13px;
+  line-height: 24px;
+}
+
+.tool-badge {
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+.tool-card-footer {
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top-color: #e8efec;
+}
+
+.tool-card-footer .detail-link {
+  min-height: 34px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #eff8f5;
+}
+
+.tool-card-footer .detail-link:hover {
+  background: var(--brand-soft);
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    padding-inline: 18px;
+  }
+
+  .view {
+    padding-inline: 18px;
+  }
+}
+
+@media (max-width: 560px) {
+  .view {
+    padding: 26px 14px 48px;
+  }
+
+  .page-header h1 {
+    font-size: 29px;
+  }
+
+  .page-summary {
+    font-size: 14px;
+  }
+
+  .filter-panel {
+    border-radius: 10px;
+  }
+
+  .sponsor-strip {
+    border-radius: 10px;
+  }
+
+  .tool-card,
+  .tool-grid.is-list-view .tool-card {
+    min-height: 214px;
+    border-radius: 11px;
+  }
+}
