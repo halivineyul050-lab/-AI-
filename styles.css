@@ -2723,3 +2723,208 @@ body {
     border-radius: 11px;
   }
 }
+
+/* AI discovery palette: energetic blue and orange accents over a neutral canvas. */
+:root {
+  --bg-page: #f5f7fb;
+  --bg-surface: #ffffff;
+  --bg-subtle: #eef2f8;
+  --bg-strong: #121a2b;
+  --text-primary: #121a2b;
+  --text-secondary: #596579;
+  --text-muted: #8792a5;
+  --border: #dfe5ee;
+  --border-strong: #b9c5d6;
+  --brand: #2563eb;
+  --brand-hover: #1d4ed8;
+  --brand-soft: #eaf2ff;
+  --coral: #ea580c;
+  --coral-soft: #fff0e6;
+  --amber: #a16207;
+  --amber-soft: #fff6d8;
+  --blue: #2563eb;
+  --blue-soft: #eaf2ff;
+  --success: #16803c;
+  --shadow-soft: 0 14px 34px rgba(18, 26, 43, 0.08);
+}
+
+.sidebar {
+  background: #f8faff;
+  border-right-color: #dfe5ee;
+}
+
+.brand-block {
+  background: #ffffff;
+  border-bottom-color: #e4e9f1;
+}
+
+.brand-copy strong {
+  color: #121a2b;
+}
+
+.brand-copy small,
+.sidebar-links button,
+.sidebar-links a {
+  color: #738096;
+}
+
+.nav-item,
+.category-button {
+  color: #5c6a80;
+}
+
+.nav-item:hover,
+.category-button:hover {
+  background: #eef4ff;
+  color: #1d4ed8;
+}
+
+.nav-item.is-active,
+.category-button.is-active {
+  border-color: #c9dcff;
+  background: #edf4ff;
+  color: #1d4ed8;
+  box-shadow: inset 3px 0 0 #2563eb, 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+
+.submit-tool-button {
+  border-color: #f5b78d;
+  background: #fff7f1;
+  color: #c2410c;
+}
+
+.submit-tool-button:hover {
+  border-color: #ea580c;
+  background: #fff0e6;
+  color: #c2410c;
+}
+
+.main-area {
+  background: #f5f7fb;
+}
+
+.topbar {
+  background: rgba(245, 247, 251, 0.95);
+  border-bottom-color: #e1e6ef;
+}
+
+.global-search,
+.action-with-count,
+.select-control,
+.segmented-control {
+  border-color: #d4ddea;
+  box-shadow: 0 2px 8px rgba(18, 26, 43, 0.035);
+}
+
+.global-search:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.action-with-count span {
+  background: #121a2b;
+  border-color: #f5f7fb;
+}
+
+.action-with-count[aria-pressed="true"] {
+  border-color: #9bbcff;
+  background: #eaf2ff;
+  color: #1d4ed8;
+}
+
+.eyebrow {
+  color: #2563eb;
+}
+
+.result-badge {
+  border-color: #c9dcff;
+  background: #eaf2ff;
+  color: #1d4ed8;
+}
+
+.task-tab {
+  border-color: #d7e0eb;
+  color: #5c6a80;
+}
+
+.task-tab:hover,
+.task-tab.is-active {
+  border-color: #9bbcff;
+  background: #eaf2ff;
+  color: #1d4ed8;
+}
+
+.filter-panel {
+  border-color: #dfe5ee;
+  box-shadow: 0 4px 16px rgba(18, 26, 43, 0.045);
+}
+
+.sponsor-strip {
+  border-color: #f2d2b7;
+  border-left-color: #ea580c;
+  background: #fff8f2;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.07);
+}
+
+.sponsor-copy strong {
+  color: #7c2d12;
+}
+
+.sponsor-copy p {
+  color: #8a6a58;
+}
+
+.sponsor-label,
+.sponsored-badge {
+  background: #fff0e6;
+  color: #c2410c;
+}
+
+.tool-card {
+  border-color: #dfe5ee;
+  box-shadow: 0 4px 14px rgba(18, 26, 43, 0.04);
+}
+
+.tool-card:hover {
+  border-color: #9bbcff;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.12);
+}
+
+.tool-logo {
+  border-color: #dce4ef;
+  background: #f3f6fb;
+}
+
+.tool-category,
+.tool-card-footer {
+  color: #738096;
+}
+
+.tool-badge {
+  background: #eef2f8;
+  color: #596579;
+}
+
+.tool-badge.price-free {
+  background: #eaf7ee;
+  color: #16803c;
+}
+
+.tool-badge.price-freemium {
+  background: #eaf2ff;
+  color: #2563eb;
+}
+
+.tool-badge.price-paid {
+  background: #fff0e6;
+  color: #c2410c;
+}
+
+.tool-card-footer .detail-link {
+  background: #edf4ff;
+  color: #1d4ed8;
+}
+
+.tool-card-footer .detail-link:hover {
+  background: #dbe9ff;
+}
