@@ -10,9 +10,9 @@
   <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260713-1">
   <link rel="preconnect" href="https://www.google.com">
   <link rel="preconnect" href="https://images.unsplash.com">
-  <link rel="stylesheet" href="styles.css?v=20260715-4">
+  <link rel="stylesheet" href="styles.css?v=20260715-6">
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="app.js?v=20260714-2"></script>
+  <script defer src="app.js?v=20260715-2"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -55,8 +55,8 @@
         </button>
         <div class="sidebar-links">
           <a href="/admin.html">后台监控</a>
-          <button type="button" data-toast="广告合作资料将在正式版开放">广告合作</button>
-          <button type="button" data-toast="关于页面将在正式版开放">关于我们</button>
+          <button type="button" data-view-link="advertise">广告合作</button>
+          <button type="button" data-view-link="about">关于我们</button>
         </div>
       </div>
     </aside>
@@ -248,9 +248,65 @@
         </div>
       </section>
 
+      <section class="view editorial-view" id="advertise-view" data-view-section="advertise" hidden>
+        <div class="editorial-hero editorial-hero-ad">
+          <div class="editorial-hero-copy">
+            <p class="eyebrow">PARTNER WITH NIKE AI</p>
+            <h1>让真正有用的 AI 产品，被更多人发现。</h1>
+            <p>泥壳AI面向正在寻找工具、工作流和产品灵感的人，提供一个更可信、更好逛的 AI 工具分享空间。</p>
+            <div class="editorial-actions">
+              <button class="primary-button" type="button" data-view-link="tools"><i data-lucide="compass"></i><span>先看看工具库</span></button>
+              <button class="secondary-button" type="button" data-toast="合作邮箱可在后台配置后启用">查看合作方式</button>
+            </div>
+          </div>
+          <div class="editorial-signal" aria-label="平台内容概览">
+            <span class="signal-kicker">DISCOVERY SIGNAL</span>
+            <strong>137+</strong>
+            <span>已整理的 AI 工具</span>
+            <div class="signal-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <small>按任务、能力和真实使用场景组织</small>
+          </div>
+        </div>
+
+        <div class="editorial-section-heading"><p class="eyebrow">WAYS TO COLLABORATE</p><h2>合作方式</h2><p>根据产品阶段和目标，选择合适的曝光位置。</p></div>
+        <div class="partner-grid">
+          <article class="partner-card partner-card-featured"><span class="partner-icon"><i data-lucide="megaphone"></i></span><span class="partner-label">适合新品发布</span><h3>首页精选推荐</h3><p>出现在首页精选区域，用清晰的产品定位和使用场景，帮助用户快速理解你的产品。</p><ul><li>首页精选位展示</li><li>产品能力与适用人群说明</li><li>推广标识透明呈现</li></ul></article>
+          <article class="partner-card"><span class="partner-icon"><i data-lucide="layers-3"></i></span><span class="partner-label">适合长期增长</span><h3>专题与场景共建</h3><p>围绕办公、创作、编程或视频等真实任务，策划工具组合和工作流内容。</p><ul><li>专题页工具组合</li><li>场景化内容编排</li><li>持续更新与复盘</li></ul></article>
+          <article class="partner-card"><span class="partner-icon"><i data-lucide="file-pen-line"></i></span><span class="partner-label">适合深度沟通</span><h3>产品内容合作</h3><p>用更完整的产品介绍、教程或案例，让用户理解产品价值，而不是只看到一个 Logo。</p><ul><li>教程与案例内容</li><li>产品更新与能力解读</li><li>来源与推广关系清晰标注</li></ul></article>
+        </div>
+
+        <div class="editorial-trust">
+          <div><i data-lucide="shield-check"></i><strong>透明标注</strong><span>推广内容会明确标记，不混淆自然推荐。</span></div>
+          <div><i data-lucide="bar-chart-3"></i><strong>数据可看</strong><span>关注曝光、详情查看和官网点击等真实行为。</span></div>
+          <div><i data-lucide="heart-handshake"></i><strong>长期合作</strong><span>优先支持真正解决问题、持续迭代的 AI 产品。</span></div>
+        </div>
+      </section>
+
+      <section class="view editorial-view" id="about-view" data-view-section="about" hidden>
+        <div class="editorial-hero editorial-hero-about">
+          <div class="editorial-hero-copy">
+            <p class="eyebrow">ABOUT NIKE AI</p>
+            <h1>不追热点，只帮你找到真正能用的 AI 工具。</h1>
+            <p>泥壳AI工具站是一个面向中文用户的 AI 工具发现与分享平台。我们把分散的产品、能力和工作流整理成更容易理解、比较和尝试的内容。</p>
+            <div class="editorial-actions"><button class="primary-button" type="button" data-view-link="tools"><i data-lucide="search"></i><span>开始探索工具</span></button><button class="secondary-button" type="button" data-view-link="advertise"><i data-lucide="handshake"></i><span>合作与共建</span></button></div>
+          </div>
+          <div class="about-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260713-1" alt=""><span>DISCOVER<br>USEFUL AI</span></div>
+        </div>
+
+        <div class="about-grid">
+          <article class="about-panel"><span class="panel-number">01</span><h2>我们在做什么</h2><p>把“听说过”变成“知道怎么用”。每个工具都尽量说明它解决什么问题、适合谁、怎么开始，以及和哪些工具可以一起使用。</p></article>
+          <article class="about-panel"><span class="panel-number">02</span><h2>我们如何收录</h2><p>优先关注有明确产品能力、官网可访问、适用场景清晰的工具。工具状态、价格、Logo 和描述会持续复核。</p></article>
+          <article class="about-panel"><span class="panel-number">03</span><h2>我们坚持什么</h2><p>推广内容透明标注，产品信息尽量引用公开来源，不用夸张的“万能”叙事替代真实的产品体验。</p></article>
+        </div>
+
+        <div class="about-principles"><div><p class="eyebrow">EDITORIAL PRINCIPLES</p><h2>让工具信息更可信，也更好用。</h2></div><div class="principle-list"><span><i data-lucide="check"></i>以任务和场景组织，而不是只堆产品名称</span><span><i data-lucide="check"></i>区分自然收录、推广内容和待核验信息</span><span><i data-lucide="check"></i>持续更新产品状态、价格和官方链接</span></div></div>
+      </section>
+
       <footer class="site-footer">
         <span>© 2026 泥壳AI工具站</span>
         <nav aria-label="页脚导航">
+          <button type="button" data-view-link="advertise">广告合作</button>
+          <button type="button" data-view-link="about">关于我们</button>
           <button type="button" data-toast="收录标准将在正式版开放">收录标准</button>
           <button type="button" data-toast="隐私政策将在正式版开放">隐私政策</button>
           <button type="button" data-toast="反馈入口将在正式版开放">问题反馈</button>

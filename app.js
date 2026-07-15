@@ -1705,7 +1705,7 @@ function renderContentViews() {
 }
 
 function setActiveView(viewName, updateHash = true, shouldTrack = true) {
-  const validViews = ["tools", "discover", "tutorials", "news"];
+  const validViews = ["tools", "discover", "tutorials", "news", "advertise", "about"];
   const nextView = validViews.includes(viewName) ? viewName : "tools";
   const previousView = state.activeView;
   state.activeView = nextView;
@@ -1830,7 +1830,7 @@ function loadInitialState() {
   if (["recommended", "popular", "newest", "name"].includes(params.get("sort"))) state.sort = params.get("sort");
   state.favoritesOnly = params.get("favorites") === "1";
   const hashView = location.hash.replace("#", "");
-  if (["tools", "discover", "tutorials", "news"].includes(hashView)) state.activeView = hashView;
+  if (["tools", "discover", "tutorials", "news", "advertise", "about"].includes(hashView)) state.activeView = hashView;
 }
 
 function bindEvents() {

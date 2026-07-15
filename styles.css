@@ -2928,3 +2928,387 @@ body {
 .tool-card-footer .detail-link:hover {
   background: #dbe9ff;
 }
+
+/* Editorial pages for partnership and brand trust. */
+.editorial-view {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.editorial-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 28px;
+  align-items: stretch;
+  margin: 0 auto 54px;
+  padding: 40px;
+  overflow: hidden;
+  border: 1px solid #dbe4f0;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(18, 26, 43, 0.07);
+}
+
+.editorial-hero-ad {
+  border-top: 4px solid #ea580c;
+}
+
+.editorial-hero-about {
+  border-top: 4px solid #2563eb;
+}
+
+.editorial-hero-copy {
+  max-width: 720px;
+}
+
+.editorial-hero h1 {
+  max-width: 700px;
+  margin: 0;
+  color: #121a2b;
+  font-size: 52px;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.editorial-hero-copy > p:not(.eyebrow) {
+  max-width: 640px;
+  margin: 18px 0 0;
+  color: #596579;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.editorial-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.editorial-actions .primary-button {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.editorial-actions .primary-button:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.editorial-signal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 250px;
+  padding: 28px;
+  border-radius: 16px;
+  background: #121a2b;
+  color: #ffffff;
+}
+
+.signal-kicker,
+.partner-label,
+.panel-number {
+  color: #8db5ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+
+.editorial-hero-ad .signal-kicker {
+  color: #ffb47e;
+}
+
+.editorial-signal strong {
+  margin-top: 12px;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.editorial-signal > span:not(.signal-kicker) {
+  margin-top: 10px;
+  color: #d6deed;
+}
+
+.editorial-signal small {
+  margin-top: 20px;
+  color: #aab8cf;
+  line-height: 1.6;
+}
+
+.signal-bars {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+  height: 36px;
+  margin-top: 22px;
+}
+
+.signal-bars i {
+  display: block;
+  width: 18px;
+  border-radius: 4px 4px 1px 1px;
+  background: #ff8a4c;
+}
+
+.signal-bars i:nth-child(1) { height: 14px; opacity: 0.55; }
+.signal-bars i:nth-child(2) { height: 22px; opacity: 0.7; }
+.signal-bars i:nth-child(3) { height: 18px; opacity: 0.62; }
+.signal-bars i:nth-child(4) { height: 30px; opacity: 0.85; }
+.signal-bars i:nth-child(5) { height: 36px; }
+
+.editorial-section-heading {
+  max-width: 700px;
+  margin: 0 auto 22px;
+  text-align: center;
+}
+
+.editorial-section-heading h2,
+.about-principles h2 {
+  margin: 0;
+  color: #121a2b;
+  font-size: 30px;
+  line-height: 1.25;
+}
+
+.editorial-section-heading > p:last-child {
+  margin: 8px 0 0;
+  color: #69788d;
+}
+
+.partner-grid,
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 46px;
+}
+
+.partner-card,
+.about-panel {
+  min-height: 300px;
+  padding: 24px;
+  border: 1px solid #dfe5ee;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 5px 18px rgba(18, 26, 43, 0.035);
+}
+
+.partner-card-featured {
+  border-color: #f2c6a5;
+  box-shadow: 0 8px 22px rgba(234, 88, 12, 0.08);
+}
+
+.partner-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #eaf2ff;
+  color: #2563eb;
+}
+
+.partner-card-featured .partner-icon {
+  background: #fff0e6;
+  color: #ea580c;
+}
+
+.partner-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.partner-label {
+  display: block;
+  margin-top: 24px;
+  color: #2563eb;
+  letter-spacing: 0.04em;
+}
+
+.partner-card-featured .partner-label {
+  color: #c2410c;
+}
+
+.partner-card h3,
+.about-panel h2 {
+  margin: 7px 0 8px;
+  color: #121a2b;
+  font-size: 21px;
+}
+
+.partner-card p,
+.about-panel p {
+  margin: 0;
+  color: #617087;
+  line-height: 1.75;
+}
+
+.partner-card ul {
+  display: grid;
+  gap: 8px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+  color: #3f4d63;
+  font-size: 13px;
+}
+
+.partner-card li::before {
+  margin-right: 8px;
+  color: #2563eb;
+  content: "•";
+  font-weight: 800;
+}
+
+.partner-card-featured li::before {
+  color: #ea580c;
+}
+
+.editorial-trust {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #dbe4f0;
+  border-radius: 15px;
+  background: #edf4ff;
+}
+
+.editorial-trust > div {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.editorial-trust svg {
+  grid-row: span 2;
+  width: 21px;
+  height: 21px;
+  color: #2563eb;
+}
+
+.editorial-trust strong {
+  color: #1d4ed8;
+  font-size: 14px;
+}
+
+.editorial-trust span {
+  color: #5f718b;
+  font-size: 12px;
+}
+
+.about-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 250px;
+  border-radius: 16px;
+  background: #eaf2ff;
+  color: #2563eb;
+  text-align: center;
+}
+
+.about-mark img {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+}
+
+.about-mark span {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.7;
+}
+
+.about-panel {
+  min-height: 240px;
+}
+
+.panel-number {
+  color: #2563eb;
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+.about-principles {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 30px;
+  align-items: center;
+  padding: 28px 30px;
+  border-radius: 16px;
+  background: #121a2b;
+  color: #ffffff;
+}
+
+.about-principles h2 {
+  color: #ffffff;
+}
+
+.principle-list {
+  display: grid;
+  gap: 13px;
+}
+
+.principle-list span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d7e0ef;
+  font-size: 14px;
+}
+
+.principle-list svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: #ff9b62;
+}
+
+@media (max-width: 760px) {
+  .editorial-hero,
+  .about-principles {
+    grid-template-columns: 1fr;
+  }
+
+  .editorial-hero {
+    gap: 22px;
+    margin-bottom: 38px;
+    padding: 24px;
+    border-radius: 16px;
+  }
+
+  .editorial-hero h1 {
+    font-size: 34px;
+  }
+
+  .editorial-hero-copy > p:not(.eyebrow) {
+    font-size: 15px;
+  }
+
+  .editorial-signal,
+  .about-mark {
+    min-height: 190px;
+  }
+
+  .partner-grid,
+  .about-grid,
+  .editorial-trust {
+    grid-template-columns: 1fr;
+  }
+
+  .partner-card {
+    min-height: auto;
+  }
+
+  .editorial-trust > div {
+    min-height: 42px;
+  }
+}
