@@ -3397,6 +3397,10 @@ body {
 }
 
 .criteria-grid article {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
   padding: 18px;
   border: 1px solid #dfe5ee;
   border-radius: 12px;
@@ -3409,7 +3413,12 @@ body {
   color: #2563eb;
 }
 
+.criteria-grid h3 {
+  margin: 0;
+}
+
 .criteria-grid p {
+  grid-column: 1 / -1;
   margin: 0;
   font-size: 13px;
 }

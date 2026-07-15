@@ -1704,8 +1704,23 @@ function renderContentViews() {
     .map((topic) => `<button class="topic-tag ${state.topics.has(topic) ? "is-active" : ""}" type="button" data-topic="${topic}" aria-pressed="${state.topics.has(topic)}">${topic}</button>`).join("");
 }
 
+const validViews = ["tools", "discover", "tutorials", "news", "advertise", "about", "standards", "privacy", "feedback"];
+
+function resolveHashDestination(hashValue = location.hash.replace("#", "")) {
+  if (validViews.includes(hashValue)) return { view: hashValue, targetId: "" };
+  if (hashValue.startsWith("privacy-")) return { view: "privacy", targetId: hashValue };
+  if (hashValue.startsWith("standards-")) return { view: "standards", targetId: hashValue };
+  return { view: "tools", targetId: "" };
+}
+
+function scrollToHashTarget(targetId) {
+  if (!targetId) return;
+  window.requestAnimationFrame(() => {
+    document.getElementById(targetId)?.scrollIntoView({ block: "start", inline: "nearest" });
+  });
+}
+
 function setActiveView(viewName, updateHash = true, shouldTrack = true) {
-  const validViews = ["tools", "discover", "tutorials", "news", "advertise", "about", "standards", "privacy", "feedback"];
   const nextView = validViews.includes(viewName) ? viewName : "tools";
   const previousView = state.activeView;
   state.activeView = nextView;
@@ -1829,8 +1844,9 @@ function loadInitialState() {
   if (["zh", "multi"].includes(params.get("lang"))) state.language = params.get("lang");
   if (["recommended", "popular", "newest", "name"].includes(params.get("sort"))) state.sort = params.get("sort");
   state.favoritesOnly = params.get("favorites") === "1";
-  const hashView = location.hash.replace("#", "");
-  if (["tools", "discover", "tutorials", "news", "advertise", "about", "standards", "privacy", "feedback"].includes(hashView)) state.activeView = hashView;
+  const hashDestination = resolveHashDestination();
+  state.activeView = hashDestination.view;
+  scrollToHashTarget(hashDestination.targetId);
 }
 
 function bindEvents() {
@@ -2134,8 +2150,16 @@ function bindEvents() {
     }
   });
 
-  window.addEventListener("hashchange", () => setActiveView(location.hash.replace("#", ""), false));
-  window.addEventListener("popstate", () => setActiveView(location.hash.replace("#", ""), false));
+  window.addEventListener("hashchange", () => {
+    const destination = resolveHashDestination();
+    if (destination.view !== state.activeView) setActiveView(destination.view, false);
+    scrollToHashTarget(destination.targetId);
+  });
+  window.addEventListener("popstate", () => {
+    const destination = resolveHashDestination();
+    if (destination.view !== state.activeView) setActiveView(destination.view, false);
+    scrollToHashTarget(destination.targetId);
+  });
   window.addEventListener("resize", syncSidebarAccessibility);
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) void checkContentRevision();
