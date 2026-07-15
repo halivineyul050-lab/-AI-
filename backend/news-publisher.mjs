@@ -64,26 +64,37 @@ function articleSchema() {
   };
 }
 
-async function generateArticle(items, apiKey, model) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+function responseEndpoint(baseUrl, path = "/v1/responses") {
+  return `${String(baseUrl || "https://api.openai.com").replace(/\/+$/, "")}/${String(path).replace(/^\/+/, "")}`;
+}
+
+function responseText(payload) {
+  if (typeof payload?.output_text === "string" && payload.output_text) return payload.output_text;
+  const parts = payload?.output?.flatMap((item) => item.content || []) || [];
+  return parts.find((part) => part.type === "output_text" && typeof part.text === "string")?.text || "";
+}
+
+async function generateArticle(items, { apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage }) {
+  const response = await fetch(responseEndpoint(baseUrl, apiPath), {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model,
-      temperature: 0.2,
-      response_format: { type: "json_schema", json_schema: { name: "ai_news_article", strict: true, schema: articleSchema() } },
-      messages: [
+      reasoning: { effort: reasoningEffort },
+      store: !disableResponseStorage,
+      text: { format: { type: "json_schema", name: "ai_news_article", strict: true, schema: articleSchema() } },
+      input: [
         {
           role: "system",
-          content: "你是泥壳AI工具站的资讯编辑。只根据给定来源写一篇中文AI行业资讯。不要编造未在来源中出现的数字、人物、时间或功能，不要长段复制原文。文章要有清晰标题、摘要和正文，适合直接发布；正文应说明事件、背景、对工具用户的影响和来源边界。"
+          content: [{ type: "input_text", text: "你是泥壳AI工具站的资讯编辑。只根据给定来源写一篇中文AI行业资讯。不要编造未在来源中出现的数字、人物、时间或功能，不要长段复制原文。文章要有清晰标题、摘要和正文，适合直接发布；正文应说明事件、背景、对工具用户的影响和来源边界。" }]
         },
-        { role: "user", content: JSON.stringify({ sources: items }) }
+        { role: "user", content: [{ type: "input_text", text: JSON.stringify({ sources: items }) }] }
       ]
     })
   });
-  if (!response.ok) throw new Error(`AI API returned ${response.status}: ${(await response.text()).slice(0, 300)}`);
+  if (!response.ok) throw new Error(`AI Responses API returned ${response.status}: ${(await response.text()).slice(0, 300)}`);
   const payload = await response.json();
-  const content = payload.choices?.[0]?.message?.content;
+  const content = responseText(payload);
   if (!content) throw new Error("AI API returned no article content");
   return JSON.parse(content);
 }
@@ -92,7 +103,18 @@ function articleId(sourceUrl) {
   return `auto-news-${createHash("sha256").update(sourceUrl).digest("hex").slice(0, 16)}`;
 }
 
-export async function runNewsPublisherOnce({ db, apiKey, model = "gpt-4o-mini", feeds = defaultFeeds, logger = console, dryRun = false } = {}) {
+export async function runNewsPublisherOnce({
+  db,
+  apiKey,
+  model = "gpt-5.5",
+  baseUrl = "https://lucen.cc",
+  apiPath = "/v1/responses",
+  reasoningEffort = "xhigh",
+  disableResponseStorage = true,
+  feeds = defaultFeeds,
+  logger = console,
+  dryRun = false
+} = {}) {
   if (!apiKey) return { skipped: true, reason: "missing_api_key" };
   const feedItems = [];
   for (const feed of feeds) {
@@ -109,7 +131,7 @@ export async function runNewsPublisherOnce({ db, apiKey, model = "gpt-4o-mini", 
   const unseen = freshItems.filter((item) => !db.prepare("SELECT 1 FROM articles WHERE source_url = ?").get(item.link));
   if (!unseen.length) return { skipped: true, reason: "all_sources_seen", sourceCount: freshItems.length };
   const primarySource = unseen[0];
-  const article = await generateArticle([primarySource], apiKey, model);
+  const article = await generateArticle([primarySource], { apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage });
   const body = {
     id: articleId(primarySource.link),
     kind: "news",
@@ -135,8 +157,12 @@ export function scheduleNewsPublisher({ db, environment = "development", logger 
   if (environment === "test" || !enabled || !apiKey) return { enabled: false, timer: null, startupTimer: null };
   const intervalMs = Math.max(Number(env.NIKE_NEWS_INTERVAL_MINUTES || 360), 15) * 60_000;
   const feeds = String(env.NIKE_NEWS_FEEDS || defaultFeeds.join(",")).split(",").map((item) => item.trim()).filter(Boolean);
-  const model = env.NIKE_NEWS_AI_MODEL || "gpt-4o-mini";
-  const run = () => runNewsPublisherOnce({ db, apiKey, model, feeds, logger }).catch((error) => logger.error?.(`[news-publisher] ${error.message}`));
+  const model = env.NIKE_NEWS_AI_MODEL || "gpt-5.5";
+  const baseUrl = env.NIKE_NEWS_BASE_URL || "https://lucen.cc";
+  const apiPath = env.NIKE_NEWS_API_PATH || "/v1/responses";
+  const reasoningEffort = env.NIKE_NEWS_REASONING_EFFORT || "xhigh";
+  const disableResponseStorage = env.NIKE_NEWS_DISABLE_RESPONSE_STORAGE !== "false";
+  const run = () => runNewsPublisherOnce({ db, apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage, feeds, logger }).catch((error) => logger.error?.(`[news-publisher] ${error.message}`));
   const timer = setInterval(run, intervalMs);
   timer.unref();
   const startupTimer = setTimeout(run, 10_000);

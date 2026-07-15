@@ -34,3 +34,40 @@ test("publisher stays disabled without an API key", async () => {
   });
   assert.equal(scheduled.enabled, false);
 });
+
+test("publisher sends a Responses API request with the configured provider options", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url, options = {}) => {
+    calls.push({ url: String(url), options });
+    if (String(url).endsWith("/rss.xml")) {
+      return new Response("<rss><channel><item><title>New AI release</title><link>https://example.com/news/2</link></item></channel></rss>", {
+        status: 200,
+        headers: { "content-type": "application/xml" }
+      });
+    }
+    return new Response(JSON.stringify({
+      output_text: JSON.stringify({ topic: "AI", title: "New AI release", excerpt: "Summary", body: "Body", readTime: "3 minutes" })
+    }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+
+  try {
+    const result = await runNewsPublisherOnce({
+      db: { prepare: () => ({ get: () => undefined }) },
+      apiKey: "test-key",
+      baseUrl: "https://lucen.cc",
+      feeds: ["https://example.com/rss.xml"],
+      dryRun: true
+    });
+    const request = calls.at(-1);
+    const payload = JSON.parse(request.options.body);
+    assert.equal(result.dryRun, true);
+    assert.equal(request.url, "https://lucen.cc/v1/responses");
+    assert.equal(payload.model, "gpt-5.5");
+    assert.deepEqual(payload.reasoning, { effort: "xhigh" });
+    assert.equal(payload.store, false);
+    assert.equal(payload.text.format.type, "json_schema");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
