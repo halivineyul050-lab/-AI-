@@ -222,6 +222,12 @@ npm run logos:verify
 | `GET/PATCH/DELETE` | `/api/admin/v1/content/:type/:id` | 查看、更新或归档单条内容 |
 | `POST` | `/api/admin/v1/content/media/logos` | 校验并上传本地工具 Logo |
 
+### AI 资讯自动发布
+
+AI 资讯支持按计划自动收集和发布。服务会读取配置的官方 RSS 来源，使用 OpenAI 生成中文标题、摘要和正文，并直接写入已发布内容。默认关闭；部署时在环境变量中设置 `OPENAI_API_KEY` 和 `NIKE_AUTO_NEWS=true` 才会启用。
+
+可选配置：`NIKE_NEWS_INTERVAL_MINUTES`（默认 360 分钟）、`NIKE_NEWS_AI_MODEL`（默认 `gpt-4o-mini`）和 `NIKE_NEWS_FEEDS`（逗号分隔的 RSS 地址）。没有 API 密钥或开关未开启时，网站正常运行但不会执行采集任务。
+
 完整后端契约见 [backend/README.md](backend/README.md)，本地接口说明见 [泥壳AI工具站-后端地址与接口说明.md](泥壳AI工具站-后端地址与接口说明.md)。
 
 ## 测试
@@ -230,7 +236,7 @@ npm run logos:verify
 npm test
 ```
 
-当前共 `32` 项自动化测试，覆盖：
+当前共 `34` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -244,6 +250,7 @@ npm test
 - CMS 增删改查、发布可见性、修订冲突、审计记录和重启持久化
 - Logo 上传签名校验、危险 SVG 拒绝和本地静态资源服务
 - 问题反馈的同意校验、字段校验和待处理入库
+- AI 资讯 RSS 解析及未配置密钥时的停用保护
 
 ## 项目结构
 

@@ -4,6 +4,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getMonitoringSnapshot } from "./backend/monitoring.mjs";
+import { scheduleNewsPublisher } from "./backend/news-publisher.mjs";
 import {
   archiveAdminContent,
   createAdminContent,
@@ -288,6 +289,7 @@ export function buildApplication(options = {}) {
   pruneOperationalData(db);
   const retentionTimer = setInterval(() => pruneOperationalData(db), 24 * 60 * 60_000);
   retentionTimer.unref();
+  const newsPublisher = scheduleNewsPublisher({ db, environment, logger });
   const rateLimit = createRateLimiter();
   const runtimeStartedAt = new Date();
   const recentRequests = [];
@@ -751,6 +753,8 @@ export function buildApplication(options = {}) {
     },
     close() {
       clearInterval(retentionTimer);
+      if (newsPublisher.timer) clearInterval(newsPublisher.timer);
+      if (newsPublisher.startupTimer) clearTimeout(newsPublisher.startupTimer);
       return new Promise((resolveClose, reject) => {
         server.close((error) => {
           db.close();
