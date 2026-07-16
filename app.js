@@ -886,6 +886,21 @@ async function loadBackendData() {
   document.documentElement.dataset.backend = "fallback";
 }
 
+async function loadCurrentUser() {
+  const label = document.getElementById("account-label");
+  const link = document.getElementById("account-link");
+  if (!label || !link) return;
+  try {
+    const response = await fetch("/api/v1/auth/me", { credentials: "same-origin", headers: { Accept: "application/json" } });
+    if (!response.ok) return;
+    const payload = await response.json();
+    const user = payload.data?.user;
+    if (!user) return;
+    label.textContent = user.displayName;
+    link.setAttribute("aria-label", `${user.displayName}的账号中心`);
+  } catch {}
+}
+
 function buildToolQuery(offset = 0, limit = state.toolLimit) {
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset), sort: state.sort });
   if (state.query.trim()) params.set("q", state.query.trim());
@@ -2177,7 +2192,7 @@ function bindEvents() {
 async function initialize() {
   localStorage.removeItem("nike-submissions");
   localStorage.removeItem("nike-newsletter");
-  await loadBackendData();
+  await Promise.all([loadBackendData(), loadCurrentUser()]);
   loadInitialState();
   if (backendAvailable) {
     await Promise.all([loadToolResults(), loadRankingTools()]);

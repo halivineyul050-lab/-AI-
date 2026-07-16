@@ -214,6 +214,10 @@ npm run logos:verify
 | `GET` | `/api/v1/tool-submissions/:code/status` | 查询投稿审核状态 |
 | `POST` | `/api/v1/newsletter/subscriptions` | 订阅周报 |
 | `POST` | `/api/v1/feedback` | 提交内容纠错、功能问题和建议 |
+| `POST` | `/api/v1/auth/register` | 注册普通用户账号 |
+| `POST` | `/api/v1/auth/login` | 登录并创建会话 |
+| `GET` | `/api/v1/auth/me` | 获取当前登录用户 |
+| `POST` | `/api/v1/auth/logout` | 退出当前会话 |
 | `DELETE` | `/api/v1/newsletter/subscriptions/:token` | 退订周报 |
 | `POST` | `/api/v1/events/batch` | 批量上报行为事件 |
 | `GET` | `/r/tools/:slug` | 记录官网点击并跳转 |
@@ -236,7 +240,7 @@ AI 资讯支持按计划自动收集和发布。服务会读取配置的官方 R
 npm test
 ```
 
-当前共 `36` 项自动化测试，覆盖：
+当前共 `38` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -250,6 +254,7 @@ npm test
 - CMS 增删改查、发布可见性、修订冲突、审计记录和重启持久化
 - Logo 上传签名校验、危险 SVG 拒绝和本地静态资源服务
 - 问题反馈的同意校验、字段校验和待处理入库
+- 用户注册、密码哈希、登录会话、当前用户和退出登录
 - AI 资讯 RSS 解析及未配置密钥时的停用保护
 
 ## 项目结构

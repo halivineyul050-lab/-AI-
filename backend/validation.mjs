@@ -95,6 +95,38 @@ export function normalizeEmail(value) {
   return email;
 }
 
+function readPassword(value) {
+  if (typeof value !== "string" || value.length < 10 || value.length > 128 || /[\u0000-\u001f\u007f]/.test(value)) {
+    throw new HttpError(422, "invalid_password", "密码长度必须为 10-128 个字符", { field: "password" });
+  }
+  return value;
+}
+
+export function validateRegistration(body) {
+  assertAllowedKeys(body, ["displayName", "email", "password", "consentVersion", "consentAccepted"]);
+  if (body.consentAccepted !== true) {
+    throw new HttpError(422, "consent_required", "请先同意隐私政策", { field: "consentAccepted" });
+  }
+  const consentVersion = readText(body.consentVersion || currentConsentVersion, "consentVersion", 4, 20);
+  if (consentVersion !== currentConsentVersion) {
+    throw new HttpError(409, "consent_version_outdated", "隐私政策已更新，请刷新页面后重试");
+  }
+  const email = normalizeEmail(body.email);
+  return {
+    displayName: readText(body.displayName, "displayName", 2, 40),
+    email,
+    normalizedEmail: email,
+    password: readPassword(body.password),
+    consentVersion
+  };
+}
+
+export function validateLogin(body) {
+  assertAllowedKeys(body, ["email", "password"]);
+  const email = normalizeEmail(body.email);
+  return { email, normalizedEmail: email, password: readPassword(body.password) };
+}
+
 export function validateSubmission(body, idempotencyKey) {
   assertAllowedKeys(body, ["name", "websiteUrl", "categoryId", "summary", "contactEmail", "declarationAccepted", "source", "company"]);
   if (body.company) return { honeypot: true };

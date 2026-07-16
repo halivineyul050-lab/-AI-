@@ -435,7 +435,36 @@ img {
 
 .topbar-actions {
   display: flex;
+  align-items: center;
   gap: 6px;
+}
+
+.account-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 112px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.account-button:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.account-button svg {
+  width: 17px;
+  height: 17px;
 }
 
 .action-with-count {
@@ -2087,6 +2116,16 @@ button:disabled {
   .mobile-menu-button {
     width: 40px;
     height: 40px;
+  }
+
+  .account-button {
+    min-width: 40px;
+    width: 40px;
+    padding: 0;
+  }
+
+  .account-button span {
+    display: none;
   }
 
   .view {

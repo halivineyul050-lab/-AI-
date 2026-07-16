@@ -11,7 +11,8 @@ const migrations = [
   { version: 4, name: "tool_catalog_imports", sql: readFileSync(resolve(import.meta.dirname, "migrations", "004_tool_catalog_imports.sql"), "utf8") },
   { version: 5, name: "comic_category", sql: readFileSync(resolve(import.meta.dirname, "migrations", "005_comic_category.sql"), "utf8") },
   { version: 6, name: "content_management", sql: readFileSync(resolve(import.meta.dirname, "migrations", "006_content_management.sql"), "utf8") },
-  { version: 7, name: "feedback_messages", sql: readFileSync(resolve(import.meta.dirname, "migrations", "007_feedback.sql"), "utf8") }
+  { version: 7, name: "feedback_messages", sql: readFileSync(resolve(import.meta.dirname, "migrations", "007_feedback.sql"), "utf8") },
+  { version: 8, name: "user_accounts", sql: readFileSync(resolve(import.meta.dirname, "migrations", "008_user_accounts.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -673,7 +674,8 @@ export function pruneOperationalData(db, eventDays = 90, clickDays = 90) {
     DELETE FROM outbound_clicks
     WHERE created_at < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)
   `).run(`-${Math.max(Number(clickDays) || 90, 1)} days`);
-  return { events: Number(events.changes), clicks: Number(clicks.changes) };
+  const sessions = db.prepare("DELETE FROM auth_sessions WHERE expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ', 'now')").run();
+  return { events: Number(events.changes), clicks: Number(clicks.changes), sessions: Number(sessions.changes) };
 }
 
 export function getAdminSummary(db) {

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="泥壳AI工具站账号登录与注册">
+  <title>账号登录 - 泥壳AI工具站</title>
+  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <link rel="stylesheet" href="/auth.css?v=20260716-1">
+  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script defer src="/auth.js?v=20260716-1"></script>
+</head>
+<body>
+  <header class="auth-header">
+    <a class="auth-brand" href="/">
+      <img src="/brand-icon-192.png" alt="">
+      <span><strong>泥壳AI</strong><small>工具站</small></span>
+    </a>
+    <a class="back-link" href="/"><i data-lucide="arrow-left"></i><span>返回工具库</span></a>
+  </header>
+
+  <main class="auth-main">
+    <section class="auth-panel" aria-labelledby="auth-title">
+      <div class="auth-heading">
+        <p>NIKE AI ACCOUNT</p>
+        <h1 id="auth-title">账号中心</h1>
+      </div>
+
+      <div class="auth-tabs" id="auth-tabs" role="tablist" aria-label="账号操作">
+        <button class="is-active" type="button" role="tab" aria-selected="true" data-auth-mode="login">登录</button>
+        <button type="button" role="tab" aria-selected="false" data-auth-mode="register">注册</button>
+      </div>
+
+      <p class="auth-message" id="auth-message" role="status" hidden></p>
+
+      <form class="auth-form" id="login-form" data-auth-form="login">
+        <label for="login-email">邮箱</label>
+        <div class="auth-input"><i data-lucide="mail"></i><input id="login-email" name="email" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+        <label for="login-password">密码</label>
+        <div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="login-password" name="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required placeholder="输入密码"></div>
+        <button class="auth-primary" type="submit"><i data-lucide="log-in"></i><span>登录账号</span></button>
+      </form>
+
+      <form class="auth-form" id="register-form" data-auth-form="register" hidden>
+        <label for="register-name">昵称</label>
+        <div class="auth-input"><i data-lucide="user-round"></i><input id="register-name" name="displayName" type="text" autocomplete="name" minlength="2" maxlength="40" required placeholder="你的昵称"></div>
+        <label for="register-email">邮箱</label>
+        <div class="auth-input"><i data-lucide="mail"></i><input id="register-email" name="email" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+        <label for="register-password">密码</label>
+        <div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="至少 10 个字符"></div>
+        <label for="register-confirm">确认密码</label>
+        <div class="auth-input"><i data-lucide="shield-check"></i><input id="register-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="再次输入密码"></div>
+        <label class="consent-row"><input name="consentAccepted" type="checkbox" required><span>我已阅读并同意<a href="/#privacy">隐私政策</a></span></label>
+        <button class="auth-primary" type="submit"><i data-lucide="user-plus"></i><span>创建账号</span></button>
+      </form>
+
+      <section class="account-panel" id="account-panel" hidden>
+        <span class="account-avatar"><i data-lucide="user-round-check"></i></span>
+        <h2 id="account-name">已登录</h2>
+        <p id="account-email"></p>
+        <div class="account-actions">
+          <a class="auth-primary" href="/"><i data-lucide="layout-grid"></i><span>进入工具库</span></a>
+          <button class="auth-secondary" id="logout-button" type="button"><i data-lucide="log-out"></i><span>退出登录</span></button>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

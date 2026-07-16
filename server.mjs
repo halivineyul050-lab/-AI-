@@ -6,6 +6,14 @@ import { fileURLToPath } from "node:url";
 import { getMonitoringSnapshot } from "./backend/monitoring.mjs";
 import { scheduleNewsPublisher } from "./backend/news-publisher.mjs";
 import {
+  authCookieName,
+  authSessionMaxAgeSeconds,
+  getUserBySession,
+  loginUser,
+  logoutUser,
+  registerUser
+} from "./backend/auth.mjs";
+import {
   archiveAdminContent,
   createAdminContent,
   getAdminContent,
@@ -44,6 +52,8 @@ import {
   readJsonBody,
   validateEventBatch,
   validateFeedback,
+  validateLogin,
+  validateRegistration,
   validateReview,
   validateSubmission,
   validateSubscription
@@ -72,6 +82,9 @@ const staticFiles = new Set([
   "index.html",
   "styles.css",
   "app.js",
+  "auth.html",
+  "auth.css",
+  "auth.js",
   "admin.html",
   "admin.css",
   "admin.js",
@@ -118,6 +131,17 @@ function parseCookies(request) {
     try { cookies[key] = decodeURIComponent(value); } catch { cookies[key] = value; }
   });
   return cookies;
+}
+
+function isSecureRequest(request, trustProxy) {
+  if (request.socket.encrypted) return true;
+  if (!trustProxy || !isLoopbackAddress(request.socket.remoteAddress)) return false;
+  return String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim().toLowerCase() === "https";
+}
+
+function authCookie(token, request, trustProxy, maxAge = authSessionMaxAgeSeconds) {
+  const secure = isSecureRequest(request, trustProxy) ? "; Secure" : "";
+  return `${authCookieName}=${encodeURIComponent(token || "")}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${secure}`;
 }
 
 function isLoopbackAddress(value) {
@@ -410,6 +434,44 @@ export function buildApplication(options = {}) {
         sendData(response, getBootstrap(db), {
           contentVersion: new Date().toISOString(),
           backend: "node-sqlite"
+        });
+        return;
+      }
+
+      if (method === "POST" && pathname === "/api/v1/auth/register") {
+        rateLimit(`${ip}:auth-register`, 5, 60 * 60_000);
+        const result = registerUser(db, validateRegistration(await readJsonBody(request)));
+        sendData(response, { user: result.user }, null, 201, {
+          "Cache-Control": "no-store",
+          "Set-Cookie": authCookie(result.token, request, trustProxy)
+        });
+        return;
+      }
+
+      if (method === "POST" && pathname === "/api/v1/auth/login") {
+        rateLimit(`${ip}:auth-login`, 10, 15 * 60_000);
+        const result = loginUser(db, validateLogin(await readJsonBody(request)));
+        sendData(response, { user: result.user }, null, 200, {
+          "Cache-Control": "no-store",
+          "Set-Cookie": authCookie(result.token, request, trustProxy)
+        });
+        return;
+      }
+
+      if (method === "GET" && pathname === "/api/v1/auth/me") {
+        rateLimit(`${ip}:auth-read`, 120, 60_000);
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        sendData(response, { user }, null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
+      if (method === "POST" && pathname === "/api/v1/auth/logout") {
+        rateLimit(`${ip}:auth-logout`, 30, 60_000);
+        logoutUser(db, parseCookies(request)[authCookieName]);
+        sendData(response, { loggedOut: true }, null, 200, {
+          "Cache-Control": "no-store",
+          "Set-Cookie": authCookie("", request, trustProxy, 0)
         });
         return;
       }
