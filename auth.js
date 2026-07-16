@@ -9,10 +9,13 @@
   const accountName = document.getElementById("account-name");
   const accountEmail = document.getElementById("account-email");
   const logoutButton = document.getElementById("logout-button");
+  const adminAuthPanel = document.getElementById("admin-auth-panel");
+  const adminAuthForm = document.getElementById("admin-auth-form");
   const nextPath = (() => {
     const value = new URLSearchParams(location.search).get("next") || "/";
     return value.startsWith("/") && !value.startsWith("//") ? value : "/";
   })();
+  const adminMode = new URLSearchParams(location.search).get("mode") === "admin" || nextPath === "/admin.html";
 
   function refreshIcons() {
     window.lucide?.createIcons({ attrs: { "aria-hidden": "true" } });
@@ -61,6 +64,14 @@
     accountName.textContent = user.displayName;
     accountEmail.textContent = user.email;
     accountPanel.hidden = false;
+  }
+
+  function showAdminAuth() {
+    tabs.hidden = true;
+    loginForm.hidden = true;
+    registerForm.hidden = true;
+    accountPanel.hidden = true;
+    adminAuthPanel.hidden = false;
   }
 
   function errorMessage(error) {
@@ -138,8 +149,30 @@
     }
   });
 
+  adminAuthForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = adminAuthForm.querySelector('button[type="submit"]');
+    const token = String(new FormData(adminAuthForm).get("token") || "").trim();
+    button.disabled = true;
+    showMessage("");
+    try {
+      const response = await fetch("/api/admin/v1/summary", { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } });
+      if (!response.ok) throw new Error("管理员令牌不正确");
+      sessionStorage.setItem("nike-admin-token", token);
+      location.href = nextPath;
+    } catch (error) {
+      showMessage(error.message || "管理员认证失败");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
   async function initialize() {
     refreshIcons();
+    if (adminMode) {
+      showAdminAuth();
+      return;
+    }
     try {
       const data = await api("/api/v1/auth/me", { method: "GET", headers: { "Content-Type": "application/json" } });
       showAccount(data.user);

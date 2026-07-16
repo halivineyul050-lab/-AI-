@@ -13,6 +13,7 @@ const migrations = [
   { version: 6, name: "content_management", sql: readFileSync(resolve(import.meta.dirname, "migrations", "006_content_management.sql"), "utf8") },
   { version: 7, name: "feedback_messages", sql: readFileSync(resolve(import.meta.dirname, "migrations", "007_feedback.sql"), "utf8") },
   { version: 8, name: "user_accounts", sql: readFileSync(resolve(import.meta.dirname, "migrations", "008_user_accounts.sql"), "utf8") }
+  , { version: 9, name: "user_favorites", sql: readFileSync(resolve(import.meta.dirname, "migrations", "009_user_favorites.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -689,6 +690,21 @@ export function getAdminSummary(db) {
     events: scalar("SELECT COUNT(*) AS count FROM analytics_events"),
     outboundClicks: scalar("SELECT COUNT(*) AS count FROM outbound_clicks")
   };
+}
+
+export function listUserFavorites(db, userId) {
+  return db.prepare("SELECT tool_id AS toolId FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC").all(userId).map((row) => row.toolId);
+}
+
+export function addUserFavorite(db, userId, toolId) {
+  const tool = db.prepare("SELECT id FROM tools WHERE id = ? AND status = 'published'").get(toolId);
+  if (!tool) return false;
+  db.prepare("INSERT OR IGNORE INTO user_favorites (user_id, tool_id) VALUES (?, ?)").run(userId, toolId);
+  return true;
+}
+
+export function removeUserFavorite(db, userId, toolId) {
+  return Number(db.prepare("DELETE FROM user_favorites WHERE user_id = ? AND tool_id = ?").run(userId, toolId).changes) > 0;
 }
 
 export function listSubmissions(db, status = "pending") {

@@ -90,6 +90,22 @@ test("registration, login, current-user and logout use an HttpOnly session", asy
   assert.equal(login.response.status, 200);
   const loginCookie = cookieFrom(login.response);
 
+  const initialFavorites = await request("/api/v1/account/favorites", { headers: { Cookie: loginCookie } });
+  assert.equal(initialFavorites.response.status, 200);
+  assert.deepEqual(initialFavorites.body.data.toolIds, []);
+  const addedFavorite = await request("/api/v1/account/favorites/doubao", {
+    method: "PUT",
+    headers: { Cookie: loginCookie }
+  });
+  assert.equal(addedFavorite.response.status, 200);
+  const savedFavorites = await request("/api/v1/account/favorites", { headers: { Cookie: loginCookie } });
+  assert.deepEqual(savedFavorites.body.data.toolIds, ["doubao"]);
+  const removedFavorite = await request("/api/v1/account/favorites/doubao", {
+    method: "DELETE",
+    headers: { Cookie: loginCookie }
+  });
+  assert.equal(removedFavorite.response.status, 200);
+
   const logout = await request("/api/v1/auth/logout", {
     method: "POST",
     headers: { Cookie: loginCookie, "Content-Type": "application/json" },

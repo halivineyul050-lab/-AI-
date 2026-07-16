@@ -811,6 +811,7 @@ const toolMap = Object.fromEntries(tools.map((tool) => [tool.id, tool]));
 let sponsoredTool = tools.find((tool) => tool.sponsored) || null;
 let rankingTools = tools.filter((tool) => !tool.sponsored).sort((a, b) => b.popular - a.popular).slice(0, 6);
 let backendAvailable = false;
+let currentUser = null;
 let toolRequestVersion = 0;
 let searchDebounceTimer = null;
 let eventQueue = [];
@@ -896,8 +897,21 @@ async function loadCurrentUser() {
     const payload = await response.json();
     const user = payload.data?.user;
     if (!user) return;
+    currentUser = user;
     label.textContent = user.displayName;
     link.setAttribute("aria-label", `${user.displayName}的账号中心`);
+  } catch {}
+}
+
+async function loadAccountFavorites() {
+  if (!currentUser) return;
+  try {
+    const response = await fetch("/api/v1/account/favorites", { credentials: "same-origin", headers: { Accept: "application/json" } });
+    if (!response.ok) return;
+    const payload = await response.json();
+    if (!Array.isArray(payload.data?.toolIds)) return;
+    state.favorites = new Set(payload.data.toolIds);
+    saveLocalArray("nike-favorites", state.favorites);
   } catch {}
 }
 
@@ -1443,13 +1457,24 @@ function refreshToolResults() {
   return Promise.resolve(false);
 }
 
-function toggleFavorite(toolId) {
+async function toggleFavorite(toolId) {
   const tool = toolMap[toolId];
   if (!tool) return;
   const adding = !state.favorites.has(toolId);
   if (adding) state.favorites.add(toolId);
   else state.favorites.delete(toolId);
   saveLocalArray("nike-favorites", state.favorites);
+  if (currentUser) {
+    try {
+      await fetch(`/api/v1/account/favorites/${encodeURIComponent(toolId)}`, {
+        method: adding ? "PUT" : "DELETE",
+        credentials: "same-origin",
+        headers: { Accept: "application/json" }
+      });
+    } catch {
+      showToast("收藏同步失败，已保留本机收藏");
+    }
+  }
   if (state.favoritesOnly) void refreshToolResults();
   else renderTools();
   requestAnimationFrame(() => {
@@ -2193,6 +2218,7 @@ async function initialize() {
   localStorage.removeItem("nike-submissions");
   localStorage.removeItem("nike-newsletter");
   await Promise.all([loadBackendData(), loadCurrentUser()]);
+  await loadAccountFavorites();
   loadInitialState();
   if (backendAvailable) {
     await Promise.all([loadToolResults(), loadRankingTools()]);

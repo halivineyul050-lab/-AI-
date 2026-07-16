@@ -68,8 +68,8 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 8);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 8);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 9);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 9);
 });
 
 test("brand icon is served with the expected media type", async () => {

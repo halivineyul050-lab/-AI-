@@ -35,6 +35,9 @@ import {
   getTool,
   insertEvents,
   listArticles,
+  listUserFavorites,
+  addUserFavorite,
+  removeUserFavorite,
   listSubmissions,
   listTools,
   openDatabase,
@@ -474,6 +477,29 @@ export function buildApplication(options = {}) {
           "Set-Cookie": authCookie("", request, trustProxy, 0)
         });
         return;
+      }
+
+      if (pathname === "/api/v1/account/favorites" || /^\/api\/v1\/account\/favorites\/[a-z0-9-]+$/.test(pathname)) {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录后管理收藏");
+        if (method === "GET" && pathname === "/api/v1/account/favorites") {
+          rateLimit(`${ip}:favorites-read`, 120, 60_000);
+          sendData(response, { toolIds: listUserFavorites(db, user.id) }, null, 200, { "Cache-Control": "no-store" });
+          return;
+        }
+        const favoriteMatch = pathname.match(/^\/api\/v1\/account\/favorites\/([a-z0-9-]+)$/);
+        if (favoriteMatch && method === "PUT") {
+          rateLimit(`${ip}:favorites-write`, 60, 60_000);
+          if (!addUserFavorite(db, user.id, favoriteMatch[1])) throw new HttpError(404, "tool_not_found", "工具不存在或尚未发布");
+          sendData(response, { toolId: favoriteMatch[1], favorite: true }, null, 200, { "Cache-Control": "no-store" });
+          return;
+        }
+        if (favoriteMatch && method === "DELETE") {
+          rateLimit(`${ip}:favorites-write`, 60, 60_000);
+          removeUserFavorite(db, user.id, favoriteMatch[1]);
+          sendData(response, { toolId: favoriteMatch[1], favorite: false }, null, 200, { "Cache-Control": "no-store" });
+          return;
+        }
       }
 
       if (method === "GET" && pathname === "/api/v1/categories") {

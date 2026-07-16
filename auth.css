@@ -106,6 +106,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .auth-tabs button.is-active { background: var(--surface); color: var(--brand); box-shadow: 0 1px 3px rgba(23, 33, 31, 0.08); }
 
+.admin-auth-panel[hidden] { display: none; }
+.admin-auth-panel h2 { margin: 14px 0 6px; font-size: 21px; }
+.admin-auth-panel > p { margin: 0 0 20px; color: var(--muted); font-size: 13px; }
+.admin-auth-icon { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #fff4d9; color: #9a6410; }
+.admin-auth-icon svg { width: 24px; }
+
 .auth-form { display: grid; gap: 10px; }
 .auth-form[hidden], .account-panel[hidden], .auth-tabs[hidden], .auth-message[hidden] { display: none; }
 .auth-form label:not(.consent-row) { margin-top: 4px; color: #3d4b48; font-size: 13px; font-weight: 700; }

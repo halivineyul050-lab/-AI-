@@ -32,6 +32,17 @@
         <button type="button" role="tab" aria-selected="false" data-auth-mode="register">注册</button>
       </div>
 
+      <section class="admin-auth-panel" id="admin-auth-panel" hidden>
+        <div class="admin-auth-icon"><i data-lucide="shield-check"></i></div>
+        <h2>管理员认证</h2>
+        <p>运营与内容中心仅对管理员开放。</p>
+        <form class="auth-form" id="admin-auth-form">
+          <label for="admin-login-token">管理员令牌</label>
+          <div class="auth-input"><i data-lucide="key-round"></i><input id="admin-login-token" name="token" type="password" autocomplete="off" required placeholder="输入 NIKE_ADMIN_TOKEN"></div>
+          <button class="auth-primary" type="submit"><i data-lucide="unlock-keyhole"></i><span>进入运营中心</span></button>
+        </form>
+      </section>
+
       <p class="auth-message" id="auth-message" role="status" hidden></p>
 
       <form class="auth-form" id="login-form" data-auth-form="login">

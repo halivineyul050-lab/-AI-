@@ -17,7 +17,7 @@
     chartResizeFrame: null,
     relativeTimer: null,
     pollTimer: null,
-    token: "",
+    token: sessionStorage.getItem("nike-admin-token") || "",
     submissions: [],
     reviewLoading: false,
     lastReviewFetchAt: 0,
@@ -1856,6 +1856,17 @@
   }
 
   async function requireAccountSession() {
+    if (state.token) {
+      try {
+        const response = await fetch("/api/admin/v1/summary", {
+          credentials: "same-origin",
+          headers: { Accept: "application/json", Authorization: `Bearer ${state.token}` }
+        });
+        if (response.ok) return true;
+      } catch {}
+      sessionStorage.removeItem("nike-admin-token");
+      state.token = "";
+    }
     try {
       const response = await fetch("/api/v1/auth/me", {
         credentials: "same-origin",
@@ -1863,10 +1874,14 @@
       });
       if (response.status === 401) {
         const next = `${location.pathname}${location.search}${location.hash}`;
-        location.replace(`/auth.html?next=${encodeURIComponent(next)}`);
+        location.replace(`/auth.html?next=${encodeURIComponent(next)}&mode=admin`);
         return false;
       }
-      return response.ok;
+      if (response.ok) {
+        location.replace("/");
+        return false;
+      }
+      return false;
     } catch {
       return true;
     }

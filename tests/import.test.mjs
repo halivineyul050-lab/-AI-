@@ -44,8 +44,8 @@ function designRecord(overrides = {}) {
 }
 
 test("catalog and CMS migrations add provenance, revisions and honest unknown values", () => {
-  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 8);
-  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 8);
+  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 9);
+  assert.equal(db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 9);
   assert.ok(db.prepare("SELECT 1 FROM categories WHERE id = 'design'").get());
   assert.ok(db.prepare("SELECT 1 FROM categories WHERE id = 'comic'").get());
   const columns = db.prepare("PRAGMA table_info(tools)").all().map((row) => row.name);
