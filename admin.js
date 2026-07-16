@@ -1855,7 +1855,25 @@
     });
   }
 
-  function init() {
+  async function requireAccountSession() {
+    try {
+      const response = await fetch("/api/v1/auth/me", {
+        credentials: "same-origin",
+        headers: { Accept: "application/json" }
+      });
+      if (response.status === 401) {
+        const next = `${location.pathname}${location.search}${location.hash}`;
+        location.replace(`/auth.html?next=${encodeURIComponent(next)}`);
+        return false;
+      }
+      return response.ok;
+    } catch {
+      return true;
+    }
+  }
+
+  async function init() {
+    if (!await requireAccountSession()) return;
     renderIcons();
     updateCmsToolbar();
     renderCmsList();
@@ -1867,6 +1885,6 @@
     void loadMonitoring({ manual: true });
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
-  else init();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => void init(), { once: true });
+  else void init();
 })();

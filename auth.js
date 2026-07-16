@@ -9,6 +9,10 @@
   const accountName = document.getElementById("account-name");
   const accountEmail = document.getElementById("account-email");
   const logoutButton = document.getElementById("logout-button");
+  const nextPath = (() => {
+    const value = new URLSearchParams(location.search).get("next") || "/";
+    return value.startsWith("/") && !value.startsWith("//") ? value : "/";
+  })();
 
   function refreshIcons() {
     window.lucide?.createIcons({ attrs: { "aria-hidden": "true" } });
@@ -78,7 +82,7 @@
     try {
       const data = await api(path, { method: "POST", body: JSON.stringify(body) });
       showMessage("登录成功，正在返回工具库。", true);
-      window.setTimeout(() => { location.href = "/"; }, 500);
+      window.setTimeout(() => { location.href = nextPath; }, 500);
       return data;
     } catch (error) {
       showMessage(errorMessage(error));
