@@ -207,3 +207,432 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .account-stats { grid-template-columns: repeat(2, 1fr); }
   .account-section-tabs { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* Editorial account center refresh.
+   Matches the main directory redesign: white paper, hard ink borders,
+   coral/indigo accents, oversized confident type, minimal soft shadows. */
+:root {
+  --page: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #f5f3ef;
+  --text: #111118;
+  --muted: #68666b;
+  --border: #d9d7d5;
+  --brand: #4b4be8;
+  --brand-dark: #3333d8;
+  --accent: #ff4f5e;
+  --danger: #b42318;
+  --ink: #111118;
+  --paper-grid: #f0eeff;
+  font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+body {
+  background:
+    linear-gradient(90deg, rgba(240, 238, 255, 0.62) 0 1px, transparent 1px 100%),
+    linear-gradient(180deg, #ffffff 0%, #f7f6f3 100%);
+  background-size: 48px 48px, auto;
+}
+
+.auth-header {
+  min-height: 90px;
+  border-bottom: 1px solid #ecebec;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: none;
+}
+
+.auth-brand strong {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.auth-brand small {
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.back-link {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.back-link:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.auth-main {
+  padding-top: clamp(36px, 7vh, 72px);
+}
+
+.auth-panel {
+  position: relative;
+  overflow: hidden;
+  width: min(100%, 520px);
+  border: 2px solid var(--ink);
+  border-top: 2px solid var(--ink);
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+.auth-panel::after {
+  content: "AI";
+  position: absolute;
+  z-index: -1;
+  right: -18px;
+  top: 22px;
+  color: var(--paper-grid);
+  font-size: clamp(7rem, 19vw, 14rem);
+  line-height: 0.8;
+  font-weight: 950;
+  letter-spacing: -0.18em;
+  transform: skew(-7deg);
+}
+
+.auth-heading p {
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+}
+
+.auth-heading h1 {
+  color: var(--ink);
+  font-size: clamp(44px, 7vw, 72px);
+  line-height: 0.94;
+  letter-spacing: -0.075em;
+  font-weight: 950;
+}
+
+.auth-tabs,
+.account-section-tabs {
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.auth-tabs button,
+.account-section-tabs button {
+  border-radius: 999px;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.auth-tabs button.is-active,
+.account-section-tabs button.is-active {
+  background: var(--ink);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.auth-form label:not(.consent-row) {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.auth-input {
+  min-height: 52px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.auth-input:focus-within {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(75, 75, 232, 0.12);
+}
+
+.auth-input svg,
+.consent-row a,
+.account-shortcuts svg,
+.account-text-button {
+  color: var(--brand);
+}
+
+.auth-primary,
+.auth-secondary,
+.danger-button {
+  min-height: 48px;
+  border-radius: 12px;
+  font-weight: 900;
+  box-shadow: none;
+}
+
+.auth-primary {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.auth-primary:hover {
+  border-color: var(--brand-dark);
+  background: var(--brand-dark);
+  transform: translateY(-2px);
+}
+
+.auth-secondary {
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.auth-secondary:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.auth-message {
+  border-left: 0;
+  border: 2px solid var(--danger);
+  border-radius: 12px;
+  background: #fff7f6;
+  font-weight: 800;
+}
+
+.auth-message.is-success {
+  border-color: var(--brand);
+  background: #f0eeff;
+  color: var(--brand-dark);
+}
+
+.admin-auth-icon,
+.account-avatar {
+  border: 2px solid var(--ink);
+  border-radius: 15px;
+  background: var(--surface-soft);
+  color: var(--accent);
+}
+
+.admin-auth-panel h2,
+.account-panel h2 {
+  color: var(--ink);
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: -0.055em;
+}
+
+.admin-auth-panel > p,
+.account-panel p,
+.account-shortcuts small,
+.account-activity-item span,
+.account-activity-item small {
+  color: var(--muted);
+}
+
+.is-account .auth-main {
+  place-items: start center;
+}
+
+.is-account .auth-panel {
+  width: min(100%, 1040px);
+  padding: clamp(28px, 4vw, 46px);
+}
+
+.is-account .auth-panel::before {
+  content: "ACCOUNT";
+  position: absolute;
+  top: 20px;
+  right: 28px;
+  color: rgba(255, 79, 94, 0.12);
+  font-size: clamp(3rem, 7vw, 6.8rem);
+  line-height: 0.85;
+  font-weight: 950;
+  letter-spacing: -0.08em;
+  pointer-events: none;
+}
+
+.account-panel {
+  position: relative;
+  text-align: left;
+}
+
+.account-panel > .account-avatar,
+.account-panel > h2,
+.account-panel > p {
+  text-align: left;
+}
+
+.account-stats {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  margin: 28px 0 18px;
+}
+
+.account-stats div {
+  min-height: 108px;
+  padding: 16px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 13px;
+  background: #ffffff;
+}
+
+.account-stats div:nth-child(2n) {
+  background: var(--surface-soft);
+}
+
+.account-stats strong {
+  color: var(--ink);
+  font-size: 30px;
+  font-weight: 950;
+  letter-spacing: -0.05em;
+}
+
+.account-stats span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.account-shortcuts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.account-shortcuts a,
+.account-activity,
+.account-activity-item,
+.notification-preferences,
+.account-danger form {
+  border: 2px solid var(--ink);
+  border-radius: 13px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.account-shortcuts a {
+  padding: 16px;
+}
+
+.account-shortcuts a:hover,
+.account-activity-item:hover {
+  border-color: var(--ink);
+  background: var(--surface-soft);
+  box-shadow: 6px 6px 0 rgba(255, 79, 94, 0.85);
+}
+
+.account-shortcuts span,
+.account-activity-item strong {
+  color: var(--ink);
+  font-weight: 950;
+}
+
+.account-activity {
+  min-height: 260px;
+  margin-top: 14px;
+  padding: 16px;
+}
+
+.account-activity-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.account-loading,
+.account-empty {
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.account-text-button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.account-text-button:hover {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.notification-preferences {
+  background: var(--surface-soft);
+}
+
+.notification-preferences label {
+  font-weight: 850;
+}
+
+.notification-preferences input {
+  accent-color: var(--brand);
+}
+
+.account-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.account-danger {
+  border-top: 2px solid var(--ink);
+}
+
+.danger-button {
+  border-color: #efc2be;
+  background: #fff7f6;
+  color: var(--danger);
+}
+
+.danger-button:hover {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.account-danger input {
+  min-height: 44px;
+  border: 1px solid #d7a8a3;
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  .account-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .account-activity-list,
+  .account-shortcuts,
+  .account-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .auth-header {
+    min-height: 68px;
+  }
+
+  .auth-panel {
+    border-width: 1.5px;
+    border-radius: 13px;
+  }
+
+  .auth-heading h1 {
+    font-size: 42px;
+  }
+
+  .account-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-section-tabs {
+    border-radius: 18px;
+  }
+}
