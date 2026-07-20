@@ -5419,3 +5419,123 @@ body {
   background: #202d2a;
   color: var(--text-primary);
 }
+
+/* Final sidebar palette: keep the app airy; avoid the heavy black rail. */
+.sidebar {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(94, 234, 212, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(242, 248, 246, 0.94) 100%);
+  border-right-color: rgba(204, 219, 216, 0.9);
+  box-shadow: 10px 0 28px rgba(35, 56, 51, 0.08);
+}
+
+.brand-block,
+.sidebar-footer {
+  border-color: rgba(204, 219, 216, 0.9);
+}
+
+.brand-block {
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.sidebar-footer {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(236, 246, 243, 0.78));
+}
+
+.brand-copy strong,
+.nav-item,
+.category-button {
+  color: #20302d;
+}
+
+.brand-copy small,
+.section-label,
+.nav-count,
+.category-count,
+.sidebar-links button,
+.sidebar-links a {
+  color: #667875;
+}
+
+.nav-item:hover,
+.category-button:hover {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(169, 199, 193, 0.72);
+  color: #0f3f3a;
+}
+
+.nav-item.is-active,
+.category-button.is-active {
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.12), rgba(94, 234, 212, 0.18));
+  border-color: rgba(15, 118, 110, 0.22);
+  color: #0f766e;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.08);
+}
+
+.nav-item.is-active .nav-count,
+.category-button.is-active .category-count {
+  color: #0f766e;
+}
+
+.submit-tool-button {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  border-color: rgba(15, 118, 110, 0.2);
+  color: #ffffff;
+  box-shadow: 0 14px 28px rgba(15, 118, 110, 0.2);
+}
+
+.submit-tool-button:hover {
+  background: linear-gradient(135deg, #0d645e, #0f9488);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .sidebar {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(45, 212, 191, 0.12), transparent 34%),
+    linear-gradient(180deg, #15211f 0%, #111b19 100%);
+  border-right-color: #2d403c;
+  box-shadow: 12px 0 30px rgba(0, 0, 0, 0.18);
+}
+
+[data-theme="dark"] .brand-block,
+[data-theme="dark"] .sidebar-footer {
+  border-color: #2d403c;
+}
+
+[data-theme="dark"] .brand-block {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .sidebar-footer {
+  background: linear-gradient(180deg, transparent, rgba(32, 45, 42, 0.48));
+}
+
+[data-theme="dark"] .brand-copy strong,
+[data-theme="dark"] .nav-item,
+[data-theme="dark"] .category-button {
+  color: #d8e8e4;
+}
+
+[data-theme="dark"] .brand-copy small,
+[data-theme="dark"] .section-label,
+[data-theme="dark"] .nav-count,
+[data-theme="dark"] .category-count,
+[data-theme="dark"] .sidebar-links button,
+[data-theme="dark"] .sidebar-links a {
+  color: #8fa39e;
+}
+
+[data-theme="dark"] .nav-item:hover,
+[data-theme="dark"] .category-button:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: #38514b;
+  color: #effbf8;
+}
+
+[data-theme="dark"] .nav-item.is-active,
+[data-theme="dark"] .category-button.is-active {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(45, 212, 191, 0.12));
+  border-color: rgba(94, 234, 212, 0.25);
+  color: #b9fff4;
+  box-shadow: none;
+}
