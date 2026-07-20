@@ -1,0 +1,43 @@
+name: Deploy production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+      SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Build release archive
+        run: tar --exclude=.git --exclude=.env --exclude=data --exclude=node_modules --exclude=imports -czf nikai-release.tgz .
+      - name: Configure SSH
+        if: env.SSH_HOST != '' && env.SSH_USER != '' && env.SSH_PRIVATE_KEY != ''
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+      - name: Upload and release
+        if: env.SSH_HOST != '' && env.SSH_USER != '' && env.SSH_PRIVATE_KEY != ''
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          scp nikai-release.tgz "$SSH_USER@$SSH_HOST:/tmp/nikai-release-$RELEASE_SHA.tgz"
+          ssh "$SSH_USER@$SSH_HOST" "sudo /opt/nikai-ai/scripts/release-production.sh /tmp/nikai-release-$RELEASE_SHA.tgz $RELEASE_SHA"
