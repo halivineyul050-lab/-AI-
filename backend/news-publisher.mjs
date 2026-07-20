@@ -4,7 +4,15 @@ import { createAdminContent } from "./content-admin.mjs";
 const defaultFeeds = [
   "https://openai.com/news/rss.xml",
   "https://news.microsoft.com/source/topics/ai/feed/",
-  "https://blog.google/technology/ai/rss/"
+  "https://blog.google/technology/ai/rss/",
+  "https://huggingface.co/blog/feed.xml",
+  "https://techcrunch.com/category/artificial-intelligence/feed/"
+];
+
+const fallbackCovers = [
+  "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=82",
+  "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=82",
+  "https://images.unsplash.com/photo-1535378917042-10a22c95931a?auto=format&fit=crop&w=1200&q=82"
 ];
 
 function decodeXml(value = "") {
@@ -26,6 +34,35 @@ function tagValue(source, tag) {
   return decodeXml(match?.[1] || "");
 }
 
+function metaValue(html, key) {
+  const escaped = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
+  const first = new RegExp(`<meta[^>]+(?:property|name)=["']${escaped}["'][^>]+content=["']([^"']+)["'][^>]*>`, "i");
+  const second = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${escaped}["'][^>]*>`, "i");
+  const match = html.match(first) || html.match(second);
+  return decodeXml(match?.[1] || "");
+}
+
+async function fetchCoverImage(sourceUrl) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 7000);
+  try {
+    const response = await fetch(sourceUrl, {
+      headers: { Accept: "text/html, application/xhtml+xml" },
+      signal: controller.signal
+    });
+    if (!response.ok) return "";
+    const html = (await response.text()).slice(0, 300_000);
+    const candidate = metaValue(html, "og:image") || metaValue(html, "twitter:image");
+    if (!candidate) return "";
+    const imageUrl = new URL(candidate, sourceUrl);
+    return imageUrl.protocol === "https:" ? imageUrl.toString() : "";
+  } catch {
+    return "";
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export function parseFeed(xml, feedUrl, now = Date.now()) {
   return [...xml.matchAll(/<item(?:\s[^>]*)?>([\s\S]*?)<\/item>/gi)]
     .map((match) => {
@@ -44,9 +81,18 @@ export function parseFeed(xml, feedUrl, now = Date.now()) {
 }
 
 async function fetchFeed(url) {
-  const response = await fetch(url, { headers: { Accept: "application/rss+xml, application/xml, text/xml" } });
-  if (!response.ok) throw new Error(`feed ${url} returned ${response.status}`);
-  return parseFeed(await response.text(), url);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/rss+xml, application/xml, text/xml" },
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`feed ${url} returned ${response.status}`);
+    return parseFeed(await response.text(), url);
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function articleSchema() {
@@ -75,7 +121,7 @@ function responseText(payload) {
 }
 
 async function requestArticle(items, { apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage, structured }) {
-  const systemText = "你是泥壳AI工具站的资讯编辑。只根据给定来源写一篇中文AI行业资讯。不要编造未在来源中出现的数字、人物、时间或功能，不要长段复制原文。文章要有清晰标题、摘要和正文，适合直接发布；正文应说明事件、背景、对工具用户的影响和来源边界。";
+  const systemText = "你是泥壳AI工具站的资讯编辑。只根据给定来源写一篇中文AI行业资讯。来源已经过基础去重，但仍要进行交叉核验：优先使用官方公告、公司博客、论文或技术报告、权威媒体和投资机构公告；遇到来源冲突要明确说明，不要把未经证实的单一来源传闻写成事实。不要编造未在来源中出现的数字、人物、时间或功能，不要长段复制原文。文章要有清晰标题、摘要和正文，适合直接发布；正文应说明事件、背景、对工具用户的影响和来源边界。每轮只选择一个最具时效性、传播价值和读者关注度的主选题。";
   const inputText = JSON.stringify({ sources: items });
   const requestBody = {
     model,
@@ -146,8 +192,10 @@ export async function runNewsPublisherOnce({
   if (!freshItems.length) return { skipped: true, reason: "no_recent_sources" };
   const unseen = freshItems.filter((item) => !db.prepare("SELECT 1 FROM articles WHERE source_url = ?").get(item.link));
   if (!unseen.length) return { skipped: true, reason: "all_sources_seen", sourceCount: freshItems.length };
-  const primarySource = unseen[0];
-  const article = await generateArticle([primarySource], { apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage });
+  const sourceSet = unseen.slice(0, 6);
+  const primarySource = sourceSet[0];
+  const article = await generateArticle(sourceSet, { apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage });
+  const cover = await fetchCoverImage(primarySource.link) || fallbackCovers[createHash("sha256").update(primarySource.link).digest()[0] % fallbackCovers.length];
   const body = {
     id: articleId(primarySource.link),
     kind: "news",
@@ -155,16 +203,16 @@ export async function runNewsPublisherOnce({
     title: String(article.title || primarySource.title).slice(0, 200),
     excerpt: String(article.excerpt || primarySource.description).slice(0, 500),
     body: String(article.body || "").slice(0, 250_000),
-    cover: "",
+    cover,
     date: new Date().toISOString().slice(0, 10),
     readTime: String(article.readTime || "3分钟").slice(0, 30),
-    source: "AI自动采编",
+    source: sourceSet.length > 1 ? `AI自动采编 · ${sourceSet.length} 条来源` : "AI自动采编 · 官方来源",
     sourceUrl: primarySource.link,
     status: "published"
   };
-  if (dryRun) return { published: false, dryRun: true, article: body, sourceCount: 1 };
+  if (dryRun) return { published: false, dryRun: true, article: body, sourceCount: sourceSet.length };
   const created = createAdminContent(db, "articles", body, { actor: "auto-news-publisher", requestId: `auto-${Date.now()}` });
-  return { published: true, article: created.item, sourceCount: 1 };
+  return { published: true, article: created.item, sourceCount: sourceSet.length };
 }
 
 export function scheduleNewsPublisher({ db, environment = "development", logger = console, env = process.env } = {}) {
@@ -178,7 +226,10 @@ export function scheduleNewsPublisher({ db, environment = "development", logger 
   const apiPath = env.NIKE_NEWS_API_PATH || "/v1/responses";
   const reasoningEffort = env.NIKE_NEWS_REASONING_EFFORT || "xhigh";
   const disableResponseStorage = env.NIKE_NEWS_DISABLE_RESPONSE_STORAGE !== "false";
-  const run = () => runNewsPublisherOnce({ db, apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage, feeds, logger }).catch((error) => logger.error?.(`[news-publisher] ${error.message}`));
+  const output = logger === true ? console : logger;
+  const run = () => runNewsPublisherOnce({ db, apiKey, model, baseUrl, apiPath, reasoningEffort, disableResponseStorage, feeds, logger: output })
+    .then((result) => output?.info?.(`[news-publisher] ${JSON.stringify({ published: result.published || false, skipped: result.skipped || false, reason: result.reason || "", sourceCount: result.sourceCount || 0 })}`))
+    .catch((error) => output?.error?.(`[news-publisher] ${error.message}`));
   const timer = setInterval(run, intervalMs);
   timer.unref();
   const startupTimer = setTimeout(run, 10_000);

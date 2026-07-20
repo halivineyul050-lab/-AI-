@@ -7,9 +7,9 @@
   <meta name="description" content="泥壳AI工具站账号登录与注册">
   <title>账号登录 - 泥壳AI工具站</title>
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/auth.css?v=20260716-1">
+  <link rel="stylesheet" href="/auth.css?v=20260717-1">
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="/auth.js?v=20260716-1"></script>
+  <script defer src="/auth.js?v=20260717-1"></script>
 </head>
 <body>
   <header class="auth-header">
@@ -62,7 +62,7 @@
         <div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="至少 10 个字符"></div>
         <label for="register-confirm">确认密码</label>
         <div class="auth-input"><i data-lucide="shield-check"></i><input id="register-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="再次输入密码"></div>
-        <label class="consent-row"><input name="consentAccepted" type="checkbox" required><span>我已阅读并同意<a href="/#privacy">隐私政策</a></span></label>
+        <label class="consent-row"><input name="consentAccepted" type="checkbox" required><span>我已阅读并同意<a href="/terms">服务条款</a>和<a href="/privacy">隐私政策</a></span></label>
         <button class="auth-primary" type="submit"><i data-lucide="user-plus"></i><span>创建账号</span></button>
       </form>
 
@@ -70,10 +70,41 @@
         <span class="account-avatar"><i data-lucide="user-round-check"></i></span>
         <h2 id="account-name">已登录</h2>
         <p id="account-email"></p>
+        <div class="account-stats" aria-label="账号概览">
+          <div><strong id="account-favorites">0</strong><span>我的收藏</span></div>
+          <div><strong id="account-ratings">0</strong><span>我的评分</span></div>
+          <div><strong id="account-submissions">0</strong><span>我的投稿</span></div>
+          <div><strong id="account-feedback">0</strong><span>我的反馈</span></div>
+          <div><strong id="account-history-count">0</strong><span>浏览历史</span></div>
+          <div><strong id="account-newsletter">未订阅</strong><span>周报状态</span></div>
+        </div>
+        <div class="account-shortcuts"><a href="/?favorites=1"><i data-lucide="bookmark"></i><span>查看我的收藏</span><small>回到工具库继续使用</small></a><a href="/feedback"><i data-lucide="message-square-text"></i><span>提交问题反馈</span><small>帮助我们改进内容</small></a></div>
+        <div class="account-section-tabs" id="account-section-tabs" role="tablist" aria-label="个人内容">
+          <button class="is-active" type="button" data-account-section="favorites">收藏</button>
+          <button type="button" data-account-section="ratings">评分</button>
+          <button type="button" data-account-section="submissions">投稿</button>
+          <button type="button" data-account-section="feedback">反馈</button>
+          <button type="button" data-account-section="history">历史</button>
+          <button type="button" data-account-section="newsletter">订阅</button>
+        </div>
+        <div class="account-activity" id="account-activity" aria-live="polite">
+          <p class="account-loading" id="account-loading">正在读取账号数据...</p>
+          <div class="account-activity-list" id="account-activity-list"></div>
+        </div>
         <div class="account-actions">
           <a class="auth-primary" href="/"><i data-lucide="layout-grid"></i><span>进入工具库</span></a>
+          <a class="auth-secondary" id="admin-entry" href="/admin.html" hidden><i data-lucide="shield-check"></i><span>进入运营中心</span></a>
           <button class="auth-secondary" id="logout-button" type="button"><i data-lucide="log-out"></i><span>退出登录</span></button>
         </div>
+        <section class="account-danger">
+          <button class="danger-button" id="delete-account-toggle" type="button"><i data-lucide="user-x"></i><span>注销账号</span></button>
+          <form id="delete-account-form" hidden>
+            <p>注销后收藏、评分和浏览历史将永久删除且无法恢复。</p>
+            <label for="delete-account-confirmation">输入 DELETE 确认</label>
+            <input id="delete-account-confirmation" autocomplete="off" required pattern="DELETE">
+            <button class="danger-button" type="submit">永久注销账号</button>
+          </form>
+        </section>
       </section>
     </section>
   </main>

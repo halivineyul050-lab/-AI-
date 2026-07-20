@@ -68,8 +68,8 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 9);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 9);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 12);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 12);
 });
 
 test("brand icon is served with the expected media type", async () => {
@@ -89,6 +89,18 @@ test("brand icon is served with the expected media type", async () => {
 
   const traversal = await fetch(`${baseUrl}/assets/tool-logos/%2e%2e%2fserver.mjs`);
   assert.equal(traversal.status, 404);
+
+  const terms = await fetch(`${baseUrl}/terms`);
+  assert.equal(terms.status, 200);
+  assert.match(await terms.text(), /用户协议与服务条款/);
+
+  const category = await fetch(`${baseUrl}/category/coding`);
+  assert.equal(category.status, 200);
+
+  const sitemap = await fetch(`${baseUrl}/sitemap.xml`);
+  assert.equal(sitemap.status, 200);
+  assert.match(sitemap.headers.get("content-type") || "", /xml/);
+  assert.match(await sitemap.text(), /\/category\/coding/);
 });
 
 test("every seeded tool exposes a reachable local Logo asset", async () => {
@@ -159,6 +171,7 @@ test("submission is validated, persisted and idempotent", async () => {
     summary: "用于验证真实投稿入库和重复提交控制的测试工具。",
     contactEmail: "owner@example.com",
     declarationAccepted: true,
+    termsAccepted: true,
     source: "integration_test",
     company: ""
   };

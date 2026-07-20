@@ -1,17 +1,21 @@
 import { createServer } from "node:http";
+import { gzipSync } from "node:zlib";
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getMonitoringSnapshot } from "./backend/monitoring.mjs";
 import { scheduleNewsPublisher } from "./backend/news-publisher.mjs";
+import { notifyFeedbackEmail } from "./backend/email.mjs";
 import {
   authCookieName,
   authSessionMaxAgeSeconds,
   getUserBySession,
+  listUsers,
   loginUser,
   logoutUser,
-  registerUser
+  registerUser,
+  updateUserAccess
 } from "./backend/auth.mjs";
 import {
   archiveAdminContent,
@@ -25,11 +29,16 @@ import {
 
 import {
   createFeedback,
+  listFeedback,
+  updateFeedbackStatus,
   createSubmission,
   findSubmissionByIdempotencyKey,
   getAdminSummary,
+  getAccountActivity,
+  getAccountSummary,
   getArticle,
   getBootstrap,
+  getGrowthSnapshot,
   getCategories,
   getSubmissionStatus,
   getTool,
@@ -38,16 +47,24 @@ import {
   listUserFavorites,
   addUserFavorite,
   removeUserFavorite,
+  getToolRatings,
+  setToolRating,
+  removeToolRating,
   listSubmissions,
   listTools,
   openDatabase,
   pruneOperationalData,
   recordOutboundClick,
+  recordUserToolHistory,
+  clearUserToolHistory,
+  deleteUserAccount,
   reviewSubmission,
   seedDatabase,
   syncSeedToolLogos,
   syncCuratedContent,
   unsubscribeNewsletter,
+  unsubscribeAccountNewsletter,
+  updateNotificationPreferences,
   upsertNewsletterSubscription
 } from "./backend/database.mjs";
 import {
@@ -79,6 +96,9 @@ const mimeTypes = {
   ".gif": "image/gif",
   ".avif": "image/avif",
   ".ico": "image/x-icon"
+  , ".xml": "application/xml; charset=utf-8"
+  , ".txt": "text/plain; charset=utf-8"
+  , ".webmanifest": "application/manifest+json; charset=utf-8"
 };
 
 const staticFiles = new Set([
@@ -92,8 +112,12 @@ const staticFiles = new Set([
   "admin.css",
   "admin.js",
   "admin-icons.js",
-  "brand-icon-192.png"
+  "brand-icon-192.png",
+  "robots.txt",
+  "sitemap.xml"
+  ,"manifest.webmanifest"
 ]);
+const publicAppRoutes = new Set(["/discover", "/tutorials", "/news", "/advertise", "/about", "/standards", "/terms", "/privacy", "/feedback"]);
 const placementNames = new Set(["home_tool_strip", "detail_drawer", "related_tool", "unknown"]);
 const monitoringHours = new Set([1, 6, 24, 72, 168]);
 
@@ -244,7 +268,7 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
     "default-src 'self'",
     isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://www.google.com https://images.unsplash.com",
+    "img-src 'self' data: https:",
     "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -263,17 +287,23 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
 
 function serveStatic(request, response, pathname, staticDir) {
   const logoMatch = pathname.match(/^\/assets\/tool-logos\/([a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif))$/);
-  const fileName = pathname === "/" ? "index.html" : pathname.slice(1);
+  const isAppRoute = publicAppRoutes.has(pathname) || /^\/category\/[a-z0-9-]+$/.test(pathname);
+  const fileName = pathname === "/" || isAppRoute ? "index.html" : pathname.slice(1);
   if (!logoMatch && !staticFiles.has(fileName)) return false;
   const filePath = logoMatch
     ? resolve(staticDir, "assets", "tool-logos", logoMatch[1])
     : resolve(staticDir, fileName);
   if (!existsSync(filePath) || !statSync(filePath).isFile()) return false;
-  const content = readFileSync(filePath);
+  let content = readFileSync(filePath);
+  const acceptsGzip = /\bgzip\b/i.test(String(request.headers["accept-encoding"] || ""));
+  const compressible = /\.(?:html|css|js|json|xml|txt|webmanifest)$/i.test(filePath);
+  const compressed = acceptsGzip && compressible && content.length > 1024;
+  if (compressed) content = gzipSync(content, { level: 6 });
   const isAdminResource = /^admin(?:\.|$)/.test(fileName);
   response.writeHead(200, {
     "Content-Type": mimeTypes[extname(filePath)] || "application/octet-stream",
     "Content-Length": content.length,
+    ...(compressed ? { "Content-Encoding": "gzip", Vary: "Accept-Encoding" } : {}),
     "Cache-Control": isAdminResource
       ? "no-store, private"
       : fileName === "index.html" ? "no-store" : logoMatch ? "public, max-age=86400" : "public, max-age=300"
@@ -339,6 +369,17 @@ export function buildApplication(options = {}) {
       rateLimit(`${ip}:admin-auth`, 5, 15 * 60_000);
       throw new HttpError(401, "unauthorized", "管理端认证失败");
     }
+  };
+  const requireManagementAccess = (request, ip) => {
+    const sessionUser = getUserBySession(db, parseCookies(request)[authCookieName]);
+    if (sessionUser?.role === "admin") return { actor: `user:${sessionUser.id}`, user: sessionUser };
+    requireTokenAdmin(request, ip);
+    return { actor: "admin-token", user: null };
+  };
+  const requireSuperAdmin = (request, ip) => {
+    const access = requireManagementAccess(request, ip);
+    if (!access.user?.isSuperAdmin) throw new HttpError(403, "super_admin_required", "仅超级管理员可以管理账号权限");
+    return access;
   };
   const getSystemSnapshot = () => {
     const now = Date.now();
@@ -441,6 +482,12 @@ export function buildApplication(options = {}) {
         return;
       }
 
+      if (method === "GET" && pathname === "/api/v1/site/growth") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        sendData(response, getGrowthSnapshot(db), null, 200, { "Cache-Control": "public, max-age=300" });
+        return;
+      }
+
       if (method === "POST" && pathname === "/api/v1/auth/register") {
         rateLimit(`${ip}:auth-register`, 5, 60 * 60_000);
         const result = registerUser(db, validateRegistration(await readJsonBody(request)));
@@ -502,6 +549,71 @@ export function buildApplication(options = {}) {
         }
       }
 
+      if (method === "GET" && pathname === "/api/v1/account/summary") {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        sendData(response, getAccountSummary(db, user.id), null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
+      if (method === "GET" && pathname === "/api/v1/account/activity") {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        rateLimit(`${ip}:account-activity`, 60, 60_000);
+        sendData(response, getAccountActivity(db, user.id), null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
+      if (method === "DELETE" && pathname === "/api/v1/account/history") {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        sendData(response, { cleared: clearUserToolHistory(db, user.id) }, null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
+      const accountHistoryMatch = pathname.match(/^\/api\/v1\/account\/history\/([a-z0-9-]+)$/);
+      if (method === "PUT" && accountHistoryMatch) {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        const tool = getTool(db, accountHistoryMatch[1]);
+        if (!tool) throw new HttpError(404, "tool_not_found", "工具不存在或尚未发布");
+        recordUserToolHistory(db, user.id, tool.id);
+        sendData(response, { recorded: true, toolId: tool.id }, null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
+      if (method === "DELETE" && pathname === "/api/v1/account/newsletter") {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        sendData(response, { unsubscribed: unsubscribeAccountNewsletter(db, user.id) }, null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
+      if (method === "PATCH" && pathname === "/api/v1/account/notifications") {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        const body = await readJsonBody(request);
+        if (![body.weeklyDigest, body.newToolAlerts, body.favoriteUpdateAlerts].every((value) => typeof value === "boolean")) {
+          throw new HttpError(422, "invalid_preferences", "通知设置格式无效");
+        }
+        sendData(response, updateNotificationPreferences(db, user.id, body), null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
+      if (method === "DELETE" && pathname === "/api/v1/account") {
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        rateLimit(`${ip}:account-delete`, 3, 60 * 60_000);
+        const body = await readJsonBody(request);
+        if (body.confirmation !== "DELETE") throw new HttpError(422, "confirmation_required", "请输入 DELETE 确认注销账号");
+        if (!deleteUserAccount(db, user.id)) throw new HttpError(409, "account_protected", "该账号不能注销");
+        sendData(response, { deleted: true }, null, 200, {
+          "Cache-Control": "no-store",
+          "Set-Cookie": authCookie("", request, trustProxy, 0)
+        });
+        return;
+      }
+
       if (method === "GET" && pathname === "/api/v1/categories") {
         rateLimit(`${ip}:read`, 120, 60_000);
         sendData(response, getCategories(db));
@@ -531,8 +643,37 @@ export function buildApplication(options = {}) {
         rateLimit(`${ip}:read`, 120, 60_000);
         const tool = getTool(db, toolMatch[1]);
         if (!tool) throw new HttpError(404, "tool_not_found", "未找到该工具");
+        const historyUser = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (historyUser) recordUserToolHistory(db, historyUser.id, tool.id);
         sendData(response, tool);
         return;
+      }
+
+      const ratingMatch = pathname.match(/^\/api\/v1\/tools\/([a-z0-9-]+)\/ratings?$/);
+      if (ratingMatch) {
+        const tool = getTool(db, ratingMatch[1]);
+        if (!tool) throw new HttpError(404, "tool_not_found", "未找到该工具");
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (method === "GET") {
+          rateLimit(`${ip}:ratings-read`, 120, 60_000);
+          sendData(response, getToolRatings(db, tool.id, user?.id), null, 200, { "Cache-Control": "no-store" });
+          return;
+        }
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录后评分");
+        if (method === "PUT") {
+          rateLimit(`${ip}:ratings-write`, 30, 60_000);
+          const rating = Number((await readJsonBody(request)).rating);
+          if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+            throw new HttpError(422, "invalid_rating", "评分必须是 1 到 5 的整数", { field: "rating" });
+          }
+          sendData(response, setToolRating(db, user.id, tool.id, rating), null, 200, { "Cache-Control": "no-store" });
+          return;
+        }
+        if (method === "DELETE") {
+          rateLimit(`${ip}:ratings-write`, 30, 60_000);
+          sendData(response, removeToolRating(db, user.id, tool.id), null, 200, { "Cache-Control": "no-store" });
+          return;
+        }
       }
 
       if (method === "GET" && pathname === "/api/v1/articles") {
@@ -578,7 +719,8 @@ export function buildApplication(options = {}) {
           throw new HttpError(409, "tool_already_listed", "该工具已经收录");
         }
         try {
-          const submission = createSubmission(db, input);
+          const submissionUser = getUserBySession(db, parseCookies(request)[authCookieName]);
+          const submission = createSubmission(db, input, submissionUser?.id || null);
           sendData(response, submission, null, 201);
         } catch (error) {
           if (String(error.code || "").startsWith("ERR_SQLITE_CONSTRAINT")) {
@@ -603,7 +745,8 @@ export function buildApplication(options = {}) {
       if (method === "POST" && pathname === "/api/v1/newsletter/subscriptions") {
         rateLimit(`${ip}:newsletter`, 5, 60 * 60_000);
         const input = validateSubscription(await readJsonBody(request));
-        const subscription = upsertNewsletterSubscription(db, input);
+        const subscriptionUser = getUserBySession(db, parseCookies(request)[authCookieName]);
+        const subscription = upsertNewsletterSubscription(db, input, subscriptionUser?.id || null);
         sendData(response, subscription, { message: "订阅意向已记录" }, subscription.existing ? 200 : 201);
         return;
       }
@@ -615,7 +758,10 @@ export function buildApplication(options = {}) {
           sendData(response, { id: randomUUID(), status: "pending" }, null, 201);
           return;
         }
-        sendData(response, createFeedback(db, input), { message: "反馈已收到" }, 201);
+        const feedbackUser = getUserBySession(db, parseCookies(request)[authCookieName]);
+        const feedback = createFeedback(db, input, feedbackUser?.id || null);
+        void notifyFeedbackEmail(feedback, process.env, console).catch((error) => console.error(`[feedback-email] ${error.message}`));
+        sendData(response, feedback, { message: "反馈已收到" }, 201);
         return;
       }
 
@@ -676,8 +822,11 @@ export function buildApplication(options = {}) {
         rateLimit(`${ip}:monitoring`, 30, 60_000);
         const isLocalReadOnly = isTrustedLocalMonitoringRequest(request, isProduction);
         const presentedToken = readBearerToken(request);
+        const sessionUser = getUserBySession(db, parseCookies(request)[authCookieName]);
         let hasAdminAccess = false;
-        if (presentedToken || !isLocalReadOnly) {
+        if (sessionUser?.role === "admin") {
+          hasAdminAccess = true;
+        } else if (presentedToken || !isLocalReadOnly) {
           requireTokenAdmin(request, ip);
           hasAdminAccess = true;
         }
@@ -712,11 +861,34 @@ export function buildApplication(options = {}) {
 
       if (pathname.startsWith("/api/admin/v1/")) {
         rateLimit(`${ip}:admin`, 60, 60_000);
-        if (!tokenAdminEnabled) throw new HttpError(503, "token_admin_disabled", "生产环境已关闭共享令牌管理接口");
-        if (!adminToken) throw new HttpError(503, "admin_disabled", "未配置管理端令牌");
-        if (!safeEqual(readBearerToken(request), adminToken)) {
-          rateLimit(`${ip}:admin-auth`, 5, 15 * 60_000);
-          throw new HttpError(401, "unauthorized", "管理端认证失败");
+        const managementAccess = requireManagementAccess(request, ip);
+        const managementActor = managementAccess.actor;
+
+        if (method === "GET" && pathname === "/api/admin/v1/users") {
+          requireSuperAdmin(request, ip);
+          sendData(response, listUsers(db));
+          return;
+        }
+        if (method === "GET" && pathname === "/api/admin/v1/feedback") {
+          sendData(response, listFeedback(db, url.searchParams.get("status") || "all"));
+          return;
+        }
+        const feedbackStatusMatch = pathname.match(/^\/api\/admin\/v1\/feedback\/([0-9a-f-]+)$/);
+        if (method === "PATCH" && feedbackStatusMatch) {
+          const body = await readJsonBody(request, 16 * 1024);
+          const updated = updateFeedbackStatus(db, feedbackStatusMatch[1], body.status);
+          if (!updated) throw new HttpError(404, "feedback_not_found", "反馈不存在或状态无效");
+          sendData(response, updated);
+          return;
+        }
+        const userAccessMatch = pathname.match(/^\/api\/admin\/v1\/users\/([0-9a-f-]+)$/);
+        if (method === "PATCH" && userAccessMatch) {
+          requireSuperAdmin(request, ip);
+          const body = await readJsonBody(request, 32 * 1024);
+          const updated = updateUserAccess(db, userAccessMatch[1], { role: body.role, status: body.status });
+          if (!updated) throw new HttpError(404, "user_not_found_or_protected", "账号不存在或不能修改超级管理员");
+          sendData(response, updated);
+          return;
         }
 
         if (method === "GET" && pathname === "/api/admin/v1/summary") {
@@ -727,7 +899,7 @@ export function buildApplication(options = {}) {
           const uploaded = saveAdminLogo(
             db,
             await readJsonBody(request, 1_600_000),
-            { actor: "admin-token", requestId },
+            { actor: managementActor, requestId },
             staticDir
           );
           const { contentRevision, ...logo } = uploaded;
@@ -754,7 +926,7 @@ export function buildApplication(options = {}) {
               db,
               contentType,
               await readJsonBody(request, 512 * 1024),
-              { actor: "admin-token", requestId }
+              { actor: managementActor, requestId }
             );
             sendData(response, created.item, { contentRevision: created.contentRevision }, 201);
             return;
@@ -775,14 +947,14 @@ export function buildApplication(options = {}) {
               contentType,
               contentId,
               await readJsonBody(request, 512 * 1024),
-              { actor: "admin-token", requestId }
+              { actor: managementActor, requestId }
             );
             if (!updated) throw new HttpError(404, "content_not_found", "未找到该内容");
             sendData(response, updated.item, { contentRevision: updated.contentRevision });
             return;
           }
           if (method === "DELETE") {
-            const archived = archiveAdminContent(db, contentType, contentId, { actor: "admin-token", requestId });
+            const archived = archiveAdminContent(db, contentType, contentId, { actor: managementActor, requestId });
             if (!archived) throw new HttpError(404, "content_not_found", "未找到该内容");
             sendData(response, archived.item, { contentRevision: archived.contentRevision });
             return;
@@ -801,7 +973,7 @@ export function buildApplication(options = {}) {
             id: reviewMatch[1],
             status: review.status,
             reviewNote: review.reviewNote,
-            actor: "admin-token",
+            actor: managementActor,
             requestId
           });
           if (!result) throw new HttpError(404, "submission_not_found", "未找到该投稿");

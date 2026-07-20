@@ -35,6 +35,9 @@
     cmsSearchTimer: null,
     cmsEditing: null,
     cmsUploading: false
+    ,isSuperAdmin: false,
+    users: []
+    ,feedback: []
   };
 
   const dom = {
@@ -59,6 +62,10 @@
     toolsTotal: document.querySelector("#tools-total"),
     topSearchesList: document.querySelector("#top-searches-list"),
     searchesTotal: document.querySelector("#searches-total"),
+    searchGapsList: document.querySelector("#search-gaps-list"),
+    searchGapsTotal: document.querySelector("#search-gaps-total"),
+    categoryPerformanceList: document.querySelector("#category-performance-list"),
+    categoryPerformanceMeta: document.querySelector("#category-performance-meta"),
     eventList: document.querySelector("#event-list"),
     healthBadge: document.querySelector("#health-badge"),
     healthList: document.querySelector("#health-list"),
@@ -118,7 +125,109 @@
     cmsDialogCancel: document.querySelector("#cms-dialog-cancel"),
     cmsSave: document.querySelector("#cms-save"),
     toastRegion: document.querySelector("#toast-region")
+    ,usersSection: document.querySelector("#users"),
+    usersNav: document.querySelector("#users-nav"),
+    usersRefresh: document.querySelector("#users-refresh"),
+    usersTableBody: document.querySelector("#users-table-body"),
+    usersEmpty: document.querySelector("#users-empty")
+    ,feedbackStatusFilter: document.querySelector("#feedback-status-filter"),
+    feedbackRefresh: document.querySelector("#feedback-refresh"),
+    feedbackTableBody: document.querySelector("#feedback-table-body"),
+    feedbackEmpty: document.querySelector("#feedback-empty")
   };
+
+  async function loadFeedback() {
+    try {
+      state.feedback = await fetchJson(`/api/admin/v1/feedback?status=${encodeURIComponent(dom.feedbackStatusFilter.value)}`, { headers: { Authorization: `Bearer ${state.token}` } });
+      renderFeedback();
+    } catch (error) { toast(messageForError(error), "error"); }
+  }
+
+  function renderFeedback() {
+    dom.feedbackTableBody.replaceChildren();
+    dom.feedbackEmpty.hidden = state.feedback.length > 0;
+    state.feedback.forEach((item) => {
+      const row = document.createElement("tr");
+      const category = document.createElement("td"); category.textContent = ({ content: "内容不准确", bug: "页面或功能问题", suggestion: "功能建议", cooperation: "合作咨询", other: "其他" })[item.category] || item.category;
+      const message = document.createElement("td"); message.textContent = item.message;
+      const email = document.createElement("td"); email.textContent = item.contactEmail || "未提供";
+      const page = document.createElement("td"); page.textContent = item.pageUrl || "未提供";
+      const date = document.createElement("td"); date.textContent = formatDateTime(item.submittedAt, true);
+      const status = document.createElement("td"); status.textContent = ({ pending: "已收到", reviewed: "审核中", resolved: "已处理", replied: "已回复", archived: "已归档" })[item.status] || item.status;
+      const action = document.createElement("td");
+      const select = document.createElement("select"); select.setAttribute("aria-label", "更新反馈状态");
+      [["pending", "已收到"], ["reviewed", "审核中"], ["resolved", "已处理"], ["replied", "已回复"], ["archived", "已归档"]].forEach(([value, label]) => {
+        const option = document.createElement("option"); option.value = value; option.textContent = label; option.selected = value === item.status; select.append(option);
+      });
+      select.addEventListener("change", async () => { select.disabled = true; try { await fetchJson(`/api/admin/v1/feedback/${item.id}`, { method: "PATCH", headers: { Authorization: `Bearer ${state.token}` }, body: JSON.stringify({ status: select.value }) }); await loadFeedback(); } catch (error) { select.disabled = false; toast(messageForError(error), "error"); } });
+      action.append(select); row.append(category, message, email, page, date, status, action); dom.feedbackTableBody.append(row);
+    });
+  }
+
+  async function loadUsers() {
+    if (!state.isSuperAdmin) return;
+    dom.usersRefresh.disabled = true;
+    try {
+      state.users = await fetchJson("/api/admin/v1/users", { headers: { Authorization: `Bearer ${state.token}` } });
+      renderUsers();
+    } catch (error) {
+      toast(messageForError(error), "error");
+    } finally {
+      dom.usersRefresh.disabled = false;
+    }
+  }
+
+  function renderUsers() {
+    dom.usersTableBody.replaceChildren();
+    dom.usersEmpty.hidden = state.users.length > 0;
+    state.users.forEach((user) => {
+      const row = document.createElement("tr");
+      const account = document.createElement("td");
+      account.innerHTML = `<strong></strong><br><small></small>`;
+      account.querySelector("strong").textContent = user.displayName || user.email;
+      account.querySelector("small").textContent = user.email;
+      const roleCell = document.createElement("td");
+      const role = document.createElement("select");
+      role.innerHTML = '<option value="member">普通用户</option><option value="admin">管理员</option>';
+      role.value = user.role;
+      role.disabled = user.isSuperAdmin;
+      roleCell.append(role);
+      if (user.isSuperAdmin) roleCell.append(" 超级管理员");
+      const statusCell = document.createElement("td");
+      const status = document.createElement("select");
+      status.innerHTML = '<option value="active">启用</option><option value="disabled">停用</option>';
+      status.value = user.status || "active";
+      status.disabled = user.isSuperAdmin;
+      statusCell.append(status);
+      const login = document.createElement("td");
+      login.textContent = user.lastLoginAt ? formatDateTime(user.lastLoginAt) : "尚未登录";
+      const action = document.createElement("td");
+      const save = document.createElement("button");
+      save.type = "button";
+      save.className = "secondary-button";
+      save.textContent = user.isSuperAdmin ? "受保护" : "保存权限";
+      save.disabled = user.isSuperAdmin;
+      save.addEventListener("click", async () => {
+        save.disabled = true;
+        try {
+          await fetchJson(`/api/admin/v1/users/${encodeURIComponent(user.id)}`, {
+            method: "PATCH",
+            headers: { Authorization: `Bearer ${state.token}` },
+            body: JSON.stringify({ role: role.value, status: status.value })
+          });
+          toast("账号权限已更新");
+          await loadUsers();
+        } catch (error) {
+          toast(messageForError(error), "error");
+        } finally {
+          save.disabled = false;
+        }
+      });
+      action.append(save);
+      row.append(account, roleCell, statusCell, login, action);
+      dom.usersTableBody.append(row);
+    });
+  }
 
   const CMS_CONFIG = Object.freeze({
     tools: { label: "工具", listTitle: "工具管理", columns: ["工具", "分类", "价格", "状态", "推广", "更新时间", "操作"] },
@@ -320,6 +429,8 @@
         uniqueVisitors: asNumber(kpis.uniqueVisitors ?? kpis.visitors),
         activeSessions: asNumber(kpis.activeSessions),
         searches: asNumber(kpis.searches),
+        noResultSearches: asNumber(kpis.noResultSearches),
+        bounceRate: asNumber(kpis.bounceRate),
         toolCardClicks: asNumber(kpis.toolCardClicks),
         toolDetailViews: asNumber(kpis.toolDetailViews ?? kpis.detailViews),
         officialClicks: asNumber(kpis.officialClicks ?? kpis.outboundClicks),
@@ -349,6 +460,8 @@
       })),
       topTools: asArray(source.topTools ?? source.popularTools),
       topSearches: asArray(source.topSearches ?? source.popularSearches),
+      searchGaps: asArray(source.searchGaps),
+      categoryPerformance: asArray(source.categoryPerformance),
       recentEvents: asArray(source.recentEvents ?? source.events),
       submissionStatus: source.submissionStatus || {},
       system: source.system || source.health || {},
@@ -364,6 +477,8 @@
       outboundClicks: { value: data.kpis.officialClicks, type: "number" },
       clickThroughRate: { value: data.kpis.conversionRate, type: "percent" },
       pendingSubmissions: { value: data.kpis.pendingSubmissions, type: "number" }
+      ,noResultSearches: { value: data.kpis.noResultSearches, type: "number" }
+      ,bounceRate: { value: data.kpis.bounceRate, type: "percent" }
     };
 
     document.querySelectorAll("[data-kpi]").forEach((card) => {
@@ -614,6 +729,37 @@
     });
   }
 
+  function renderSearchGaps(data) {
+    const gaps = data.searchGaps.slice(0, 8);
+    dom.searchGapsList.replaceChildren();
+    dom.searchGapsTotal.textContent = gaps.length ? `${formatNumber(gaps.reduce((sum, item) => sum + asNumber(item.count), 0))} 次` : "—";
+    if (!gaps.length) {
+      const empty = document.createElement("div"); empty.className = "empty-state"; empty.textContent = "当前没有无结果搜索"; dom.searchGapsList.append(empty); return;
+    }
+    gaps.forEach((gap) => {
+      const row = document.createElement("div"); row.className = "search-row";
+      const query = document.createElement("span"); query.className = "search-query"; query.textContent = gap.query;
+      const count = document.createElement("span"); count.className = "search-count"; count.textContent = formatNumber(gap.count);
+      row.append(query, count); dom.searchGapsList.append(row);
+    });
+  }
+
+  function renderCategoryPerformance(data) {
+    const categories = data.categoryPerformance;
+    dom.categoryPerformanceList.replaceChildren();
+    const inactive = categories.filter((item) => item.clicks === 0).length;
+    dom.categoryPerformanceMeta.textContent = inactive ? `${inactive} 个零点击` : "全部有访问";
+    if (!categories.length) {
+      const empty = document.createElement("div"); empty.className = "empty-state"; empty.textContent = "暂无分类数据"; dom.categoryPerformanceList.append(empty); return;
+    }
+    categories.slice().sort((a, b) => a.clicks - b.clicks).slice(0, 10).forEach((category) => {
+      const row = document.createElement("div"); row.className = "search-row";
+      const name = document.createElement("span"); name.className = "search-query"; name.textContent = category.name;
+      const count = document.createElement("span"); count.className = "search-count"; count.textContent = formatNumber(category.clicks);
+      row.append(name, count); dom.categoryPerformanceList.append(row);
+    });
+  }
+
   function eventPresentation(name) {
     const normalized = String(name || "").toLowerCase();
     if (normalized.includes("search")) return { icon: "search", className: "is-search", label: "站内搜索" };
@@ -716,6 +862,8 @@
     renderFunnel(data);
     renderTopTools(data);
     renderTopSearches(data);
+    renderSearchGaps(data);
+    renderCategoryPerformance(data);
     renderEvents(data);
     renderHealth(data);
     renderIcons();
@@ -1847,6 +1995,9 @@
       if (event.target === dom.cmsDialog) closeCmsDialog();
     });
     dom.cmsForm.addEventListener("submit", saveCmsRecord);
+    dom.usersRefresh.addEventListener("click", () => void loadUsers());
+    dom.feedbackRefresh.addEventListener("click", () => void loadFeedback());
+    dom.feedbackStatusFilter.addEventListener("change", () => void loadFeedback());
 
     window.addEventListener("online", () => void loadMonitoring({ manual: true }));
     window.addEventListener("offline", () => showGlobalError(new Error("网络已断开，正在等待恢复")));
@@ -1874,10 +2025,16 @@
       });
       if (response.status === 401) {
         const next = `${location.pathname}${location.search}${location.hash}`;
-        location.replace(`/auth.html?next=${encodeURIComponent(next)}&mode=admin`);
+        location.replace(`/auth.html?next=${encodeURIComponent(next)}`);
         return false;
       }
       if (response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        if (payload?.data?.user?.role === "admin") {
+          state.token = "__session_admin__";
+          state.isSuperAdmin = Boolean(payload.data.user.isSuperAdmin);
+          return true;
+        }
         location.replace("/");
         return false;
       }
@@ -1897,6 +2054,13 @@
     setupChartResizeObserver();
     state.pollTimer = window.setInterval(() => void loadMonitoring(), POLL_INTERVAL_MS);
     state.relativeTimer = window.setInterval(updateRelativeStatus, 1_000);
+    if (state.token === "__session_admin__") void loadSubmissions({ quiet: true });
+    if (state.isSuperAdmin) {
+      dom.usersSection.hidden = false;
+      dom.usersNav.hidden = false;
+      void loadUsers();
+    }
+    void loadFeedback();
     void loadMonitoring({ manual: true });
   }
 

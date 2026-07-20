@@ -12,8 +12,11 @@ const migrations = [
   { version: 5, name: "comic_category", sql: readFileSync(resolve(import.meta.dirname, "migrations", "005_comic_category.sql"), "utf8") },
   { version: 6, name: "content_management", sql: readFileSync(resolve(import.meta.dirname, "migrations", "006_content_management.sql"), "utf8") },
   { version: 7, name: "feedback_messages", sql: readFileSync(resolve(import.meta.dirname, "migrations", "007_feedback.sql"), "utf8") },
-  { version: 8, name: "user_accounts", sql: readFileSync(resolve(import.meta.dirname, "migrations", "008_user_accounts.sql"), "utf8") }
-  , { version: 9, name: "user_favorites", sql: readFileSync(resolve(import.meta.dirname, "migrations", "009_user_favorites.sql"), "utf8") }
+  { version: 8, name: "user_accounts", sql: readFileSync(resolve(import.meta.dirname, "migrations", "008_user_accounts.sql"), "utf8") },
+  { version: 9, name: "user_favorites", sql: readFileSync(resolve(import.meta.dirname, "migrations", "009_user_favorites.sql"), "utf8") },
+  { version: 10, name: "tool_ratings", sql: readFileSync(resolve(import.meta.dirname, "migrations", "010_tool_ratings.sql"), "utf8") }
+  ,{ version: 11, name: "super_admin_controls", sql: readFileSync(resolve(import.meta.dirname, "migrations", "011_super_admin_controls.sql"), "utf8") }
+  ,{ version: 12, name: "account_activity", sql: readFileSync(resolve(import.meta.dirname, "migrations", "012_account_activity.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -521,15 +524,38 @@ export function getBootstrap(db) {
   };
 }
 
-export function createSubmission(db, input) {
+export function getGrowthSnapshot(db) {
+  const rankedTools = (days) => db.prepare(`
+    SELECT tools.id, COUNT(outbound_clicks.id) AS clicks
+    FROM tools LEFT JOIN outbound_clicks ON outbound_clicks.tool_id = tools.id
+      AND outbound_clicks.created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', ?)
+    WHERE tools.status = 'published' AND tools.is_sponsored = 0
+    GROUP BY tools.id ORDER BY clicks DESC, tools.popularity DESC, tools.editor_score DESC LIMIT 6
+  `).all(`-${days} days`).map((row) => getTool(db, row.id)).filter(Boolean);
+  const weeklyNew = db.prepare(`SELECT id FROM tools WHERE status = 'published' AND is_sponsored = 0
+    AND content_updated_date >= date('now', '-6 days') ORDER BY content_updated_date DESC, updated_at DESC LIMIT 12`).all()
+    .map((row) => getTool(db, row.id)).filter(Boolean);
+  const categoryRanking = db.prepare(`
+    SELECT categories.id, categories.name, COUNT(outbound_clicks.id) AS clicks,
+      COUNT(DISTINCT tools.id) AS tool_count
+    FROM categories JOIN tools ON tools.category_id = categories.id AND tools.status = 'published'
+    LEFT JOIN outbound_clicks ON outbound_clicks.tool_id = tools.id
+      AND outbound_clicks.created_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-30 days')
+    WHERE categories.status = 'published' AND categories.id <> 'all'
+    GROUP BY categories.id ORDER BY clicks DESC, tool_count DESC, categories.sort_order ASC LIMIT 10
+  `).all().map((row) => ({ id: row.id, name: row.name, clicks: Number(row.clicks), toolCount: Number(row.tool_count) }));
+  return { weeklyNew, weeklyPopular: rankedTools(7), monthlyPopular: rankedTools(30), categoryRanking };
+}
+
+export function createSubmission(db, input, userId = null) {
   const id = randomUUID();
   const lookupToken = input.idempotencyKey || `${randomUUID()}${randomUUID()}`.replaceAll("-", "");
   const trackingCode = `NK-${Date.now().toString(36).toUpperCase()}-${id.slice(0, 6).toUpperCase()}`;
   db.prepare(`
     INSERT INTO tool_submissions (
       id, tracking_code, idempotency_key, name, website_url, normalized_url,
-      category_id, summary, contact_email, source, lookup_token_hash
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      category_id, summary, contact_email, source, lookup_token_hash, user_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     id,
     trackingCode,
@@ -541,7 +567,8 @@ export function createSubmission(db, input) {
     input.summary,
     input.contactEmail,
     input.source,
-    hashToken(lookupToken)
+    hashToken(lookupToken),
+    userId
   );
   return { id, trackingCode, lookupToken, status: "pending" };
 }
@@ -579,7 +606,7 @@ export function getSubmissionStatus(db, trackingCode, lookupToken) {
   } : null;
 }
 
-export function upsertNewsletterSubscription(db, input) {
+export function upsertNewsletterSubscription(db, input, userId = null) {
   const existing = db.prepare("SELECT id, status FROM newsletter_subscriptions WHERE normalized_email = ?").get(input.normalizedEmail);
   if (existing) {
     if (existing.status !== "active") {
@@ -590,18 +617,19 @@ export function upsertNewsletterSubscription(db, input) {
       UPDATE newsletter_subscriptions
       SET email = ?, topic_slugs_json = ?, consent_version = ?, source = ?,
           consent_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
-          updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), unsubscribe_token_hash = ?
+          updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), unsubscribe_token_hash = ?,
+          user_id = COALESCE(?, user_id)
       WHERE id = ?
-    `).run(input.email, JSON.stringify(input.topicSlugs), input.consentVersion, input.source, hashToken(unsubscribeToken), existing.id);
+    `).run(input.email, JSON.stringify(input.topicSlugs), input.consentVersion, input.source, hashToken(unsubscribeToken), userId, existing.id);
     return { id: existing.id, status: "active", existing: true, unsubscribeToken };
   }
   const id = randomUUID();
   const unsubscribeToken = `${randomUUID()}${randomUUID()}`.replaceAll("-", "");
   db.prepare(`
     INSERT INTO newsletter_subscriptions (
-      id, email, normalized_email, status, topic_slugs_json, consent_version, source, unsubscribe_token_hash
-    ) VALUES (?, ?, ?, 'active', ?, ?, ?, ?)
-  `).run(id, input.email, input.normalizedEmail, JSON.stringify(input.topicSlugs), input.consentVersion, input.source, hashToken(unsubscribeToken));
+      id, email, normalized_email, status, topic_slugs_json, consent_version, source, unsubscribe_token_hash, user_id
+    ) VALUES (?, ?, ?, 'active', ?, ?, ?, ?, ?)
+  `).run(id, input.email, input.normalizedEmail, JSON.stringify(input.topicSlugs), input.consentVersion, input.source, hashToken(unsubscribeToken), userId);
   return { id, status: "active", existing: false, unsubscribeToken };
 }
 
@@ -615,13 +643,38 @@ export function unsubscribeNewsletter(db, token) {
   return Number(result.changes) === 1;
 }
 
-export function createFeedback(db, input) {
+export function createFeedback(db, input, userId = null) {
   const id = randomUUID();
   db.prepare(`
-    INSERT INTO feedback_messages (id, category, message, contact_email, page_url, consent_version)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(id, input.category, input.message, input.contactEmail || null, input.pageUrl, input.consentVersion);
+    INSERT INTO feedback_messages (id, user_id, category, message, contact_email, page_url, consent_version)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(id, userId, input.category, input.message, input.contactEmail || null, input.pageUrl, input.consentVersion);
   return { id, status: "pending", submittedAt: new Date().toISOString() };
+}
+
+export function listFeedback(db, status = "all") {
+  const allowed = new Set(["all", "pending", "reviewed", "resolved", "replied", "archived"]);
+  const filter = allowed.has(status) ? status : "all";
+  const rows = filter === "all"
+    ? db.prepare("SELECT * FROM feedback_messages ORDER BY submitted_at DESC LIMIT 500").all()
+    : db.prepare("SELECT * FROM feedback_messages WHERE status = ? ORDER BY submitted_at DESC LIMIT 500").all(filter);
+  return rows.map((row) => ({
+    id: row.id,
+    category: row.category,
+    message: row.message,
+    contactEmail: row.contact_email || "",
+    pageUrl: row.page_url || "",
+    status: row.status,
+    submittedAt: row.submitted_at,
+    updatedAt: row.updated_at
+  }));
+}
+
+export function updateFeedbackStatus(db, id, status) {
+  if (!["pending", "reviewed", "resolved", "replied", "archived"].includes(status)) return null;
+  const result = db.prepare("UPDATE feedback_messages SET status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ?").run(status, id);
+  if (!result.changes) return null;
+  return listFeedback(db, "all").find((item) => item.id === id) || null;
 }
 
 export function insertEvents(db, events, context) {
@@ -696,6 +749,81 @@ export function listUserFavorites(db, userId) {
   return db.prepare("SELECT tool_id AS toolId FROM user_favorites WHERE user_id = ? ORDER BY created_at DESC").all(userId).map((row) => row.toolId);
 }
 
+export function getAccountSummary(db, userId) {
+  return {
+    favorites: Number(db.prepare("SELECT COUNT(*) AS count FROM user_favorites WHERE user_id = ?").get(userId).count),
+    ratings: Number(db.prepare("SELECT COUNT(*) AS count FROM tool_ratings WHERE user_id = ?").get(userId).count),
+    feedback: Number(db.prepare("SELECT COUNT(*) AS count FROM feedback_messages WHERE user_id = ? OR (user_id IS NULL AND contact_email = (SELECT email FROM users WHERE id = ?))").get(userId, userId).count),
+    submissions: Number(db.prepare("SELECT COUNT(*) AS count FROM tool_submissions WHERE user_id = ? OR (user_id IS NULL AND contact_email = (SELECT email FROM users WHERE id = ?))").get(userId, userId).count),
+    history: Number(db.prepare("SELECT COUNT(*) AS count FROM user_tool_history WHERE user_id = ?").get(userId).count),
+    newsletter: Boolean(db.prepare("SELECT 1 FROM newsletter_subscriptions WHERE user_id = ? AND status = 'active' LIMIT 1").get(userId))
+  };
+}
+
+function accountToolSelect(db, sql, userId) {
+  return db.prepare(sql).all(userId).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    category: row.category_id,
+    logoUrl: row.logo_url || "",
+    summary: row.summary,
+    updated: row.content_updated_date,
+    viewedAt: row.viewed_at || null,
+    rating: row.rating === undefined ? null : Number(row.rating)
+  }));
+}
+
+export function getAccountActivity(db, userId) {
+  const email = db.prepare("SELECT email FROM users WHERE id = ?").get(userId)?.email || "";
+  return {
+    favorites: accountToolSelect(db, `SELECT tools.id, tools.name, tools.slug, tools.category_id, tools.logo_url, tools.summary, tools.content_updated_date
+      FROM user_favorites JOIN tools ON tools.id = user_favorites.tool_id
+      WHERE user_favorites.user_id = ? AND tools.status = 'published' ORDER BY user_favorites.created_at DESC LIMIT 100`, userId),
+    ratings: accountToolSelect(db, `SELECT tools.id, tools.name, tools.slug, tools.category_id, tools.logo_url, tools.summary, tools.content_updated_date, tool_ratings.rating
+      FROM tool_ratings JOIN tools ON tools.id = tool_ratings.tool_id
+      WHERE tool_ratings.user_id = ? AND tools.status = 'published' ORDER BY tool_ratings.updated_at DESC LIMIT 100`, userId),
+    history: accountToolSelect(db, `SELECT tools.id, tools.name, tools.slug, tools.category_id, tools.logo_url, tools.summary, tools.content_updated_date, user_tool_history.viewed_at
+      FROM user_tool_history JOIN tools ON tools.id = user_tool_history.tool_id
+      WHERE user_tool_history.user_id = ? AND tools.status = 'published' ORDER BY user_tool_history.viewed_at DESC LIMIT 100`, userId),
+    feedback: db.prepare(`SELECT id, category, message, page_url AS pageUrl, status, submitted_at AS submittedAt, updated_at AS updatedAt
+      FROM feedback_messages WHERE user_id = ? OR (user_id IS NULL AND contact_email = ?) ORDER BY submitted_at DESC LIMIT 100`).all(userId, email),
+    submissions: db.prepare(`SELECT id, tracking_code AS trackingCode, name, website_url AS websiteUrl, category_id AS categoryId, summary, status, submitted_at AS submittedAt, reviewed_at AS reviewedAt
+      FROM tool_submissions WHERE user_id = ? OR (user_id IS NULL AND contact_email = ?) ORDER BY submitted_at DESC LIMIT 100`).all(userId, email),
+    newsletter: db.prepare("SELECT status, topic_slugs_json AS topics, consent_at AS subscribedAt, updated_at AS updatedAt FROM newsletter_subscriptions WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1").get(userId) || null,
+    notifications: db.prepare("SELECT weekly_digest AS weeklyDigest, new_tool_alerts AS newToolAlerts, favorite_update_alerts AS favoriteUpdateAlerts FROM user_notification_preferences WHERE user_id = ?").get(userId) || { weeklyDigest: 1, newToolAlerts: 1, favoriteUpdateAlerts: 1 }
+  };
+}
+
+export function updateNotificationPreferences(db, userId, input) {
+  const values = [input.weeklyDigest, input.newToolAlerts, input.favoriteUpdateAlerts].map((value) => value ? 1 : 0);
+  db.prepare(`INSERT INTO user_notification_preferences (user_id, weekly_digest, new_tool_alerts, favorite_update_alerts)
+    VALUES (?, ?, ?, ?) ON CONFLICT(user_id) DO UPDATE SET weekly_digest = excluded.weekly_digest,
+      new_tool_alerts = excluded.new_tool_alerts, favorite_update_alerts = excluded.favorite_update_alerts,
+      updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')`).run(userId, ...values);
+  return { weeklyDigest: Boolean(values[0]), newToolAlerts: Boolean(values[1]), favoriteUpdateAlerts: Boolean(values[2]) };
+}
+
+export function recordUserToolHistory(db, userId, toolId) {
+  db.prepare(`INSERT INTO user_tool_history (user_id, tool_id, viewed_at) VALUES (?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    ON CONFLICT(user_id, tool_id) DO UPDATE SET viewed_at = excluded.viewed_at`).run(userId, toolId);
+}
+
+export function clearUserToolHistory(db, userId) {
+  return Number(db.prepare("DELETE FROM user_tool_history WHERE user_id = ?").run(userId).changes);
+}
+
+export function unsubscribeAccountNewsletter(db, userId) {
+  return Number(db.prepare(`UPDATE newsletter_subscriptions
+    SET status = 'unsubscribed', unsubscribed_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    WHERE user_id = ? AND status = 'active'`).run(userId).changes) > 0;
+}
+
+export function deleteUserAccount(db, userId) {
+  const result = db.prepare("DELETE FROM users WHERE id = ? AND is_super_admin = 0").run(userId);
+  return Number(result.changes) === 1;
+}
+
 export function addUserFavorite(db, userId, toolId) {
   const tool = db.prepare("SELECT id FROM tools WHERE id = ? AND status = 'published'").get(toolId);
   if (!tool) return false;
@@ -705,6 +833,50 @@ export function addUserFavorite(db, userId, toolId) {
 
 export function removeUserFavorite(db, userId, toolId) {
   return Number(db.prepare("DELETE FROM user_favorites WHERE user_id = ? AND tool_id = ?").run(userId, toolId).changes) > 0;
+}
+
+export function getToolRatings(db, toolId, userId = "") {
+  const rows = db.prepare(`
+    SELECT rating, COUNT(*) AS count
+    FROM tool_ratings
+    WHERE tool_id = ?
+    GROUP BY rating
+    ORDER BY rating DESC
+  `).all(toolId);
+  const distribution = Object.fromEntries([1, 2, 3, 4, 5].map((rating) => [rating, 0]));
+  let count = 0;
+  let total = 0;
+  rows.forEach((row) => {
+    const rowCount = Number(row.count);
+    distribution[Number(row.rating)] = rowCount;
+    count += rowCount;
+    total += Number(row.rating) * rowCount;
+  });
+  const userRating = userId
+    ? db.prepare("SELECT rating FROM tool_ratings WHERE user_id = ? AND tool_id = ?").get(userId, toolId)?.rating || null
+    : null;
+  return {
+    average: count ? Math.round((total / count) * 10) / 10 : null,
+    count,
+    distribution,
+    userRating: userRating ? Number(userRating) : null
+  };
+}
+
+export function setToolRating(db, userId, toolId, rating) {
+  db.prepare(`
+    INSERT INTO tool_ratings (user_id, tool_id, rating)
+    VALUES (?, ?, ?)
+    ON CONFLICT(user_id, tool_id) DO UPDATE SET
+      rating = excluded.rating,
+      updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+  `).run(userId, toolId, rating);
+  return getToolRatings(db, toolId, userId);
+}
+
+export function removeToolRating(db, userId, toolId) {
+  db.prepare("DELETE FROM tool_ratings WHERE user_id = ? AND tool_id = ?").run(userId, toolId);
+  return getToolRatings(db, toolId, userId);
 }
 
 export function listSubmissions(db, status = "pending") {

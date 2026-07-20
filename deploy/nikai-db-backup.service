@@ -1,0 +1,24 @@
+[Unit]
+Description=Nikai AI SQLite database backup
+After=local-fs.target
+ConditionPathExists=/opt/nikai-ai/data/nikai-ai.sqlite
+
+[Service]
+Type=oneshot
+User=nikai
+Group=nikai
+UMask=0077
+Environment=NIKAI_DB_PATH=/opt/nikai-ai/data/nikai-ai.sqlite
+Environment=NIKAI_BACKUP_DIR=/opt/nikai-ai-backups/sqlite
+Environment=NIKAI_BACKUP_RETENTION_DAYS=30
+ExecStart=/opt/nikai-ai/scripts/backup-database.sh
+Nice=10
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+ReadWritePaths=/opt/nikai-ai-backups/sqlite
+

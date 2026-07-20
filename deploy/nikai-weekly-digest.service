@@ -1,0 +1,17 @@
+[Unit]
+Description=Nikai AI weekly subscriber digest
+After=network-online.target nikai-ai.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nikai
+Group=nikai
+WorkingDirectory=/opt/nikai-ai
+EnvironmentFile=/opt/nikai-ai/.env
+ExecStart=/usr/local/bin/node --no-warnings /opt/nikai-ai/scripts/send-weekly-digest.mjs
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/nikai-ai/data

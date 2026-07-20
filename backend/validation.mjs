@@ -103,9 +103,9 @@ function readPassword(value) {
 }
 
 export function validateRegistration(body) {
-  assertAllowedKeys(body, ["displayName", "email", "password", "consentVersion", "consentAccepted"]);
-  if (body.consentAccepted !== true) {
-    throw new HttpError(422, "consent_required", "请先同意隐私政策", { field: "consentAccepted" });
+  assertAllowedKeys(body, ["displayName", "email", "password", "consentVersion", "consentAccepted", "termsAccepted"]);
+  if (body.consentAccepted !== true || body.termsAccepted !== true) {
+    throw new HttpError(422, "consent_required", "请先同意服务条款和隐私政策", { field: "consentAccepted" });
   }
   const consentVersion = readText(body.consentVersion || currentConsentVersion, "consentVersion", 4, 20);
   if (consentVersion !== currentConsentVersion) {
@@ -128,10 +128,13 @@ export function validateLogin(body) {
 }
 
 export function validateSubmission(body, idempotencyKey) {
-  assertAllowedKeys(body, ["name", "websiteUrl", "categoryId", "summary", "contactEmail", "declarationAccepted", "source", "company"]);
+  assertAllowedKeys(body, ["name", "websiteUrl", "categoryId", "summary", "contactEmail", "declarationAccepted", "termsAccepted", "source", "company"]);
   if (body.company) return { honeypot: true };
   if (body.declarationAccepted !== true) {
     throw new HttpError(422, "declaration_required", "请确认提交信息真实有效", { field: "declarationAccepted" });
+  }
+  if (body.termsAccepted !== true) {
+    throw new HttpError(422, "terms_required", "请先同意服务条款和隐私政策", { field: "termsAccepted" });
   }
   const normalizedUrl = normalizePublicUrl(body.websiteUrl);
   const categoryId = readText(body.categoryId, "categoryId", 2, 30);
@@ -200,6 +203,7 @@ export function validateFeedback(body) {
 const eventNames = new Set([
   "page_view",
   "search_submit",
+  "search_no_results",
   "category_click",
   "tool_card_click",
   "tool_detail_view",

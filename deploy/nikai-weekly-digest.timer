@@ -1,0 +1,11 @@
+[Unit]
+Description=Send Nikai AI weekly digest every Monday
+
+[Timer]
+OnCalendar=Mon *-*-* 09:15:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=15m
+Unit=nikai-weekly-digest.service
+
+[Install]
+WantedBy=timers.target

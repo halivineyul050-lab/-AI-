@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Nikai AI database backup every day
+
+[Timer]
+OnCalendar=*-*-* 03:20:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=10m
+Unit=nikai-db-backup.service
+
+[Install]
+WantedBy=timers.target
+

@@ -54,6 +54,7 @@ Logo 维护命令为 `npm run logos:sync`，校验命令为 `npm run logos:verif
   "summary": "一句话介绍，至少十个字符",
   "contactEmail": "owner@example.com",
   "declarationAccepted": true,
+  "termsAccepted": true,
   "source": "sidebar",
   "company": ""
 }

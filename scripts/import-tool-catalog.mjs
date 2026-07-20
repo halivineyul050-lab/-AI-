@@ -64,7 +64,7 @@ function parseCsv(text) {
 }
 
 function readRecords(inputPath) {
-  const text = readFileSync(inputPath, "utf8");
+  const text = readFileSync(inputPath, "utf8").replace(/^\uFEFF/, "");
   const extension = extname(inputPath).toLowerCase();
   if (extension === ".csv") return parseCsv(text);
   if (extension === ".ndjson" || extension === ".jsonl") {

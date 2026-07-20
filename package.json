@@ -13,6 +13,7 @@
     "logos:verify": "node --no-warnings scripts/sync-tool-logos.mjs --verify",
     "catalog:import": "node --env-file-if-exists=.env --no-warnings scripts/import-tool-catalog.mjs",
     "catalog:import:official": "node --env-file-if-exists=.env --no-warnings scripts/import-official-catalog.mjs"
+    ,"newsletter:send": "node --env-file-if-exists=.env --no-warnings scripts/send-weekly-digest.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

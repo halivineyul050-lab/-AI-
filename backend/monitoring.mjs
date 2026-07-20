@@ -100,12 +100,30 @@ function getKpis(db, startAt, endAt, hours) {
   const toolDetailViews = count(analytics.tool_detail_views);
   const adImpressions = count(analytics.ad_impressions);
   const adClicks = count(analytics.ad_clicks);
+  const sessionStats = db.prepare(`
+    WITH session_activity AS (
+      SELECT session_id,
+        SUM(CASE WHEN event_name = 'page_view' THEN 1 ELSE 0 END) AS page_views,
+        SUM(CASE WHEN event_name NOT IN ('page_view', 'session_exit') THEN 1 ELSE 0 END) AS interactions
+      FROM analytics_events
+      WHERE received_at >= ? AND received_at < ? AND session_id <> ''
+      GROUP BY session_id
+    )
+    SELECT COUNT(*) AS sessions,
+      SUM(CASE WHEN page_views = 1 AND interactions = 0 THEN 1 ELSE 0 END) AS bounced
+    FROM session_activity
+  `).get(startAt, endAt);
+  const noResultSearches = count(db.prepare(`SELECT COUNT(*) AS count FROM analytics_events
+    WHERE event_name = 'search_submit' AND received_at >= ? AND received_at < ?
+      AND json_valid(properties_json) AND CAST(json_extract(properties_json, '$.result_count') AS INTEGER) = 0`).get(startAt, endAt).count);
 
   return {
     pageViews: count(analytics.page_views),
     uniqueVisitors: count(analytics.unique_visitors),
     activeSessions: count(analytics.active_sessions),
     searches: count(analytics.searches),
+    noResultSearches,
+    bounceRate: rate(sessionStats.bounced, sessionStats.sessions),
     toolCardClicks: count(analytics.tool_card_clicks),
     toolDetailViews,
     officialClicks,
@@ -117,6 +135,36 @@ function getKpis(db, startAt, endAt, hours) {
     conversionRate: rate(officialClicks, toolDetailViews),
     adCtr: rate(adClicks, adImpressions)
   };
+}
+
+function getSearchGaps(db, startAt, endAt) {
+  return db.prepare(`WITH searches AS (
+    SELECT visitor_id, TRIM(CAST(json_extract(properties_json, '$.query') AS TEXT)) AS query
+    FROM analytics_events
+    WHERE event_name = 'search_submit' AND received_at >= ? AND received_at < ?
+      AND json_valid(properties_json) AND CAST(json_extract(properties_json, '$.result_count') AS INTEGER) = 0
+  ) SELECT MIN(query) AS query, COUNT(*) AS count, COUNT(DISTINCT visitor_id) AS unique_visitors
+    FROM searches WHERE query IS NOT NULL AND query <> '' GROUP BY LOWER(query)
+    ORDER BY count DESC, unique_visitors DESC LIMIT ?`).all(startAt, endAt, TOP_LIMIT).map((row) => ({
+      query: row.query,
+      count: count(row.count),
+      uniqueVisitors: count(row.unique_visitors)
+    }));
+}
+
+function getCategoryPerformance(db, startAt, endAt) {
+  return db.prepare(`WITH category_clicks AS (
+    SELECT CAST(json_extract(properties_json, '$.category_id') AS TEXT) AS category_id, COUNT(*) AS clicks
+    FROM analytics_events WHERE event_name = 'category_click' AND received_at >= ? AND received_at < ?
+      AND json_valid(properties_json) GROUP BY category_id
+  ) SELECT categories.id, categories.name, COALESCE(category_clicks.clicks, 0) AS clicks
+    FROM categories LEFT JOIN category_clicks ON category_clicks.category_id = categories.id
+    WHERE categories.status = 'published' AND categories.id <> 'all'
+    ORDER BY clicks DESC, categories.sort_order ASC`).all(startAt, endAt).map((row) => ({
+      categoryId: row.id,
+      name: row.name,
+      clicks: count(row.clicks)
+    }));
 }
 
 function getHourlySeries(db, startAt, endAt, hours) {
@@ -370,6 +418,8 @@ export function getMonitoringSnapshot(db, options = {}) {
     funnel: getFunnel(db, startAt, endAt),
     topTools: getTopTools(db, startAt, endAt),
     topSearches: getTopSearches(db, startAt, endAt),
+    searchGaps: getSearchGaps(db, startAt, endAt),
+    categoryPerformance: getCategoryPerformance(db, startAt, endAt),
     recentEvents: getRecentEvents(db, startAt, endAt),
     submissionStatus: getSubmissionStatus(db)
   };

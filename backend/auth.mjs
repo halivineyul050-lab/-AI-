@@ -18,9 +18,29 @@ function serializeUser(row) {
     email: row.email,
     displayName: row.display_name,
     role: row.role,
+    isSuperAdmin: Boolean(row.is_super_admin),
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at || null
   };
+}
+
+export function listUsers(db) {
+  return db.prepare(`
+    SELECT id, email, display_name, role, is_super_admin, status, created_at, last_login_at
+    FROM users ORDER BY created_at DESC
+  `).all().map(serializeUser);
+}
+
+export function updateUserAccess(db, id, { role, status } = {}) {
+  const allowedRoles = new Set(["member", "admin"]);
+  const allowedStatuses = new Set(["active", "disabled"]);
+  if (!allowedRoles.has(role) || !allowedStatuses.has(status)) return null;
+  const result = db.prepare(`
+    UPDATE users SET role = ?, status = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+    WHERE id = ? AND is_super_admin = 0
+  `).run(role, status, id);
+  if (!result.changes) return null;
+  return serializeUser(db.prepare("SELECT * FROM users WHERE id = ?").get(id));
 }
 
 function createSession(db, userId) {

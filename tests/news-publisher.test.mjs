@@ -35,6 +35,18 @@ test("publisher stays disabled without an API key", async () => {
   assert.equal(scheduled.enabled, false);
 });
 
+test("publisher defaults to a six-hour interval", () => {
+  const scheduled = scheduleNewsPublisher({
+    db: {},
+    environment: "production",
+    env: { NIKE_AUTO_NEWS: "true", OPENAI_API_KEY: "test-key" }
+  });
+  assert.equal(scheduled.enabled, true);
+  assert.equal(scheduled.intervalMs, 6 * 60 * 60_000);
+  clearInterval(scheduled.timer);
+  clearTimeout(scheduled.startupTimer);
+});
+
 test("publisher sends a Responses API request with the configured provider options", async () => {
   const originalFetch = globalThis.fetch;
   const calls = [];
@@ -59,7 +71,7 @@ test("publisher sends a Responses API request with the configured provider optio
       feeds: ["https://example.com/rss.xml"],
       dryRun: true
     });
-    const request = calls.at(-1);
+    const request = [...calls].reverse().find((call) => call.url.endsWith("/v1/responses"));
     const payload = JSON.parse(request.options.body);
     assert.equal(result.dryRun, true);
     assert.equal(request.url, "https://lucen.cc/v1/responses");
@@ -67,6 +79,7 @@ test("publisher sends a Responses API request with the configured provider optio
     assert.deepEqual(payload.reasoning, { effort: "xhigh" });
     assert.equal(payload.store, false);
     assert.equal(payload.text.format.type, "json_schema");
+    assert.match(result.article.cover, /^https:\/\//);
   } finally {
     globalThis.fetch = originalFetch;
   }

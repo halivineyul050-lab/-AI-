@@ -4,15 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f766e">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="泥壳AI工具站">
+  <meta property="og:title" content="泥壳AI工具站 - 发现真正能用的 AI 工具">
+  <meta property="og:description" content="按任务发现、筛选和比较实用的 AI 工具。">
+  <meta property="og:image" content="http://47.93.245.219/brand-icon-192.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="泥壳AI工具站 - AI 工具发现与比较">
+  <meta name="twitter:description" content="按任务发现、筛选和比较实用的 AI 工具。">
+  <meta name="twitter:image" content="http://47.93.245.219/brand-icon-192.png">
   <meta name="description" content="泥壳AI工具站，按任务发现、筛选和比较实用的AI工具。">
   <title>泥壳AI工具站 - 按任务发现AI工具</title>
   <link rel="icon" href="/brand-icon-192.png?v=20260713-1" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260713-1">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="preconnect" href="https://www.google.com">
   <link rel="preconnect" href="https://images.unsplash.com">
-  <link rel="stylesheet" href="styles.css?v=20260715-8">
+  <link rel="canonical" href="http://47.93.245.219/">
+  <link rel="stylesheet" href="/styles.css?v=20260717-1">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"泥壳AI工具站","url":"http://47.93.245.219/","description":"按任务发现、筛选和比较实用的AI工具","potentialAction":{"@type":"SearchAction","target":"http://47.93.245.219/?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
+  <script id="tool-list-schema" type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"AI工具目录","numberOfItems":138,"itemListElement":[]}</script>
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="app.js?v=20260715-5"></script>
+  <script defer src="/app.js?v=20260717-2"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -54,9 +67,9 @@
           <i data-lucide="circle-plus"></i><span>提交工具</span>
         </button>
         <div class="sidebar-links">
-          <a href="/admin.html">后台监控</a>
           <button type="button" data-view-link="advertise">广告合作</button>
           <button type="button" data-view-link="about">关于我们</button>
+          <button type="button" data-view-link="standards">收录标准</button>
         </div>
       </div>
     </aside>
@@ -84,6 +97,9 @@
         </form>
 
         <div class="topbar-actions">
+          <button class="icon-button" id="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">
+            <i data-lucide="moon"></i>
+          </button>
           <button class="icon-button action-with-count" id="favorite-toggle" type="button" aria-label="只看收藏" aria-pressed="false" title="只看收藏">
             <i data-lucide="bookmark"></i><span id="favorite-count">0</span>
           </button>
@@ -97,14 +113,15 @@
       </header>
 
       <section class="view is-visible" id="tools-view" data-view-section="tools">
-        <div class="page-header">
+        <div class="page-header directory-header">
           <div>
-            <p class="eyebrow">AI TOOL DIRECTORY</p>
+            <p class="eyebrow">CURATED AI DIRECTORY</p>
             <div class="title-row">
               <h1>AI 工具库</h1>
               <span class="result-badge" id="result-count" aria-live="polite">20 个工具</span>
             </div>
-            <p class="page-summary">按工作任务筛选工具，查看价格、平台和适用场景。</p>
+            <p class="page-summary">发现真正能用的 AI 工具，按任务和场景比较价格、平台与适用人群。</p>
+            <div class="directory-stats" aria-label="工具库状态"><span><strong id="directory-tool-total">137</strong><small>已收录工具</small></span><span><strong id="directory-category-total">17</strong><small>使用场景分类</small></span></div>
           </div>
           <div class="page-header-actions">
             <button class="secondary-button mobile-filter-button" id="mobile-filter-toggle" type="button" aria-expanded="false">
@@ -183,6 +200,12 @@
           <p>试试更短的关键词，或清除筛选条件。</p>
           <button class="secondary-button" type="button" id="empty-reset"><i data-lucide="rotate-ccw"></i><span>清除筛选</span></button>
         </div>
+
+        <section class="weekly-return-band" aria-labelledby="weekly-return-title">
+          <div class="weekly-return-copy"><p class="eyebrow">WEEKLY UPDATE</p><h2 id="weekly-return-title">本周工具速递</h2><p><strong id="weekly-new-count">持续更新</strong><span id="weekly-new-names">新工具与资料复核结果会在这里汇总。</span></p></div>
+          <div class="weekly-return-actions"><button class="secondary-button" id="show-latest-tools" type="button"><i data-lucide="sparkles"></i><span>查看最近更新</span></button><button class="primary-button" type="button" data-view-link="news"><i data-lucide="mail-plus"></i><span>订阅周报</span></button></div>
+          <form class="weekly-subscribe-form" id="homepage-newsletter-form"><label class="sr-only" for="homepage-newsletter-email">周报订阅邮箱</label><input id="homepage-newsletter-email" type="email" required placeholder="邮箱地址"><label><input id="homepage-newsletter-consent" type="checkbox" required><span>同意<a href="/privacy">隐私政策</a></span></label><button class="primary-button" type="submit">订阅</button></form>
+        </section>
       </section>
 
       <section class="view" id="discover-view" data-view-section="discover" hidden>
@@ -198,8 +221,12 @@
 
         <section class="ranking-section">
           <div class="section-heading">
-            <div><p class="eyebrow">WEEKLY SIGNAL</p><h2>本周趋势</h2></div>
-            <button class="text-button" type="button" data-toast="趋势榜每周一更新"><i data-lucide="calendar-days"></i><span>本周</span></button>
+            <div><p class="eyebrow">AI TOOL RANKINGS</p><h2 id="ranking-title">本周热门工具</h2></div>
+            <div class="ranking-controls" aria-label="榜单范围">
+              <button class="text-button is-active" type="button" data-ranking-mode="weekly"><span>本周热门</span></button>
+              <button class="text-button" type="button" data-ranking-mode="monthly"><span>月度热门</span></button>
+              <button class="text-button" type="button" data-ranking-mode="categories"><span>分类榜</span></button>
+            </div>
           </div>
           <div class="ranking-list" id="ranking-list"></div>
         </section>
@@ -229,7 +256,7 @@
             <h1>AI 资讯</h1>
             <p class="page-summary">产品发布、模型更新与行业动态。</p>
           </div>
-          <div class="date-chip"><i data-lucide="calendar"></i><span>2026年7月13日</span></div>
+          <div class="date-chip"><i data-lucide="calendar"></i><span id="news-updated-date">最近更新</span></div>
         </div>
         <div class="news-layout">
           <div class="article-list" id="news-list"></div>
@@ -239,13 +266,14 @@
             <div class="newsletter-panel">
               <i data-lucide="mail"></i>
               <h3>泥壳周报</h3>
-              <p>每周精选工具、教程与行业变化。</p>
+              <p>每周不超过 1 封，整理值得关注的工具、教程与行业变化。</p>
               <form id="newsletter-form">
                 <label class="sr-only" for="newsletter-email">邮箱</label>
                 <input id="newsletter-email" type="email" required placeholder="name@example.com">
                 <label class="newsletter-consent"><input id="newsletter-consent" type="checkbox" required><span>同意接收周报并接受隐私政策</span></label>
                 <button class="primary-button" type="submit">订阅周报</button>
               </form>
+              <div class="newsletter-note"><i data-lucide="info"></i><span>目前为订阅登记。可随时通过问题反馈申请退订或删除订阅邮箱。</span></div>
             </div>
           </aside>
         </div>
@@ -254,7 +282,7 @@
       <section class="view editorial-view" id="advertise-view" data-view-section="advertise" hidden>
         <div class="editorial-hero editorial-hero-ad">
           <div class="editorial-hero-copy">
-            <p class="eyebrow">PARTNER WITH NIKE AI</p>
+            <p class="eyebrow">PARTNER WITH 泥壳AI</p>
             <h1>让真正有用的 AI 产品，被更多人发现。</h1>
             <p>泥壳AI面向正在寻找工具、工作流和产品灵感的人，提供一个更可信、更好逛的 AI 工具分享空间。</p>
             <div class="editorial-actions">
@@ -283,12 +311,27 @@
           <div><i data-lucide="bar-chart-3"></i><strong>数据可看</strong><span>关注曝光、详情查看和官网点击等真实行为。</span></div>
           <div><i data-lucide="heart-handshake"></i><strong>长期合作</strong><span>优先支持真正解决问题、持续迭代的 AI 产品。</span></div>
         </div>
+
+        <section class="editorial-detail-section" aria-labelledby="cooperation-process-title">
+          <div class="editorial-section-heading"><p class="eyebrow">COOPERATION PROCESS</p><h2 id="cooperation-process-title">从提交需求到上线</h2><p>先确认产品和目标，再决定合作形式，不出售未经说明的隐性排序。</p></div>
+          <ol class="cooperation-process">
+            <li><b>01</b><div><h3>提交合作信息</h3><p>说明产品名称、官网、目标用户、希望推广的内容和计划时间。</p></div></li>
+            <li><b>02</b><div><h3>产品与内容核验</h3><p>通常在 2 个工作日内确认是否适合收录或合作，并核对公开资料。</p></div></li>
+            <li><b>03</b><div><h3>确认方案与费用</h3><p>根据展示位置、内容制作量和合作周期单独报价，未确认前不会产生费用。</p></div></li>
+            <li><b>04</b><div><h3>上线与效果回顾</h3><p>合作内容明确标注“推广”，上线后可按约定提供展示和官网点击数据。</p></div></li>
+          </ol>
+        </section>
+
+        <div class="editorial-contact-band">
+          <div><p class="eyebrow">START A CONVERSATION</p><h2>准备好产品资料后，提交合作咨询。</h2><p>请至少提供官网、产品介绍、目标人群、合作诉求和方便联系的邮箱。修改、延期和取消安排会在方案确认时一并说明。</p></div>
+          <button class="primary-button" type="button" data-view-link="feedback" data-feedback-category="cooperation"><i data-lucide="send"></i><span>提交合作咨询</span></button>
+        </div>
       </section>
 
       <section class="view editorial-view" id="about-view" data-view-section="about" hidden>
         <div class="editorial-hero editorial-hero-about">
           <div class="editorial-hero-copy">
-            <p class="eyebrow">ABOUT NIKE AI</p>
+            <p class="eyebrow">ABOUT 泥壳AI</p>
             <h1>不追热点，只帮你找到真正能用的 AI 工具。</h1>
             <p>泥壳AI工具站是一个面向中文用户的 AI 工具发现与分享平台。我们把分散的产品、能力和工作流整理成更容易理解、比较和尝试的内容。</p>
             <div class="editorial-actions"><button class="primary-button" type="button" data-view-link="tools"><i data-lucide="search"></i><span>开始探索工具</span></button><button class="secondary-button" type="button" data-view-link="advertise"><i data-lucide="handshake"></i><span>合作与共建</span></button></div>
@@ -303,6 +346,17 @@
         </div>
 
         <div class="about-principles"><div><p class="eyebrow">EDITORIAL PRINCIPLES</p><h2>让工具信息更可信，也更好用。</h2></div><div class="principle-list"><span><i data-lucide="check"></i>以任务和场景组织，而不是只堆产品名称</span><span><i data-lucide="check"></i>区分自然收录、推广内容和待核验信息</span><span><i data-lucide="check"></i>持续更新产品状态、价格和官方链接</span></div></div>
+
+        <section class="about-operation" aria-labelledby="about-operation-title">
+          <div><p class="eyebrow">OPERATION & CONTACT</p><h2 id="about-operation-title">一个持续维护的中文 AI 工具内容项目</h2><p>泥壳AI工具站目前作为独立内容产品运营。工具资料主要来自官方公开页面、编辑整理和用户投稿；自动采集的资讯会保留原始来源链接。</p></div>
+          <dl>
+            <div><dt>内容更新</dt><dd>工具状态持续复核，资讯按采集结果更新</dd></div>
+            <div><dt>工具投稿</dt><dd>通过“提交工具”进入审核，不保证全部收录</dd></div>
+            <div><dt>问题更正</dt><dd>通过问题反馈提交具体页面和需要修改的信息</dd></div>
+            <div><dt>商务联系</dt><dd>通过广告合作页提交需求和联系邮箱</dd></div>
+          </dl>
+          <div class="about-operation-actions"><button class="secondary-button" type="button" data-view-link="standards"><i data-lucide="badge-check"></i><span>查看收录标准</span></button><button class="primary-button" type="button" data-view-link="feedback"><i data-lucide="message-square"></i><span>联系与反馈</span></button></div>
+        </section>
       </section>
 
       <section class="view policy-view" id="standards-view" data-view-section="standards" hidden>
@@ -316,13 +370,26 @@
       </section>
 
       <section class="view policy-view" id="privacy-view" data-view-section="privacy" hidden>
-        <div class="policy-hero privacy-hero"><div><p class="eyebrow">PRIVACY POLICY · 2026-07</p><h1>我们尽量少收集，也把用途说清楚。</h1><p>这份说明适用于泥壳AI工具站的公开页面、投稿、周报、反馈和后台运营数据。</p></div><span class="policy-hero-icon"><i data-lucide="lock-keyhole"></i></span></div>
+        <div class="policy-hero privacy-hero"><div><p class="eyebrow">PRIVACY POLICY · 2026-07</p><h1>我们尽量少收集，也把用途说清楚。</h1><p>这份说明适用于泥壳AI工具站的公开页面、用户账号、收藏、投稿、周报、反馈和后台运营数据。</p></div><span class="policy-hero-icon"><i data-lucide="lock-keyhole"></i></span></div>
         <div class="policy-layout"><aside class="policy-index"><span>目录</span><a href="#privacy-collect">收集什么</a><a href="#privacy-use">如何使用</a><a href="#privacy-retain">保存多久</a><a href="#privacy-rights">你的权利</a></aside><div class="policy-content privacy-content">
-          <section id="privacy-collect"><p class="eyebrow">DATA WE HANDLE</p><h2>收集什么</h2><p>浏览工具站时，我们会处理保障页面运行和统计效果所需的信息：</p><ul><li>匿名访客标识、会话标识、访问页面、搜索和工具点击事件。</li><li>投稿时提交的工具名称、官网、分类、介绍和联系邮箱。</li><li>订阅周报时提交的邮箱、订阅主题和同意版本。</li><li>问题反馈中的反馈类型、内容、可选联系邮箱和提交页面。</li><li>后台管理操作产生的审计记录。IP 地址只以加盐哈希形式保存。</li></ul></section>
-          <section id="privacy-use"><p class="eyebrow">WHY WE USE IT</p><h2>如何使用</h2><p>这些信息只用于提供和改进泥壳AI工具站：处理投稿和反馈、发送已同意订阅的周报、统计工具发现与官网点击、识别异常请求、维护内容质量和保障服务安全。</p><p>我们不会出售个人信息，也不会把匿名行为事件用于识别具体个人。推广合作会单独标识，不会因为推广关系修改自然排序的说明口径。</p></section>
-          <section id="privacy-retain"><p class="eyebrow">RETENTION</p><h2>保存多久</h2><div class="retention-table"><div><strong>匿名事件与官网点击</strong><span>默认 90 天，之后自动清理</span></div><div><strong>投稿与问题反馈</strong><span>在处理完成和必要的运营期限内保存</span></div><div><strong>周报订阅</strong><span>直到退订、压制或要求删除</span></div><div><strong>审计记录</strong><span>按安全、合规和运营需要保留</span></div></div></section>
-          <section id="privacy-rights"><p class="eyebrow">YOUR CHOICES</p><h2>你的权利</h2><p>你可以申请查看、更正或删除你提交的邮箱、投稿和反馈信息，也可以随时退订周报。请通过问题反馈页面说明需要处理的内容；为了避免误处理，我们可能需要核对提交时使用的邮箱。</p></section>
+          <section id="privacy-collect"><p class="eyebrow">DATA WE HANDLE</p><h2>收集什么</h2><p>浏览和使用工具站时，我们会处理保障页面运行、账号功能和内容运营所需的信息：</p><ul><li>匿名访客标识、会话标识、访问页面、搜索和工具点击事件。</li><li>注册账号时提交的邮箱和昵称，以及以加盐哈希形式保存的密码验证数据；我们不保存可直接读取的明文密码。</li><li>维持登录状态所需的会话令牌、创建时间、有效期和最近使用时间。</li><li>登录用户主动收藏的工具标识，以及提交的 1–5 星工具评分，用于同步收藏并汇总用户评价。</li><li>投稿时提交的工具名称、官网、分类、介绍和联系邮箱。</li><li>订阅周报时提交的邮箱、订阅主题和同意版本。</li><li>问题反馈中的反馈类型、内容、可选联系邮箱和提交页面。</li><li>后台管理操作产生的审计记录。IP 地址只以加盐哈希形式保存。</li></ul></section>
+          <section id="privacy-use"><p class="eyebrow">WHY WE USE IT</p><h2>如何使用</h2><p>这些信息只用于提供和改进泥壳AI工具站：创建和验证账号、保持登录状态、同步收藏、汇总工具评分、处理投稿和反馈、发送已同意订阅的周报、统计工具发现与官网点击、识别异常请求、维护内容质量和保障服务安全。</p><p>公开评分只展示平均分和评分人数，不展示评分账号的邮箱或昵称。我们不会出售个人信息，也不会把匿名行为事件用于识别具体个人。推广合作会单独标识，不会因为推广关系修改自然排序的说明口径。</p></section>
+          <section id="privacy-retain"><p class="eyebrow">RETENTION</p><h2>保存多久</h2><div class="retention-table"><div><strong>账号、收藏与评分</strong><span>账号存续期间保存；账号删除后按请求清理相关收藏、评分与会话</span></div><div><strong>登录会话</strong><span>退出登录、会话到期或账号删除后失效并按维护周期清理</span></div><div><strong>匿名事件与官网点击</strong><span>默认 90 天，之后自动清理</span></div><div><strong>投稿与问题反馈</strong><span>在处理完成和必要的运营期限内保存</span></div><div><strong>周报订阅</strong><span>直到退订、压制或要求删除</span></div><div><strong>审计记录</strong><span>按安全、合规和运营需要保留</span></div></div></section>
+          <section id="privacy-rights"><p class="eyebrow">YOUR CHOICES</p><h2>你的权利</h2><p>你可以申请查看、更正或删除账号、收藏、订阅、投稿和反馈信息，也可以随时退出登录或申请退订周报。请通过问题反馈页面选择相应类型并说明注册或提交时使用的邮箱；为了避免误处理，我们可能需要进行必要的身份核对。</p><p>当前账号删除由人工受理。收到有效申请后，我们会删除或匿名化不再需要保留的账号资料，并使仍有效的登录会话失效。</p></section>
           <p class="policy-updated">最后更新：2026 年 7 月。产品功能或法律要求发生变化时，我们会更新这份说明。</p>
+        </div></div>
+      </section>
+
+      <section class="view policy-view" id="terms-view" data-view-section="terms" hidden>
+        <div class="policy-hero"><div><p class="eyebrow">TERMS OF SERVICE · 2026-07</p><h1>用户协议与服务条款</h1><p>使用账号、收藏、投稿、评分、订阅和合作咨询前，请了解双方的权利、责任和内容边界。</p></div><span class="policy-hero-icon"><i data-lucide="file-check-2"></i></span></div>
+        <div class="policy-layout"><aside class="policy-index"><span>目录</span><a href="#terms-service">服务范围</a><a href="#terms-account">账号规则</a><a href="#terms-content">提交内容</a><a href="#terms-commercial">合作咨询</a><a href="#terms-disclaimer">免责声明</a><a href="#terms-change">变更与联系</a></aside><div class="policy-content">
+          <section id="terms-service"><p class="eyebrow">SERVICE SCOPE</p><h2>服务范围</h2><p>泥壳AI工具站提供 AI 工具目录、筛选比较、教程资讯、收藏、评分、投稿、周报订阅和合作咨询等功能。部分信息来自产品官方公开页面、编辑整理、自动采集或用户提交，页面标注的价格、能力和可用地区可能随产品更新而变化。</p><p>继续访问或使用相应功能，表示你同意本条款和隐私政策；不同意时，请停止注册或使用需要账号和信息提交的功能。</p></section>
+          <section id="terms-account"><p class="eyebrow">ACCOUNT RULES</p><h2>账号规则</h2><ul><li>注册信息应真实、合法且可用于必要的账号验证，不得冒用他人身份。</li><li>你应妥善保管密码和登录设备，并对账号下的收藏、评分和提交行为负责。</li><li>不得批量注册、自动刷分、攻击接口、绕过访问限制或影响其他用户正常使用。</li><li>发现账号异常时，应及时退出登录并通过问题反馈联系我们；当前账号删除由人工受理。</li></ul></section>
+          <section id="terms-content"><p class="eyebrow">USER SUBMISSIONS</p><h2>投稿、评分与反馈</h2><p>提交工具、评分或反馈时，你确认相关内容来源合法、基本真实，不侵犯第三方商标、著作权、商业秘密、隐私或其他合法权益。你保留对原创内容的权利，同时授权本站在审核、展示、分类、摘要和纠错所必要的范围内使用和编辑该内容。</p><p>本站有权拒绝、隐藏或删除虚假、重复、违法、侵权、恶意推广或与栏目无关的内容。收录、评分汇总或编辑推荐不构成对工具质量、效果、安全性或商业回报的承诺。</p></section>
+          <section id="terms-commercial"><p class="eyebrow">COMMERCIAL INQUIRIES</p><h2>合作咨询</h2><p>提交合作咨询仅代表发起沟通，不等于双方已经建立委托、广告或采购合同。具体展示位置、制作范围、费用、周期、修改和取消规则，以双方后续明确确认的书面方案为准。付费内容会以“推广”等标识与自然收录区分。</p></section>
+          <section id="terms-disclaimer"><p class="eyebrow">IMPORTANT NOTICE</p><h2>免责声明与责任边界</h2><ul><li>本站提供的是信息整理和发现服务，不替代法律、医疗、财务、安全或其他专业意见。</li><li>第三方工具由其运营方独立提供；访问、注册、付费或上传资料前，应自行阅读其条款和隐私政策。</li><li>本站会尽合理努力复核链接和资料，但不保证所有信息始终完整、准确、可用或适合特定目的。</li><li>因不可抗力、第三方服务中断、网络故障或超出合理控制范围的原因造成服务异常，本站会尽力恢复，但不承诺服务永久不中断。</li></ul></section>
+          <section id="terms-change"><p class="eyebrow">CHANGES & CONTACT</p><h2>条款变更与联系</h2><p>功能、运营方式或适用规则发生变化时，我们会更新条款日期；重大变化会尽量在页面显著位置提示。账号、内容权利、投诉、删除或合作问题，请通过问题反馈页面提交，并提供可核对的页面、账号邮箱或相关材料。</p><p>本页面为当前产品运营规则说明，不替代针对具体业务和经营主体的专业法律意见，正式商业化前仍应由专业法律人士结合备案主体、实际收费方式和服务地区复核。</p></section>
+          <p class="policy-updated">最后更新：2026 年 7 月 16 日。</p>
         </div></div>
       </section>
 
@@ -333,11 +400,12 @@
       <footer class="site-footer">
         <span>© 2026 泥壳AI工具站</span>
         <nav aria-label="页脚导航">
-          <button type="button" data-view-link="advertise">广告合作</button>
-          <button type="button" data-view-link="about">关于我们</button>
-          <button type="button" data-view-link="standards">收录标准</button>
-          <button type="button" data-view-link="privacy">隐私政策</button>
-          <button type="button" data-view-link="feedback">问题反馈</button>
+          <a href="/advertise" data-view-link="advertise">广告合作</a>
+          <a href="/about" data-view-link="about">关于我们</a>
+          <a href="/standards" data-view-link="standards">收录标准</a>
+          <a href="/terms" data-view-link="terms">服务条款</a>
+          <a href="/privacy" data-view-link="privacy">隐私政策</a>
+          <a href="/feedback" data-view-link="feedback">问题反馈</a>
         </nav>
       </footer>
     </main>
@@ -386,6 +454,7 @@
       <label>联系邮箱<input name="email" type="email" required placeholder="name@company.com"></label>
       <label class="sr-only" aria-hidden="true">公司传真<input name="company" tabindex="-1" autocomplete="off"></label>
       <label class="checkbox-row"><input name="confirm" type="checkbox" required><span>我确认提交信息真实有效</span></label>
+      <label class="checkbox-row"><input name="termsAccepted" type="checkbox" required><span>我已阅读并同意<a href="/terms">服务条款</a>和<a href="/privacy">隐私政策</a></span></label>
       <div class="dialog-actions">
         <button class="secondary-button" type="button" data-dialog-close="submit-dialog">取消</button>
         <button class="primary-button" type="submit"><i data-lucide="send"></i><span>提交审核</span></button>

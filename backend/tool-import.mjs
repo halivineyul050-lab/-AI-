@@ -12,6 +12,13 @@ const trackingParameters = new Set([
   "ref",
   "referrer",
   "source"
+  ,"via"
+  ,"fpr"
+  ,"fp_ref"
+  ,"refcode"
+  ,"invitecode"
+  ,"atp"
+  ,"affiliate"
 ]);
 
 function hash(value, length = 64) {

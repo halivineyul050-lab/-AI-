@@ -250,6 +250,8 @@ test("monitoring snapshot returns stable zero values and gap-filled windows", ()
       uniqueVisitors: 0,
       activeSessions: 0,
       searches: 0,
+      noResultSearches: 0,
+      bounceRate: 0,
       toolCardClicks: 0,
       toolDetailViews: 0,
       officialClicks: 0,
@@ -263,6 +265,7 @@ test("monitoring snapshot returns stable zero values and gap-filled windows", ()
     });
     assert.deepEqual(snapshot.topTools, []);
     assert.deepEqual(snapshot.topSearches, []);
+    assert.deepEqual(snapshot.searchGaps, []);
     assert.deepEqual(snapshot.recentEvents, []);
     assert.deepEqual(snapshot.submissionStatus, {
       pending: 0,
