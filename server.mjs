@@ -118,7 +118,7 @@ const staticFiles = new Set([
   "sitemap.xml"
   ,"manifest.webmanifest"
 ]);
-const publicAppRoutes = new Set(["/discover", "/tutorials", "/news", "/advertise", "/about", "/standards", "/terms", "/privacy", "/feedback"]);
+const publicAppRoutes = new Set(["/discover", "/guides", "/rankings", "/compare", "/tutorials", "/news", "/advertise", "/about", "/standards", "/terms", "/privacy", "/legal", "/feedback"]);
 const placementNames = new Set(["home_tool_strip", "detail_drawer", "related_tool", "unknown"]);
 const monitoringHours = new Set([1, 6, 24, 72, 168]);
 
@@ -556,11 +556,15 @@ function buildSitemap(request, db) {
   const baseEntries = [
     ["/", "daily", "1.0"],
     ["/discover", "weekly", "0.8"],
+    ["/guides", "weekly", "0.8"],
+    ["/rankings", "weekly", "0.8"],
+    ["/compare", "weekly", "0.7"],
     ["/tutorials", "weekly", "0.8"],
     ["/news", "daily", "0.9"],
     ["/standards", "monthly", "0.5"],
     ["/terms", "monthly", "0.5"],
     ["/privacy", "monthly", "0.5"],
+    ["/legal", "monthly", "0.5"],
     ["/about", "monthly", "0.5"],
     ["/advertise", "monthly", "0.5"]
   ];

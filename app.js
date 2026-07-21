@@ -806,6 +806,43 @@ const categoryAccentColors = {
   office: "#0891b2", coding: "#0f766e", audio: "#16a34a", search: "#4f46e5", agent: "#9333ea",
   design: "#e11d48", education: "#0284c7", model: "#475569", detection: "#ca8a04", prompt: "#059669", business: "#b45309"
 };
+const taskGuideCards = [
+  { id: "write", title: "我要写文章", category: "writing", query: "写作", icon: "pen-line", copy: "长文、文案、改写、资料总结，优先看中文输出质量和长上下文。", picks: ["claude", "kimi", "chatgpt"] },
+  { id: "image", title: "我要做图片", category: "image", query: "图片", icon: "image", copy: "海报、插画、品牌视觉、电商图，优先看风格稳定性和中文提示词。", picks: ["jimeng", "midjourney", "liblib"] },
+  { id: "video", title: "我要剪视频", category: "video", query: "视频", icon: "clapperboard", copy: "短视频、广告片、分镜预演，优先看图生视频、镜头控制和可访问性。", picks: ["kling", "hailuo-ai", "runway"] },
+  { id: "ppt", title: "我要做 PPT", category: "office", query: "PPT", icon: "presentation", copy: "汇报、课程、方案页，优先看结构生成、排版和导出能力。", picks: ["gamma", "napkin-ai", "notion-ai"] },
+  { id: "code", title: "我要写代码", category: "coding", query: "代码", icon: "code-2", copy: "项目开发、修 bug、代码解释，优先看 IDE 集成和项目上下文理解。", picks: ["trae", "cursor", "github-copilot"] },
+  { id: "comic", title: "我要做漫画/漫剧", category: "comic", query: "漫剧", icon: "panels-top-left", copy: "剧本、角色、分镜、成片预览，优先看完整流程和团队协作。", picks: ["orange-dream-factory"] },
+  { id: "free", title: "我要找免费工具", category: "all", price: "free", query: "", icon: "badge-dollar-sign", copy: "先筛免费入口，再看是否需要登录、是否支持中文和访问地区。", picks: ["doubao", "deepseek", "trae"] }
+];
+const topicCards = [
+  { title: "2026 年最好用的 AI 写作工具", category: "writing", query: "写作", intent: "写文章、改文案、做资料总结的人优先看这一组。", ids: ["claude", "kimi", "chatgpt"] },
+  { title: "免费 AI 绘画工具推荐", category: "image", price: "freemium", query: "图片", intent: "适合先试用，再决定是否付费升级的视觉创作工具。", ids: ["jimeng", "liblib", "recraft"] },
+  { title: "中文 AI 对话工具对比", category: "chat", query: "中文", intent: "豆包、DeepSeek、Kimi、元宝等中文友好工具集中比较。", ids: ["doubao", "deepseek", "kimi", "tencent-yuanbao"] },
+  { title: "AI 漫剧工具合集", category: "comic", query: "漫剧", intent: "从剧本、角色资产到分镜成片，适合内容团队收藏。", ids: ["orange-dream-factory"] },
+  { title: "程序员常用 AI 编程工具", category: "coding", query: "代码", intent: "IDE、Copilot、工程 Agent，按开发场景快速选择。", ids: ["trae", "cursor", "github-copilot", "devin"] }
+];
+const rankingSections = [
+  { id: "overall", title: "总榜", note: "综合编辑评分与关注度", filter: (tool) => !tool.sponsored, sort: (a, b) => (b.score + b.popular) - (a.score + a.popular) },
+  { id: "free", title: "免费榜", note: "公开资料显示有免费入口", filter: (tool) => ["free", "freemium"].includes(tool.price), sort: (a, b) => b.score - a.score },
+  { id: "new", title: "新品 / 最近更新榜", note: "按资料更新时间排序", filter: (tool) => !tool.sponsored, sort: (a, b) => String(b.updated || "").localeCompare(String(a.updated || "")) },
+  { id: "chinese", title: "中文友好榜", note: "中文或多语言工具优先", filter: (tool) => ["zh", "multi"].includes(tool.language), sort: (a, b) => (b.language === "zh") - (a.language === "zh") || b.score - a.score },
+  { id: "writing", title: "AI 写作榜", note: "写作、长文、内容创作", filter: (tool) => tool.category === "writing" || tool.useCases?.some((item) => /写作|创作|文案/.test(item)), sort: (a, b) => b.score - a.score },
+  { id: "coding", title: "AI 编程榜", note: "代码、IDE、工程 Agent", filter: (tool) => tool.category === "coding", sort: (a, b) => b.popular - a.popular },
+  { id: "video", title: "AI 视频榜", note: "视频生成与后期制作", filter: (tool) => tool.category === "video", sort: (a, b) => b.score - a.score }
+];
+const compareTopics = [
+  { title: "ChatGPT vs 豆包 vs DeepSeek", subtitle: "通用对话 / 中文场景 / 推理与代码", ids: ["chatgpt", "doubao", "deepseek"] },
+  { title: "Midjourney vs 即梦 vs 可灵", subtitle: "图像质量 / 中文创作 / 图生视频", ids: ["midjourney", "jimeng", "kling"] },
+  { title: "Cursor vs TRAE vs GitHub Copilot", subtitle: "个人开发 / 项目级修改 / 团队协作", ids: ["cursor", "trae", "github-copilot"] }
+];
+const accountBenefits = [
+  ["bookmark", "收藏常用工具"],
+  ["history", "记录浏览历史"],
+  ["bell-ring", "接收工具更新提醒"],
+  ["clipboard-check", "投稿追踪"],
+  ["sparkles", "后续支持个性化推荐"]
+];
 const articleCoverFallback = "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=82";
 const topicSlugMap = {
   "AI智能体": "ai-agents",
@@ -1082,6 +1119,7 @@ async function refreshPublishedContent() {
   renderTools();
   renderCollections();
   renderContentViews();
+  renderDecisionModules();
 }
 
 async function checkContentRevision({ announce = true } = {}) {
@@ -1343,6 +1381,194 @@ function getFilteredTools() {
   });
 }
 
+function knownTools() {
+  const items = [...tools, ...rankingTools, ...growthData.weeklyNew, ...growthData.weeklyPopular, ...growthData.monthlyPopular, sponsoredTool].filter(Boolean);
+  return [...new Map(items.map((tool) => [tool.id, tool])).values()];
+}
+
+function pickTools({ ids = [], category = "", price = "", query = "", limit = 4 } = {}) {
+  const seeded = ids.map((id) => toolMap[id]).filter(Boolean);
+  const queryText = query.toLocaleLowerCase("zh-CN");
+  const matched = knownTools()
+    .filter((tool) => !ids.includes(tool.id))
+    .filter((tool) => !category || category === "all" || tool.category === category)
+    .filter((tool) => !price || tool.price === price || (price === "freemium" && ["free", "freemium"].includes(tool.price)))
+    .filter((tool) => {
+      if (!queryText) return true;
+      return [tool.name, tool.summary, tool.description, ...(tool.useCases || []), ...(tool.features || [])]
+        .join(" ")
+        .toLocaleLowerCase("zh-CN")
+        .includes(queryText);
+    })
+    .sort((a, b) => b.score - a.score);
+  return [...seeded, ...matched].slice(0, limit);
+}
+
+function applyTaskGuide(guide) {
+  state.category = guide.category || "all";
+  state.price = guide.price || "all";
+  state.platform = "all";
+  state.language = "all";
+  state.query = guide.query || "";
+  state.sort = guide.id === "free" ? "recommended" : "popular";
+  state.favoritesOnly = false;
+  setActiveView("tools");
+  void refreshToolResults();
+  track("filter_apply", { filter_key: "task_guide", value: guide.id });
+}
+
+function decisionTags(tool) {
+  const login = String(tool.login || "");
+  const region = String(tool.region || "");
+  const freeish = ["free", "freemium", "trial"].includes(tool.price);
+  const chinese = ["zh", "multi"].includes(tool.language);
+  const requiresLogin = /登录|账号|订阅|付费|账户/i.test(login) && !/免登录|无需登录|可免登录/i.test(login);
+  const beginner = freeish && (tool.language === "zh" || tool.platforms?.includes("web"));
+  const accessible = /中国大陆可用|多地区可用|全球可用|大陆可用/i.test(region);
+  const restricted = /受限|不可用|限制/i.test(region);
+  return [
+    freeish ? "可先免费试" : "付费前看限制",
+    chinese ? "中文友好" : "语言待核验",
+    requiresLogin ? "需要登录" : "登录要求较低",
+    beginner ? "适合新手" : "更适合进阶",
+    accessible ? "国内/多地区可用" : restricted ? "访问需确认" : "访问情况待核验"
+  ];
+}
+
+function renderMiniToolPills(items) {
+  return items.map((tool) => `
+    <a class="mini-tool-pill" href="/tools/${encodeURIComponent(tool.slug || tool.id)}">
+      ${logoMarkup(tool)}
+      <span>${escapeHTML(tool.name)}</span>
+    </a>`).join("");
+}
+
+function renderDecisionModules() {
+  const homeGuide = document.getElementById("home-task-guide-grid");
+  if (homeGuide) {
+    homeGuide.innerHTML = taskGuideCards.map((guide) => `
+      <button class="task-guide-card" type="button" data-task-guide="${escapeHTML(guide.id)}">
+        <i data-lucide="${escapeHTML(guide.icon)}"></i>
+        <span>${escapeHTML(guide.title)}</span>
+      </button>`).join("");
+  }
+
+  const guideGrid = document.getElementById("guide-task-grid");
+  if (guideGrid) {
+    guideGrid.innerHTML = taskGuideCards.map((guide) => {
+      const picks = pickTools({ ids: guide.picks, category: guide.category, price: guide.price, query: guide.query, limit: 3 });
+      return `<article class="guide-card">
+        <div class="guide-card-icon"><i data-lucide="${escapeHTML(guide.icon)}"></i></div>
+        <div>
+          <h2>${escapeHTML(guide.title)}</h2>
+          <p>${escapeHTML(guide.copy)}</p>
+          <div class="mini-tool-list">${renderMiniToolPills(picks)}</div>
+          <button class="secondary-button" type="button" data-task-guide="${escapeHTML(guide.id)}">按这个任务筛选</button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  const homeTopics = document.getElementById("home-topic-grid");
+  if (homeTopics) {
+    homeTopics.innerHTML = topicCards.map((topic) => `
+      <button class="topic-card" type="button" data-topic-card="${escapeHTML(topic.title)}">
+        <strong>${escapeHTML(topic.title)}</strong>
+        <span>${escapeHTML(topic.intent)}</span>
+      </button>`).join("");
+  }
+
+  const guideTopics = document.getElementById("guide-topic-grid");
+  if (guideTopics) {
+    guideTopics.innerHTML = topicCards.map((topic) => {
+      const picks = pickTools({ ids: topic.ids, category: topic.category, price: topic.price, query: topic.query, limit: 4 });
+      return `<article class="topic-feature-card">
+        <div><p class="eyebrow">专题</p><h2>${escapeHTML(topic.title)}</h2><p>${escapeHTML(topic.intent)}</p></div>
+        <div class="mini-tool-list">${renderMiniToolPills(picks)}</div>
+        <button class="text-button" type="button" data-topic-card="${escapeHTML(topic.title)}">打开这个专题</button>
+      </article>`;
+    }).join("");
+  }
+
+  const benefitList = document.getElementById("account-benefit-list");
+  if (benefitList) {
+    benefitList.innerHTML = accountBenefits.map(([icon, text]) => `<span><i data-lucide="${icon}"></i>${escapeHTML(text)}</span>`).join("");
+  }
+
+  renderFreshnessPanel();
+  renderRankingPage();
+  renderComparePage();
+  refreshIcons();
+  bindImageFallbacks();
+}
+
+function renderFreshnessPanel() {
+  const grid = document.getElementById("site-freshness-grid");
+  if (!grid) return;
+  const dates = knownTools().map((tool) => tool.updated).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
+  const latestDate = dates.at(-1) || "";
+  const recentCutoff = latestDate ? new Date(`${latestDate}T00:00:00`) : null;
+  if (recentCutoff) recentCutoff.setDate(recentCutoff.getDate() - 6);
+  const recent = recentCutoff
+    ? knownTools().filter((tool) => /^\d{4}-\d{2}-\d{2}$/.test(tool.updated || "") && new Date(`${tool.updated}T00:00:00`) >= recentCutoff)
+    : [];
+  const popular = (growthData.weeklyPopular.length ? growthData.weeklyPopular : rankingTools).slice(0, 3);
+  const latestNews = newsItems.slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))[0];
+  const editorPicks = pickTools({ ids: ["doubao", "chatgpt", "deepseek", "jimeng"], limit: 4 });
+  const cards = [
+    ["今日新增", recent.filter((tool) => tool.updated === latestDate).length || recent.length, "按最新资料更新时间统计"],
+    ["最近更新", recent.slice(0, 3).map((tool) => tool.name).join("、") || "持续复核中", "近 7 天"],
+    ["本周热门", popular.map((tool) => tool.name).join("、") || "榜单生成中", "按访问与编辑信号"],
+    ["最新资讯", latestNews?.title || "资讯持续更新", latestNews?.date || ""],
+    ["编辑精选", editorPicks.map((tool) => tool.name).join("、"), "适合先试用"],
+    ["更新时间", latestDate || "持续更新", "工具资料最新日期"]
+  ];
+  grid.innerHTML = cards.map(([title, value, note]) => `<div class="freshness-card"><span>${escapeHTML(title)}</span><strong>${escapeHTML(value)}</strong><small>${escapeHTML(note)}</small></div>`).join("");
+  const dateNode = document.getElementById("site-freshness-date");
+  if (dateNode) dateNode.textContent = latestDate ? `更新至 ${latestDate}` : "持续更新";
+}
+
+function renderRankingPage() {
+  const grid = document.getElementById("ranking-page-grid");
+  if (!grid) return;
+  const source = knownTools().filter((tool) => tool && !tool.sponsored);
+  grid.innerHTML = rankingSections.map((section) => {
+    const rows = source.filter(section.filter).sort(section.sort).slice(0, 5);
+    return `<section class="ranking-page-card">
+      <div class="section-heading"><div><p class="eyebrow">${escapeHTML(section.id.toUpperCase())}</p><h2>${escapeHTML(section.title)}</h2><p>${escapeHTML(section.note)}</p></div></div>
+      <div class="ranking-list compact-ranking-list">${rows.map((tool, index) => `
+        <div class="ranking-row compact-ranking-row">
+          <span class="rank-number">${String(index + 1).padStart(2, "0")}</span>
+          <a class="rank-tool" href="/tools/${encodeURIComponent(tool.slug || tool.id)}">${logoMarkup(tool)}<strong>${escapeHTML(tool.name)}</strong></a>
+          <span>${escapeHTML(priceLabels[tool.price] || "待核验")}</span>
+          <span>${escapeHTML(languageLabels[tool.language] || "待核验")}</span>
+          <span class="rank-change">${escapeHTML(tool.updated || "持续复核")}</span>
+        </div>`).join("")}</div>
+    </section>`;
+  }).join("");
+}
+
+function renderComparePage() {
+  const grid = document.getElementById("compare-page-grid");
+  if (!grid) return;
+  grid.innerHTML = compareTopics.map((topic) => {
+    const items = pickTools({ ids: topic.ids, limit: topic.ids.length });
+    return `<article class="compare-topic-card">
+      <div class="section-heading"><div><p class="eyebrow">对比专题</p><h2>${escapeHTML(topic.title)}</h2><p>${escapeHTML(topic.subtitle)}</p></div></div>
+      <div class="compare-topic-table">
+        ${items.map((tool) => `<a class="compare-topic-tool" href="/tools/${encodeURIComponent(tool.slug || tool.id)}">
+          ${logoMarkup(tool)}
+          <strong>${escapeHTML(tool.name)}</strong>
+          <span>${escapeHTML(priceLabels[tool.price] || "待核验")}</span>
+          <span>${escapeHTML(languageLabels[tool.language] || "待核验")}</span>
+          <small>${escapeHTML(tool.summary)}</small>
+        </a>`).join("")}
+      </div>
+      <button class="secondary-button" type="button" data-compare-topic="${escapeHTML(topic.ids.join(","))}"><i data-lucide="columns-3"></i><span>加入对比</span></button>
+    </article>`;
+  }).join("");
+}
+
 function renderToolCard(tool, rank) {
   const isFavorite = state.favorites.has(tool.id);
   const isCompared = state.compare.has(tool.id);
@@ -1377,8 +1603,13 @@ function renderToolCard(tool, rank) {
         ${platformBadges}
         <span class="tool-badge">${languageLabels[tool.language]}</span>
       </div>
+      <div class="decision-badge-row">
+        ${decisionTags(tool).map((tag) => `<span>${escapeHTML(tag)}</span>`).join("")}
+      </div>
       <div class="tool-card-footer">
         <span>资料核验于 ${tool.updated}</span>
+        <button class="tool-card-link" type="button" data-alternative-category="${escapeHTML(tool.category)}">同类替代</button>
+        <a class="tool-card-link" href="/tools/${encodeURIComponent(tool.slug || tool.id)}" data-seo-link>详情页</a>
         <button class="detail-link" type="button" aria-label="查看${escapeHTML(tool.name)}详情">查看详情 <i data-lucide="arrow-right"></i></button>
       </div>
     </article>`;
@@ -1938,10 +2169,13 @@ function renderContentViews() {
     .map((topic) => `<button class="topic-tag ${state.topics.has(topic) ? "is-active" : ""}" type="button" data-topic="${topic}" aria-pressed="${state.topics.has(topic)}">${topic}</button>`).join("");
 }
 
-const validViews = ["tools", "discover", "tutorials", "news", "advertise", "about", "standards", "terms", "privacy", "feedback"];
+const validViews = ["tools", "discover", "guides", "rankings", "compare", "tutorials", "news", "advertise", "about", "standards", "terms", "privacy", "legal", "feedback"];
 const viewPathMap = {
   tools: "/",
   discover: "/discover",
+  guides: "/guides",
+  rankings: "/rankings",
+  compare: "/compare",
   tutorials: "/tutorials",
   news: "/news",
   advertise: "/advertise",
@@ -1949,6 +2183,7 @@ const viewPathMap = {
   standards: "/standards",
   terms: "/terms",
   privacy: "/privacy",
+  legal: "/legal",
   feedback: "/feedback"
 };
 
@@ -1964,6 +2199,7 @@ function resolveHashDestination(hashValue = location.hash.replace("#", "")) {
   if (hashValue.startsWith("privacy-")) return { view: "privacy", targetId: hashValue };
   if (hashValue.startsWith("standards-")) return { view: "standards", targetId: hashValue };
   if (hashValue.startsWith("terms-")) return { view: "terms", targetId: hashValue };
+  if (hashValue.startsWith("legal-")) return { view: "legal", targetId: hashValue };
   return resolvePathDestination();
 }
 
@@ -1974,6 +2210,9 @@ function syncSeoMetadata(viewName) {
   const titles = {
     tools: categoryName ? `${categoryName}工具 - 泥壳AI工具站` : "泥壳AI工具站 - 按任务发现AI工具",
     discover: "精选AI工具组合 - 泥壳AI工具站",
+    guides: "按任务找 AI 工具 - 泥壳AI工具站",
+    rankings: "AI 工具排行榜 - 泥壳AI工具站",
+    compare: "AI 工具对比 - 泥壳AI工具站",
     tutorials: "AI实用教程 - 泥壳AI工具站",
     news: "AI资讯 - 泥壳AI工具站",
     advertise: "广告合作 - 泥壳AI工具站",
@@ -1981,6 +2220,7 @@ function syncSeoMetadata(viewName) {
     standards: "收录标准 - 泥壳AI工具站",
     terms: "用户协议与服务条款 - 泥壳AI工具站",
     privacy: "隐私政策 - 泥壳AI工具站",
+    legal: "法律与隐私说明 - 泥壳AI工具站",
     feedback: "问题反馈 - 泥壳AI工具站"
   };
   document.title = titles[viewName] || titles.tools;
@@ -2275,6 +2515,7 @@ function bindEvents() {
   });
 
   document.getElementById("tool-grid").addEventListener("click", (event) => {
+    if (event.target.closest("[data-seo-link], [data-alternative-category]")) return;
     const favorite = event.target.closest("[data-favorite-id]");
     if (favorite) return toggleFavorite(favorite.dataset.favoriteId);
     const compare = event.target.closest("[data-compare-id]");
@@ -2314,6 +2555,51 @@ function bindEvents() {
   });
 
   document.addEventListener("click", (event) => {
+    const taskGuide = event.target.closest("[data-task-guide]");
+    if (taskGuide) {
+      const guide = taskGuideCards.find((item) => item.id === taskGuide.dataset.taskGuide);
+      if (guide) applyTaskGuide(guide);
+      return;
+    }
+    const topicCard = event.target.closest("[data-topic-card]");
+    if (topicCard) {
+      const topic = topicCards.find((item) => item.title === topicCard.dataset.topicCard);
+      if (topic) {
+        state.category = topic.category || "all";
+        state.price = topic.price || "all";
+        state.platform = "all";
+        state.language = "all";
+        state.query = topic.query || "";
+        state.sort = "popular";
+        state.favoritesOnly = false;
+        setActiveView("tools");
+        void refreshToolResults();
+        track("filter_apply", { filter_key: "topic_card", value: topic.title });
+      }
+      return;
+    }
+    const alternative = event.target.closest("[data-alternative-category]");
+    if (alternative) {
+      state.category = alternative.dataset.alternativeCategory || "all";
+      state.query = "";
+      state.price = "all";
+      state.platform = "all";
+      state.language = "all";
+      state.sort = "recommended";
+      setActiveView("tools");
+      void refreshToolResults();
+      track("category_click", { category_id: state.category, source_position: "card_alternative" });
+      return;
+    }
+    const compareTopic = event.target.closest("[data-compare-topic]");
+    if (compareTopic) {
+      compareTopic.dataset.compareTopic.split(",").filter(Boolean).forEach((id) => state.compare.add(id));
+      renderTools();
+      renderCompareTray();
+      openCompareDialog();
+      track("compare_open", { source_position: "compare_topic" });
+      return;
+    }
     const rankingButton = event.target.closest("[data-ranking-mode]");
     if (rankingButton) {
       rankingMode = rankingButton.dataset.rankingMode;
@@ -2525,6 +2811,7 @@ async function initialize() {
   renderTools();
   renderCollections();
   renderContentViews();
+  renderDecisionModules();
   renderWeeklyReturnBand();
   renderCompareTray();
   bindEvents();

@@ -94,13 +94,22 @@ test("brand icon is served with the expected media type", async () => {
   assert.equal(terms.status, 200);
   assert.match(await terms.text(), /用户协议与服务条款/);
 
+  for (const path of ["/guides", "/rankings", "/compare", "/legal"]) {
+    const page = await fetch(`${baseUrl}${path}`);
+    assert.equal(page.status, 200);
+    assert.match(page.headers.get("content-type") || "", /text\/html/);
+  }
+
   const category = await fetch(`${baseUrl}/category/coding`);
   assert.equal(category.status, 200);
 
   const sitemap = await fetch(`${baseUrl}/sitemap.xml`);
   assert.equal(sitemap.status, 200);
   assert.match(sitemap.headers.get("content-type") || "", /xml/);
-  assert.match(await sitemap.text(), /\/category\/coding/);
+  const sitemapXml = await sitemap.text();
+  assert.match(sitemapXml, /\/category\/coding/);
+  assert.match(sitemapXml, /\/rankings/);
+  assert.match(sitemapXml, /\/legal/);
 });
 
 test("tool detail SEO pages render crawlable HTML and appear in sitemap", async () => {

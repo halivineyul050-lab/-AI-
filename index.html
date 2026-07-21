@@ -49,6 +49,15 @@
         <button class="nav-item" type="button" data-view="discover">
           <i data-lucide="compass"></i><span>发现</span>
         </button>
+        <button class="nav-item" type="button" data-view="guides">
+          <i data-lucide="route"></i><span>按任务找</span>
+        </button>
+        <button class="nav-item" type="button" data-view="rankings">
+          <i data-lucide="trophy"></i><span>榜单</span>
+        </button>
+        <button class="nav-item" type="button" data-view="compare">
+          <i data-lucide="git-compare-arrows"></i><span>对比</span>
+        </button>
         <button class="nav-item" type="button" data-view="tutorials">
           <i data-lucide="book-open"></i><span>教程</span>
         </button>
@@ -146,6 +155,38 @@
 
         <div class="task-tabs" id="task-tabs" aria-label="热门任务"></div>
 
+        <section class="decision-hub" aria-labelledby="decision-hub-title">
+          <div class="decision-hub-copy">
+            <p class="eyebrow">START BY TASK</p>
+            <h2 id="decision-hub-title">新手不知道怎么选？先按任务找工具</h2>
+            <p>把“我要完成什么”放在前面，比只看分类更容易选到合适工具。</p>
+          </div>
+          <div class="task-guide-grid" id="home-task-guide-grid"></div>
+        </section>
+
+        <section class="homepage-panels" aria-label="网站专题与更新">
+          <div class="home-panel topic-panel">
+            <div class="section-heading">
+              <div><p class="eyebrow">SEO TOPICS</p><h2>专题 / 榜单入口</h2></div>
+              <button class="text-button" type="button" data-view-link="guides">查看全部</button>
+            </div>
+            <div class="topic-card-grid" id="home-topic-grid"></div>
+          </div>
+          <div class="home-panel freshness-panel">
+            <div class="section-heading">
+              <div><p class="eyebrow">SITE IS ALIVE</p><h2>站点动态</h2></div>
+              <span class="date-chip compact"><i data-lucide="refresh-cw"></i><span id="site-freshness-date">持续更新</span></span>
+            </div>
+            <div class="freshness-grid" id="site-freshness-grid"></div>
+          </div>
+          <div class="home-panel account-value-panel">
+            <p class="eyebrow">WHY SIGN IN</p>
+            <h2>登录后，工具站会更像你的工作台</h2>
+            <div class="account-benefit-list" id="account-benefit-list"></div>
+            <a class="primary-button" href="/auth.html?next=/"><i data-lucide="user-round-check"></i><span>登录 / 注册账号</span></a>
+          </div>
+        </section>
+
         <section class="filter-panel" id="filter-panel" aria-label="工具筛选">
           <label class="select-control">
             <span>价格</span>
@@ -230,6 +271,58 @@
           </div>
           <div class="ranking-list" id="ranking-list"></div>
         </section>
+      </section>
+
+      <section class="view editorial-view" id="guides-view" data-view-section="guides" hidden>
+        <div class="page-header compact-header">
+          <div>
+            <p class="eyebrow">TASK GUIDES</p>
+            <h1>按任务找 AI 工具</h1>
+            <p class="page-summary">把新手最常见的目标拆成可执行路径：写文章、做图片、剪视频、做 PPT、写代码、做漫画/漫剧、找免费工具。</p>
+          </div>
+        </div>
+        <div class="guide-layout">
+          <section>
+            <div class="section-heading"><div><p class="eyebrow">BEGINNER PATH</p><h2>新手导购路径</h2></div></div>
+            <div class="task-guide-detail-grid" id="guide-task-grid"></div>
+          </section>
+          <section>
+            <div class="section-heading"><div><p class="eyebrow">COLLECTION TOPICS</p><h2>可收藏的专题入口</h2></div></div>
+            <div class="topic-feature-grid" id="guide-topic-grid"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view editorial-view" id="rankings-view" data-view-section="rankings" hidden>
+        <div class="page-header compact-header">
+          <div>
+            <p class="eyebrow">AI TOOL RANKINGS</p>
+            <h1>AI 工具排行榜</h1>
+            <p class="page-summary">用价格、中文友好度、更新时间、分类和编辑评分帮助用户更快决策。</p>
+          </div>
+        </div>
+        <div class="ranking-page-grid" id="ranking-page-grid"></div>
+      </section>
+
+      <section class="view editorial-view" id="compare-view" data-view-section="compare" hidden>
+        <div class="page-header compact-header">
+          <div>
+            <p class="eyebrow">COMPARE BEFORE CHOOSING</p>
+            <h1>AI 工具对比</h1>
+            <p class="page-summary">把同类工具放在一起看：谁更适合中文、谁更适合新手、谁更适合专业工作流。</p>
+          </div>
+        </div>
+        <div class="compare-page-grid" id="compare-page-grid"></div>
+      </section>
+
+      <section class="view policy-view" id="legal-view" data-view-section="legal" hidden>
+        <div class="policy-hero"><div><p class="eyebrow">LEGAL CENTER · 2026-07</p><h1>法律、隐私与合规说明</h1><p>集中说明用户协议、隐私、Cookie/统计、免责声明、商标归属和广告合作声明，让正式官网的边界更清楚。</p></div><span class="policy-hero-icon"><i data-lucide="scale"></i></span></div>
+        <div class="policy-layout"><aside class="policy-index"><span>目录</span><a href="/terms" data-view-link="terms">用户协议</a><a href="/privacy" data-view-link="privacy">隐私政策</a><a href="#legal-cookie">Cookie/统计说明</a><a href="#legal-disclaimer">免责声明</a><a href="#legal-trademark">商标归属说明</a><a href="#legal-ads">广告合作声明</a></aside><div class="policy-content">
+          <section id="legal-cookie"><p class="eyebrow">COOKIES & ANALYTICS</p><h2>Cookie / 统计说明</h2><p>泥壳 AI 会使用必要 Cookie 保存登录会话，并记录匿名访问、搜索、分类点击、工具详情查看和官网跳转等事件，用于发现失效链接、优化排序和判断内容是否需要更新。统计数据默认不用于识别具体个人。</p></section>
+          <section id="legal-disclaimer"><p class="eyebrow">DISCLAIMER</p><h2>免责声明</h2><p>本站提供的是第三方 AI 工具的信息整理、筛选和导购服务，不替代法律、医疗、财务、安全或其他专业意见。工具价格、能力、可用地区和登录要求可能变化，正式使用或付费前请以工具官方页面为准。</p></section>
+          <section id="legal-trademark"><p class="eyebrow">TRADEMARKS</p><h2>商标归属说明</h2><p>页面中出现的第三方产品名称、Logo、商标和品牌素材归各自权利人所有。本站仅用于识别和介绍相关工具，不表示与该产品方存在从属、授权、背书或合作关系；推广内容会单独标注。</p></section>
+          <section id="legal-ads"><p class="eyebrow">AD & PARTNERSHIP</p><h2>广告合作声明</h2><p>商业合作、赞助展示和推广内容会在页面中以“推广”等方式清楚标识。本站不会把未说明的商业关系伪装成自然推荐，也不保证推广工具一定适合所有用户。</p></section>
+        </div></div>
       </section>
 
       <section class="view" id="tutorials-view" data-view-section="tutorials" hidden>
@@ -394,7 +487,7 @@
       </section>
 
       <section class="view feedback-view" id="feedback-view" data-view-section="feedback" hidden>
-        <div class="feedback-layout"><div class="feedback-intro"><p class="eyebrow">HELP US IMPROVE</p><h1>告诉我们哪里还可以更好。</h1><p>发现链接失效、工具信息不准确，或者有新的栏目建议，都可以告诉我们。</p><div class="feedback-points"><span><i data-lucide="link-2-off"></i>链接或 Logo 问题</span><span><i data-lucide="message-circle"></i>内容和分类建议</span><span><i data-lucide="bug"></i>页面功能异常</span></div></div><div class="feedback-card"><p class="eyebrow">SEND FEEDBACK</p><h2>问题反馈</h2><form id="feedback-form"><label>反馈类型<select name="category" required><option value="content">内容不准确</option><option value="bug">页面或功能问题</option><option value="suggestion">功能建议</option><option value="cooperation">合作咨询</option><option value="other">其他</option></select></label><label>具体内容<textarea name="message" rows="7" minlength="10" maxlength="2000" required placeholder="请尽量描述具体页面、工具名称或复现步骤"></textarea></label><label>联系邮箱 <span class="optional-label">可选</span><input name="contactEmail" type="email" placeholder="方便我们回复你"></label><label class="sr-only" aria-hidden="true">公司<input name="company" tabindex="-1" autocomplete="off"></label><label class="checkbox-row"><input name="consentAccepted" type="checkbox" required><span>我同意按照<a href="#privacy" data-view-link="privacy">隐私政策</a>处理这次反馈</span></label><div class="feedback-actions"><button class="secondary-button" type="button" data-view-link="tools">返回工具库</button><button class="primary-button" type="submit"><i data-lucide="send"></i><span>提交反馈</span></button></div></form></div></div>
+        <div class="feedback-layout"><div class="feedback-intro"><p class="eyebrow">HELP US IMPROVE</p><h1>告诉我们哪里还可以更好。</h1><p>发现链接失效、工具信息不准确，或者有新的栏目建议，都可以告诉我们。</p><div class="feedback-points"><span><i data-lucide="link-2-off"></i>链接或 Logo 问题</span><span><i data-lucide="message-circle"></i>内容和分类建议</span><span><i data-lucide="bug"></i>页面功能异常</span></div><div class="public-loop"><p class="eyebrow">PUBLIC LOOP</p><h2>公开改进记录</h2><ul><li>已上线：工具详情独立 URL 与 sitemap 收录。</li><li>已上线：账号中心收藏、历史、订阅与投稿追踪入口。</li><li>已上线：深色模式与左侧导航视觉优化。</li><li>处理中：更多工具价格、中文支持和访问状态复核。</li></ul></div></div><div class="feedback-card"><p class="eyebrow">SEND FEEDBACK</p><h2>问题反馈</h2><form id="feedback-form"><label>反馈类型<select name="category" required><option value="content">内容不准确</option><option value="bug">页面或功能问题</option><option value="suggestion">功能建议</option><option value="cooperation">合作咨询</option><option value="other">其他</option></select></label><label>具体内容<textarea name="message" rows="7" minlength="10" maxlength="2000" required placeholder="请尽量描述具体页面、工具名称或复现步骤"></textarea></label><label>联系邮箱 <span class="optional-label">可选</span><input name="contactEmail" type="email" placeholder="方便我们回复你"></label><label class="sr-only" aria-hidden="true">公司<input name="company" tabindex="-1" autocomplete="off"></label><label class="checkbox-row"><input name="consentAccepted" type="checkbox" required><span>我同意按照<a href="#privacy" data-view-link="privacy">隐私政策</a>处理这次反馈</span></label><div class="feedback-actions"><button class="secondary-button" type="button" data-view-link="tools">返回工具库</button><button class="primary-button" type="submit"><i data-lucide="send"></i><span>提交反馈</span></button></div></form></div></div>
       </section>
 
       <footer class="site-footer">
@@ -405,6 +498,7 @@
           <a href="/standards" data-view-link="standards">收录标准</a>
           <a href="/terms" data-view-link="terms">服务条款</a>
           <a href="/privacy" data-view-link="privacy">隐私政策</a>
+          <a href="/legal" data-view-link="legal">法律声明</a>
           <a href="/feedback" data-view-link="feedback">问题反馈</a>
         </nav>
       </footer>
