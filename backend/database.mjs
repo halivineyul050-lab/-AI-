@@ -453,6 +453,19 @@ export function listTools(db, filters = {}) {
   };
 }
 
+export function listSitemapTools(db) {
+  return db.prepare(`
+    SELECT id, slug, content_updated_date AS updated
+    FROM tools
+    WHERE status = 'published'
+    ORDER BY name COLLATE NOCASE ASC, id ASC
+  `).all().map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    updated: row.updated
+  }));
+}
+
 export function getTool(db, idOrSlug) {
   const row = db.prepare(`
     SELECT * FROM tools

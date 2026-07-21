@@ -51,6 +51,7 @@ import {
   setToolRating,
   removeToolRating,
   listSubmissions,
+  listSitemapTools,
   listTools,
   openDatabase,
   pruneOperationalData,
@@ -566,7 +567,7 @@ function buildSitemap(request, db) {
   const categoryEntries = getCategories(db)
     .filter((category) => category.id !== "all")
     .map((category) => [`/category/${category.id}`, "weekly", "0.7"]);
-  const toolEntries = listTools(db, { limit: 500, offset: 0, sort: "name" }).items
+  const toolEntries = listSitemapTools(db)
     .map((tool) => [`/tools/${tool.slug || tool.id}`, "weekly", "0.8", tool.updated]);
   const entries = [...baseEntries, ...categoryEntries, ...toolEntries];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map(([path, changefreq, priority, lastmod]) => {

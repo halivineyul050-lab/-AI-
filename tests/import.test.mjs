@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { after, before, test } from "node:test";
 import { DatabaseSync } from "node:sqlite";
 
-import { getBootstrap, listTools, openDatabase, seedDatabase } from "../backend/database.mjs";
+import { getBootstrap, listSitemapTools, listTools, openDatabase, seedDatabase } from "../backend/database.mjs";
 import { importToolCatalog } from "../backend/tool-import.mjs";
 
 const seedData = JSON.parse(readFileSync(resolve(import.meta.dirname, "..", "backend", "seed-data.json"), "utf8"));
@@ -212,6 +212,10 @@ test("a 1001-tool authorized catalog remains paginable without bloating bootstra
   assert.equal(second.items.length, 60);
   assert.ok(first.total >= 1001);
   assert.equal(second.items.some((tool) => first.items.some((candidate) => candidate.id === tool.id)), false);
+
+  const sitemapTools = listSitemapTools(db);
+  assert.ok(sitemapTools.length >= 1001);
+  assert.ok(sitemapTools.some((tool) => tool.slug === "bulk-tool-1001"));
 
   const bootstrap = getBootstrap(db);
   assert.equal(Object.hasOwn(bootstrap, "tools"), false);
