@@ -111,7 +111,11 @@ test("tool detail SEO pages render crawlable HTML and appear in sitemap", async 
   assert.match(html, /<h1>豆包<\/h1>/);
   assert.match(html, /<link rel="canonical" href="http:\/\/127\.0\.0\.1:\d+\/tools\/doubao">/);
   assert.match(html, /application\/ld\+json/);
-  assert.match(html, /FAQPage/);
+  const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(jsonLdMatch);
+  const jsonLd = JSON.parse(jsonLdMatch[1]);
+  assert.ok(jsonLd.some((item) => item["@type"] === "SoftwareApplication"));
+  assert.ok(jsonLd.some((item) => item["@type"] === "FAQPage"));
   assert.match(html, /主要功能/);
   assert.match(html, /适用场景/);
   assert.match(html, /同类替代工具/);

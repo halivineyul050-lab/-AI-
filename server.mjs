@@ -326,6 +326,15 @@ function escapeAttribute(value) {
   return escapeHTML(value).replaceAll("\n", " ");
 }
 
+function safeJsonScript(value) {
+  return JSON.stringify(value)
+    .replaceAll("<", "\\u003c")
+    .replaceAll(">", "\\u003e")
+    .replaceAll("&", "\\u0026")
+    .replaceAll("\u2028", "\\u2028")
+    .replaceAll("\u2029", "\\u2029");
+}
+
 function absoluteSiteUrl(request, pathname = "/") {
   const proto = String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim() || "http";
   const host = String(request.headers["x-forwarded-host"] || request.headers.host || "47.93.245.219").split(",")[0].trim();
@@ -469,7 +478,7 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260720-tools-seo-1">
-  <script type="application/ld+json">${escapeHTML(JSON.stringify(schema))}</script>
+  <script type="application/ld+json">${safeJsonScript(schema)}</script>
 </head>
 <body class="seo-tool-page">
   <header class="seo-tool-topbar">
