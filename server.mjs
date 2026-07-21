@@ -313,6 +313,259 @@ function serveStatic(request, response, pathname, staticDir) {
   return true;
 }
 
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function escapeAttribute(value) {
+  return escapeHTML(value).replaceAll("\n", " ");
+}
+
+function absoluteSiteUrl(request, pathname = "/") {
+  const proto = String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim() || "http";
+  const host = String(request.headers["x-forwarded-host"] || request.headers.host || "47.93.245.219").split(",")[0].trim();
+  return new URL(pathname, `${proto}://${host}`).toString();
+}
+
+function sendHtml(request, response, html, status = 200, headers = {}) {
+  const body = Buffer.from(html, "utf8");
+  response.writeHead(status, {
+    "Content-Type": "text/html; charset=utf-8",
+    "Content-Length": body.length,
+    "Cache-Control": "public, max-age=300",
+    ...headers
+  });
+  if (request.method === "HEAD") response.end();
+  else response.end(body);
+}
+
+function sendXml(request, response, xml, status = 200) {
+  const body = Buffer.from(xml, "utf8");
+  response.writeHead(status, {
+    "Content-Type": "application/xml; charset=utf-8",
+    "Content-Length": body.length,
+    "Cache-Control": "public, max-age=900"
+  });
+  if (request.method === "HEAD") response.end();
+  else response.end(body);
+}
+
+const priceLabels = {
+  free: "免费",
+  freemium: "免费增值",
+  trial: "免费试用",
+  paid: "付费",
+  contact: "商务询价",
+  unknown: "价格待核验"
+};
+
+const platformLabels = { web: "Web", desktop: "桌面端", mobile: "移动端", api: "API" };
+const languageLabels = { zh: "中文友好", multi: "多语言", unknown: "语言待核验" };
+
+function listText(items, fallback = "待补充") {
+  const values = (items || []).map((item) => String(item || "").trim()).filter(Boolean);
+  return values.length ? values.join("、") : fallback;
+}
+
+function compactDescription(tool) {
+  const value = String(tool.description || tool.summary || "").replace(/\s+/g, " ").trim();
+  return value.length > 155 ? `${value.slice(0, 152)}...` : value;
+}
+
+function buildToolFaq(tool) {
+  const featureText = listText(tool.features);
+  const useCaseText = listText(tool.useCases, featureText);
+  const platformText = listText((tool.platforms || []).map((platform) => platformLabels[platform] || platform));
+  return [
+    {
+      question: `${tool.name} 是什么？`,
+      answer: `${tool.name} 是泥壳AI工具站收录的 ${tool.summary || "AI 工具"}。${tool.description || ""}`.trim()
+    },
+    {
+      question: `${tool.name} 适合哪些使用场景？`,
+      answer: `${tool.name} 适合用于：${useCaseText}。`
+    },
+    {
+      question: `${tool.name} 有哪些主要功能？`,
+      answer: `${tool.name} 的核心功能包括：${featureText}。`
+    },
+    {
+      question: `${tool.name} 支持哪些平台？`,
+      answer: `${tool.name} 当前收录的平台信息为：${platformText}。`
+    },
+    {
+      question: `${tool.name} 怎么收费？`,
+      answer: `${tool.name} 的价格类型标记为“${priceLabels[tool.price] || tool.price || "待核验"}”，具体方案以其官网最新信息为准。`
+    }
+  ];
+}
+
+function buildToolSeoPage(request, tool, relatedTools, categories) {
+  const category = categories.find((item) => item.id === tool.category);
+  const canonical = absoluteSiteUrl(request, `/tools/${encodeURIComponent(tool.slug || tool.id)}`);
+  const title = `${tool.name} - 功能、价格、适用场景与替代工具 | 泥壳AI工具站`;
+  const description = compactDescription(tool);
+  const faq = buildToolFaq(tool);
+  const related = relatedTools.filter((item) => item.id !== tool.id).slice(0, 6);
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: tool.name,
+      description,
+      applicationCategory: category?.name || "AI 工具",
+      operatingSystem: listText((tool.platforms || []).map((platform) => platformLabels[platform] || platform), "Web"),
+      url: canonical,
+      image: absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png"),
+      offers: {
+        "@type": "Offer",
+        price: tool.price === "free" ? "0" : undefined,
+        priceCurrency: "USD",
+        availability: "https://schema.org/InStock"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faq.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer }
+      }))
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "首页", item: absoluteSiteUrl(request, "/") },
+        { "@type": "ListItem", position: 2, name: category?.name || "AI 工具", item: absoluteSiteUrl(request, `/category/${encodeURIComponent(tool.category)}`) },
+        { "@type": "ListItem", position: 3, name: tool.name, item: canonical }
+      ]
+    }
+  ];
+  const badges = [
+    category?.name,
+    priceLabels[tool.price] || tool.price,
+    languageLabels[tool.language] || tool.language,
+    ...(tool.badges || [])
+  ].filter(Boolean);
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHTML(title)}</title>
+  <meta name="description" content="${escapeAttribute(description)}">
+  <link rel="canonical" href="${escapeAttribute(canonical)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeAttribute(title)}">
+  <meta property="og:description" content="${escapeAttribute(description)}">
+  <meta property="og:url" content="${escapeAttribute(canonical)}">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png"))}">
+  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <link rel="stylesheet" href="/styles.css?v=20260720-tools-seo-1">
+  <script type="application/ld+json">${escapeHTML(JSON.stringify(schema))}</script>
+</head>
+<body class="seo-tool-page">
+  <header class="seo-tool-topbar">
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <nav aria-label="工具详情导航">
+      <a href="/">工具库</a>
+      <a href="/category/${escapeAttribute(tool.category)}">${escapeHTML(category?.name || "同类工具")}</a>
+      <a href="/standards">收录标准</a>
+    </nav>
+  </header>
+  <main class="seo-tool-main">
+    <article class="seo-tool-hero">
+      <div class="seo-tool-copy">
+        <p class="seo-tool-eyebrow">AI TOOL PROFILE</p>
+        <div class="seo-tool-title-row">
+          <img class="seo-tool-logo" src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png")}" alt="${escapeAttribute(tool.name)} Logo">
+          <h1>${escapeHTML(tool.name)}</h1>
+        </div>
+        <p class="seo-tool-summary">${escapeHTML(tool.summary || description)}</p>
+        <div class="seo-tool-badges">${badges.map((badge) => `<span>${escapeHTML(badge)}</span>`).join("")}</div>
+        <div class="seo-tool-actions">
+          <a class="primary-button" href="${escapeAttribute(tool.officialUrl)}" rel="nofollow sponsored noopener">访问官网</a>
+          <a class="secondary-button" href="/?q=${encodeURIComponent(tool.name)}#tools">回到工具库</a>
+        </div>
+      </div>
+      <aside class="seo-tool-facts" aria-label="${escapeAttribute(tool.name)} 基础信息">
+        <div><span>分类</span><strong>${escapeHTML(category?.name || tool.category)}</strong></div>
+        <div><span>价格</span><strong>${escapeHTML(priceLabels[tool.price] || tool.price || "待核验")}</strong></div>
+        <div><span>平台</span><strong>${escapeHTML(listText((tool.platforms || []).map((platform) => platformLabels[platform] || platform)))}</strong></div>
+        <div><span>语言</span><strong>${escapeHTML(languageLabels[tool.language] || tool.language || "待核验")}</strong></div>
+        <div><span>登录要求</span><strong>${escapeHTML(tool.login || "待核验")}</strong></div>
+        <div><span>更新时间</span><strong>${escapeHTML(tool.updated || "待核验")}</strong></div>
+      </aside>
+    </article>
+    <section class="seo-tool-section">
+      <p class="seo-tool-eyebrow">OVERVIEW</p>
+      <h2>${escapeHTML(tool.name)} 是什么？</h2>
+      <p>${escapeHTML(tool.description || tool.summary || `${tool.name} 是泥壳AI工具站收录的 AI 工具。`)}</p>
+    </section>
+    <section class="seo-tool-grid">
+      <div class="seo-tool-section">
+        <p class="seo-tool-eyebrow">FEATURES</p>
+        <h2>主要功能</h2>
+        <ul>${(tool.features || []).map((item) => `<li>${escapeHTML(item)}</li>`).join("") || "<li>功能信息待补充</li>"}</ul>
+      </div>
+      <div class="seo-tool-section">
+        <p class="seo-tool-eyebrow">USE CASES</p>
+        <h2>适用场景</h2>
+        <ul>${(tool.useCases || []).map((item) => `<li>${escapeHTML(item)}</li>`).join("") || "<li>使用场景待补充</li>"}</ul>
+      </div>
+    </section>
+    <section class="seo-tool-section">
+      <p class="seo-tool-eyebrow">ALTERNATIVES</p>
+      <h2>${escapeHTML(tool.name)} 的同类替代工具</h2>
+      <div class="seo-tool-related">${related.map((item) => `
+        <a href="/tools/${escapeAttribute(item.slug || item.id)}">
+          <img src="${escapeAttribute(item.logoUrl || "/brand-icon-192.png")}" alt="">
+          <strong>${escapeHTML(item.name)}</strong>
+          <span>${escapeHTML(item.summary || "")}</span>
+        </a>
+      `).join("") || "<p>同类替代工具正在补充中。</p>"}</div>
+    </section>
+    <section class="seo-tool-section">
+      <p class="seo-tool-eyebrow">FAQ</p>
+      <h2>常见问题</h2>
+      <div class="seo-tool-faq">${faq.map((item) => `<details><summary>${escapeHTML(item.question)}</summary><p>${escapeHTML(item.answer)}</p></details>`).join("")}</div>
+    </section>
+  </main>
+</body>
+</html>`;
+}
+
+function buildSitemap(request, db) {
+  const baseEntries = [
+    ["/", "daily", "1.0"],
+    ["/discover", "weekly", "0.8"],
+    ["/tutorials", "weekly", "0.8"],
+    ["/news", "daily", "0.9"],
+    ["/standards", "monthly", "0.5"],
+    ["/terms", "monthly", "0.5"],
+    ["/privacy", "monthly", "0.5"],
+    ["/about", "monthly", "0.5"],
+    ["/advertise", "monthly", "0.5"]
+  ];
+  const categoryEntries = getCategories(db)
+    .filter((category) => category.id !== "all")
+    .map((category) => [`/category/${category.id}`, "weekly", "0.7"]);
+  const toolEntries = listTools(db, { limit: 500, offset: 0, sort: "name" }).items
+    .map((tool) => [`/tools/${tool.slug || tool.id}`, "weekly", "0.8", tool.updated]);
+  const entries = [...baseEntries, ...categoryEntries, ...toolEntries];
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map(([path, changefreq, priority, lastmod]) => {
+    const lastmodXml = lastmod ? `<lastmod>${escapeHTML(lastmod)}</lastmod>` : "";
+    return `  <url><loc>${escapeHTML(absoluteSiteUrl(request, path))}</loc>${lastmodXml}<changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`;
+  }).join("\n")}\n</urlset>\n`;
+}
+
 export function buildApplication(options = {}) {
   const environment = options.environment ?? process.env.NODE_ENV ?? "development";
   const isProduction = environment === "production";
@@ -450,6 +703,27 @@ export function buildApplication(options = {}) {
       if (method === "OPTIONS") {
         response.writeHead(204);
         response.end();
+        return;
+      }
+
+      if ((method === "GET" || method === "HEAD") && pathname === "/sitemap.xml") {
+        sendXml(request, response, buildSitemap(request, db));
+        return;
+      }
+
+      const toolPageMatch = pathname.match(/^\/tools\/([a-z0-9-]+)$/);
+      if ((method === "GET" || method === "HEAD") && toolPageMatch) {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        const tool = getTool(db, toolPageMatch[1]);
+        if (!tool) throw new HttpError(404, "tool_not_found", "未找到该工具");
+        const relatedTools = listTools(db, {
+          category: tool.category,
+          sponsored: false,
+          sort: "recommended",
+          limit: 8,
+          offset: 0
+        }).items;
+        sendHtml(request, response, buildToolSeoPage(request, tool, relatedTools, getCategories(db)));
         return;
       }
 

@@ -103,6 +103,28 @@ test("brand icon is served with the expected media type", async () => {
   assert.match(await sitemap.text(), /\/category\/coding/);
 });
 
+test("tool detail SEO pages render crawlable HTML and appear in sitemap", async () => {
+  const page = await fetch(`${baseUrl}/tools/doubao`);
+  assert.equal(page.status, 200);
+  assert.match(page.headers.get("content-type") || "", /text\/html/);
+  const html = await page.text();
+  assert.match(html, /<h1>豆包<\/h1>/);
+  assert.match(html, /<link rel="canonical" href="http:\/\/127\.0\.0\.1:\d+\/tools\/doubao">/);
+  assert.match(html, /application\/ld\+json/);
+  assert.match(html, /FAQPage/);
+  assert.match(html, /主要功能/);
+  assert.match(html, /适用场景/);
+  assert.match(html, /同类替代工具/);
+  assert.match(html, /\/r\/tools\/doubao\?placement=detail_drawer/);
+
+  const missing = await fetch(`${baseUrl}/tools/not-a-real-tool`);
+  assert.equal(missing.status, 404);
+
+  const sitemap = await fetch(`${baseUrl}/sitemap.xml`);
+  assert.equal(sitemap.status, 200);
+  assert.match(await sitemap.text(), /\/tools\/doubao/);
+});
+
 test("every seeded tool exposes a reachable local Logo asset", async () => {
   const [toolsResponse, bootstrapResponse] = await Promise.all([
     request("/api/v1/tools?limit=200&offset=0"),
