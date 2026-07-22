@@ -323,6 +323,26 @@ test("feedback requires consent and is persisted for review", async () => {
   assert.equal(row.status, "pending");
 });
 
+test("feedback rejects invalid utf-8 payloads before they become mojibake", async () => {
+  const before = Number(app.db.prepare("SELECT COUNT(*) AS count FROM feedback_messages").get().count);
+  const invalidUtf8Json = Buffer.from([
+    ...Buffer.from('{"category":"suggestion","message":"'),
+    0xff,
+    0xfe,
+    0xfd,
+    ...Buffer.from('","consentAccepted":true}')
+  ]);
+  const rejected = await request("/api/v1/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: invalidUtf8Json
+  });
+  assert.equal(rejected.response.status, 400);
+  assert.equal(rejected.body.code, "invalid_json");
+  const after = Number(app.db.prepare("SELECT COUNT(*) AS count FROM feedback_messages").get().count);
+  assert.equal(after, before);
+});
+
 test("event ingestion deduplicates by event id", async () => {
   const payload = {
     visitorId: "visitor-integration-0001",

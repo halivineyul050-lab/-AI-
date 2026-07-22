@@ -25,7 +25,8 @@ export async function readJsonBody(request, maxBytes = 64 * 1024) {
   }
   if (size === 0) throw new HttpError(400, "empty_body", "请求内容不能为空");
   try {
-    const value = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks));
+    const value = JSON.parse(text);
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       throw new Error("Body must be an object");
     }
