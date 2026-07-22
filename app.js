@@ -816,11 +816,11 @@ const taskGuideCards = [
   { id: "free", title: "我要找免费工具", category: "all", price: "free", query: "", icon: "badge-dollar-sign", copy: "先筛免费入口，再看是否需要登录、是否支持中文和访问地区。", picks: ["doubao", "deepseek", "trae"] }
 ];
 const topicCards = [
-  { title: "2026 年最好用的 AI 写作工具", category: "writing", query: "写作", intent: "写文章、改文案、做资料总结的人优先看这一组。", ids: ["claude", "kimi", "chatgpt"] },
-  { title: "免费 AI 绘画工具推荐", category: "image", price: "freemium", query: "图片", intent: "适合先试用，再决定是否付费升级的视觉创作工具。", ids: ["jimeng", "liblib", "recraft"] },
-  { title: "中文 AI 对话工具对比", category: "chat", query: "中文", intent: "豆包、DeepSeek、Kimi、元宝等中文友好工具集中比较。", ids: ["doubao", "deepseek", "kimi", "tencent-yuanbao"] },
-  { title: "AI 漫剧工具合集", category: "comic", query: "漫剧", intent: "从剧本、角色资产到分镜成片，适合内容团队收藏。", ids: ["orange-dream-factory"] },
-  { title: "程序员常用 AI 编程工具", category: "coding", query: "代码", intent: "IDE、Copilot、工程 Agent，按开发场景快速选择。", ids: ["trae", "cursor", "github-copilot", "devin"] }
+  { slug: "best-ai-writing-tools-2026", title: "2026 年最好用的 AI 写作工具", category: "writing", query: "写作", intent: "写文章、改文案、做资料总结的人优先看这一组。", ids: ["claude", "kimi", "chatgpt"] },
+  { slug: "free-ai-image-tools", title: "免费 AI 绘画工具推荐", category: "image", price: "freemium", query: "图片", intent: "适合先试用，再决定是否付费升级的视觉创作工具。", ids: ["jimeng", "liblib", "recraft"] },
+  { slug: "chinese-ai-chat-tools", title: "中文 AI 对话工具对比", category: "chat", query: "中文", intent: "豆包、DeepSeek、Kimi、元宝等中文友好工具集中比较。", ids: ["doubao", "deepseek", "kimi", "tencent-yuanbao"] },
+  { slug: "ai-comic-tools", title: "AI 漫剧工具合集", category: "comic", query: "漫剧", intent: "从剧本、角色资产到分镜成片，适合内容团队收藏。", ids: ["orange-dream-factory"] },
+  { slug: "ai-coding-tools-for-programmers", title: "程序员常用 AI 编程工具", category: "coding", query: "代码", intent: "IDE、Copilot、工程 Agent，按开发场景快速选择。", ids: ["trae", "cursor", "github-copilot", "devin"] }
 ];
 const rankingSections = [
   { id: "overall", title: "总榜", note: "综合编辑评分与关注度", filter: (tool) => !tool.sponsored, sort: (a, b) => (b.score + b.popular) - (a.score + a.popular) },
@@ -832,9 +832,9 @@ const rankingSections = [
   { id: "video", title: "AI 视频榜", note: "视频生成与后期制作", filter: (tool) => tool.category === "video", sort: (a, b) => b.score - a.score }
 ];
 const compareTopics = [
-  { title: "ChatGPT vs 豆包 vs DeepSeek", subtitle: "通用对话 / 中文场景 / 推理与代码", ids: ["chatgpt", "doubao", "deepseek"] },
-  { title: "Midjourney vs 即梦 vs 可灵", subtitle: "图像质量 / 中文创作 / 图生视频", ids: ["midjourney", "jimeng", "kling"] },
-  { title: "Cursor vs TRAE vs GitHub Copilot", subtitle: "个人开发 / 项目级修改 / 团队协作", ids: ["cursor", "trae", "github-copilot"] }
+  { slug: "chatgpt-vs-doubao-vs-deepseek", title: "ChatGPT vs 豆包 vs DeepSeek", subtitle: "通用对话 / 中文场景 / 推理与代码", ids: ["chatgpt", "doubao", "deepseek"] },
+  { slug: "midjourney-vs-jimeng-vs-kling", title: "Midjourney vs 即梦 vs 可灵", subtitle: "图像质量 / 中文创作 / 图生视频", ids: ["midjourney", "jimeng", "kling"] },
+  { slug: "cursor-vs-trae-vs-github-copilot", title: "Cursor vs TRAE vs GitHub Copilot", subtitle: "个人开发 / 项目级修改 / 团队协作", ids: ["cursor", "trae", "github-copilot"] }
 ];
 const accountBenefits = [
   ["bookmark", "收藏常用工具"],
@@ -1472,10 +1472,10 @@ function renderDecisionModules() {
   const homeTopics = document.getElementById("home-topic-grid");
   if (homeTopics) {
     homeTopics.innerHTML = topicCards.map((topic) => `
-      <button class="topic-card" type="button" data-topic-card="${escapeHTML(topic.title)}">
+      <a class="topic-card" href="/guides/${encodeURIComponent(topic.slug)}">
         <strong>${escapeHTML(topic.title)}</strong>
         <span>${escapeHTML(topic.intent)}</span>
-      </button>`).join("");
+      </a>`).join("");
   }
 
   const guideTopics = document.getElementById("guide-topic-grid");
@@ -1485,7 +1485,7 @@ function renderDecisionModules() {
       return `<article class="topic-feature-card">
         <div><p class="eyebrow">专题</p><h2>${escapeHTML(topic.title)}</h2><p>${escapeHTML(topic.intent)}</p></div>
         <div class="mini-tool-list">${renderMiniToolPills(picks)}</div>
-        <button class="text-button" type="button" data-topic-card="${escapeHTML(topic.title)}">打开这个专题</button>
+        <a class="text-button" href="/guides/${encodeURIComponent(topic.slug)}">打开这个专题</a>
       </article>`;
     }).join("");
   }
@@ -1564,7 +1564,10 @@ function renderComparePage() {
           <small>${escapeHTML(tool.summary)}</small>
         </a>`).join("")}
       </div>
-      <button class="secondary-button" type="button" data-compare-topic="${escapeHTML(topic.ids.join(","))}"><i data-lucide="columns-3"></i><span>加入对比</span></button>
+      <div class="compare-topic-actions">
+        <a class="secondary-button" href="/compare/${encodeURIComponent(topic.slug)}"><i data-lucide="file-search"></i><span>查看完整对比</span></a>
+        <button class="secondary-button" type="button" data-compare-topic="${escapeHTML(topic.ids.join(","))}"><i data-lucide="columns-3"></i><span>加入对比</span></button>
+      </div>
     </article>`;
   }).join("");
 }

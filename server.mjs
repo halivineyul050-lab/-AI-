@@ -376,6 +376,77 @@ const priceLabels = {
 
 const platformLabels = { web: "Web", desktop: "桌面端", mobile: "移动端", api: "API" };
 const languageLabels = { zh: "中文友好", multi: "多语言", unknown: "语言待核验" };
+const guideSeoTopics = [
+  {
+    slug: "best-ai-writing-tools-2026",
+    title: "2026 年最好用的 AI 写作工具推荐",
+    description: "面向中文写作、长文整理、文案改写和资料总结场景，整理 2026 年值得优先尝试的 AI 写作工具。",
+    category: "writing",
+    query: "写作",
+    ids: ["claude", "kimi", "chatgpt", "doubao"],
+    points: ["长文质量和上下文稳定性", "中文表达自然度", "文档分析与改写能力", "是否有免费或试用入口"]
+  },
+  {
+    slug: "free-ai-image-tools",
+    title: "免费 AI 绘画工具推荐",
+    description: "适合先试用再决定是否升级的 AI 绘画、海报、插画和设计工具合集。",
+    category: "image",
+    price: "freemium",
+    query: "图片",
+    ids: ["jimeng", "liblib", "recraft", "midjourney"],
+    points: ["是否提供免费额度", "中文提示词友好度", "风格稳定性", "商用与导出限制"]
+  },
+  {
+    slug: "chinese-ai-chat-tools",
+    title: "中文 AI 对话工具对比与推荐",
+    description: "集中比较豆包、DeepSeek、Kimi、腾讯元宝等中文友好的 AI 对话工具，帮助新手快速选择。",
+    category: "chat",
+    query: "中文",
+    ids: ["doubao", "deepseek", "kimi", "tencent-yuanbao"],
+    points: ["中文问答体验", "长文阅读能力", "是否国内可访问", "免费入口和登录要求"]
+  },
+  {
+    slug: "ai-comic-tools",
+    title: "AI 漫剧工具合集",
+    description: "面向漫画、漫剧、短剧团队，整理剧本、角色资产、分镜和成片预览相关 AI 工具。",
+    category: "comic",
+    query: "漫剧",
+    ids: ["orange-dream-factory"],
+    points: ["剧本到分镜的连续流程", "角色资产一致性", "团队协作能力", "是否适合中文内容生产"]
+  },
+  {
+    slug: "ai-coding-tools-for-programmers",
+    title: "程序员常用 AI 编程工具推荐",
+    description: "整理适合程序员日常开发、代码解释、重构和工程 Agent 场景的 AI 编程工具。",
+    category: "coding",
+    query: "代码",
+    ids: ["cursor", "trae", "github-copilot", "devin"],
+    points: ["项目上下文理解", "IDE 集成体验", "代码生成与修改可靠性", "团队协作和权限控制"]
+  }
+];
+const compareSeoTopics = [
+  {
+    slug: "chatgpt-vs-doubao-vs-deepseek",
+    title: "ChatGPT vs 豆包 vs DeepSeek：中文对话、推理和日常办公怎么选",
+    description: "从中文体验、推理能力、价格入口、平台支持和适用场景对比 ChatGPT、豆包、DeepSeek。",
+    ids: ["chatgpt", "doubao", "deepseek"],
+    verdict: "想要综合能力和生态选 ChatGPT；中文日常办公和低门槛优先看豆包；推理、代码和学习场景优先看 DeepSeek。"
+  },
+  {
+    slug: "midjourney-vs-jimeng-vs-kling",
+    title: "Midjourney vs 即梦 vs 可灵：AI 图片和视频生成怎么选",
+    description: "对比 Midjourney、即梦、可灵在视觉质量、中文创作、图生视频和新手门槛上的差异。",
+    ids: ["midjourney", "jimeng", "kling"],
+    verdict: "追求高质量静态视觉可看 Midjourney；中文图片和短视频一体创作可看即梦；视频生成和动态镜头可看可灵。"
+  },
+  {
+    slug: "cursor-vs-trae-vs-github-copilot",
+    title: "Cursor vs TRAE vs GitHub Copilot：AI 编程工具怎么选",
+    description: "对比 Cursor、TRAE、GitHub Copilot 在 IDE 集成、项目上下文、团队开发和付费模式上的差异。",
+    ids: ["cursor", "trae", "github-copilot"],
+    verdict: "个人项目和快速修改可看 Cursor；中文开发体验和 Agent 工作流可看 TRAE；GitHub 团队协作和成熟生态可看 GitHub Copilot。"
+  }
+];
 
 function listText(items, fallback = "待补充") {
   const values = (items || []).map((item) => String(item || "").trim()).filter(Boolean);
@@ -552,6 +623,302 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
 </html>`;
 }
 
+function selectTopicTools(db, topic) {
+  const seeded = topic.ids.map((id) => getTool(db, id)).filter(Boolean);
+  const list = listTools(db, {
+    category: topic.category,
+    price: topic.price,
+    q: topic.query,
+    sponsored: false,
+    sort: "recommended",
+    limit: 12,
+    offset: 0
+  }).items.filter((tool) => !seeded.some((item) => item.id === tool.id));
+  return [...seeded, ...list].slice(0, 10);
+}
+
+function seoToolCard(tool, index) {
+  return `
+    <article class="seo-collection-tool">
+      <span class="seo-collection-rank">${String(index + 1).padStart(2, "0")}</span>
+      <img src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png")}" alt="${escapeAttribute(tool.name)} Logo">
+      <div>
+        <h3><a href="/tools/${escapeAttribute(tool.slug || tool.id)}">${escapeHTML(tool.name)}</a></h3>
+        <p>${escapeHTML(tool.summary || "")}</p>
+        <dl>
+          <div><dt>价格</dt><dd>${escapeHTML(priceLabels[tool.price] || tool.price || "待核验")}</dd></div>
+          <div><dt>平台</dt><dd>${escapeHTML(listText((tool.platforms || []).map((platform) => platformLabels[platform] || platform)))}</dd></div>
+          <div><dt>语言</dt><dd>${escapeHTML(languageLabels[tool.language] || tool.language || "待核验")}</dd></div>
+        </dl>
+      </div>
+    </article>`;
+}
+
+function buildGuideSeoPage(request, topic, tools) {
+  const canonical = absoluteSiteUrl(request, `/guides/${encodeURIComponent(topic.slug)}`);
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: topic.title,
+      description: topic.description,
+      dateModified: new Date().toISOString().slice(0, 10),
+      mainEntityOfPage: canonical,
+      publisher: { "@type": "Organization", name: "泥壳AI工具站", logo: { "@type": "ImageObject", url: absoluteSiteUrl(request, "/brand-icon-192.png") } }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: topic.title,
+      numberOfItems: tools.length,
+      itemListElement: tools.map((tool, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: { "@type": "SoftwareApplication", name: tool.name, url: absoluteSiteUrl(request, `/tools/${tool.slug || tool.id}`), description: tool.summary }
+      }))
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: [
+        { "@type": "Question", name: `${topic.title}怎么选？`, acceptedAnswer: { "@type": "Answer", text: `建议先看使用场景，再比较价格、中文支持、平台、登录要求和最近更新时间。${topic.description}` } },
+        { "@type": "Question", name: "这些工具信息来自哪里？", acceptedAnswer: { "@type": "Answer", text: "泥壳AI工具站主要整理产品官网、公开资料、编辑复核和用户反馈，推广内容会单独标识。" } }
+      ]
+    }
+  ];
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHTML(topic.title)} | 泥壳AI工具站</title>
+  <meta name="description" content="${escapeAttribute(topic.description)}">
+  <link rel="canonical" href="${escapeAttribute(canonical)}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="${escapeAttribute(topic.title)}">
+  <meta property="og:description" content="${escapeAttribute(topic.description)}">
+  <meta property="og:url" content="${escapeAttribute(canonical)}">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
+  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <script type="application/ld+json">${safeJsonScript(schema)}</script>
+</head>
+<body class="seo-tool-page seo-collection-page">
+  <header class="seo-tool-topbar">
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <nav aria-label="专题导航"><a href="/">工具库</a><a href="/guides">按任务找</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
+  </header>
+  <main class="seo-tool-main">
+    <section class="seo-collection-hero">
+      <p class="seo-tool-eyebrow">AI GUIDE</p>
+      <h1>${escapeHTML(topic.title)}</h1>
+      <p>${escapeHTML(topic.description)}</p>
+      <div class="seo-collection-points">${topic.points.map((point) => `<span>${escapeHTML(point)}</span>`).join("")}</div>
+    </section>
+    <section class="seo-tool-section">
+      <p class="seo-tool-eyebrow">RECOMMENDED TOOLS</p>
+      <h2>推荐工具清单</h2>
+      <div class="seo-collection-list">${tools.map(seoToolCard).join("")}</div>
+    </section>
+    <section class="seo-tool-section seo-trust-note">
+      <p class="seo-tool-eyebrow">WHY TRUST THIS LIST</p>
+      <h2>这份清单怎么整理？</h2>
+      <p>泥壳AI优先收录有明确官网、公开产品信息、可核验功能说明和持续维护迹象的工具。页面中的价格、平台、语言、登录要求和更新时间来自公开资料、编辑整理与用户反馈，具体付费和可用性请以官方页面为准。</p>
+      <a class="secondary-button" href="/standards">查看完整收录标准</a>
+    </section>
+  </main>
+</body>
+</html>`;
+}
+
+function buildCompareSeoPage(request, topic, tools) {
+  const canonical = absoluteSiteUrl(request, `/compare/${encodeURIComponent(topic.slug)}`);
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: topic.title,
+      description: topic.description,
+      dateModified: new Date().toISOString().slice(0, 10),
+      mainEntityOfPage: canonical,
+      publisher: { "@type": "Organization", name: "泥壳AI工具站", logo: { "@type": "ImageObject", url: absoluteSiteUrl(request, "/brand-icon-192.png") } }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: topic.title,
+      itemListElement: tools.map((tool, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: { "@type": "SoftwareApplication", name: tool.name, url: absoluteSiteUrl(request, `/tools/${tool.slug || tool.id}`), description: tool.summary }
+      }))
+    }
+  ];
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHTML(topic.title)} | 泥壳AI工具站</title>
+  <meta name="description" content="${escapeAttribute(topic.description)}">
+  <link rel="canonical" href="${escapeAttribute(canonical)}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="${escapeAttribute(topic.title)}">
+  <meta property="og:description" content="${escapeAttribute(topic.description)}">
+  <meta property="og:url" content="${escapeAttribute(canonical)}">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
+  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <script type="application/ld+json">${safeJsonScript(schema)}</script>
+</head>
+<body class="seo-tool-page seo-collection-page">
+  <header class="seo-tool-topbar">
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <nav aria-label="对比导航"><a href="/">工具库</a><a href="/compare">对比页</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
+  </header>
+  <main class="seo-tool-main">
+    <section class="seo-collection-hero">
+      <p class="seo-tool-eyebrow">AI COMPARISON</p>
+      <h1>${escapeHTML(topic.title)}</h1>
+      <p>${escapeHTML(topic.description)}</p>
+      <div class="seo-collection-verdict"><strong>快速结论</strong><span>${escapeHTML(topic.verdict)}</span></div>
+    </section>
+    <section class="seo-tool-section">
+      <p class="seo-tool-eyebrow">SIDE BY SIDE</p>
+      <h2>核心信息对比</h2>
+      <div class="seo-compare-table">
+        <div class="seo-compare-head"><span>工具</span><span>价格</span><span>平台</span><span>语言</span><span>适合场景</span></div>
+        ${tools.map((tool) => `<a class="seo-compare-row" href="/tools/${escapeAttribute(tool.slug || tool.id)}">
+          <span><img src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png")}" alt="">${escapeHTML(tool.name)}</span>
+          <span>${escapeHTML(priceLabels[tool.price] || tool.price || "待核验")}</span>
+          <span>${escapeHTML(listText((tool.platforms || []).map((platform) => platformLabels[platform] || platform)))}</span>
+          <span>${escapeHTML(languageLabels[tool.language] || tool.language || "待核验")}</span>
+          <span>${escapeHTML(listText(tool.useCases, tool.summary || "待补充"))}</span>
+        </a>`).join("")}
+      </div>
+    </section>
+    <section class="seo-tool-section seo-trust-note">
+      <p class="seo-tool-eyebrow">EDITORIAL NOTE</p>
+      <h2>对比依据</h2>
+      <p>本页根据工具的公开产品信息、泥壳AI收录资料、编辑复核字段和更新时间进行整理，重点比较价格、平台、中文支持、登录要求、适用场景和替代关系。具体功能和价格仍以工具官网为准。</p>
+    </section>
+  </main>
+</body>
+</html>`;
+}
+
+function buildGuideIndexPage(request) {
+  const canonical = absoluteSiteUrl(request, "/guides");
+  const items = guideSeoTopics.map((topic) => ({
+    title: topic.title,
+    description: topic.description,
+    href: `/guides/${topic.slug}`,
+    points: topic.points
+  }));
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>按任务找 AI 工具专题 | 泥壳AI工具站</title>
+  <meta name="description" content="从写作、绘图、对话、漫剧到编程，按任务浏览泥壳AI精选专题。">
+  <link rel="canonical" href="${escapeAttribute(canonical)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="按任务找 AI 工具专题 | 泥壳AI工具站">
+  <meta property="og:description" content="从写作、绘图、对话、漫剧到编程，按任务浏览泥壳AI精选专题。">
+  <meta property="og:url" content="${escapeAttribute(canonical)}">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
+  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+</head>
+<body class="seo-tool-page seo-collection-page">
+  <header class="seo-tool-topbar">
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <nav aria-label="专题导航"><a href="/">工具库</a><a href="/compare">对比页</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
+  </header>
+  <main class="seo-tool-main">
+    <section class="seo-collection-hero">
+      <p class="seo-tool-eyebrow">GUIDE HUB</p>
+      <h1>按任务找工具</h1>
+      <p>先按任务，再选工具。这里把最常见的 AI 使用场景做成了专题页，适合新手快速进入决策。</p>
+    </section>
+    <section class="seo-tool-section">
+      <div class="seo-collection-list">
+        ${items.map((item, index) => `
+          <article class="seo-collection-tool">
+            <span class="seo-collection-rank">${String(index + 1).padStart(2, "0")}</span>
+            <div>
+              <h3><a href="${escapeAttribute(item.href)}">${escapeHTML(item.title)}</a></h3>
+              <p>${escapeHTML(item.description)}</p>
+              <dl>
+                <div><dt>重点</dt><dd>${escapeHTML(item.points.join(" / "))}</dd></div>
+              </dl>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  </main>
+</body>
+</html>`;
+}
+
+function buildCompareIndexPage(request) {
+  const canonical = absoluteSiteUrl(request, "/compare");
+  const items = compareSeoTopics.map((topic) => ({
+    title: topic.title,
+    description: topic.description,
+    href: `/compare/${topic.slug}`,
+    verdict: topic.verdict
+  }));
+  return `<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 工具对比页 | 泥壳AI工具站</title>
+  <meta name="description" content="从 ChatGPT 到豆包、从 Midjourney 到即梦、从 Cursor 到 Copilot，查看真实可读的 AI 工具对比页。">
+  <link rel="canonical" href="${escapeAttribute(canonical)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AI 工具对比页 | 泥壳AI工具站">
+  <meta property="og:description" content="从 ChatGPT 到豆包、从 Midjourney 到即梦、从 Cursor 到 Copilot，查看真实可读的 AI 工具对比页。">
+  <meta property="og:url" content="${escapeAttribute(canonical)}">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
+  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+</head>
+<body class="seo-tool-page seo-collection-page">
+  <header class="seo-tool-topbar">
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <nav aria-label="对比导航"><a href="/">工具库</a><a href="/guides">按任务找</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
+  </header>
+  <main class="seo-tool-main">
+    <section class="seo-collection-hero">
+      <p class="seo-tool-eyebrow">COMPARE HUB</p>
+      <h1>工具对比页</h1>
+      <p>把“哪个好”拆成价格、平台、中文支持、登录要求和适用场景，方便直接做选择。</p>
+    </section>
+    <section class="seo-tool-section">
+      <div class="seo-collection-list">
+        ${items.map((item, index) => `
+          <article class="seo-collection-tool">
+            <span class="seo-collection-rank">${String(index + 1).padStart(2, "0")}</span>
+            <div>
+              <h3><a href="${escapeAttribute(item.href)}">${escapeHTML(item.title)}</a></h3>
+              <p>${escapeHTML(item.description)}</p>
+              <dl>
+                <div><dt>结论</dt><dd>${escapeHTML(item.verdict)}</dd></div>
+              </dl>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  </main>
+</body>
+</html>`;
+}
+
 function buildSitemap(request, db) {
   const baseEntries = [
     ["/", "daily", "1.0"],
@@ -571,9 +938,11 @@ function buildSitemap(request, db) {
   const categoryEntries = getCategories(db)
     .filter((category) => category.id !== "all")
     .map((category) => [`/category/${category.id}`, "weekly", "0.7"]);
+  const guideEntries = guideSeoTopics.map((topic) => [`/guides/${topic.slug}`, "weekly", "0.8"]);
+  const compareEntries = compareSeoTopics.map((topic) => [`/compare/${topic.slug}`, "weekly", "0.7"]);
   const toolEntries = listSitemapTools(db)
     .map((tool) => [`/tools/${tool.slug || tool.id}`, "weekly", "0.8", tool.updated]);
-  const entries = [...baseEntries, ...categoryEntries, ...toolEntries];
+  const entries = [...baseEntries, ...guideEntries, ...compareEntries, ...categoryEntries, ...toolEntries];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map(([path, changefreq, priority, lastmod]) => {
     const lastmodXml = lastmod ? `<lastmod>${escapeHTML(lastmod)}</lastmod>` : "";
     return `  <url><loc>${escapeHTML(absoluteSiteUrl(request, path))}</loc>${lastmodXml}<changefreq>${changefreq}</changefreq><priority>${priority}</priority></url>`;
@@ -725,6 +1094,18 @@ export function buildApplication(options = {}) {
         return;
       }
 
+      if ((method === "GET" || method === "HEAD") && pathname === "/guides") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        sendHtml(request, response, buildGuideIndexPage(request));
+        return;
+      }
+
+      if ((method === "GET" || method === "HEAD") && pathname === "/compare") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        sendHtml(request, response, buildCompareIndexPage(request));
+        return;
+      }
+
       const toolPageMatch = pathname.match(/^\/tools\/([a-z0-9-]+)$/);
       if ((method === "GET" || method === "HEAD") && toolPageMatch) {
         rateLimit(`${ip}:read`, 120, 60_000);
@@ -738,6 +1119,25 @@ export function buildApplication(options = {}) {
           offset: 0
         }).items;
         sendHtml(request, response, buildToolSeoPage(request, tool, relatedTools, getCategories(db)));
+        return;
+      }
+
+      const guidePageMatch = pathname.match(/^\/guides\/([a-z0-9-]+)$/);
+      if ((method === "GET" || method === "HEAD") && guidePageMatch) {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        const topic = guideSeoTopics.find((item) => item.slug === guidePageMatch[1]);
+        if (!topic) throw new HttpError(404, "guide_not_found", "未找到该专题");
+        sendHtml(request, response, buildGuideSeoPage(request, topic, selectTopicTools(db, topic)));
+        return;
+      }
+
+      const comparePageMatch = pathname.match(/^\/compare\/([a-z0-9-]+)$/);
+      if ((method === "GET" || method === "HEAD") && comparePageMatch) {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        const topic = compareSeoTopics.find((item) => item.slug === comparePageMatch[1]);
+        if (!topic) throw new HttpError(404, "compare_not_found", "未找到该对比");
+        const tools = topic.ids.map((id) => getTool(db, id)).filter(Boolean);
+        sendHtml(request, response, buildCompareSeoPage(request, topic, tools));
         return;
       }
 
