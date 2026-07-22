@@ -551,6 +551,7 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260720-tools-seo-1">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
+  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page">
   <header class="seo-tool-topbar">
@@ -702,6 +703,7 @@ function buildGuideSeoPage(request, topic, tools) {
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
+  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -770,6 +772,7 @@ function buildCompareSeoPage(request, topic, tools) {
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
+  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -830,6 +833,7 @@ function buildGuideIndexPage(request) {
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -886,6 +890,7 @@ function buildCompareIndexPage(request) {
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -1521,16 +1526,25 @@ export function buildApplication(options = {}) {
         if (!isLocalReadOnly && !hasAdminAccess) {
           throw new HttpError(401, "unauthorized", "监控数据需要本机访问或管理端认证");
         }
+        const hasRange = url.searchParams.has("range") || url.searchParams.has("startDate") || url.searchParams.has("endDate");
         const requestedHours = Number(url.searchParams.get("hours") || 24);
-        if (!monitoringHours.has(requestedHours)) {
+        if (!hasRange && !monitoringHours.has(requestedHours)) {
           throw new HttpError(422, "invalid_hours", "监控时间窗口仅支持 1、6、24、72 或 168 小时");
         }
-        const cachedSnapshot = monitoringCache.get(requestedHours);
+        const monitoringOptions = hasRange
+          ? {
+              range: url.searchParams.get("range") || "7d",
+              startDate: url.searchParams.get("startDate") || "",
+              endDate: url.searchParams.get("endDate") || ""
+            }
+          : { hours: requestedHours };
+        const cacheKey = JSON.stringify(monitoringOptions);
+        const cachedSnapshot = monitoringCache.get(cacheKey);
         const snapshot = cachedSnapshot && Date.now() - cachedSnapshot.cachedAt < 4_000
           ? cachedSnapshot.value
-          : getMonitoringSnapshot(db, { hours: requestedHours });
+          : getMonitoringSnapshot(db, monitoringOptions);
         if (!cachedSnapshot || snapshot !== cachedSnapshot.value) {
-          monitoringCache.set(requestedHours, { cachedAt: Date.now(), value: snapshot });
+          monitoringCache.set(cacheKey, { cachedAt: Date.now(), value: snapshot });
         }
         const visibleSnapshot = hasAdminAccess
           ? snapshot

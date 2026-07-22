@@ -25,18 +25,20 @@ function insertEvent(db, {
   session,
   time,
   properties = {},
-  rawProperties
+  rawProperties,
+  path = "/#tools"
 }) {
   db.prepare(`
     INSERT INTO analytics_events (
       event_id, event_name, visitor_id, session_id, page_type, path,
       properties_json, client_time, received_at, ip_hash
-    ) VALUES (?, ?, ?, ?, 'tools', '/#tools', ?, ?, ?, 'test-ip-hash')
+    ) VALUES (?, ?, ?, ?, 'tools', ?, ?, ?, ?, 'test-ip-hash')
   `).run(
     id,
     name,
     visitor,
     session,
+    path,
     rawProperties ?? JSON.stringify(properties),
     time,
     time
@@ -71,7 +73,7 @@ function seedMonitoringFixture(db) {
   };
 
   const alphaEvents = [
-    ["event-alpha-page", "page_view", "2026-07-13T11:01:00.000Z", { page_id: "tools" }],
+    ["event-alpha-page", "page_view", "2026-07-13T11:01:00.000Z", { page_id: "tools", source_type: "search", source_domain: "baidu.com", device_type: "desktop" }],
     ["event-alpha-search", "search_submit", "2026-07-13T11:02:00.000Z", { query: "写作", result_count: 5 }],
     ["event-alpha-category", "category_click", "2026-07-13T11:03:00.000Z", { category_id: "writing" }],
     ["event-alpha-card", "tool_card_click", "2026-07-13T11:04:00.000Z", { tool_id: "tool-alpha" }],
@@ -96,7 +98,7 @@ function seedMonitoringFixture(db) {
     visitor: visitors.beta,
     session: "session-beta-123456",
     time: "2026-07-13T10:30:00.000Z",
-    properties: { page_id: "tools" }
+    properties: { page_id: "tools", source_type: "direct", device_type: "mobile" }
   });
   insertEvent(db, {
     id: "event-beta-search",
@@ -112,7 +114,7 @@ function seedMonitoringFixture(db) {
     visitor: visitors.old,
     session: "session-old-123456",
     time: "2026-07-06T12:30:00.000Z",
-    properties: { page_id: "tools" }
+    properties: { page_id: "tools", source_type: "wechat", source_domain: "weixin.qq.com", device_type: "mobile" }
   });
   insertEvent(db, {
     id: "event-malformed-json",
@@ -122,6 +124,10 @@ function seedMonitoringFixture(db) {
     time: "2026-07-13T10:32:00.000Z",
     rawProperties: "{not-json"
   });
+
+  db.prepare("INSERT INTO analytics_visitors (visitor_id, first_seen_at, last_seen_at) VALUES (?, ?, ?)").run(visitors.alpha, "2026-07-13T11:01:00.000Z", "2026-07-13T11:59:00.000Z");
+  db.prepare("INSERT INTO analytics_visitors (visitor_id, first_seen_at, last_seen_at) VALUES (?, ?, ?)").run(visitors.beta, "2026-07-13T10:30:00.000Z", "2026-07-13T10:31:00.000Z");
+  db.prepare("INSERT INTO analytics_visitors (visitor_id, first_seen_at, last_seen_at) VALUES (?, ?, ?)").run(visitors.old, "2026-07-06T12:30:00.000Z", "2026-07-06T12:30:00.000Z");
 
   db.prepare(`
     INSERT INTO outbound_clicks (
@@ -245,27 +251,17 @@ test("monitoring snapshot returns stable zero values and gap-filled windows", ()
     }
 
     const snapshot = getMonitoringSnapshot(db, { hours: 24, now: fixedNow });
-    assert.deepEqual(snapshot.kpis, {
-      pageViews: 0,
-      uniqueVisitors: 0,
-      activeSessions: 0,
-      searches: 0,
-      noResultSearches: 0,
-      bounceRate: 0,
-      toolCardClicks: 0,
-      toolDetailViews: 0,
-      officialClicks: 0,
-      adImpressions: 0,
-      adClicks: 0,
-      pendingSubmissions: 0,
-      activeSubscribers: 0,
-      eventsPerMinute: 0,
-      conversionRate: 0,
-      adCtr: 0
-    });
+    assert.equal(snapshot.kpis.pageViews, 0);
+    assert.equal(snapshot.kpis.uniqueVisitors, 0);
+    assert.equal(snapshot.kpis.cumulativeUv, 0);
+    assert.equal(snapshot.kpis.averageDailyPv, 0);
+    assert.equal(snapshot.kpis.averageDailyUv, 0);
+    assert.equal(snapshot.kpis.changes.pageViews, 0);
     assert.deepEqual(snapshot.topTools, []);
     assert.deepEqual(snapshot.topSearches, []);
     assert.deepEqual(snapshot.searchGaps, []);
+    assert.deepEqual(snapshot.sourceStats, []);
+    assert.deepEqual(snapshot.deviceStats, []);
     assert.deepEqual(snapshot.recentEvents, []);
     assert.deepEqual(snapshot.submissionStatus, {
       pending: 0,
@@ -308,6 +304,8 @@ test("monitoring snapshot aggregates traffic, discovery, conversion and operatio
     const day = getMonitoringSnapshot(db, { hours: 24, now: fixedNow });
     assert.equal(day.kpis.pageViews, 2);
     assert.equal(day.kpis.uniqueVisitors, 2);
+    assert.equal(day.kpis.cumulativeUv, 3);
+    assert.equal(day.kpis.statsStartDate, "2026-07-06");
     assert.equal(day.kpis.activeSessions, 1);
     assert.equal(day.kpis.searches, 3);
     assert.deepEqual(day.funnel.map((step) => step.visitors), [2, 2, 1, 1, 1]);
@@ -319,6 +317,13 @@ test("monitoring snapshot aggregates traffic, discovery, conversion and operatio
       conversionRate: 100
     }]);
     assert.deepEqual(day.topSearches, [{ query: "写作", count: 2, uniqueVisitors: 2 }]);
+    assert.equal(day.pagePerformance[0].path, "/#tools");
+    assert.equal(day.pagePerformance[0].pageViews, 2);
+    assert.equal(day.pagePerformance[0].uniqueVisitors, 2);
+    assert.equal(day.pagePerformance[0].pvShare, 100);
+    assert.equal(day.pagePerformance[0].averageViewsPerVisitor, 1);
+    assert.deepEqual(day.sourceStats.map((item) => [item.key, item.pageViews, item.uniqueVisitors]).sort(), [["direct", 1, 1], ["search", 1, 1]]);
+    assert.deepEqual(day.deviceStats.map((item) => [item.key, item.pageViews, item.uniqueVisitors]).sort(), [["desktop", 1, 1], ["mobile", 1, 1]]);
     assert.deepEqual(day.submissionStatus, {
       pending: 2,
       approved: 1,

@@ -155,6 +155,14 @@ CREATE TABLE IF NOT EXISTS analytics_events (
 CREATE INDEX IF NOT EXISTS idx_events_name_time ON analytics_events(event_name, received_at DESC);
 CREATE INDEX IF NOT EXISTS idx_events_session_time ON analytics_events(session_id, received_at DESC);
 
+CREATE TABLE IF NOT EXISTS analytics_visitors (
+  visitor_id TEXT PRIMARY KEY,
+  first_seen_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_analytics_visitors_first_seen ON analytics_visitors(first_seen_at);
+
 CREATE TABLE IF NOT EXISTS outbound_clicks (
   id TEXT PRIMARY KEY,
   tool_id TEXT NOT NULL REFERENCES tools(id),

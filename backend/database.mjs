@@ -17,6 +17,7 @@ const migrations = [
   { version: 10, name: "tool_ratings", sql: readFileSync(resolve(import.meta.dirname, "migrations", "010_tool_ratings.sql"), "utf8") }
   ,{ version: 11, name: "super_admin_controls", sql: readFileSync(resolve(import.meta.dirname, "migrations", "011_super_admin_controls.sql"), "utf8") }
   ,{ version: 12, name: "account_activity", sql: readFileSync(resolve(import.meta.dirname, "migrations", "012_account_activity.sql"), "utf8") }
+  ,{ version: 13, name: "analytics_visitors", sql: readFileSync(resolve(import.meta.dirname, "migrations", "013_analytics_visitors.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -713,6 +714,19 @@ export function insertEvents(db, events, context) {
       );
       accepted += Number(result.changes);
     });
+    const pageViewTimes = events
+      .filter((event) => event.eventName === "page_view")
+      .map((event) => event.clientTime)
+      .sort();
+    if (pageViewTimes.length) {
+      db.prepare(`
+        INSERT INTO analytics_visitors (visitor_id, first_seen_at, last_seen_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(visitor_id) DO UPDATE SET
+          first_seen_at = MIN(first_seen_at, excluded.first_seen_at),
+          last_seen_at = MAX(last_seen_at, excluded.last_seen_at)
+      `).run(context.visitorId, pageViewTimes[0], pageViewTimes.at(-1));
+    }
   });
   return { accepted, duplicate: events.length - accepted };
 }

@@ -5,9 +5,11 @@
   const REVIEW_POLL_INTERVAL_MS = 15_000;
   const SVG_NS = "http://www.w3.org/2000/svg";
   const WINDOW_HOURS = { "24h": 24, "7d": 168 };
+  const DEFAULT_RANGE = "7d";
 
   const state = {
     window: "24h",
+    range: DEFAULT_RANGE,
     paused: false,
     monitoring: null,
     monitoringController: null,
@@ -51,12 +53,18 @@
     sidebarUpdated: document.querySelector("#sidebar-updated"),
     pauseButton: document.querySelector("#pause-button"),
     refreshButton: document.querySelector("#refresh-button"),
+    rangeStart: document.querySelector("#range-start"),
+    rangeEnd: document.querySelector("#range-end"),
+    rangeApply: document.querySelector("#range-apply"),
     kpiGrid: document.querySelector("#kpi-grid"),
     overviewNote: document.querySelector("#overview-note"),
     chart: document.querySelector("#trend-chart"),
     chartWrap: document.querySelector("#trend-chart-wrap"),
     chartEmpty: document.querySelector("#chart-empty"),
     chartTooltip: document.querySelector("#chart-tooltip"),
+    pagePerformanceBody: document.querySelector("#page-performance-body"),
+    pagePerformanceEmpty: document.querySelector("#page-performance-empty"),
+    pagePerformanceMeta: document.querySelector("#page-performance-meta"),
     funnelList: document.querySelector("#funnel-list"),
     topToolsList: document.querySelector("#top-tools-list"),
     toolsTotal: document.querySelector("#tools-total"),
@@ -66,6 +74,8 @@
     searchGapsTotal: document.querySelector("#search-gaps-total"),
     categoryPerformanceList: document.querySelector("#category-performance-list"),
     categoryPerformanceMeta: document.querySelector("#category-performance-meta"),
+    sourceStatsList: document.querySelector("#source-stats-list"),
+    deviceStatsList: document.querySelector("#device-stats-list"),
     eventList: document.querySelector("#event-list"),
     healthBadge: document.querySelector("#health-badge"),
     healthList: document.querySelector("#health-list"),
@@ -440,9 +450,15 @@
         activeSubscribers: asNumber(kpis.activeSubscribers),
         eventsPerMinute: asNumber(kpis.eventsPerMinute),
         conversionRate: asNumber(kpis.conversionRate ?? kpis.clickThroughRate),
-        adCtr: asNumber(kpis.adCtr)
+        adCtr: asNumber(kpis.adCtr),
+        cumulativeUv: asNumber(kpis.cumulativeUv),
+        averageDailyPv: asNumber(kpis.averageDailyPv),
+        averageDailyUv: asNumber(kpis.averageDailyUv),
+        averageEngagementSeconds: asNumber(kpis.averageEngagementSeconds),
+        statsStartDate: kpis.statsStartDate || "",
+        changes: kpis.changes || {}
       },
-      hourlySeries: asArray(source.hourlySeries ?? source.series ?? source.timeline).map((point, index) => ({
+      hourlySeries: asArray(source.trafficSeries ?? source.hourlySeries ?? source.series ?? source.timeline).map((point, index) => ({
         hour: point.hour || point.time || point.bucket || String(index),
         label: point.label || point.hour || point.time || String(index + 1),
         pageViews: asNumber(point.pageViews ?? point.views),
@@ -462,6 +478,19 @@
       topSearches: asArray(source.topSearches ?? source.popularSearches),
       searchGaps: asArray(source.searchGaps),
       categoryPerformance: asArray(source.categoryPerformance),
+      pagePerformance: asArray(source.pagePerformance).map((page) => ({
+        path: String(page.path || "/"),
+        pageName: String(page.pageName || page.name || page.path || "/"),
+        pageType: String(page.pageType || ""),
+        pageViews: asNumber(page.pageViews),
+        uniqueVisitors: asNumber(page.uniqueVisitors),
+        pvShare: asNumber(page.pvShare),
+        uvShare: asNumber(page.uvShare),
+        averageViewsPerVisitor: asNumber(page.averageViewsPerVisitor),
+        change: asNumber(page.change)
+      })),
+      sourceStats: asArray(source.sourceStats),
+      deviceStats: asArray(source.deviceStats),
       recentEvents: asArray(source.recentEvents ?? source.events),
       submissionStatus: source.submissionStatus || {},
       system: source.system || source.health || {},
@@ -471,13 +500,16 @@
 
   function renderKpis(data) {
     const metricMap = {
-      pageViews: { value: data.kpis.pageViews, type: "number" },
-      uniqueVisitors: { value: data.kpis.uniqueVisitors, type: "number" },
-      searches: { value: data.kpis.searches, type: "number" },
-      outboundClicks: { value: data.kpis.officialClicks, type: "number" },
+      pageViews: { value: data.kpis.pageViews, type: "number", change: data.kpis.changes?.pageViews },
+      uniqueVisitors: { value: data.kpis.uniqueVisitors, type: "number", change: data.kpis.changes?.uniqueVisitors },
+      cumulativeUv: { value: data.kpis.cumulativeUv, type: "number", caption: data.kpis.statsStartDate ? `起始 ${data.kpis.statsStartDate}` : "永久去重访客" },
+      averageDailyPv: { value: data.kpis.averageDailyPv, type: "number", caption: "当前周期日均" },
+      averageDailyUv: { value: data.kpis.averageDailyUv, type: "number", caption: "当前周期日均" },
+      searches: { value: data.kpis.searches, type: "number", change: data.kpis.changes?.searches },
+      outboundClicks: { value: data.kpis.officialClicks, type: "number", change: data.kpis.changes?.officialClicks },
       clickThroughRate: { value: data.kpis.conversionRate, type: "percent" },
       pendingSubmissions: { value: data.kpis.pendingSubmissions, type: "number" }
-      ,noResultSearches: { value: data.kpis.noResultSearches, type: "number" }
+      ,noResultSearches: { value: data.kpis.noResultSearches, type: "number", change: data.kpis.changes?.noResultSearches }
       ,bounceRate: { value: data.kpis.bounceRate, type: "percent" }
     };
 
@@ -488,8 +520,17 @@
         ? formatPercent(metric.value)
         : formatNumber(metric.value);
       const trend = card.querySelector(".kpi-trend");
-      trend.textContent = "实时";
-      trend.className = "kpi-trend is-neutral";
+      if (Number.isFinite(metric.change)) {
+        trend.textContent = `${metric.change >= 0 ? "+" : ""}${formatPercent(metric.change)}`;
+        trend.className = `kpi-trend ${metric.change > 0 ? "is-up" : metric.change < 0 ? "is-down" : "is-neutral"}`;
+      } else {
+        trend.textContent = metric.caption ? "—" : "实时";
+        trend.className = "kpi-trend is-neutral";
+      }
+      if (metric.caption) {
+        const caption = card.querySelector("small");
+        if (caption) caption.textContent = metric.caption;
+      }
     });
     dom.kpiGrid.setAttribute("aria-busy", "false");
 
@@ -500,7 +541,7 @@
     const start = formatDateTime(data.window?.startAt);
     const end = formatDateTime(data.window?.endAt);
     dom.overviewNote.textContent = data.window?.startAt && data.window?.endAt
-      ? `${start} — ${end}`
+      ? `${start} — ${end} · 北京时间 · 最近更新 ${formatDateTime(data.generatedAt, true)}`
       : `${data.window?.hours || WINDOW_HOURS[state.window]} 小时窗口 · 每 5 秒更新`;
   }
 
@@ -520,7 +561,7 @@
     const wrapRect = dom.chartWrap.getBoundingClientRect();
     const clientX = event.clientX || event.currentTarget.getBoundingClientRect().left;
     const clientY = event.clientY || event.currentTarget.getBoundingClientRect().top;
-    dom.chartTooltip.textContent = `${point.label}\n页面浏览  ${formatNumber(point.pageViews)}\n官网点击  ${formatNumber(point.officialClicks)}`;
+    dom.chartTooltip.textContent = `${point.label}\nPV  ${formatNumber(point.pageViews)}\nUV  ${formatNumber(point.uniqueVisitors)}`;
     dom.chartTooltip.hidden = false;
     const left = Math.min(Math.max(clientX - wrapRect.left + 12, 6), Math.max(wrapRect.width - 145, 6));
     const top = Math.min(Math.max(clientY - wrapRect.top - 34, 6), Math.max(wrapRect.height - 86, 6));
@@ -531,11 +572,11 @@
   function renderTrend(data) {
     const series = data.hourlySeries;
     dom.chart.replaceChildren();
-    const title = svgNode("title", { id: "chart-title" }, "页面浏览与官网点击趋势");
+    const title = svgNode("title", { id: "chart-title" }, "PV 与 UV 趋势");
     const totalViews = series.reduce((total, point) => total + point.pageViews, 0);
-    const totalClicks = series.reduce((total, point) => total + point.officialClicks, 0);
+    const totalVisitors = series.reduce((total, point) => total + point.uniqueVisitors, 0);
     const desc = svgNode("desc", { id: "chart-desc" }, series.length
-      ? `共 ${series.length} 个时间点，页面浏览 ${formatNumber(totalViews)} 次，官网点击 ${formatNumber(totalClicks)} 次。`
+      ? `共 ${series.length} 个时间点，PV ${formatNumber(totalViews)} 次，每日 UV 合计 ${formatNumber(totalVisitors)}。`
       : "当前时间窗口没有趋势数据。");
     dom.chart.append(title, desc);
     dom.chartEmpty.hidden = series.length > 0;
@@ -549,7 +590,7 @@
     const margin = { top: 18, right: 22, bottom: 35, left: 48 };
     const plotWidth = width - margin.left - margin.right;
     const plotHeight = height - margin.top - margin.bottom;
-    const maxRaw = Math.max(...series.flatMap((point) => [point.pageViews, point.officialClicks]), 1);
+    const maxRaw = Math.max(...series.flatMap((point) => [point.pageViews, point.uniqueVisitors]), 1);
     const magnitude = 10 ** Math.floor(Math.log10(maxRaw));
     const maxValue = Math.max(Math.ceil(maxRaw / magnitude / 2) * magnitude * 2, 1);
     const xAt = (index) => margin.left + (series.length === 1 ? plotWidth / 2 : index / (series.length - 1) * plotWidth);
@@ -579,7 +620,7 @@
     dom.chart.append(grid);
 
     const viewsPoints = series.map((point, index) => ({ x: xAt(index), y: yAt(point.pageViews) }));
-    const clicksPoints = series.map((point, index) => ({ x: xAt(index), y: yAt(point.officialClicks) }));
+    const uvPoints = series.map((point, index) => ({ x: xAt(index), y: yAt(point.uniqueVisitors) }));
     const baseline = margin.top + plotHeight;
     const areaPath = `${linePath(viewsPoints)} L${viewsPoints.at(-1).x.toFixed(2)},${baseline} L${viewsPoints[0].x.toFixed(2)},${baseline} Z`;
     dom.chart.append(svgNode("path", { d: areaPath, fill: "url(#area-gradient)", "aria-hidden": "true" }));
@@ -588,7 +629,7 @@
       "stroke-linecap": "round", "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke", "aria-hidden": "true"
     }));
     dom.chart.append(svgNode("path", {
-      d: linePath(clicksPoints), fill: "none", stroke: "#c2410c", "stroke-width": 2,
+      d: linePath(uvPoints), fill: "none", stroke: "#c2410c", "stroke-width": 2,
       "stroke-linecap": "round", "stroke-linejoin": "round", "vector-effect": "non-scaling-stroke", "aria-hidden": "true"
     }));
 
@@ -662,6 +703,67 @@
       metric.append(rate);
       row.append(label, track, metric);
       dom.funnelList.append(row);
+    });
+  }
+
+  function renderPagePerformance(data) {
+    const pages = data.pagePerformance;
+    dom.pagePerformanceBody.replaceChildren();
+    dom.pagePerformanceEmpty.hidden = pages.length > 0;
+    dom.pagePerformanceMeta.textContent = pages.length ? `${formatNumber(pages.length)} 个页面` : "—";
+    pages.forEach((page) => {
+      const row = document.createElement("tr");
+      const nameCell = document.createElement("td");
+      const name = document.createElement("strong");
+      name.textContent = page.pageName || page.path;
+      const type = document.createElement("small");
+      type.textContent = page.pageType || "页面";
+      nameCell.append(name, type);
+      const pathCell = document.createElement("td");
+      pathCell.textContent = page.path;
+      pathCell.title = page.path;
+      const pv = document.createElement("td"); pv.textContent = formatNumber(page.pageViews);
+      const uv = document.createElement("td"); uv.textContent = formatNumber(page.uniqueVisitors);
+      const pvShare = document.createElement("td"); pvShare.textContent = formatPercent(page.pvShare);
+      const uvShare = document.createElement("td"); uvShare.textContent = formatPercent(page.uvShare);
+      const avg = document.createElement("td"); avg.textContent = page.uniqueVisitors ? page.averageViewsPerVisitor.toFixed(2) : "—";
+      const change = document.createElement("td"); change.textContent = `${page.change >= 0 ? "+" : ""}${formatPercent(page.change)}`;
+      change.className = page.change > 0 ? "is-good" : page.change < 0 ? "is-bad" : "";
+      row.append(nameCell, pathCell, pv, uv, pvShare, uvShare, avg, change);
+      dom.pagePerformanceBody.append(row);
+    });
+  }
+
+  function renderDimensionStats(listNode, items, emptyText) {
+    listNode.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.textContent = emptyText;
+      listNode.append(empty);
+      return;
+    }
+    items.slice(0, 8).forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "analytics-breakdown-row";
+      const copy = document.createElement("span");
+      copy.className = "search-query";
+      const title = document.createElement("strong");
+      title.textContent = item.label || item.key;
+      const detail = document.createElement("small");
+      detail.textContent = `PV ${formatNumber(item.pageViews)} · UV ${formatNumber(item.uniqueVisitors)} · PV占比 ${formatPercent(item.pvShare)} · UV占比 ${formatPercent(item.uvShare)}`;
+      copy.append(title, detail);
+      const change = document.createElement("span");
+      change.className = `search-count ${item.change > 0 ? "is-good" : item.change < 0 ? "is-bad" : ""}`.trim();
+      change.textContent = `${item.change >= 0 ? "+" : ""}${formatPercent(item.change)}`;
+      row.append(copy, change);
+      listNode.append(row);
+      if (item.domains?.length) {
+        const domains = document.createElement("div");
+        domains.className = "analytics-domain-list";
+        domains.textContent = item.domains.map((domain) => `${domain.domain}（${formatNumber(domain.pageViews)} PV）`).join("、");
+        listNode.append(domains);
+      }
     });
   }
 
@@ -859,6 +961,9 @@
     state.monitoring = data;
     renderKpis(data);
     renderTrend(data);
+    renderPagePerformance(data);
+    renderDimensionStats(dom.sourceStatsList, data.sourceStats, "当前周期暂无来源数据");
+    renderDimensionStats(dom.deviceStatsList, data.deviceStats, "当前周期暂无设备数据");
     renderFunnel(data);
     renderTopTools(data);
     renderTopSearches(data);
@@ -880,8 +985,13 @@
     if (!state.monitoring) setConnection("connecting", "正在同步");
 
     try {
-      const hours = WINDOW_HOURS[state.window];
-      const data = await fetchJson(`/api/admin/v1/monitoring?hours=${hours}`, {
+      const params = new URLSearchParams();
+      params.set("range", state.range || DEFAULT_RANGE);
+      if (state.range === "custom") {
+        if (dom.rangeStart?.value) params.set("startDate", dom.rangeStart.value);
+        if (dom.rangeEnd?.value) params.set("endDate", dom.rangeEnd.value);
+      }
+      const data = await fetchJson(`/api/admin/v1/monitoring?${params.toString()}`, {
         signal: state.monitoringController.signal,
         ...(state.token ? { headers: { Authorization: `Bearer ${state.token}` } } : {})
       });
@@ -915,6 +1025,17 @@
     state.window = nextWindow;
     document.querySelectorAll("[data-window]").forEach((button) => {
       const active = button.dataset.window === nextWindow;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+    dom.kpiGrid.setAttribute("aria-busy", "true");
+    void loadMonitoring({ manual: true });
+  }
+
+  function updateRange(nextRange) {
+    state.range = nextRange || DEFAULT_RANGE;
+    document.querySelectorAll("[data-range]").forEach((button) => {
+      const active = button.dataset.range === state.range;
       button.classList.toggle("is-active", active);
       button.setAttribute("aria-pressed", String(active));
     });
@@ -1914,6 +2035,10 @@
     document.querySelectorAll("[data-window]").forEach((button) => {
       button.addEventListener("click", () => updateWindow(button.dataset.window));
     });
+    document.querySelectorAll("[data-range]").forEach((button) => {
+      button.addEventListener("click", () => updateRange(button.dataset.range));
+    });
+    dom.rangeApply?.addEventListener("click", () => updateRange("custom"));
     dom.pauseButton.addEventListener("click", togglePause);
     dom.refreshButton.addEventListener("click", () => void loadMonitoring({ manual: true }));
     dom.errorRetry.addEventListener("click", () => void loadMonitoring({ manual: true }));

@@ -874,6 +874,7 @@ let adImpressionObserver = null;
 let adImpressionTimer = null;
 let contentRevision = null;
 let contentPollTimer = null;
+let currentPageViewStartedAt = Date.now();
 
 function rebuildDataMaps() {
   Object.keys(categoryMap).forEach((key) => delete categoryMap[key]);
@@ -1217,6 +1218,54 @@ function officialToolHref(tool, placement) {
   return `/r/tools/${encodeURIComponent(tool.id)}?placement=${encodeURIComponent(placement)}`;
 }
 
+function deviceType() {
+  const ua = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const touch = navigator.maxTouchPoints || 0;
+  if (/ipad|tablet|playbook|silk/i.test(ua) || (platform === "MacIntel" && touch > 1)) return "tablet";
+  if (/mobile|iphone|ipod|android.*mobile|windows phone|micromessenger|wxwork/i.test(ua)) return "mobile";
+  if (/android/i.test(ua) && touch > 1) return "tablet";
+  if (/windows|macintosh|linux|x11/i.test(ua)) return "desktop";
+  return "unknown";
+}
+
+function classifyReferrer() {
+  const empty = { source_type: "direct", source_domain: "", referrer_host: "" };
+  if (!document.referrer) return empty;
+  let referrer;
+  try { referrer = new URL(document.referrer); } catch { return { ...empty, source_type: "unknown" }; }
+  const host = referrer.hostname.replace(/^www\./i, "").toLowerCase();
+  const ownHost = location.hostname.replace(/^www\./i, "").toLowerCase();
+  if (!host) return { ...empty, source_type: "unknown" };
+  if (host === ownHost) return { source_type: "internal", source_domain: host, referrer_host: host };
+  if (/(^|\.)weixin\.qq\.com$|(^|\.)wechat\.com$|(^|\.)qq\.com$/i.test(host) || /micromessenger|wxwork/i.test(navigator.userAgent || "")) {
+    return { source_type: "wechat", source_domain: host, referrer_host: host };
+  }
+  if (/(^|\.)baidu\.com$|(^|\.)bing\.com$|(^|\.)google\.[a-z.]+$|(^|\.)sogou\.com$|(^|\.)so\.com$|(^|\.)360\.cn$|(^|\.)sm\.cn$|(^|\.)yahoo\.com$|(^|\.)duckduckgo\.com$/i.test(host)) {
+    return { source_type: "search", source_domain: host, referrer_host: host };
+  }
+  return { source_type: "website", source_domain: host, referrer_host: host };
+}
+
+function getSessionAttribution() {
+  const key = "nike-session-attribution";
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(key) || "null");
+    if (cached && typeof cached === "object" && cached.source_type) return cached;
+  } catch {}
+  const attribution = classifyReferrer();
+  try { sessionStorage.setItem(key, JSON.stringify(attribution)); } catch {}
+  return attribution;
+}
+
+function commonAnalyticsProperties() {
+  return {
+    viewport: `${window.innerWidth}x${window.innerHeight}`,
+    device_type: deviceType(),
+    ...getSessionAttribution()
+  };
+}
+
 function bindImageFallbacks(root = document) {
   root.querySelectorAll("img[data-fallback]").forEach((image) => {
     const showFallback = () => {
@@ -1242,14 +1291,14 @@ function bindImageFallbacks(root = document) {
 function track(eventName, properties = {}) {
   const eventTime = new Date().toISOString();
   const sessionId = getSessionId();
+  const mergedProperties = { ...commonAnalyticsProperties(), ...properties };
   window.nikeAIEvents = window.nikeAIEvents || [];
   window.nikeAIEvents.push({
     event_name: eventName,
     event_time: eventTime,
     session_id: sessionId,
     page_type: state.activeView,
-    viewport: `${window.innerWidth}x${window.innerHeight}`,
-    ...properties
+    ...mergedProperties
   });
   eventQueue.push({
     eventId: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -1257,13 +1306,19 @@ function track(eventName, properties = {}) {
     clientTime: eventTime,
     pageType: state.activeView,
     path: `${location.pathname}${location.hash}`,
-    properties: { viewport: `${window.innerWidth}x${window.innerHeight}`, ...properties }
+    properties: mergedProperties
   });
   if (eventQueue.length > 100) eventQueue.splice(0, eventQueue.length - 100);
   if (backendAvailable) {
     if (eventQueue.length >= 10) void flushEventQueue();
     else if (!eventFlushTimer) eventFlushTimer = window.setTimeout(() => void flushEventQueue(), 1800);
   }
+}
+
+function trackPageEngagement() {
+  const durationMs = Math.max(0, Math.round(Date.now() - currentPageViewStartedAt));
+  if (durationMs < 1000) return;
+  track("page_engagement", { page_id: state.activeView, duration_ms: Math.min(durationMs, 30 * 60 * 1000) });
 }
 
 function getSessionId() {
@@ -2262,7 +2317,11 @@ function setActiveView(viewName, updateHistory = true, shouldTrack = true) {
   syncSeoMetadata(nextView);
   closeSidebar();
   window.scrollTo({ top: 0, behavior: "smooth" });
-  if (shouldTrack && previousView !== nextView) track("page_view", { page_id: nextView });
+  if (shouldTrack && previousView !== nextView) {
+    trackPageEngagement();
+    currentPageViewStartedAt = Date.now();
+    track("page_view", { page_id: nextView });
+  }
 }
 
 function openSidebar() {
@@ -2790,10 +2849,15 @@ function bindEvents() {
   });
   window.addEventListener("resize", syncSidebarAccessibility);
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) void checkContentRevision();
+    if (document.hidden) trackPageEngagement();
+    else {
+      currentPageViewStartedAt = Date.now();
+      void checkContentRevision();
+    }
   });
   window.addEventListener("pagehide", () => {
     if (contentPollTimer) window.clearInterval(contentPollTimer);
+    trackPageEngagement();
     void flushEventQueue(true);
   });
 }
@@ -2823,6 +2887,7 @@ async function initialize() {
   setActiveView(state.activeView, false, false);
   refreshIcons();
   bindImageFallbacks();
+  currentPageViewStartedAt = Date.now();
   track("page_view", { page_id: state.activeView });
   observeSponsorImpression();
   startContentPolling();

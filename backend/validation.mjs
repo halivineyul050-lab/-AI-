@@ -203,6 +203,7 @@ export function validateFeedback(body) {
 
 const eventNames = new Set([
   "page_view",
+  "page_engagement",
   "search_submit",
   "search_no_results",
   "category_click",

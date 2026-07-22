@@ -68,8 +68,8 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 12);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 12);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 13);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 13);
 });
 
 test("brand icon is served with the expected media type", async () => {
@@ -363,6 +363,7 @@ test("event ingestion deduplicates by event id", async () => {
   });
   assert.equal(first.response.status, 202);
   assert.equal(first.body.data.accepted, 1);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM analytics_visitors WHERE visitor_id = ?").get(payload.visitorId).count, 1);
 
   const duplicate = await request("/api/v1/events/batch", {
     method: "POST",
