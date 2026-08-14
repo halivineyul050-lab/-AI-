@@ -11,3 +11,4 @@ Thumbs.db
 .idea/
 imports/*
 !imports/tool-catalog.template.csv
+.workbuddy/

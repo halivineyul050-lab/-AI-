@@ -13,7 +13,7 @@
 <p align="center">
   <img alt="Node.js 22.5+" src="https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLite-内置-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-28%20passing-0f766e">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-43%20passing-0f766e">
   <img alt="Dependencies" src="https://img.shields.io/badge/npm_dependencies-0-f97316">
 </p>
 
@@ -39,15 +39,17 @@
 
 ### 用户端
 
-- AI 工具分类、搜索、筛选和排序
+- 顶部导航网站型布局 + 四段式首页（Hero 搜索 → 信任带 → 热门工具 → 最新收录）
+- AI 工具分类、搜索、筛选和排序（筛选面板移动端折叠）
 - AI 漫剧专属分类、分类内固定推荐顺序与工具 Logo 多级回退
 - 网格与列表两种浏览方式
-- 工具详情、功能介绍、价格和平台信息
+- 工具详情抽屉（含「快速判断」决策模块：适合场景 / 使用前注意 / 关键信息）
 - 工具收藏与多工具对比
 - 教程、资讯、专题和相关推荐
 - 工具官网安全跳转与点击统计
 - 工具投稿、投稿状态查询和周报订阅
 - 桌面端、平板端和手机端响应式布局
+- 暗色模式与 SEO 落地页（/tools/*、/guides/*、/compare/*）品牌统一
 
 ### 运营后台
 
@@ -242,7 +244,7 @@ AI 资讯支持按计划自动收集和发布。服务会读取配置的官方 R
 npm test
 ```
 
-当前共 `38` 项自动化测试，覆盖：
+当前共 `43` 项自动化测试，覆盖：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -290,17 +292,21 @@ npm test
 1. 使用稳定的 Node.js 22 LTS 运行环境和持久化磁盘。
 2. 设置 `NODE_ENV=production`、稳定的 `NIKE_DB_PATH`、强随机管理令牌和分析盐值。
 3. 通过 Nginx、Caddy 或云负载均衡提供 HTTPS 与反向代理。
-4. 定期备份 SQLite 主数据库，并监控磁盘、WAL 和失效外链。
-5. 根据访问量再引入 Redis、PostgreSQL、全文搜索和对象存储，无需在 MVP 阶段过度拆分服务。
+4. 将 `NIKE_ALLOWED_ORIGINS` 配置为生产域名（同源 CSRF 校验依赖该白名单；cookie 会话登录后台的写操作会校验 Origin/Referer，非白名单来源返回 403）。
+5. 生产建议关闭共享令牌管理（`NIKE_ENABLE_TOKEN_ADMIN=false`），改用账号会话（HttpOnly Cookie + SameSite=Lax + 同源校验）管理后台，并规划 MFA、RBAC 与登录限流。
+6. 后台管理令牌仅保存在页面内存中（原型方案）；生产账号体系下不要将凭据写入浏览器可读存储。
+7. 定期备份 SQLite 主数据库，并监控磁盘、WAL 和失效外链。
+8. 根据访问量再引入 Redis、PostgreSQL、全文搜索和对象存储，无需在 MVP 阶段过度拆分服务。
 
 `data/` 可能包含投稿邮箱、订阅记录、行为事件、审核日志和访问统计。该目录中的数据库、WAL 与日志已被 Git 忽略，但生产备份仍应按敏感数据管理，并设置访问控制、加密与保留期限。
 
 ## 当前边界
 
+- 主站已于 2026-07 下线「登录 / 注册」入口；账号与评分相关后端 API 仍保留（供后续账号体系复用），auth.html 仍可访问但主站不再链接。
 - 共享管理令牌是原型鉴权方案，不等同于生产级管理员账户体系。
 - SQLite 适合当前单机 MVP；高并发、多实例部署需要迁移到服务端数据库。
 - 周报已实现订阅和退订入库，尚未接入正式邮件发送服务。
-- 用户端仍依赖 Google favicon、Unsplash 和 unpkg 等外部素材或脚本服务。
+- 用户端仍依赖 Unsplash 和 unpkg 等外部素材或脚本服务（工具 Logo 已全部本地托管，不再依赖 Google favicon）。
 - 当前页面为同源静态渲染应用，不是完整的 SSR SEO 生产方案。
 - 工具和资讯内容具有时效性，需要持续复核来源、状态和发布日期。
 

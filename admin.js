@@ -2132,6 +2132,15 @@
   }
 
   async function requireAccountSession() {
+    if (!state.token) {
+      try {
+        const probe = await fetch("/api/admin/v1/monitoring?hours=24", {
+          credentials: "same-origin",
+          headers: { Accept: "application/json" }
+        });
+        if (probe.ok) return true;
+      } catch {}
+    }
     if (state.token) {
       try {
         const response = await fetch("/api/admin/v1/summary", {

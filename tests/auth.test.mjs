@@ -167,12 +167,12 @@ test("logged-in users can create, update and remove one rating per tool", async 
   assert.equal(removed.body.data.count, 0);
 });
 
-test("auth page and account entry are served by the same backend", async () => {
+test("auth page served; account entry removed from home", async () => {
   const page = await fetch(`${baseUrl}/auth.html`);
   assert.equal(page.status, 200);
   assert.match(await page.text(), /id="register-form"/);
   const home = await fetch(`${baseUrl}/`);
-  assert.match(await home.text(), /id="account-link"/);
+  assert.doesNotMatch(await home.text(), /id="account-link"/);
 });
 
 test("account center exposes activity, notification preferences and safe account deletion", async () => {

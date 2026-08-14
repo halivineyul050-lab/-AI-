@@ -219,6 +219,21 @@ function readBearerToken(request) {
   return value.startsWith("Bearer ") ? value.slice(7) : "";
 }
 
+function assertSameOriginForCookie(request, allowedOrigins) {
+  const origin = String(request.headers.origin || "");
+  const referer = String(request.headers.referer || "");
+  const isAllowed = (value) => {
+    if (!value) return true;
+    try {
+      return allowedOrigins.has(new URL(value).origin);
+    } catch {
+      return false;
+    }
+  };
+  if (origin && !isAllowed(origin)) throw new HttpError(403, "csrf_rejected", "跨站请求被拒绝");
+  if (!origin && referer && !isAllowed(referer)) throw new HttpError(403, "csrf_rejected", "跨站请求被拒绝");
+}
+
 function userAgentFamily(value) {
   const ua = String(value || "").toLowerCase();
   if (ua.includes("edg/")) return "edge";
@@ -549,7 +564,7 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260720-tools-seo-1">
+  <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
@@ -701,7 +716,7 @@ function buildGuideSeoPage(request, topic, tools) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
@@ -770,7 +785,7 @@ function buildCompareSeoPage(request, topic, tools) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
@@ -832,7 +847,7 @@ function buildGuideIndexPage(request) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
@@ -889,7 +904,7 @@ function buildCompareIndexPage(request) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
   <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260721-seo-collections-1">
+  <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
@@ -1013,7 +1028,10 @@ export function buildApplication(options = {}) {
   };
   const requireManagementAccess = (request, ip) => {
     const sessionUser = getUserBySession(db, parseCookies(request)[authCookieName]);
-    if (sessionUser?.role === "admin") return { actor: `user:${sessionUser.id}`, user: sessionUser };
+    if (sessionUser?.role === "admin") {
+      assertSameOriginForCookie(request, allowedOrigins);
+      return { actor: `user:${sessionUser.id}`, user: sessionUser };
+    }
     requireTokenAdmin(request, ip);
     return { actor: "admin-token", user: null };
   };
@@ -1545,6 +1563,16 @@ export function buildApplication(options = {}) {
           : getMonitoringSnapshot(db, monitoringOptions);
         if (!cachedSnapshot || snapshot !== cachedSnapshot.value) {
           monitoringCache.set(cacheKey, { cachedAt: Date.now(), value: snapshot });
+        }
+        // 防止自定义日期范围导致缓存键无限增长（内存保护）
+        if (monitoringCache.size > 200) {
+          for (const [key, entry] of monitoringCache) {
+            if (Date.now() - entry.cachedAt > 60_000) monitoringCache.delete(key);
+          }
+          if (monitoringCache.size > 200) {
+            const oldest = [...monitoringCache.entries()].sort((a, b) => a[1].cachedAt - b[1].cachedAt)[0];
+            if (oldest) monitoringCache.delete(oldest[0]);
+          }
         }
         const visibleSnapshot = hasAdminAccess
           ? snapshot

@@ -836,13 +836,6 @@ const compareTopics = [
   { slug: "midjourney-vs-jimeng-vs-kling", title: "Midjourney vs 即梦 vs 可灵", subtitle: "图像质量 / 中文创作 / 图生视频", ids: ["midjourney", "jimeng", "kling"] },
   { slug: "cursor-vs-trae-vs-github-copilot", title: "Cursor vs TRAE vs GitHub Copilot", subtitle: "个人开发 / 项目级修改 / 团队协作", ids: ["cursor", "trae", "github-copilot"] }
 ];
-const accountBenefits = [
-  ["bookmark", "收藏常用工具"],
-  ["history", "记录浏览历史"],
-  ["bell-ring", "接收工具更新提醒"],
-  ["clipboard-check", "投稿追踪"],
-  ["sparkles", "后续支持个性化推荐"]
-];
 const articleCoverFallback = "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=82";
 const topicSlugMap = {
   "AI智能体": "ai-agents",
@@ -856,11 +849,11 @@ const topicSlugMap = {
 const categoryMap = Object.fromEntries(categories.map((category) => [category.id, category]));
 const toolMap = Object.fromEntries(tools.map((tool) => [tool.id, tool]));
 let sponsoredTool = tools.find((tool) => tool.sponsored) || null;
+let fullCatalogCount = 0;
 let rankingTools = tools.filter((tool) => !tool.sponsored).sort((a, b) => b.popular - a.popular).slice(0, 6);
 let growthData = { weeklyNew: [], weeklyPopular: [], monthlyPopular: [], categoryRanking: [] };
 let rankingMode = "weekly";
 let backendAvailable = false;
-let currentUser = null;
 let toolRequestVersion = 0;
 let searchDebounceTimer = null;
 let eventQueue = [];
@@ -947,34 +940,6 @@ async function loadBackendData() {
   document.documentElement.dataset.backend = "fallback";
 }
 
-async function loadCurrentUser() {
-  const label = document.getElementById("account-label");
-  const link = document.getElementById("account-link");
-  if (!label || !link) return;
-  try {
-    const response = await fetch("/api/v1/auth/me", { credentials: "same-origin", headers: { Accept: "application/json" } });
-    if (!response.ok) return;
-    const payload = await response.json();
-    const user = payload.data?.user;
-    if (!user) return;
-    currentUser = user;
-    label.textContent = user.displayName;
-    link.setAttribute("aria-label", `${user.displayName}的账号中心`);
-  } catch {}
-}
-
-async function loadAccountFavorites() {
-  if (!currentUser) return;
-  try {
-    const response = await fetch("/api/v1/account/favorites", { credentials: "same-origin", headers: { Accept: "application/json" } });
-    if (!response.ok) return;
-    const payload = await response.json();
-    if (!Array.isArray(payload.data?.toolIds)) return;
-    state.favorites = new Set(payload.data.toolIds);
-    saveLocalArray("nike-favorites", state.favorites);
-  } catch {}
-}
-
 function buildToolQuery(offset = 0, limit = state.toolLimit) {
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset), sort: state.sort });
   if (state.query.trim()) params.set("q", state.query.trim());
@@ -1023,6 +988,16 @@ async function loadFavoriteToolResults(requestVersion) {
   return true;
 }
 
+async function loadCatalogTotal() {
+  try {
+    const payload = await apiRequest("/api/v1/tools?limit=1&sort=recommended");
+    const metaTotal = Number(payload.meta?.total);
+    if (metaTotal > 0) fullCatalogCount = metaTotal;
+  } catch {
+    // 保留 0，由 renderDirectoryStats 回退到本地计算
+  }
+}
+
 async function loadToolResults({ append = false } = {}) {
   if (!backendAvailable) return false;
   const requestVersion = ++toolRequestVersion;
@@ -1048,6 +1023,9 @@ async function loadToolResults({ append = false } = {}) {
       }
       rebuildDataMaps();
       state.toolTotal = Number(payload.meta?.total) || 0;
+      if (!append && !state.query && state.category === "all" && state.price === "all" && state.platform === "all" && state.language === "all" && !state.favoritesOnly) {
+        fullCatalogCount = state.toolTotal;
+      }
       state.toolHasMore = tools.length < state.toolTotal;
     }
     state.toolServerMode = true;
@@ -1196,20 +1174,16 @@ function refreshIcons() {
 }
 
 function logoMarkup(tool, extraClass = "") {
-  const initial = escapeHTML(tool.name.trim().slice(0, 1).toUpperCase());
-  const fallbackSrc = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(tool.domain)}&sz=128`;
-  let src = fallbackSrc;
+  let src = "/brand-icon-192.png";
   try {
     const explicit = new URL(String(tool.logoUrl || ""), document.baseURI);
     if (explicit.protocol === "https:" || explicit.origin === location.origin) src = explicit.href;
   } catch {
-    // 缺少或无效的显式 Logo 时使用官网域名 favicon。
+    // 缺少或无效的显式 Logo 时使用本地品牌图标兜底。
   }
-  const fallbackAttribute = src === fallbackSrc ? "" : ` data-fallback-src="${escapeHTML(fallbackSrc)}"`;
   return `
     <span class="tool-logo ${extraClass}" aria-hidden="true">
-      <img src="${escapeHTML(src)}" alt="" data-fallback${fallbackAttribute} loading="lazy" referrerpolicy="no-referrer" width="48" height="48">
-      <span class="logo-fallback" hidden>${initial}</span>
+      <img src="${escapeHTML(src)}" alt="" data-fallback loading="lazy" referrerpolicy="no-referrer" width="48" height="48">
     </span>`;
 }
 
@@ -1268,10 +1242,8 @@ function commonAnalyticsProperties() {
 
 function bindImageFallbacks(root = document) {
   root.querySelectorAll("img[data-fallback]").forEach((image) => {
-    const showFallback = () => {
+    const hideBrokenImage = () => {
       image.hidden = true;
-      const fallback = image.nextElementSibling;
-      if (fallback) fallback.hidden = false;
     };
     const handleError = () => {
       const fallbackSrc = image.dataset.fallbackSrc;
@@ -1281,7 +1253,7 @@ function bindImageFallbacks(root = document) {
         return;
       }
       image.removeEventListener("error", handleError);
-      showFallback();
+      hideBrokenImage();
     };
     image.addEventListener("error", handleError);
     if (image.complete && image.naturalWidth === 0) handleError();
@@ -1411,6 +1383,38 @@ function renderNavigation() {
       <i data-lucide="${escapeHTML(safeIconName(category.icon, "shapes"))}"></i><span>${escapeHTML(category.name)}</span>
     </button>`).join("");
 
+  const dropdown = document.getElementById("nav-category-dropdown");
+  if (dropdown) {
+    dropdown.innerHTML = `<div class="nav-dropdown-grid">${categories.map((category) => {
+      const count = category.toolCount ?? (category.id === "all"
+        ? naturalTools.length
+        : tools.filter((tool) => tool.category === category.id).length);
+      return `
+        <button class="nav-dropdown-item" type="button" data-category="${escapeHTML(category.id)}">
+          <i data-lucide="${escapeHTML(safeIconName(category.icon, "shapes"))}"></i>
+          <span>${escapeHTML(category.name)}</span>
+          <span class="category-count">${Number(count) || 0}</span>
+        </button>`;
+    }).join("")}</div>`;
+  }
+
+  const homeCategoryGrid = document.getElementById("home-category-grid");
+  if (homeCategoryGrid) {
+    homeCategoryGrid.innerHTML = categories
+      .filter((category) => category.id !== "all")
+      .map((category) => {
+        const count = category.toolCount ?? tools.filter((tool) => tool.category === category.id).length;
+        return `
+        <button class="category-card" type="button" data-category="${escapeHTML(category.id)}" title="浏览${escapeHTML(category.name)}工具">
+          <span class="category-card-icon"><i data-lucide="${escapeHTML(safeIconName(category.icon, "shapes"))}"></i></span>
+          <span class="category-card-body">
+            <span class="category-card-name">${escapeHTML(category.name)}</span>
+            <span class="category-card-count">${Number(count) || 0} 个工具</span>
+          </span>
+        </button>`;
+      }).join("");
+  }
+
   const submissionCategory = document.querySelector('#submit-form select[name="category"]');
   if (submissionCategory) {
     const selected = submissionCategory.value;
@@ -1419,6 +1423,64 @@ function renderNavigation() {
       .map((category) => `<option value="${escapeHTML(category.id)}">${escapeHTML(category.name.replace(/^AI\s*/, "AI"))}</option>`)
       .join("")}`;
     if ([...submissionCategory.options].some((option) => option.value === selected)) submissionCategory.value = selected;
+  }
+}
+
+function renderFeaturedCard(tool) {
+  const isFavorite = state.favorites.has(tool.id);
+  const isCompared = state.compare.has(tool.id);
+  const categoryName = categoryMap[tool.category]?.name || "未分类";
+  return `
+    <article class="featured-tool-card${tool.sponsored ? " is-sponsored" : ""}" tabindex="0" data-clickable="true" data-tool-id="${tool.id}" aria-label="查看 ${escapeHTML(tool.name)} 详情，按 Enter 打开">
+      <div class="featured-tool-main" data-tool-id="${tool.id}">
+        <div class="featured-logo">${logoMarkup(tool)}</div>
+        <h3 class="featured-tool-name">${escapeHTML(tool.name)}${tool.sponsored ? '<span class="sponsored-tag">推广</span>' : ""}</h3>
+        <p class="featured-tool-desc">${escapeHTML(tool.summary)}</p>
+        <span class="featured-tool-category">${escapeHTML(categoryName)} · ${priceLabels[tool.price]}</span>
+      </div>
+      <div class="featured-tool-footer">
+        <div class="featured-tool-actions">
+          <button class="icon-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${tool.id}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" aria-pressed="${isFavorite}" title="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}">
+            <i data-lucide="bookmark"></i>
+          </button>
+          <button class="icon-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${tool.id}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" aria-pressed="${isCompared}" title="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}">
+            <i data-lucide="columns-3"></i>
+          </button>
+        </div>
+        <a class="featured-go-link" href="${officialToolHref(tool, "home_featured")}" target="_blank" rel="noopener noreferrer nofollow${tool.sponsored ? " sponsored" : ""}" data-go-link="${tool.id}" aria-label="访问${escapeHTML(tool.name)}官网" title="${escapeHTML(tool.name)}官网">
+          <i data-lucide="external-link"></i>
+        </a>
+      </div>
+    </article>`;
+}
+
+function renderHomeSections() {
+  const totalElement = document.getElementById("hero-tool-total");
+  if (totalElement) totalElement.textContent = String(fullCatalogCount || tools.filter((tool) => !tool.sponsored).length || tools.length);
+  const categoryTotalElement = document.getElementById("hero-category-total");
+  if (categoryTotalElement) categoryTotalElement.textContent = String(categories.filter((category) => category.id !== "all").length);
+
+  const hotwords = ["视频生成", "AI 漫剧", "写代码", "做 PPT", "AI 绘画", "写作", "免费"];
+  const hotwordGrid = document.getElementById("hero-hotwords");
+  if (hotwordGrid) {
+    hotwordGrid.innerHTML = hotwords.map((word) => `<button class="hero-hotword" type="button" data-hotword="${escapeHTML(word)}">${escapeHTML(word)}</button>`).join("");
+  }
+
+  const featuredGrid = document.getElementById("featured-tool-grid");
+  if (featuredGrid) {
+    const featured = [...tools]
+      .sort((a, b) => (b.sponsored ? 1 : 0) - (a.sponsored ? 1 : 0) || b.popular - a.popular)
+      .slice(0, 10);
+    featuredGrid.innerHTML = featured.map(renderFeaturedCard).join("");
+  }
+
+  const newestGrid = document.getElementById("newest-tool-grid");
+  if (newestGrid) {
+    const newest = [...tools]
+      .filter((tool) => !tool.sponsored)
+      .sort((a, b) => String(b.updated || "").localeCompare(String(a.updated || "")))
+      .slice(0, 10);
+    newestGrid.innerHTML = newest.map(renderFeaturedCard).join("");
   }
 }
 
@@ -1524,15 +1586,6 @@ function renderDecisionModules() {
     }).join("");
   }
 
-  const homeTopics = document.getElementById("home-topic-grid");
-  if (homeTopics) {
-    homeTopics.innerHTML = topicCards.map((topic) => `
-      <a class="topic-card" href="/guides/${encodeURIComponent(topic.slug)}">
-        <strong>${escapeHTML(topic.title)}</strong>
-        <span>${escapeHTML(topic.intent)}</span>
-      </a>`).join("");
-  }
-
   const guideTopics = document.getElementById("guide-topic-grid");
   if (guideTopics) {
     guideTopics.innerHTML = topicCards.map((topic) => {
@@ -1545,42 +1598,10 @@ function renderDecisionModules() {
     }).join("");
   }
 
-  const benefitList = document.getElementById("account-benefit-list");
-  if (benefitList) {
-    benefitList.innerHTML = accountBenefits.map(([icon, text]) => `<span><i data-lucide="${icon}"></i>${escapeHTML(text)}</span>`).join("");
-  }
-
-  renderFreshnessPanel();
   renderRankingPage();
   renderComparePage();
   refreshIcons();
   bindImageFallbacks();
-}
-
-function renderFreshnessPanel() {
-  const grid = document.getElementById("site-freshness-grid");
-  if (!grid) return;
-  const dates = knownTools().map((tool) => tool.updated).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort();
-  const latestDate = dates.at(-1) || "";
-  const recentCutoff = latestDate ? new Date(`${latestDate}T00:00:00`) : null;
-  if (recentCutoff) recentCutoff.setDate(recentCutoff.getDate() - 6);
-  const recent = recentCutoff
-    ? knownTools().filter((tool) => /^\d{4}-\d{2}-\d{2}$/.test(tool.updated || "") && new Date(`${tool.updated}T00:00:00`) >= recentCutoff)
-    : [];
-  const popular = (growthData.weeklyPopular.length ? growthData.weeklyPopular : rankingTools).slice(0, 3);
-  const latestNews = newsItems.slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))[0];
-  const editorPicks = pickTools({ ids: ["doubao", "chatgpt", "deepseek", "jimeng"], limit: 4 });
-  const cards = [
-    ["今日新增", recent.filter((tool) => tool.updated === latestDate).length || recent.length, "按最新资料更新时间统计"],
-    ["最近更新", recent.slice(0, 3).map((tool) => tool.name).join("、") || "持续复核中", "近 7 天"],
-    ["本周热门", popular.map((tool) => tool.name).join("、") || "榜单生成中", "按访问与编辑信号"],
-    ["最新资讯", latestNews?.title || "资讯持续更新", latestNews?.date || ""],
-    ["编辑精选", editorPicks.map((tool) => tool.name).join("、"), "适合先试用"],
-    ["更新时间", latestDate || "持续更新", "工具资料最新日期"]
-  ];
-  grid.innerHTML = cards.map(([title, value, note]) => `<div class="freshness-card"><span>${escapeHTML(title)}</span><strong>${escapeHTML(value)}</strong><small>${escapeHTML(note)}</small></div>`).join("");
-  const dateNode = document.getElementById("site-freshness-date");
-  if (dateNode) dateNode.textContent = latestDate ? `更新至 ${latestDate}` : "持续更新";
 }
 
 function renderRankingPage() {
@@ -1766,25 +1787,9 @@ function renderToolListSchema(items) {
   });
 }
 
-function renderWeeklyReturnBand() {
-  const sourceTools = growthData.weeklyNew.length ? growthData.weeklyNew : tools;
-  const organic = sourceTools.filter((tool) => !tool.sponsored && /^\d{4}-\d{2}-\d{2}$/.test(tool.updated || ""));
-  const newest = organic.map((tool) => tool.updated).sort().at(-1);
-  const cutoff = newest ? new Date(`${newest}T00:00:00`) : null;
-  if (cutoff) cutoff.setDate(cutoff.getDate() - 6);
-  const recent = cutoff
-    ? organic.filter((tool) => new Date(`${tool.updated}T00:00:00`) >= cutoff).sort((a, b) => b.updated.localeCompare(a.updated))
-    : [];
-  const count = document.getElementById("weekly-new-count");
-  const names = document.getElementById("weekly-new-names");
-  if (count) count.textContent = recent.length ? `近 7 天更新 ${recent.length} 个工具` : "工具资料持续复核";
-  if (names) names.textContent = recent.length
-    ? `包括 ${recent.slice(0, 4).map((tool) => tool.name).join("、")}${recent.length > 4 ? " 等" : ""}。`
-    : "新工具与资料复核结果会在这里汇总。";
-}
 
 function renderDirectoryStats() {
-  const total = state.toolTotal || tools.filter((tool) => !tool.sponsored).length;
+  const total = fullCatalogCount || tools.filter((tool) => !tool.sponsored).length;
   const totalNode = document.getElementById("directory-tool-total");
   const categoryNode = document.getElementById("directory-category-total");
   const dateNode = document.getElementById("directory-verified-date");
@@ -1870,17 +1875,6 @@ async function toggleFavorite(toolId) {
   if (adding) state.favorites.add(toolId);
   else state.favorites.delete(toolId);
   saveLocalArray("nike-favorites", state.favorites);
-  if (currentUser) {
-    try {
-      await fetch(`/api/v1/account/favorites/${encodeURIComponent(toolId)}`, {
-        method: adding ? "PUT" : "DELETE",
-        credentials: "same-origin",
-        headers: { Accept: "application/json" }
-      });
-    } catch {
-      showToast("收藏同步失败，已保留本机收藏");
-    }
-  }
   if (state.favoritesOnly) void refreshToolResults();
   else renderTools();
   requestAnimationFrame(() => {
@@ -1948,6 +1942,46 @@ function openCompareDialog() {
   bindImageFallbacks(dialog);
 }
 
+function renderQuickVerdict(tool) {
+  const freeish = ["free", "freemium", "trial"].includes(tool.price);
+  const chinese = ["zh", "multi"].includes(tool.language);
+  const login = String(tool.login || "");
+  const requiresLogin = /登录|账号|订阅|付费|账户/i.test(login) && !/免登录|无需登录|可免登录/i.test(login);
+  const accessible = /中国大陆可用|多地区可用|全球可用|大陆可用/i.test(tool.region || "");
+  const restricted = /受限|不可用|限制/i.test(tool.region || "");
+  const fits = [];
+  if (freeish) fits.push("免费或低成本起步，适合先试用");
+  if (chinese) fits.push("中文友好，理解成本低");
+  if (accessible) fits.push("国内可直接访问");
+  if (!requiresLogin) fits.push("登录门槛低");
+  if (!fits.length) fits.push("功能定位明确，可按需选择");
+  const cautions = [];
+  if (!freeish) cautions.push("需要付费，建议先确认预算");
+  if (requiresLogin) cautions.push("需要登录或账号才能使用");
+  if (restricted) cautions.push("部分地区访问受限");
+  if (!chinese) cautions.push("中文支持待核验");
+  if (!cautions.length) cautions.push("未发现明显使用门槛");
+  return `
+    <section class="detail-section quick-verdict-section">
+      <h3>快速判断</h3>
+      <div class="quick-verdict">
+        <div class="quick-verdict-good">
+          <span class="quick-verdict-label">适合你，如果</span>
+          <ul>${fits.map((item) => `<li><i data-lucide="check"></i><span>${escapeHTML(item)}</span></li>`).join("")}</ul>
+        </div>
+        <div class="quick-verdict-warn">
+          <span class="quick-verdict-label">使用前注意</span>
+          <ul>${cautions.map((item) => `<li><i data-lucide="info"></i><span>${escapeHTML(item)}</span></li>`).join("")}</ul>
+        </div>
+      </div>
+      <dl class="quick-facts">
+        <div><dt>价格</dt><dd>${priceLabels[tool.price]}</dd></div>
+        <div><dt>登录</dt><dd>${escapeHTML(tool.login || "待核验")}</dd></div>
+        <div><dt>地区</dt><dd>${escapeHTML(tool.region || "待核验")}</dd></div>
+      </dl>
+    </section>`;
+}
+
 function renderDrawer(tool) {
   const isFavorite = state.favorites.has(tool.id);
   const isCompared = state.compare.has(tool.id);
@@ -1971,6 +2005,7 @@ function renderDrawer(tool) {
       </div>
     </div>
     ${sponsorNotice}
+    ${renderQuickVerdict(tool)}
     <div class="detail-actions">
       <a class="primary-button" href="${officialToolHref(tool, "detail_drawer")}" target="_blank" rel="noopener noreferrer${tool.sponsored ? " nofollow sponsored" : ""}" data-official-id="${tool.id}">
         <span>访问官网</span><i data-lucide="external-link"></i>
@@ -1978,10 +2013,6 @@ function renderDrawer(tool) {
       <button class="secondary-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${tool.id}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" title="${isFavorite ? "取消收藏" : "收藏"}"><i data-lucide="bookmark"></i></button>
       <button class="secondary-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${tool.id}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" title="${isCompared ? "移出对比" : "加入对比"}"><i data-lucide="columns-3"></i></button>
     </div>
-    <section class="tool-rating-panel" id="tool-rating-panel" data-rating-tool-id="${escapeHTML(tool.id)}">
-      <div><p class="eyebrow">USER RATING</p><h3>用户评分</h3><p class="tool-rating-summary">正在读取评分...</p></div>
-      <div class="tool-rating-actions" aria-label="为${escapeHTML(tool.name)}评分"></div>
-    </section>
     <section class="detail-section">
       <h3>产品概览</h3>
       <p>${escapeHTML(tool.description)}</p>
@@ -2004,52 +2035,6 @@ function renderDrawer(tool) {
   `;
   refreshIcons();
   bindImageFallbacks(document.getElementById("drawer-content"));
-  void loadToolRating(tool.id);
-}
-
-function renderToolRating(toolId, data) {
-  const panel = document.querySelector(`[data-rating-tool-id="${CSS.escape(toolId)}"]`);
-  if (!panel) return;
-  const summary = panel.querySelector(".tool-rating-summary");
-  const actions = panel.querySelector(".tool-rating-actions");
-  summary.textContent = data.count
-    ? `${data.average.toFixed(1)} / 5 · ${data.count} 位用户评分`
-    : "还没有用户评分，登录后可以成为第一位评分者。";
-  actions.innerHTML = `
-    <div class="rating-stars" role="group" aria-label="选择 1 到 5 星">
-      ${[1, 2, 3, 4, 5].map((value) => `<button class="rating-star ${data.userRating >= value ? "is-active" : ""}" type="button" data-rating-value="${value}" aria-label="${value} 星" aria-pressed="${data.userRating === value}"><i data-lucide="star"></i></button>`).join("")}
-    </div>
-    ${data.userRating ? `<button class="text-button rating-remove" type="button" data-rating-remove="${escapeHTML(toolId)}">撤销评分</button>` : ""}
-    ${currentUser ? "" : '<a class="rating-login" href="/auth.html?next=/">登录后评分</a>'}`;
-  refreshIcons();
-}
-
-async function loadToolRating(toolId) {
-  try {
-    const payload = await apiRequest(`/api/v1/tools/${encodeURIComponent(toolId)}/ratings`, {}, 5000);
-    renderToolRating(toolId, payload.data);
-  } catch {
-    const panel = document.querySelector(`[data-rating-tool-id="${CSS.escape(toolId)}"] .tool-rating-summary`);
-    if (panel) panel.textContent = "评分暂时无法读取。";
-  }
-}
-
-async function updateToolRating(toolId, rating) {
-  if (!currentUser) {
-    location.href = `/auth.html?next=${encodeURIComponent(location.pathname + location.search)}`;
-    return;
-  }
-  try {
-    const payload = await apiRequest(`/api/v1/tools/${encodeURIComponent(toolId)}/rating`, {
-      method: rating ? "PUT" : "DELETE",
-      body: rating ? JSON.stringify({ rating }) : undefined
-    });
-    renderToolRating(toolId, payload.data);
-    showToast(rating ? `已提交 ${rating} 星评分` : "已撤销评分");
-    track("tool_rating", { tool_id: toolId, rating: rating || 0 });
-  } catch (error) {
-    showToast(error.message || "评分提交失败");
-  }
 }
 
 function openDrawer(toolId) {
@@ -2067,9 +2052,6 @@ function openDrawer(toolId) {
   document.getElementById("drawer-scrim").classList.add("is-visible");
   document.body.classList.add("is-locked");
   window.setTimeout(() => document.getElementById("drawer-close").focus(), 200);
-  if (currentUser) {
-    void apiRequest(`/api/v1/account/history/${encodeURIComponent(toolId)}`, { method: "PUT", body: "{}" }, 5000).catch(() => {});
-  }
   track("tool_detail_view", { tool_id: toolId, category_id: tool.category, pricing_type: tool.price });
 }
 
@@ -2541,12 +2523,6 @@ function bindEvents() {
   });
   document.getElementById("reset-filters").addEventListener("click", resetFilters);
   document.getElementById("empty-reset").addEventListener("click", resetFilters);
-  document.getElementById("show-latest-tools").addEventListener("click", () => {
-    state.sort = "newest";
-    document.getElementById("sort-select").value = "newest";
-    setActiveView("tools");
-    void refreshToolResults();
-  });
 
   document.getElementById("favorite-toggle").addEventListener("click", () => {
     state.favoritesOnly = !state.favoritesOnly;
@@ -2602,10 +2578,6 @@ function bindEvents() {
   });
 
   document.getElementById("drawer-content").addEventListener("click", (event) => {
-    const rating = event.target.closest("[data-rating-value]");
-    if (rating) return void updateToolRating(document.getElementById("tool-drawer").dataset.toolId, Number(rating.dataset.ratingValue));
-    const removeRating = event.target.closest("[data-rating-remove]");
-    if (removeRating) return void updateToolRating(removeRating.dataset.ratingRemove, 0);
     const favorite = event.target.closest("[data-favorite-id]");
     if (favorite) return toggleFavorite(favorite.dataset.favoriteId);
     const compare = event.target.closest("[data-compare-id]");
@@ -2769,10 +2741,12 @@ function bindEvents() {
     await submitNewsletter(event.currentTarget, document.getElementById("newsletter-email"), document.getElementById("newsletter-consent"), "news_sidebar");
   });
 
-  document.getElementById("homepage-newsletter-form").addEventListener("submit", async (event) => {
+  document.getElementById("home-newsletter-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
-    await submitNewsletter(event.currentTarget, document.getElementById("homepage-newsletter-email"), document.getElementById("homepage-newsletter-consent"), "home_weekly_update");
+    await submitNewsletter(event.currentTarget, document.getElementById("home-newsletter-email"), document.getElementById("home-newsletter-consent"), "home_engage");
   });
+
+  document.getElementById("engage-submit")?.addEventListener("click", openSubmitDialog);
 
   document.getElementById("feedback-form").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -2862,26 +2836,161 @@ function bindEvents() {
   });
 }
 
+function selectCategoryFromHome(categoryId, sourcePosition) {
+  state.category = categoryId;
+  setActiveView("tools");
+  void refreshToolResults();
+  track("category_click", { category_id: categoryId, source_position: sourcePosition });
+  window.setTimeout(() => {
+    document.querySelector("#tools-view .directory-header")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 80);
+}
+
+function bindHomeEvents() {
+  const dropdownToggle = document.querySelector(".nav-dropdown-toggle");
+  const dropdownWrap = document.querySelector(".nav-dropdown-wrap");
+  const dropdown = document.getElementById("nav-category-dropdown");
+  if (dropdownToggle && dropdownWrap && dropdown) {
+    dropdownToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = dropdownWrap.classList.toggle("is-open");
+      dropdown.hidden = !open;
+      dropdownToggle.setAttribute("aria-expanded", String(open));
+    });
+    dropdown.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-category]");
+      if (!item) return;
+      dropdownWrap.classList.remove("is-open");
+      dropdown.hidden = true;
+      dropdownToggle.setAttribute("aria-expanded", "false");
+      selectCategoryFromHome(item.dataset.category, "nav_dropdown");
+    });
+  }
+  document.addEventListener("click", (event) => {
+    if (dropdownWrap?.classList.contains("is-open") && !event.target.closest(".nav-dropdown-wrap")) {
+      dropdownWrap.classList.remove("is-open");
+      dropdown.hidden = true;
+      dropdownToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  document.getElementById("home-category-grid")?.addEventListener("click", (event) => {
+    const card = event.target.closest("[data-category]");
+    if (card) selectCategoryFromHome(card.dataset.category, "home_category_card");
+  });
+
+  [document.getElementById("featured-tool-grid"), document.getElementById("newest-tool-grid")].forEach((grid) => {
+    if (!grid) return;
+    grid.addEventListener("click", (event) => {
+      if (event.target.closest("[data-seo-link]")) return;
+      const favorite = event.target.closest("[data-favorite-id]");
+      if (favorite) return toggleFavorite(favorite.dataset.favoriteId);
+      const compare = event.target.closest("[data-compare-id]");
+      if (compare) return toggleCompare(compare.dataset.compareId);
+      const goLink = event.target.closest("[data-go-link]");
+      if (goLink) return track("tool_official_click", { tool_id: goLink.dataset.goLink, placement: "home_featured" });
+      const card = event.target.closest("[data-tool-id]");
+      if (card) {
+        track("tool_card_click", { tool_id: card.dataset.toolId, list_id: grid.id });
+        openDrawer(card.dataset.toolId);
+      }
+    });
+    grid.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest(".featured-tool-card[data-clickable='true']");
+      if (!card || event.target.closest("button, a")) return;
+      event.preventDefault();
+      track("tool_card_click", { tool_id: card.dataset.toolId, list_id: grid.id, via: "keyboard" });
+      openDrawer(card.dataset.toolId);
+    });
+  });
+
+  document.getElementById("featured-view-all")?.addEventListener("click", () => {
+    state.category = "all";
+    state.query = "";
+    state.favoritesOnly = false;
+    setActiveView("tools");
+    void refreshToolResults();
+  });
+  document.getElementById("newest-view-all")?.addEventListener("click", () => {
+    state.category = "all";
+    state.query = "";
+    state.favoritesOnly = false;
+    state.sort = "newest";
+    setActiveView("tools");
+    void refreshToolResults();
+  });
+
+  const heroSearchInput = document.getElementById("hero-search-input");
+  const heroSearchForm = document.getElementById("hero-search-form");
+  if (heroSearchInput) {
+    heroSearchInput.addEventListener("input", () => {
+      const globalInput = document.getElementById("global-search-input");
+      if (globalInput && globalInput.value !== heroSearchInput.value) globalInput.value = heroSearchInput.value;
+      state.query = heroSearchInput.value;
+      document.getElementById("search-clear").hidden = !state.query;
+      window.clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = window.setTimeout(() => void refreshToolResults(), 300);
+    });
+    heroSearchForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      state.query = heroSearchInput.value.trim();
+      setActiveView("tools");
+      void refreshToolResults();
+      track("search_submit", { query: state.query, result_count: state.toolServerMode ? state.toolTotal : getFilteredTools().length, scope: "hero" });
+      window.setTimeout(() => {
+        document.querySelector("#tools-view .directory-header")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    });
+  }
+
+  const globalSearchInput = document.getElementById("global-search-input");
+  if (globalSearchInput && heroSearchInput) {
+    globalSearchInput.addEventListener("input", () => {
+      if (heroSearchInput.value !== globalSearchInput.value) heroSearchInput.value = globalSearchInput.value;
+    });
+  }
+
+  document.getElementById("hero-hotwords")?.addEventListener("click", (event) => {
+    const word = event.target.closest("[data-hotword]");
+    if (!word) return;
+    const query = word.dataset.hotword;
+    state.query = query;
+    const heroInput = document.getElementById("hero-search-input");
+    const globalInput = document.getElementById("global-search-input");
+    if (heroInput) heroInput.value = query;
+    if (globalInput) globalInput.value = query;
+    document.getElementById("search-clear").hidden = false;
+    setActiveView("tools");
+    void refreshToolResults();
+    track("search_submit", { query: state.query, result_count: state.toolServerMode ? state.toolTotal : getFilteredTools().length, scope: "hotword" });
+    window.setTimeout(() => {
+      document.querySelector("#tools-view .directory-header")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+  });
+}
+
 async function initialize() {
   localStorage.removeItem("nike-submissions");
   localStorage.removeItem("nike-newsletter");
-  await Promise.all([loadBackendData(), loadCurrentUser()]);
-  await loadAccountFavorites();
+  await loadBackendData();
   loadInitialState();
   if (backendAvailable) {
+    await loadCatalogTotal();
     await Promise.all([loadToolResults(), loadRankingTools(), loadGrowthData()]);
     await loadCollectionTools();
     await checkContentRevision({ announce: false });
   }
   renderNavigation();
+  renderHomeSections();
   renderSponsor();
   renderTools();
   renderCollections();
   renderContentViews();
   renderDecisionModules();
-  renderWeeklyReturnBand();
   renderCompareTray();
   bindEvents();
+  bindHomeEvents();
   document.getElementById("tool-drawer").inert = true;
   syncSidebarAccessibility();
   setActiveView(state.activeView, false, false);
