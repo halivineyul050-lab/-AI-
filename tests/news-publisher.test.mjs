@@ -75,6 +75,7 @@ test("publisher sends a Responses API request with the configured provider optio
     const payload = JSON.parse(request.options.body);
     assert.equal(result.dryRun, true);
     assert.equal(request.url, "https://lucen.cc/v1/responses");
+    assert.match(request.options.headers["User-Agent"], /^Mozilla\/5\.0/);
     assert.equal(payload.model, "gpt-5.5");
     assert.deepEqual(payload.reasoning, { effort: "xhigh" });
     assert.equal(payload.store, false);

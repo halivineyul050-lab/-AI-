@@ -137,7 +137,11 @@ async function requestArticle(items, { apiKey, model, baseUrl, apiPath, reasonin
   }
   const response = await fetch(responseEndpoint(baseUrl, apiPath), {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0.0.0 Safari/537.36"
+    },
     body: JSON.stringify(requestBody)
   });
   if (!response.ok) throw new Error(`AI Responses API returned ${response.status}: ${(await response.text()).slice(0, 300)}`);
