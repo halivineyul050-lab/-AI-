@@ -7,7 +7,7 @@ const dryRun = process.argv.includes("--dry-run");
 const dbPath = resolve(process.env.NIKE_DB_PATH || "./data/nike-ai.db");
 const apiKey = String(process.env.RESEND_API_KEY || "").trim();
 const from = String(process.env.WEEKLY_EMAIL_FROM || process.env.FEEDBACK_EMAIL_FROM || "").trim();
-const baseUrl = String(process.env.PUBLIC_BASE_URL || "http://47.93.245.219").replace(/\/$/, "");
+const baseUrl = String(process.env.PUBLIC_BASE_URL || "https://ontimo.cn").replace(/\/$/, "");
 
 function escapeHtml(value) {
   return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
