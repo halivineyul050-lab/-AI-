@@ -827,6 +827,16 @@ input, select, textarea {
   font-variant-numeric: tabular-nums;
 }
 
+.favorites-entry-label {
+  margin-left: 3px;
+  color: var(--text-secondary);
+}
+
+.favorites-entry[aria-pressed="true"] {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
 .submit-tool-button {
   display: inline-flex;
   align-items: center;
@@ -1636,6 +1646,30 @@ input, select, textarea {
 
 /* ============ 9. 工具库 ============ */
 /* 工具库区为轻量工具条：标题 + 结果数 + 排序/筛选（分类入口已由上方分类卡片承担） */
+.favorites-context {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 28px 0 4px;
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--brand-soft) 58%, var(--bg-surface));
+}
+
+.favorites-context[hidden] { display: none; }
+.favorites-context h2 { margin: 0 0 7px; font-size: clamp(24px, 3vw, 32px); }
+.favorites-context p { margin: 0; color: var(--text-secondary); font-size: 14px; }
+.favorites-context-actions { display: flex; flex: 0 0 auto; gap: 10px; }
+.favorites-clear { color: var(--danger, #b42318); }
+
+#tools-view.is-favorites-view > :is(.hero-section, .trust-band, .featured-section, .newest-section, .engage-section, .sponsor-strip) {
+  display: none;
+}
+
+#tools-view.is-favorites-view .directory-header { margin-top: 20px; }
+
 .directory-header {
   margin-top: 44px;
   padding-top: 22px;
@@ -4354,6 +4388,20 @@ input, select, textarea {
   visibility: hidden;
   box-shadow: var(--shadow-lg);
   transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.toast-action {
+  padding: 3px 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .toast.is-visible {
@@ -4677,14 +4725,16 @@ input, select, textarea {
 }
 
 @media (max-width: 480px) {
-  .topbar-actions .action-with-count span {
+  .topbar-actions .favorites-entry-label {
     display: none;
   }
 
   .topbar-actions .action-with-count {
-    width: 38px;
-    padding: 0;
+    min-width: 38px;
+    padding: 0 6px;
   }
+
+  .favorites-context { align-items: flex-start; flex-direction: column; padding: 20px; }
 
   .hero-section {
     padding: 40px 14px 36px;
@@ -5536,13 +5586,13 @@ body.seo-tool-page {
     padding: 14px;
   }
 
-  .site-header .topbar-actions .action-with-count span {
+  .site-header .topbar-actions .favorites-entry-label {
     display: none;
   }
 
   .site-header .topbar-actions .action-with-count {
-    width: 38px;
-    padding: 0;
+    min-width: 38px;
+    padding: 0 6px;
   }
 }
 

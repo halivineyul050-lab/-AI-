@@ -1352,12 +1352,23 @@ async function flushEventQueue(useBeacon = false) {
   }
 }
 
-function showToast(message) {
+function showToast(message, action = null) {
   const toast = document.getElementById("toast");
-  toast.textContent = message;
+  toast.replaceChildren(document.createTextNode(message));
+  if (action?.label && typeof action.onClick === "function") {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "toast-action";
+    button.textContent = action.label;
+    button.addEventListener("click", () => {
+      toast.classList.remove("is-visible");
+      action.onClick();
+    }, { once: true });
+    toast.append(button);
+  }
   toast.classList.add("is-visible");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 2600);
+  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), action ? 5000 : 2600);
 }
 
 function renderNavigation() {
@@ -1746,8 +1757,16 @@ function renderTools() {
     ? `已显示 ${filtered.length} / ${total}`
     : `${total} 个工具`;
   document.getElementById("favorite-count").textContent = state.favorites.size;
+  document.getElementById("mobile-favorite-count").textContent = state.favorites.size;
   document.getElementById("compare-count").textContent = state.compare.size;
   document.getElementById("favorite-toggle").setAttribute("aria-pressed", String(state.favoritesOnly));
+  document.getElementById("tools-view").classList.toggle("is-favorites-view", state.favoritesOnly);
+  document.getElementById("favorites-context").hidden = !state.favoritesOnly;
+  document.getElementById("empty-state-title").textContent = state.favoritesOnly ? "还没有收藏工具" : "没有匹配的工具";
+  document.getElementById("empty-state-copy").textContent = state.favoritesOnly
+    ? "浏览工具时点击书签，收藏会出现在这里。"
+    : "试试更短的关键词，或清除筛选条件。";
+  document.getElementById("empty-reset-label").textContent = state.favoritesOnly ? "去浏览工具" : "清除筛选";
   document.getElementById("grid-view-button").classList.toggle("is-active", state.layout === "grid");
   document.getElementById("grid-view-button").setAttribute("aria-pressed", String(state.layout === "grid"));
   document.getElementById("list-view-button").classList.toggle("is-active", state.layout === "list");
@@ -1833,13 +1852,14 @@ function updateQueryString() {
     if (state.platform !== "all") params.set("platform", state.platform);
     if (state.language !== "all") params.set("lang", state.language);
     if (state.sort !== "recommended") params.set("sort", state.sort);
-    if (state.favoritesOnly) params.set("favorites", "1");
     const query = params.toString();
-    const pathname = state.activeView === "tools" && state.category !== "all"
+    const pathname = state.favoritesOnly
+      ? "/favorites"
+      : state.activeView === "tools" && state.category !== "all"
       ? `/category/${encodeURIComponent(state.category)}`
       : viewPathMap[state.activeView] || "/";
-    const next = `${pathname}${query ? `?${query}` : ""}`;
-    history.replaceState(null, "", next);
+    const favoritesUrl = `${pathname}${query ? `?${query}` : ""}`;
+    history.replaceState(null, "", favoritesUrl);
     syncSeoMetadata(state.activeView);
   } catch {
     // Local file previews may not allow history replacement.
@@ -1882,7 +1902,10 @@ async function toggleFavorite(toolId) {
     nextFocus?.focus();
   });
   if (document.getElementById("tool-drawer").classList.contains("is-open")) renderDrawer(tool);
-  showToast(adding ? `已收藏 ${tool.name}` : `已取消收藏 ${tool.name}`);
+  showToast(adding ? `已收藏 ${tool.name}` : `已取消收藏 ${tool.name}`, adding ? {
+    label: "查看收藏",
+    onClick: () => openFavoritesView("toast")
+  } : null);
   track("tool_favorite", { tool_id: toolId, action: adding ? "add" : "remove" });
 }
 
@@ -2228,6 +2251,9 @@ const viewPathMap = {
 };
 
 function resolvePathDestination() {
+  if (location.pathname === "/favorites" || location.pathname === "/favorites/") {
+    return { view: "tools", favoritesOnly: true, targetId: "" };
+  }
   const categoryMatch = location.pathname.match(/^\/category\/([a-z0-9-]+)\/?$/);
   if (categoryMatch) return { view: "tools", category: categoryMatch[1], targetId: "" };
   const entry = Object.entries(viewPathMap).find(([, path]) => path === location.pathname.replace(/\/$/, "") || (path === "/" && location.pathname === "/"));
@@ -2248,7 +2274,7 @@ function syncSeoMetadata(viewName) {
   if (canonical) canonical.href = `${location.origin}${location.pathname}`;
   const categoryName = state.category !== "all" ? categoryMap[state.category]?.name : "";
   const titles = {
-    tools: categoryName ? `${categoryName}工具 - 泥壳AI工具站` : "泥壳AI工具站 - 按任务发现AI工具",
+    tools: state.favoritesOnly ? "我的收藏 - 泥壳AI工具站" : categoryName ? `${categoryName}工具 - 泥壳AI工具站` : "泥壳AI工具站 - 按任务发现AI工具",
     discover: "精选AI工具组合 - 泥壳AI工具站",
     guides: "按任务找 AI 工具 - 泥壳AI工具站",
     rankings: "AI 工具排行榜 - 泥壳AI工具站",
@@ -2304,6 +2330,21 @@ function setActiveView(viewName, updateHistory = true, shouldTrack = true) {
     currentPageViewStartedAt = Date.now();
     track("page_view", { page_id: nextView });
   }
+}
+
+function openFavoritesView(source = "header") {
+  state.favoritesOnly = true;
+  state.category = "all";
+  setActiveView("tools", false);
+  void refreshToolResults();
+  track("favorites_view", { source_position: source, favorite_count: state.favorites.size });
+}
+
+function leaveFavoritesView() {
+  state.favoritesOnly = false;
+  state.category = "all";
+  setActiveView("tools", false);
+  void refreshToolResults();
 }
 
 function openSidebar() {
@@ -2432,7 +2473,7 @@ function loadInitialState() {
   if (["web", "desktop", "mobile", "api"].includes(params.get("platform"))) state.platform = params.get("platform");
   if (["zh", "multi"].includes(params.get("lang"))) state.language = params.get("lang");
   if (["recommended", "popular", "newest", "name"].includes(params.get("sort"))) state.sort = params.get("sort");
-  state.favoritesOnly = params.get("favorites") === "1";
+  state.favoritesOnly = destination.favoritesOnly || params.get("favorites") === "1";
   state.activeView = destination.view;
   scrollToHashTarget(destination.targetId);
 }
@@ -2452,6 +2493,7 @@ function bindEvents() {
     const button = event.target.closest("[data-category]");
     if (!button) return;
     state.category = button.dataset.category;
+    state.favoritesOnly = false;
     setActiveView("tools");
     void refreshToolResults();
     track("category_click", { category_id: state.category, source_position: "sidebar" });
@@ -2466,7 +2508,10 @@ function bindEvents() {
   });
 
   document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
-    button.addEventListener("click", () => setActiveView(button.dataset.view));
+    button.addEventListener("click", () => {
+      state.favoritesOnly = false;
+      setActiveView(button.dataset.view);
+    });
   });
 
   document.querySelectorAll("[data-view-link]").forEach((link) => {
@@ -2525,10 +2570,19 @@ function bindEvents() {
   document.getElementById("empty-reset").addEventListener("click", resetFilters);
 
   document.getElementById("favorite-toggle").addEventListener("click", () => {
-    state.favoritesOnly = !state.favoritesOnly;
-    setActiveView("tools");
+    if (state.favoritesOnly) leaveFavoritesView();
+    else openFavoritesView("desktop_header");
+  });
+  document.getElementById("mobile-favorites-open").addEventListener("click", () => openFavoritesView("mobile_nav"));
+  document.getElementById("favorites-back").addEventListener("click", leaveFavoritesView);
+  document.getElementById("favorites-clear").addEventListener("click", () => {
+    if (!state.favorites.size || !window.confirm("确定清空全部收藏吗？此操作无法撤销。")) return;
+    const clearedCount = state.favorites.size;
+    state.favorites.clear();
+    saveLocalArray("nike-favorites", state.favorites);
     void refreshToolResults();
-    if (state.favoritesOnly && state.favorites.size === 0) showToast("还没有收藏工具");
+    showToast("收藏已清空");
+    track("favorites_clear", { cleared_count: clearedCount });
   });
 
   document.getElementById("tool-load-more").addEventListener("click", () => {

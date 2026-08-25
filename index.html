@@ -21,11 +21,11 @@
   <link rel="preconnect" href="https://www.google.com">
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="canonical" href="https://ontimo.cn/">
-  <link rel="stylesheet" href="/styles.css?v=20260805-21">
+  <link rel="stylesheet" href="/styles.css?v=20260825-1">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"泥壳AI工具站","url":"https://ontimo.cn/","description":"按任务发现、筛选和比较实用的AI工具","potentialAction":{"@type":"SearchAction","target":"https://ontimo.cn/?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
   <script id="tool-list-schema" type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"AI工具目录","numberOfItems":138,"itemListElement":[]}</script>
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="/app.js?v=20260805-21"></script>
+  <script defer src="/app.js?v=20260825-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -68,8 +68,8 @@
             <button class="icon-button" id="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">
               <i data-lucide="moon"></i>
             </button>
-            <button class="icon-button action-with-count" id="favorite-toggle" type="button" aria-label="只看收藏" aria-pressed="false" title="只看收藏">
-              <i data-lucide="bookmark"></i><span id="favorite-count">0</span>
+            <button class="icon-button action-with-count favorites-entry" id="favorite-toggle" type="button" aria-label="我的收藏" aria-pressed="false" title="我的收藏">
+              <i data-lucide="bookmark"></i><span class="favorites-entry-label">我的收藏</span><span id="favorite-count">0</span>
             </button>
             <button class="icon-button action-with-count" id="compare-open" type="button" aria-label="打开工具对比" title="工具对比">
               <i data-lucide="columns-3"></i><span id="compare-count">0</span>
@@ -108,6 +108,9 @@
         </button>
         <button class="nav-item" type="button" data-view="news">
           <i data-lucide="newspaper"></i><span>资讯</span>
+        </button>
+        <button class="nav-item" type="button" id="mobile-favorites-open">
+          <i data-lucide="bookmark"></i><span>我的收藏</span><span class="nav-count" id="mobile-favorite-count">0</span>
         </button>
       </nav>
 
@@ -170,6 +173,18 @@
             <button class="text-button" type="button" id="newest-view-all"><span>查看全部</span><i data-lucide="arrow-right"></i></button>
           </div>
           <div class="featured-tool-grid" id="newest-tool-grid"></div>
+        </section>
+
+        <section class="favorites-context" id="favorites-context" aria-labelledby="favorites-view-heading" hidden>
+          <div>
+            <p class="eyebrow">SAVED LOCALLY</p>
+            <h2 id="favorites-view-heading">我的收藏</h2>
+            <p id="favorites-browser-note">收藏仅保存在当前浏览器，清理浏览器数据后可能丢失。</p>
+          </div>
+          <div class="favorites-context-actions">
+            <button class="secondary-button" type="button" id="favorites-back"><i data-lucide="arrow-left"></i><span>返回工具库</span></button>
+            <button class="text-button favorites-clear" type="button" id="favorites-clear"><i data-lucide="trash-2"></i><span>清空收藏</span></button>
+          </div>
         </section>
 
         <div class="page-header directory-header">
@@ -252,9 +267,9 @@
 
         <div class="empty-state" id="empty-state" hidden>
           <i data-lucide="search-x"></i>
-          <h2>没有匹配的工具</h2>
-          <p>试试更短的关键词，或清除筛选条件。</p>
-          <button class="secondary-button" type="button" id="empty-reset"><i data-lucide="rotate-ccw"></i><span>清除筛选</span></button>
+          <h2 id="empty-state-title">没有匹配的工具</h2>
+          <p id="empty-state-copy">试试更短的关键词，或清除筛选条件。</p>
+          <button class="secondary-button" type="button" id="empty-reset"><i data-lucide="rotate-ccw"></i><span id="empty-reset-label">清除筛选</span></button>
         </div>
 
         <section class="home-section engage-section" aria-labelledby="engage-title">
