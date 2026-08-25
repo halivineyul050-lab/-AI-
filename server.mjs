@@ -114,6 +114,7 @@ const staticFiles = new Set([
   "admin.js",
   "admin-icons.js",
   "brand-icon-192.png",
+  "baidu_verify_codeva-FSh1NIJkcR.html",
   "robots.txt",
   "sitemap.xml"
   ,"manifest.webmanifest"

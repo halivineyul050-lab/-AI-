@@ -112,6 +112,14 @@ test("brand icon is served with the expected media type", async () => {
   assert.match(sitemapXml, /\/legal/);
 });
 
+test("Baidu ownership verification file is publicly accessible", async () => {
+  const verification = await fetch(`${baseUrl}/baidu_verify_codeva-FSh1NIJkcR.html`);
+
+  assert.equal(verification.status, 200);
+  assert.match(verification.headers.get("content-type") || "", /text\/html/);
+  assert.equal((await verification.text()).trim(), "99393810d0297358084e1fd2aa896c94");
+});
+
 test("tool detail SEO pages render crawlable HTML and appear in sitemap", async () => {
   const page = await fetch(`${baseUrl}/tools/doubao`);
   assert.equal(page.status, 200);
