@@ -72,6 +72,12 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 13);
 });
 
+test("favorites route serves the app shell for direct navigation", async () => {
+  const result = await request("/favorites");
+  assert.equal(result.response.status, 200);
+  assert.match(String(result.body), /id="favorite-toggle"/);
+});
+
 test("brand icon is served with the expected media type", async () => {
   const page = await fetch(`${baseUrl}/`);
   assert.equal(page.status, 200);

@@ -119,7 +119,7 @@ const staticFiles = new Set([
   "sitemap.xml"
   ,"manifest.webmanifest"
 ]);
-const publicAppRoutes = new Set(["/discover", "/guides", "/rankings", "/compare", "/tutorials", "/news", "/advertise", "/about", "/standards", "/terms", "/privacy", "/legal", "/feedback"]);
+const publicAppRoutes = new Set(["/discover", "/favorites", "/guides", "/rankings", "/compare", "/tutorials", "/news", "/advertise", "/about", "/standards", "/terms", "/privacy", "/legal", "/feedback"]);
 const placementNames = new Set(["home_tool_strip", "detail_drawer", "related_tool", "unknown"]);
 const monitoringHours = new Set([1, 6, 24, 72, 168]);
 
