@@ -16,7 +16,7 @@ jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
     env:
-      SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+      SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST || '47.93.245.219' }}
       SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
       SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
     steps:
@@ -25,17 +25,20 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+      - name: Validate deployment credentials
+        run: |
+          test -n "$SSH_HOST" || { echo 'Missing production SSH host'; exit 1; }
+          test -n "$SSH_USER" || { echo 'Missing PRODUCTION_SSH_USER secret'; exit 1; }
+          test -n "$SSH_PRIVATE_KEY" || { echo 'Missing PRODUCTION_SSH_PRIVATE_KEY secret'; exit 1; }
       - name: Build release archive
         run: tar --exclude=.git --exclude=.env --exclude=data --exclude=node_modules --exclude=imports -czf /tmp/nikai-release.tgz .
       - name: Configure SSH
-        if: env.SSH_HOST != '' && env.SSH_USER != '' && env.SSH_PRIVATE_KEY != ''
         run: |
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
       - name: Upload and release
-        if: env.SSH_HOST != '' && env.SSH_USER != '' && env.SSH_PRIVATE_KEY != ''
         env:
           RELEASE_SHA: ${{ github.sha }}
         run: |
