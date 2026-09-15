@@ -32,4 +32,15 @@ test('shared stylesheet defines both themes, focus and motion contracts', () => 
 test('server exposes the shared stylesheet', () => {
   const source = readFileSync('server.mjs', 'utf8');
   assert.match(source, /["']design-system\.css["']/);
+  assert.match(source, /["']game-shell\.css["']/);
+});
+
+test('pages load one design-system link and games share one outer shell', () => {
+  for (const file of entries) {
+    const html = readFileSync(file, 'utf8');
+    assert.equal((html.match(/design-system\.css/g) || []).length, 1, `${file} should load the design system once`);
+  }
+  for (const file of ['games.html', 'never-retreat.html', 'snake.html', 'gomoku.html', 'flight.html', 'game-2048.html', 'memory-game.html', 'breakout.html']) {
+    assert.match(readFileSync(file, 'utf8'), /game-shell\.css/, `${file} should load the game shell`);
+  }
 });

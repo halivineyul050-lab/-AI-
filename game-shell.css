@@ -1,0 +1,39 @@
+/* Shared outer shell for every game. Game-specific arena palettes remain local. */
+:is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main) {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  padding: clamp(28px, 5vw, 60px) 24px 64px;
+}
+
+:is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro,.memory-main>h1) h1,
+:is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro) h1 {
+  color: var(--text-primary);
+}
+
+:is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro) h1 span,
+:is(.game-kicker,.snake-kicker,.gomoku-kicker,.flight-kicker,.g2048-kicker,.memory-kicker,.breakout-kicker) {
+  color: var(--brand);
+}
+
+:is(.arena-shell,.snake-shell,.board-shell,.gomoku-panel,.flight-shell,.g2048-shell,.g2048-panel,.memory-shell,.memory-panel,.breakout-shell) {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+:is(.gomoku-panel,.g2048-panel,.memory-panel) {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+:is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main) > a,
+:is(.game-intro,.g2048-intro) a {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  :is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main) {
+    padding: 24px 16px 44px;
+  }
+}

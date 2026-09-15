@@ -168,3 +168,5 @@ tbody tr:hover { background: color-mix(in srgb, var(--brand-soft) 42%, transpare
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+html, body { overflow-x: clip; }

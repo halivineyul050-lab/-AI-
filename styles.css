@@ -6,22 +6,22 @@
 
 /* ============ 1. 设计令牌 ============ */
 :root {
-  --bg-page: #f6f7fb;
+  --bg-page: #f6f5fb;
   --bg-surface: #ffffff;
-  --bg-subtle: #eef0f7;
-  --bg-strong: #10131c;
+  --bg-subtle: #efedf8;
+  --bg-strong: #1d1a2b;
 
-  --text-primary: #171c29;
-  --text-secondary: #5c6478;
-  --text-muted: #8d95a8;
+  --text-primary: #1d1a2b;
+  --text-secondary: #625d75;
+  --text-muted: #8b859e;
 
-  --border: #e6e8f1;
-  --border-strong: #cfd4e2;
+  --border: #e5e1f0;
+  --border-strong: #d2cce3;
 
-  --brand: #4f46e5;
-  --brand-hover: #4338ca;
-  --brand-soft: #eef0ff;
-  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --brand: #6558f5;
+  --brand-hover: #5144e5;
+  --brand-soft: #eeebff;
+  --brand-gradient: linear-gradient(135deg, #6558f5 0%, #826cf8 100%);
   --brand-glow: rgba(99, 102, 241, 0.35);
 
   --coral: #c2410c;
@@ -53,22 +53,22 @@
 }
 
 [data-theme="dark"] {
-  --bg-page: #0e1117;
-  --bg-surface: #161b26;
-  --bg-subtle: #1f2534;
-  --bg-strong: #e9ecf5;
+  --bg-page: #11101a;
+  --bg-surface: #1b1927;
+  --bg-subtle: #242134;
+  --bg-strong: #f3f0fa;
 
-  --text-primary: #e9ecf5;
-  --text-secondary: #a7afc3;
-  --text-muted: #767f95;
+  --text-primary: #f3f0fa;
+  --text-secondary: #b8b1ca;
+  --text-muted: #89829d;
 
-  --border: #272e3e;
-  --border-strong: #3b4457;
+  --border: #332f45;
+  --border-strong: #48425e;
 
-  --brand: #818cf8;
-  --brand-hover: #a5b4fc;
-  --brand-soft: #262a4d;
-  --brand-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --brand: #9388ff;
+  --brand-hover: #aca4ff;
+  --brand-soft: #2d2852;
+  --brand-gradient: linear-gradient(135deg, #6558f5 0%, #826cf8 100%);
   --brand-glow: rgba(129, 140, 248, 0.3);
 
   --coral-soft: #40251b;
@@ -87,18 +87,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg-page: #0e1117;
-    --bg-surface: #161b26;
-    --bg-subtle: #1f2534;
-    --bg-strong: #e9ecf5;
-    --text-primary: #e9ecf5;
-    --text-secondary: #a7afc3;
-    --text-muted: #767f95;
-    --border: #272e3e;
-    --border-strong: #3b4457;
-    --brand: #818cf8;
-    --brand-hover: #a5b4fc;
-    --brand-soft: #262a4d;
+    --bg-page: #11101a;
+    --bg-surface: #1b1927;
+    --bg-subtle: #242134;
+    --bg-strong: #f3f0fa;
+    --text-primary: #f3f0fa;
+    --text-secondary: #b8b1ca;
+    --text-muted: #89829d;
+    --border: #332f45;
+    --border-strong: #48425e;
+    --brand: #9388ff;
+    --brand-hover: #aca4ff;
+    --brand-soft: #2d2852;
     --coral-soft: #40251b;
     --amber-soft: #3a2f16;
     --blue-soft: #1a2a4a;
