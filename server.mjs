@@ -108,6 +108,7 @@ const mimeTypes = {
 };
 
 const staticFiles = new Set([
+  "design-system.css",
   "link-extract.html",
   "video-pricing.html",
   "image-edit.html", "image-edit.css", "image-edit.js", "image-edit-core.mjs", "image-input.mjs",
