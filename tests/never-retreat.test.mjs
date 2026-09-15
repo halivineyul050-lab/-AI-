@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {createGame,step} from '../never-retreat-core.mjs';
+test('movement stays inside arena and dead state stops simulation',()=>{const g=createGame();for(let i=0;i<500;i++)step(g,.05,{x:-1,y:-1},()=>.5);assert(g.player.x>=20&&g.player.y>=20);g.over=true;const t=g.time;step(g,1);assert.equal(g.time,t);});
+test('bullets hit along their path and award score',()=>{const g=createGame();g.spawn=10;g.fire=10;g.enemies=[{x:110,y:100,hp:1,r:12,speed:0}];g.bullets=[{x:80,y:100,vx:1000,vy:0,life:1}];step(g,.05);assert.equal(g.kills,1);assert.equal(g.score,100);assert.equal(g.enemies.length,0);});

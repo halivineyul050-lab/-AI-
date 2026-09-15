@@ -1,4 +1,7 @@
 import { createServer } from "node:http";
+import { createLinkExtractor } from "./backend/link-extract.mjs";
+import { createImageTools } from "./backend/image-tools.mjs";
+import { createImageEraser } from "./backend/image-erase.mjs";
 import { gzipSync } from "node:zlib";
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -85,9 +88,11 @@ const defaultDbPath = resolve(rootDir, "data", "nike-ai.db");
 const seedData = JSON.parse(readFileSync(resolve(rootDir, "backend", "seed-data.json"), "utf8"));
 
 const mimeTypes = {
+  ".wasm": "application/wasm",
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".svg": "image/svg+xml",
   ".png": "image/png",
@@ -103,6 +108,45 @@ const mimeTypes = {
 };
 
 const staticFiles = new Set([
+  "link-extract.html",
+  "video-pricing.html",
+  "image-edit.html", "image-edit.css", "image-edit.js", "image-edit-core.mjs", "image-input.mjs",
+  "image-background.html", "image-enhance.html", "image-ai.css", "image-ai.js",
+  "game-2048.html", "game-2048.css", "game-2048.js", "game-2048-core.mjs",
+  "memory-game.html", "memory-game.css", "memory-game.js", "memory-game-core.mjs",
+  "breakout.html", "breakout.css", "breakout.js", "breakout-core.mjs",
+  "games.html", "games.css", "snake.html", "snake.css", "snake.js", "snake-core.mjs",
+  "gomoku.html", "gomoku.css", "gomoku.js", "gomoku-core.mjs",
+  "flight.html", "flight.css", "flight.js", "flight-core.mjs",
+  "never-retreat.html", "never-retreat.css", "never-retreat.js", "never-retreat-core.mjs",
+  "image-erase.html",
+  "image-erase.css",
+  "utility-theme.css",
+  "utility-theme.js",
+  "image-erase.js",
+  "link-extract.css",
+  "link-extract.js",
+  "video-mask.html",
+  "video-mask.css",
+  "video-mask.js",
+  "video-mask-core.js",
+  "video-mask-worker.js",
+  "utilities.html",
+  "video-crop.html",
+  "video-crop.css",
+  "video-crop.js",
+  "video-crop-core.js",
+  "video-crop-worker.js",
+  "assets/vendor/ffmpeg/ffmpeg-core.js",
+  "assets/vendor/ffmpeg/ffmpeg-core.wasm",
+  "assets/vendor/ffmpeg/LICENSE.txt",
+  "assets/vendor/ffmpeg/NOTICE.txt",
+  "video-gif.html",
+  "video-gif.css",
+  "video-gif.js",
+  "video-gif-core.js",
+  "video-gif-worker.js",
+  "assets/vendor/gifenc/gifenc.js",
   "index.html",
   "styles.css",
   "app.js",
@@ -281,11 +325,19 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
   if (isProduction) response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   const requestPath = new URL(request.url || "/", "http://localhost").pathname;
   const isAdminResource = requestPath.startsWith("/api/admin/") || /^\/admin(?:\.|$)/.test(requestPath);
+  const isGifPage = requestPath === "/utilities/video-to-gif" || requestPath === "/video-gif.html";
+  const isCropPage = requestPath === "/utilities/video-crop" || requestPath === "/video-crop.html";
+  const isCropWorker = requestPath === "/video-crop-worker.js";
+  const isMaskPage = requestPath === "/utilities/video-mask" || requestPath === "/video-mask.html";
+  const isMaskWorker = requestPath === "/video-mask-worker.js";
+  const isLinkPage = requestPath === "/utilities/link-extract" || requestPath === "/link-extract.html";
+  const isErasePage = requestPath === "/utilities/image-erase" || requestPath === "/image-erase.html";
   response.setHeader("Content-Security-Policy", [
     "default-src 'self'",
-    isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
+    isCropPage || isCropWorker || isMaskPage || isMaskWorker ? "script-src 'self' 'wasm-unsafe-eval'" : isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https:",
+    isGifPage || isErasePage || ["/utilities/image-edit","/utilities/image-background","/utilities/image-enhance","/image-edit.html","/image-background.html","/image-enhance.html"].includes(requestPath) ? "img-src 'self' data: blob:" : "img-src 'self' data: https:",
+    ...(isGifPage || isCropPage || isMaskPage || isLinkPage ? ["media-src 'self' blob:", "worker-src 'self'"] : []),
     "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -303,9 +355,11 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
 }
 
 function serveStatic(request, response, pathname, staticDir) {
+  if(pathname === "/utilities/never-retreat"){response.writeHead(301,{Location:"/games/never-retreat","Cache-Control":"no-store"});response.end();return true;}
   const logoMatch = pathname.match(/^\/assets\/tool-logos\/([a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif))$/);
   const isAppRoute = publicAppRoutes.has(pathname) || /^\/category\/[a-z0-9-]+$/.test(pathname);
-  const fileName = pathname === "/" || isAppRoute ? "index.html" : pathname.slice(1);
+  const utilityPages = new Map([["/games/2048","game-2048.html"],["/games/memory","memory-game.html"],["/games/breakout","breakout.html"],["/games","games.html"],["/games/never-retreat","never-retreat.html"],["/games/snake","snake.html"],["/games/gomoku","gomoku.html"],["/games/flight","flight.html"],["/utilities","utilities.html"],["/utilities/video-to-gif","video-gif.html"],["/utilities/video-crop","video-crop.html"],["/utilities/video-mask","video-mask.html"],["/utilities/link-extract","link-extract.html"],["/utilities/image-erase","image-erase.html"],["/utilities/image-edit","image-edit.html"],["/utilities/image-background","image-background.html"],["/utilities/image-enhance","image-enhance.html"]]);
+  const fileName = utilityPages.get(pathname) || (pathname === "/" || isAppRoute ? "index.html" : pathname.slice(1));
   if (!logoMatch && !staticFiles.has(fileName)) return false;
   const filePath = logoMatch
     ? resolve(staticDir, "assets", "tool-logos", logoMatch[1])
@@ -323,7 +377,7 @@ function serveStatic(request, response, pathname, staticDir) {
     ...(compressed ? { "Content-Encoding": "gzip", Vary: "Accept-Encoding" } : {}),
     "Cache-Control": isAdminResource
       ? "no-store, private"
-      : fileName === "index.html" ? "no-store" : logoMatch ? "public, max-age=86400" : "public, max-age=300"
+      : (fileName.endsWith(".html") || /^image-edit(?:-core)?\.(?:js|mjs|css)$/.test(fileName)) ? "no-store" : logoMatch ? "public, max-age=86400" : "public, max-age=300"
   });
   if (request.method === "HEAD") response.end();
   else response.end(content);
@@ -944,6 +998,15 @@ function buildSitemap(request, db) {
   const baseEntries = [
     ["/", "daily", "1.0"],
     ["/discover", "weekly", "0.8"],
+    ["/utilities/video-to-gif", "monthly", "0.8"],
+    ["/utilities", "monthly", "0.8"],
+    ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight"].map(path=>[path,"monthly","0.8"]),
+    ["/utilities/video-crop", "monthly", "0.8"],
+    ["/utilities/video-mask", "monthly", "0.8"],
+    ["/utilities/image-erase", "monthly", "0.8"],
+    ["/utilities/image-edit", "monthly", "0.8"],
+    ["/utilities/image-background", "monthly", "0.8"],
+    ["/utilities/image-enhance", "monthly", "0.8"],
     ["/guides", "weekly", "0.8"],
     ["/rankings", "weekly", "0.8"],
     ["/compare", "weekly", "0.7"],
@@ -971,6 +1034,9 @@ function buildSitemap(request, db) {
 }
 
 export function buildApplication(options = {}) {
+  const imageTools = createImageTools(options.imageTools);
+  const imageEraser = createImageEraser(options.imageEraser);
+  const linkExtractor = createLinkExtractor({endpoint:options.linkBrowserEndpoint ?? process.env.NIKE_LINK_BROWSER_WS ?? ""});
   const environment = options.environment ?? process.env.NODE_ENV ?? "development";
   const isProduction = environment === "production";
   const configuredDbPath = options.dbPath || process.env.NIKE_DB_PATH;
@@ -1107,6 +1173,70 @@ export function buildApplication(options = {}) {
     });
 
     try {
+      if (pathname === "/api/utilities/image-tools/status" && method === "GET") {
+        sendData(response,imageTools.status,null,200,{"Cache-Control":"no-store"}); return;
+      }
+      if (["/api/utilities/image-tools/background","/api/utilities/image-tools/enhance"].includes(pathname) && method === "POST") {
+        response.setHeader("Cache-Control","no-store, private");
+        if (["cross-site","same-site"].includes(request.headers["sec-fetch-site"])) throw new HttpError(403,"cross_origin","请在本站页面使用图片处理。");
+        const origin=request.headers.origin;
+        if (origin && origin!==`http://${request.headers.host}` && origin!==`https://${request.headers.host}`) throw new HttpError(403,"cross_origin","请在本站页面使用图片处理。");
+        if (!String(request.headers["content-type"]||"").toLowerCase().startsWith("application/json")) throw new HttpError(415,"invalid_type","请通过图片处理页面提交图片。");
+        rateLimit(`${ip}:image-tools`,10,60000);
+        const mode=pathname.split("/").at(-1);
+        if (!imageTools.status[mode]) throw new HttpError(503,"image_unavailable","图片处理服务尚未就绪。");
+        const abort=new AbortController();
+        response.on("close",()=>abort.abort());
+        const body=await readJsonBody(request,28*1024*1024);
+        const output=await imageTools.run(mode,body,abort.signal);
+        if (response.destroyed) return;
+        response.writeHead(200,{"Content-Type":"image/png","Content-Length":output.length});
+        response.end(output); return;
+      }
+      if (pathname === "/api/utilities/image-erase/status" && method === "GET") {
+        sendData(response,{enabled:imageEraser.enabled,maxDimension:2048},null,200,{"Cache-Control":"no-store"}); return;
+      }
+      if (pathname === "/api/utilities/image-erase" && method === "POST") {
+        response.setHeader("Cache-Control","no-store, private");
+        if (["cross-site","same-site"].includes(request.headers["sec-fetch-site"])) throw new HttpError(403,"cross_origin","请在本站页面使用图片消除。");
+        const origin=request.headers.origin;
+        if (origin && origin!==`http://${request.headers.host}` && origin!==`https://${request.headers.host}`) throw new HttpError(403,"cross_origin","请在本站页面使用图片消除。");
+        if (!String(request.headers["content-type"]||"").toLowerCase().startsWith("application/json")) throw new HttpError(415,"invalid_type","请通过图片消除页面提交图片。");
+        rateLimit(`${ip}:image-erase`,10,60000);
+        if (!imageEraser.enabled) throw new HttpError(503,"erase_unavailable","图片消除服务尚未就绪。");
+        const abort=new AbortController();
+        response.on("close",()=>abort.abort());
+        const body=await readJsonBody(request,28*1024*1024);
+        const output=await imageEraser.run(body,abort.signal);
+        if (response.destroyed) return;
+        response.writeHead(200,{"Content-Type":"image/png","Content-Length":output.length});
+        response.end(output); return;
+      }
+      if (pathname.startsWith("/api/utilities/link-extract")) {
+        response.setHeader("Cache-Control", "no-store, private");
+        const localAddress = ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(request.socket.remoteAddress);
+        let localHost = false;
+        try { localHost = ["localhost", "127.0.0.1", "[::1]"].includes(new URL(`http://${request.headers.host}`).hostname); } catch {}
+        if (!localAddress || !localHost || ["cross-site", "same-site"].includes(request.headers["sec-fetch-site"])) throw new HttpError(403,"local_only","分享链接解析目前仅支持本机访问。");
+        if (request.headers.origin && request.headers.origin !== `http://${request.headers.host}` && request.headers.origin !== `https://${request.headers.host}`) throw new HttpError(403,"local_only","跨站请求被拒绝。");
+        if (method === "GET" && pathname === "/api/utilities/link-extract/status") { sendData(response,{enabled:linkExtractor.enabled,mode:"local"}); return; }
+        const abort = new AbortController();
+        const signal = AbortSignal.any([abort.signal,AbortSignal.timeout(600000)]);
+        response.on("close",()=>abort.abort());
+        try {
+          if (method === "POST" && pathname === "/api/utilities/link-extract") {
+            rateLimit(`${ip}:link-extract`,5,60000);
+            const body = await readJsonBody(request,32000);
+            sendData(response,await linkExtractor.parse(body.text,signal)); return;
+          }
+          const asset = pathname.match(/^\/api\/utilities\/link-extract\/([a-f0-9]{48})\/(video|cover|audio)$/);
+          if (method === "GET" && asset) { await linkExtractor.download(asset[1],asset[2],request,response,signal); return; }
+          throw new HttpError(404,"not_found","资源不存在。");
+        } catch(error) {
+          if (response.headersSent || response.destroyed) { response.destroy(); return; }
+          throw error instanceof HttpError ? error : new HttpError(422,"extraction_failed",error.message || "解析失败，请稍后重试。");
+        }
+      }
       if (method === "OPTIONS") {
         response.writeHead(204);
         response.end();

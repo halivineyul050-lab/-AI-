@@ -1,0 +1,18 @@
+FFmpeg WebAssembly core (single thread), @ffmpeg/core 0.12.10
+License: GPL-2.0-or-later (see LICENSE.txt).
+The two runtime files are unmodified files from the official npm package:
+https://registry.npmjs.org/@ffmpeg/core/-/core-0.12.10.tgz
+
+Upstream project and source/build instructions:
+https://github.com/ffmpegwasm/ffmpeg.wasm
+Pinned source tree declaring core version 0.12.10:
+https://github.com/ffmpegwasm/ffmpeg.wasm/tree/f876f907c7e9b9bf51d4ed0b913a855a63ae63fc
+The Dockerfile and build/ directory identify the FFmpeg fork and external
+codec dependencies with their source URLs and build scripts.
+https://github.com/ffmpegwasm/ffmpeg.wasm/blob/f876f907c7e9b9bf51d4ed0b913a855a63ae63fc/Dockerfile
+
+Local SHA-256:
+ffmpeg-core.js   67a48f11645f85439f3fde4f2119042c16b374b910206b7a7a24f342e28dcae3
+ffmpeg-core.wasm 9f57947a5bd530d8f00c5b3f2cb2a3492faa7e5d823315342d6a8656d0a6b7b7
+
+Retrieved 2026-09-08. Runtime files are self-hosted; video inputs are not uploaded.

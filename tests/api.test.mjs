@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { get as httpGet } from "node:http";
 import { after, before, test } from "node:test";
 
 import { buildApplication } from "../server.mjs";
@@ -37,6 +38,78 @@ before(async () => {
 after(async () => {
   await app.close();
   rmSync(testDir, { recursive: true, force: true });
+});
+
+test('image eraser is discoverable and rejects foreign-origin uploads', async()=>{
+ const page=await request('/utilities/image-erase');assert.equal(page.response.status,200);
+ assert.match(page.body,/图片物体消除/);assert.match(page.response.headers.get('content-security-policy'),/img-src 'self' data: blob:/);
+ assert.match((await request('/utilities')).body,/href="\/utilities\/image-erase"/);
+ for(const path of ['/image-erase.js','/image-erase.css'])assert.equal((await request(path)).response.status,200);
+ assert.equal(typeof (await request('/api/utilities/image-erase/status')).body.data.enabled,'boolean');
+ assert.equal((await request('/api/utilities/image-erase',{method:'POST',headers:{Origin:'https://evil.test','Content-Type':'application/json'},body:'{}'})).response.status,403);
+ assert.equal((await request('/api/utilities/image-erase',{method:'POST',headers:{'Content-Type':'text/plain'},body:'{}'})).response.status,415);
+});
+
+test('link extractor page is discoverable and local API rejects cross-site requests', async()=>{
+ const page=await request('/utilities/link-extract');assert.equal(page.response.status,200);assert.match(page.body,/视频、声音、帖子文案和封面/);
+ assert.match((await request('/utilities')).body,/href="\/utilities\/link-extract"/);
+ assert.equal((await request('/api/utilities/link-extract/status')).body.data.mode,'local');
+ assert.equal((await request('/api/utilities/link-extract/status',{headers:{Origin:'https://evil.test'}})).response.status,403);
+ const forgedHostStatus=await new Promise((resolve,reject)=>httpGet(`${baseUrl}/api/utilities/link-extract/status`,{headers:{Host:'evil.test'}},res=>{res.resume();resolve(res.statusCode);}).on('error',reject));
+ assert.equal(forgedHostStatus,403);
+ assert.equal((await request('/api/utilities/link-extract/status',{headers:{'Sec-Fetch-Site':'cross-site'}})).response.status,403);
+ assert.equal((await request('/api/utilities/link-extract/'+'a'.repeat(48)+'/video')).response.status,422);
+});
+
+test("video GIF tool route and local encoder resources are served with scoped CSP", async () => {
+  const page = await request('/utilities/video-to-gif');
+  assert.equal(page.response.status, 200);
+  assert.match(page.body, /视频转 GIF/);
+  assert.match(page.response.headers.get('content-security-policy'), /media-src 'self' blob:/);
+  const sitemap = await request('/sitemap.xml');
+  assert.match(sitemap.body, /\/utilities\/video-to-gif<\/loc>/);
+  for (const path of ['/video-gif.js', '/video-gif-core.js', '/video-gif-worker.js', '/assets/vendor/gifenc/gifenc.js']) {
+    const asset = await request(path);
+    assert.equal(asset.response.status, 200);
+    assert.match(asset.response.headers.get('content-type'), /javascript/);
+  }
+  const home = await request('/');
+  assert.equal((home.body.match(/href="\/utilities"/g)||[]).length, 2);
+  const admin = await request('/admin.html');
+  assert.doesNotMatch(admin.response.headers.get('content-security-policy'), /blob:/);
+});
+
+test('video crop and utility index expose both tools and a scoped WASM policy', async () => {
+  const index = await request('/utilities');
+  assert.equal(index.response.status,200);
+  assert.match(index.body,/href="\/utilities\/video-crop"/);
+  assert.match(index.body,/href="\/utilities\/video-to-gif"/);
+  const crop = await request('/utilities/video-crop');
+  assert.equal(crop.response.status,200);
+  assert.match(crop.response.headers.get('content-security-policy'),/'wasm-unsafe-eval'/);
+  for(const path of ['/video-crop.js','/video-crop-core.js','/video-crop-worker.js','/assets/vendor/ffmpeg/ffmpeg-core.js']) {
+    const resource = await request(path);
+    assert.equal(resource.response.status,200);
+    assert.match(resource.response.headers.get('content-type'),/javascript/);
+  }
+  const wasm=await fetch(`${baseUrl}/assets/vendor/ffmpeg/ffmpeg-core.wasm`,{method:'HEAD'});
+  assert.equal(wasm.status,200);
+  assert.equal(wasm.headers.get('content-type'),'application/wasm');
+  const admin=await request('/admin.html');
+  assert.doesNotMatch(admin.response.headers.get('content-security-policy'),/wasm-unsafe-eval/);
+});
+
+test('mask tool is discoverable and has local media and encoder access without relaxing admin CSP', async()=>{
+  const page=await request('/utilities/video-mask');
+  assert.equal(page.response.status,200);
+  assert.match(page.body,/视频马赛克与模糊/);
+  assert.match(page.response.headers.get('content-security-policy'),/media-src 'self' blob:/);
+  const worker=await request('/video-mask-worker.js');
+  assert.equal(worker.response.status,200);
+  assert.match(worker.response.headers.get('content-security-policy'),/'wasm-unsafe-eval'/);
+  for(const path of ['/video-mask.js','/video-mask-core.js','/video-mask.css'])assert.equal((await request(path)).response.status,200);
+  assert.match((await request('/utilities')).body,/href="\/utilities\/video-mask"/);
+  assert.doesNotMatch((await request('/admin.html')).response.headers.get('content-security-policy'),/wasm-unsafe-eval|blob:/);
 });
 
 test("health and bootstrap expose persisted content", async () => {
@@ -441,4 +514,26 @@ test("production refuses ephemeral database and analytics configuration", () => 
     () => buildApplication({ environment: "production", logger: false }),
     /NIKE_DB_PATH/
   );
+});
+
+
+test('game collection is separate from utilities with working routes and legacy redirect',async()=>{
+ const hall=await request('/games');assert.equal(hall.response.status,200);assert.match(hall.body,/休闲小游戏/);
+ const utilities=await request('/utilities');assert.doesNotMatch(utilities.body,/utility-card[^>]*href="[^"]*(?:games|never-retreat)/);
+ const home=await request('/');assert.match(home.body,/href="\/utilities">小工具<\/a>\s*<a[^>]+href="\/games">休闲小游戏/);
+ for(const name of ['snake','gomoku','flight','never-retreat']){
+  assert.equal((await request('/games/'+name)).response.status,200);
+  const module=await request('/'+name+'-core.mjs');assert.equal(module.response.status,200);assert.match(module.response.headers.get('content-type'),/javascript/);
+ }
+ const old=await request('/utilities/never-retreat');assert.equal(old.response.status,301);assert.equal(old.response.headers.get('location'),'/games/never-retreat');
+});
+
+
+test('three new casual games have playable routes and module resources',async()=>{
+ const hall=await request('/games');assert.match(hall.body,/07 款小游戏/);
+ for(const [slug,file] of [['2048','game-2048'],['memory','memory-game'],['breakout','breakout']]){
+  assert.match(hall.body,new RegExp('href="/games/'+slug+'"'));
+  const page=await request('/games/'+slug);assert.equal(page.response.status,200);assert.match(page.body,/休闲小游戏/);
+  const core=await request('/'+file+'-core.mjs');assert.equal(core.response.status,200);assert.match(core.response.headers.get('content-type'),/javascript/);
+ }
 });

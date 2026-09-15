@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="description" content="在浏览器中将视频转换成 GIF，支持片段截取、尺寸、帧率和速度调整。文件留在你的设备上，无需上传。">
+  <title>视频转 GIF · 泥壳AI小工具</title>
+  <link rel="icon" href="/brand-icon-192.png" type="image/png">
+  <link rel="canonical" href="https://ontimo.cn/utilities/video-to-gif">
+  <link rel="stylesheet" href="/video-gif.css">
+  <script type="module" src="/video-gif.js"></script>
+<link rel="stylesheet" href="/styles.css?v=20260825-1"><link rel="stylesheet" href="/utility-theme.css?v=20260909-1"><script defer src="/utility-theme.js?v=20260909-1"></script></head>
+<body>
+  <a class="skip" href="#main">跳到转换工具</a>
+  <header class="site-header"><div class="site-header-inner"><a class="site-brand" href="/" aria-label="泥壳AI工具站首页"><span class="brand-mark"><img src="/brand-icon-192.png" alt=""></span><span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span></a><nav class="site-nav" aria-label="主导航"><a class="nav-item" href="/">工具库</a><a class="nav-item" href="/discover">发现</a><a class="nav-item" href="/rankings">榜单</a><a class="nav-item" href="/tutorials">教程</a><a class="nav-item" href="/news">资讯</a><a class="nav-item is-active" href="/utilities" aria-current="page">小工具</a><a class="nav-item" href="/games">休闲小游戏</a></nav><div class="erase-header-actions"><a class="nav-item" href="/favorites">我的收藏</a><button class="icon-button" id="utility-theme" type="button" aria-label="切换明暗主题" title="切换明暗主题">◐</button></div></div></header>
+  <main id="main">
+    <div class="breadcrumb"><a href="/">首页</a><span>/</span>小工具<span>/</span>视频转 GIF</div>
+    <section class="intro"><div><p class="eyebrow">泥壳AI · 实用小工具</p><h1>留住精彩的<span>那几秒。</span></h1><p class="lead">视频转 GIF，把操作演示、灵感片段变成随手可用的动图。</p></div><span class="privacy"><span aria-hidden="true">◉</span> 本地转换 · 文件无需上传</span></section>
+    <div class="workspace">
+      <section class="panel source" aria-labelledby="source-heading">
+        <div class="panel-heading"><h2 id="source-heading"><span class="step">01</span>选择视频</h2><span class="muted">最多 200MB</span></div>
+        <label class="dropzone" id="dropzone" for="video-file"><span class="upload-icon" aria-hidden="true">↥</span><strong>把视频拖到这里</strong><span>或点击选择本地文件</span><small>MP4、WebM、MOV 等，支持情况取决于浏览器编码兼容性</small><input id="video-file" type="file"></label>
+        <div id="source-preview" hidden><video id="source-video" controls playsinline muted preload="auto"></video><div class="file-row"><div><strong id="file-name"></strong><p id="file-meta" class="muted"></p></div><button id="replace-file" class="text-button" type="button">更换视频</button></div></div>
+        <div class="source-note"><span aria-hidden="true">◎</span><p>你的视频只在当前设备上处理。适合制作教程演示、产品片段和聊天动图。</p></div>
+      </section>
+      <section class="panel settings" aria-labelledby="settings-heading">
+        <div class="panel-heading"><h2 id="settings-heading"><span class="step">02</span>调整动图</h2><span class="muted">GIF 循环播放</span></div>
+        <form id="convert-form">
+          <fieldset id="settings-fields" disabled>
+            <legend class="sr-only">转换设置</legend>
+            <div class="setting-label">截取片段 <span>最长 30 秒</span></div>
+            <div class="time-fields"><label>开始时间（秒）<input id="clip-start" type="number" value="0" min="0" step="0.01" required></label><span aria-hidden="true">→</span><label>结束时间（秒）<input id="clip-end" type="number" value="5" min="0.01" step="0.01" required></label></div>
+            <button id="preview-clip" class="text-button preview-button" type="button">▷ 预览所选片段</button>
+            <label class="setting-label" for="max-edge">动图尺寸 <span>最长边 · 保持原比例</span></label><select id="max-edge"><option value="320">320px · 轻巧分享</option><option value="480" selected>480px · 推荐</option><option value="720">720px · 更多细节</option></select>
+            <div class="select-row"><label>帧率<select id="frame-rate"><option value="5">5 fps · 更小</option><option value="10" selected>10 fps · 推荐</option><option value="15">15 fps · 流畅</option><option value="20">20 fps · 更流畅</option></select></label><label>播放速度<select id="playback-speed"><option value="0.5">0.5× · 慢放</option><option value="1" selected>1× · 原速</option><option value="1.5">1.5× · 加速</option><option value="2">2× · 加速</option></select></label></div>
+          </fieldset>
+          <p id="estimate" class="estimate">选择视频后即可调整参数</p>
+          <div id="progress-area" hidden><div class="progress-copy"><span id="progress-label">准备转换</span><span id="progress-percent">0%</span></div><progress id="convert-progress" max="100" value="0" aria-label="转换进度"></progress></div>
+          <p id="status" role="status" aria-live="polite"></p>
+          <div class="actions"><button id="convert" class="primary" type="submit" disabled>生成 GIF <span aria-hidden="true">→</span></button><button id="cancel" class="secondary" type="button" hidden>取消转换</button></div>
+        </form>
+      </section>
+    </div>
+    <section class="panel result" id="result" aria-labelledby="result-heading" hidden><div class="panel-heading"><h2 id="result-heading"><span class="step">03</span>你的 GIF 已准备好</h2><span id="result-meta" class="muted"></span></div><div class="result-body"><div class="gif-stage"><img id="gif-preview" alt="转换后的 GIF 动图预览"></div><div class="download-copy"><h3>让精彩，循环发生。</h3><p>已生成静音循环动图，可以直接下载使用。</p><a id="download" class="primary" download="video.gif">下载 GIF ↓</a><p class="muted">文件偏大？试试缩短片段或选择 320px。</p></div></div></section>
+    <section class="tips" aria-label="使用提示"><article><span>01 / 选短一点</span><h3>几秒，就很精彩</h3><p>建议截取 3–10 秒，让动图加载更快、重点更清楚。</p></article><article><span>02 / 平衡清晰度</span><h3>尺寸越大，文件越大</h3><p>480px 和 10 fps 适合日常分享。GIF 最多 256 色，渐变可能有色阶。</p></article><article><span>03 / 安心使用</span><h3>视频留在你的设备</h3><p>处理速度取决于设备性能。转换时请保持页面打开，GIF 不包含声音。</p></article></section>
+  </main>
+  <footer>泥壳AI工具站 <span>·</span> 让每个需求，都有一个好用的工具。</footer>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>橙星梦工厂 · 视频生成模型完整价格表</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#f5f7fa;color:#333;padding:20px;line-height:1.6}
+.container{max-width:1520px;margin:0 auto}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:28px 36px;border-radius:12px;margin-bottom:20px}
+.header h1{font-size:26px;margin-bottom:6px}
+.header p{opacity:.9;font-size:14px}
+.header .meta{margin-top:10px;font-size:12px;opacity:.8}
+.controls{display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;background:#fff;padding:4px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tab{padding:8px 18px;border:none;background:transparent;cursor:pointer;border-radius:8px;font-size:13px;color:#666;transition:all .2s;white-space:nowrap}
+.tab.active{background:#667eea;color:#fff;font-weight:600}
+.tab:hover:not(.active){background:#f0f0f5}
+.toggle-group{display:flex;align-items:center;gap:8px;font-size:13px;color:#666}
+.toggle{position:relative;width:40px;height:22px;background:#ddd;border-radius:11px;cursor:pointer;transition:background .2s}
+.toggle.on{background:#667eea}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+.btn-compare{padding:8px 20px;border:none;background:#ff6b6b;color:#fff;cursor:pointer;border-radius:8px;font-size:13px;font-weight:600;transition:all .2s;white-space:nowrap}
+.btn-compare:hover{background:#ff5252;transform:translateY(-1px)}
+.btn-compare.active{background:#e91e63}
+.table-wrapper{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f8f9fb;padding:10px 8px;text-align:center;font-weight:600;color:#555;border-bottom:2px solid #eee;white-space:nowrap;position:sticky;top:0;z-index:10}
+th.model-col{min-width:150px;text-align:left}
+th.type-col{min-width:90px;text-align:left}
+th.tag-col{min-width:140px;text-align:left}
+th.dur-col{min-width:52px}
+th.dur-col .num{font-size:14px}
+th.dur-col .unit{font-size:10px;color:#999;font-weight:400}
+td{padding:8px 6px;text-align:center;border-bottom:1px solid #f0f0f5;transition:background .15s}
+td.model-cell{text-align:left;font-weight:600;font-size:13px}
+td.type-cell{text-align:left}
+td.tag-cell{text-align:left;font-size:11px;color:#888}
+tr.series-row td{background:#f1f3f9!important;border-top:2px solid #d6dbe8;border-bottom:1px solid #e2e5ec;padding:0}
+tr.series-row .series-badge{display:inline-block;margin:7px 0 7px 14px;padding:3px 12px;border-radius:20px;background:linear-gradient(120deg,#7c3aed,#a855f7);color:#fff;font-size:12px;font-weight:700;letter-spacing:.02em}
+tr.series-row:first-child td{border-top:none}
+.app-badges{display:flex;gap:3px;flex-wrap:wrap}
+.app-badge{font-size:10px;padding:2px 5px;border-radius:3px}
+.app-badge.text{background:#e3f2fd;color:#1565c0}
+.app-badge.single{background:#fce4ec;color:#c62828}
+.app-badge.multi{background:#e8f5e9;color:#2e7d32}
+.price-cell{font-weight:600;position:relative}
+.price-cell .pts{display:block}
+.price-cell .rmb{font-size:10px;color:#999;font-weight:400;display:none}
+.price-cell.show-rmb .rmb{display:block}
+.price-cell.show-rmb .pts{font-size:11px;color:#888}
+.p1{color:#2e7d32;background:#f1f8e9}
+.p2{color:#1565c0;background:#e3f2fd}
+.p3{color:#e65100;background:#fff3e0}
+.p4{color:#c62828;background:#fce4ec}
+.p5{color:#6a1b9a;background:#f3e5f5}
+.pna{color:#d0d0d0}
+tr:hover td{background:#fafbff}
+tr:hover .p1{background:#e8f5e9}
+tr:hover .p2{background:#e3f2fd}
+tr:hover .p3{background:#fff3e0}
+tr:hover .p4{background:#fce4ec}
+tr:hover .p5{background:#f3e5f5}
+
+/* Compare panel */
+.compare-panel{background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1);margin-bottom:20px;overflow:hidden;display:none}
+.compare-panel.show{display:block;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.compare-header{background:linear-gradient(135deg,#ff6b6b 0%,#ee5a6f 100%);color:#fff;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.compare-header h2{font-size:16px}
+.compare-header .close-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;transition:background .2s}
+.compare-header .close-btn:hover{background:rgba(255,255,255,.35)}
+.compare-controls{padding:16px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;border-bottom:1px solid #f0f0f5}
+.compare-controls label{font-size:13px;color:#666;font-weight:600}
+.compare-controls select{padding:6px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;cursor:pointer}
+.compare-controls .quick-btns{display:flex;gap:6px}
+.compare-controls .quick-btn{padding:4px 12px;border:1px solid #ddd;background:#fff;border-radius:6px;font-size:12px;cursor:pointer;color:#666;transition:all .2s}
+.compare-controls .quick-btn:hover{background:#f5f5fa}
+.model-selector{padding:16px 24px;border-bottom:1px solid #f0f0f5}
+.model-selector-title{font-size:12px;color:#999;margin-bottom:10px}
+.model-checkboxes{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.model-check{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;cursor:pointer;transition:background .15s;font-size:13px}
+.model-check:hover{background:#f5f5fa}
+.model-check input{margin:0;cursor:pointer}
+.model-check.selected{background:#e3f2fd}
+.compare-table-wrapper{overflow-x:auto;padding:0}
+.compare-table{width:100%;border-collapse:collapse;font-size:14px}
+.compare-table th{background:#f8f9fb;padding:12px 10px;text-align:center;font-weight:600;color:#555;border-bottom:2px solid #eee;white-space:nowrap}
+.compare-table th.model-col{text-align:left;min-width:160px}
+.compare-table th.clarity-col{min-width:80px}
+.compare-table td{padding:10px 8px;text-align:center;border-bottom:1px solid #f0f0f5}
+.compare-table td.model-col{text-align:left;font-weight:600}
+.compare-table .cmp-price{font-weight:700;font-size:16px}
+.compare-table .cmp-rmb{font-size:11px;color:#999}
+.compare-table .cmp-na{color:#d0d0d0}
+.compare-empty{padding:40px;text-align:center;color:#bbb;font-size:14px}
+
+.notes{margin-top:20px;padding:16px 20px;background:#fffde7;border-radius:8px;border-left:4px solid #ffc107;font-size:12px;color:#766;line-height:1.8}
+.notes ul{padding-left:18px}
+.notes li{margin-bottom:3px}
+.summary{margin-top:20px;background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.summary h2{font-size:18px;margin-bottom:16px;color:#333}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.summary-item{padding:16px;border-radius:8px;background:#f8f9fb}
+.summary-item h3{font-size:14px;margin-bottom:6px;color:#555}
+.summary-item p{font-size:12px;color:#666}
+.summary-item .hl{color:#667eea;font-weight:600}
+.footer{margin-top:16px;text-align:center;font-size:11px;color:#aaa}
+</style>
+<style>.clarity-status{font-size:12px;color:#888;margin:8px 4px 14px}.duration-list{display:flex;flex-wrap:wrap;gap:6px;min-width:520px}.duration-price{min-width:58px;padding:5px 7px;border-radius:4px;font-weight:600;text-align:center}.duration-price .sec{display:block;font-size:10px;color:#777;font-weight:400}.duration-price .deal{display:block;line-height:1.2}.duration-price .ori{display:block;font-size:9px;line-height:1.15;color:#c7a3a3;text-decoration:line-through;font-weight:400}.duration-price .rmb{display:none;font-size:10px;color:#888;font-weight:400}.duration-price.show-rmb .rmb{display:block}.quality-price-list{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}.quality-price{padding:7px 10px;border-radius:5px;min-width:90px}.quality-price b{display:block}.quality-price small{font-size:10px;color:#888}.btn-export{padding:8px 18px;border:none;background:#2e7d32;color:#fff;cursor:pointer;border-radius:8px;font-size:13px;font-weight:600}.btn-export:hover{background:#1b5e20}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}.modal-overlay.show{display:flex}.modal{background:#fff;border-radius:14px;width:580px;max-width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.25)}.modal-header{padding:18px 22px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}.modal-header h3{font-size:17px;margin:0;color:#333}.modal-close{border:none;background:transparent;font-size:24px;cursor:pointer;color:#bbb;line-height:1;padding:0 4px}.modal-close:hover{color:#666}.modal-body{padding:16px 22px;overflow-y:auto}.modal-tip{font-size:12px;color:#888;margin-bottom:14px;line-height:1.6}.series-group{border:1px solid #eef0f4;border-radius:10px;margin-bottom:12px;overflow:hidden}.series-group-title{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f7f8fc;font-weight:700;color:#444;font-size:14px}.series-group-title input{width:16px;height:16px;cursor:pointer}.series-count{font-weight:400;color:#aaa;font-size:12px}.series-models{display:flex;flex-wrap:wrap;gap:8px 16px;padding:12px 14px}.exp-model-item{display:flex;align-items:center;gap:6px;font-size:13px;color:#555;cursor:pointer}.exp-model-item input{width:15px;height:15px;cursor:pointer}.modal-footer{padding:14px 22px;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.modal-footer .opts{display:flex;align-items:center;gap:6px;font-size:13px;color:#666}.modal-actions{display:flex;gap:10px}.btn-cancel{padding:8px 18px;border:1px solid #ddd;background:#fff;color:#666;cursor:pointer;border-radius:8px;font-size:13px}.btn-cancel:hover{background:#f5f5f5}.btn-gen{padding:8px 20px;border:none;background:#667eea;color:#fff;cursor:pointer;border-radius:8px;font-size:13px;font-weight:600}.btn-gen:hover{background:#5a67d8}#export-area{display:none}.exp-wrap{max-width:1150px;margin:0 auto;padding:24px 16px}.exp-title{font-size:22px;font-weight:800;color:#333;margin-bottom:4px}.exp-sub{font-size:12px;color:#999;margin-bottom:16px}.exp-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px}.exp-table th{background:#667eea;color:#fff;padding:7px 5px;text-align:center;font-weight:600;white-space:nowrap}.exp-table td{padding:5px;text-align:center;border-bottom:1px solid #eee;white-space:nowrap}.exp-table td.exp-model{text-align:left;font-weight:600;white-space:normal}.exp-table td.exp-sec{font-weight:600}.exp-table .exp-series td{background:#eef0fb;font-weight:700;color:#444;text-align:left;padding:8px 12px;font-size:13px}@page{size:landscape;margin:10mm}@media print{body{padding:0;background:#fff}body>*:not(#export-area){display:none!important}#export-area{display:block!important}.modal-overlay{display:none!important}}</style></head>
+<body>
+<div class="container">
+<div class="header">
+<h1>橙星梦工厂 · 视频生成模型完整价格表</h1>
+<p>ai.fun.tv 当前可用 17 个视频模型 · 仅展示实际支持的画质与时长</p>
+<div class="meta">价格单位：梦想值 ｜ 100 梦想值 = 12 元（1 梦想值 ≈ ¥0.12）｜ 数据来源：ai.fun.tv 当前登录账号官方计费接口 ｜ 更新：2026-09-15</div>
+</div>
+
+<!-- Compare Panel -->
+<div class="compare-panel" id="comparePanel">
+<div class="compare-header">
+<h2>📊 模型价格对比</h2>
+<button class="close-btn" onclick="toggleCompare()">关闭对比</button>
+</div>
+<div class="compare-controls">
+<label>对比时长：</label>
+<select id="compareDuration" onchange="renderCompare()">
+<option value="1">1 秒</option>
+<option value="2">2 秒</option>
+<option value="3">3 秒</option>
+<option value="4">4 秒</option>
+<option value="5" selected>5 秒</option>
+<option value="6">6 秒</option>
+<option value="7">7 秒</option>
+<option value="8">8 秒</option>
+<option value="9">9 秒</option>
+<option value="10">10 秒</option>
+<option value="11">11 秒</option>
+<option value="12">12 秒</option>
+<option value="13">13 秒</option>
+<option value="14">14 秒</option>
+<option value="15">15 秒</option>
+<option value="16">16 秒</option>
+<option value="17">17 秒</option>
+<option value="18">18 秒</option>
+<option value="19">19 秒</option>
+<option value="20">20 秒</option>
+<option value="21">21 秒</option>
+<option value="22">22 秒</option>
+<option value="23">23 秒</option>
+<option value="24">24 秒</option>
+<option value="25">25 秒</option>
+<option value="26">26 秒</option>
+<option value="27">27 秒</option>
+<option value="28">28 秒</option>
+<option value="29">29 秒</option>
+<option value="30">30 秒</option>
+</select>
+<div class="quick-btns">
+<button class="quick-btn" onclick="selectAllModels(true)">全选</button>
+<button class="quick-btn" onclick="selectAllModels(false)">清空</button>
+<button class="quick-btn" onclick="selectPopularModels()">常用模型</button>
+</div>
+<div class="toggle-group">
+<span>显示¥</span>
+<div class="toggle" id="cmpRmbToggle" onclick="toggleCmpRmb()"></div>
+<span style="font-size:11px;color:#aaa">1梦想值≈¥0.12</span>
+</div>
+</div>
+<div class="model-selector">
+<div class="model-selector-title">选择要对比的模型：</div>
+<div class="model-checkboxes" id="modelCheckboxes"></div>
+</div>
+<div class="compare-table-wrapper">
+<table class="compare-table" id="compareTable"><thead><tr><th class="model-col">模型</th><th>当前时长实际可用画质与价格</th></tr></thead><tbody id="compareTbody"><tr><td colspan="2" class="compare-empty">请在上方勾选要对比的模型</td></tr></tbody></table>
+</div>
+</div>
+
+<div class="controls">
+<div class="tabs" id="clarityTabs"><button class="tab" data-clarity="480p">480p</button><button class="tab active" data-clarity="720p">720p（默认）</button><button class="tab" data-clarity="768p">768p</button><button class="tab" data-clarity="1080p">1080p</button><button class="tab" data-clarity="4k">4K</button></div>
+<div class="toggle-group">
+<span>显示¥</span>
+<div class="toggle" id="rmbToggle"></div>
+<span style="font-size:11px;color:#aaa">1梦想值≈¥0.12</span>
+</div>
+<button class="btn-export" onclick="openExportModal()">📄 导出 PDF</button><button class="btn-compare" id="compareBtn" onclick="toggleCompare()">📊 对比</button>
+</div>
+<div class="table-wrapper"><table><thead><tr><th class="model-col">模型</th><th class="type-col">类型</th><th class="tag-col">说明</th><th>实际支持时长与积分</th></tr></thead><tbody id="tbody"></tbody></table></div>
+<div class="notes"><strong>📌 数据口径与计费规则</strong><ul><li>价格单位为梦想值（100 梦想值 = 12 元，1 梦想值 ≈ ¥0.12）；表内为<b>单条价格</b>，可选生成 1–4 条，总价 = 单条价 × 条数（实测 2/3/4 条分别为单条的 2/3/4 倍）。</li><li>支持 16:9 / 9:16 / 4:3 / 3:4 / 1:1 / 21:9 共 6 种比例，<b>价格与比例无关</b>；是否带音频也不影响价格。</li><li>只收录平台「可选参数接口」真实开放、且计费接口返回价格的画质与时长。计费接口对模型<b>不支持的画质会按默认档兜底计价</b>（例如不支持 4K 的模型强行传 4K，会返回与 720P 相同的价格），这类兜底档位一律不收录。</li><li>标准画质为 480P / 720P / 1080P；<b>仅 seedance2.0、可灵3.0、可灵3.0 Omni 三款支持 4K</b>；MiniMax H3 为单独的 768P / 1080P。</li><li><b>折扣与原价：</b>seedance2.0-fast（7折）、seedance 2.0 mini（4折）、MiniMax H3（6折）、Wan3.0 / Wan3.0 prime（7折）共 5 款为限时折扣；格子中主数字为当前折后价，下方灰色<b>删除线数字为折扣前原价</b>（原价＝折后价÷折扣率四舍五入，可反算复核），导出表同样标注。</li><li>三个生成入口「文生 / 首尾帧生视频 / 多参生视频」<b>同档位价格完全相同</b>，类型列标注每个模型支持的入口：文生 16 款全支持；首尾帧 15 款（Vidu Q2 不支持）；多参 11 款（不支持 Vidu Q2、Vidu Q3 pro、可灵3.0、PixVerse V6、Seedance 1.0 Fast），且多参入口下 Wan 2.7 最长仅到 10 秒。</li><li>seedance2.0 4K 7秒当前接口返回 336 梦想值（低于 6 秒的 382），按接口实际结果保留。</li><li><b>2026-09-02 更新：</b>下架可灵1.6/可灵2.1/海螺2.3/Seedance 1.5 Pro/Vidu Q2 pro/Vidu Q2 pro fast 共 6 款，新增 Wan3.0 prime、Wan 2.7；seedance2.5 的 1080P 上调、Wan3.0 全档约 7 折、MiniMax H3 档位调整为 768P/1080P 并下调；同时修正旧版把接口兜底价误标为 4K/额外画质的问题。</li><li><b>2026-09-03 更新（接口实时核对）：</b>模型数量、画质/时长档位、三入口支持范围与折扣力度均无变化；仅 <b>seedance 2.0 mini（4折）21 个时长档、seedance2.0-fast（7折）16 个时长档价格小幅上调（多为 +1，少数长时长 +2 梦想值）</b>，其余 14 款价格不变；折扣前原价已同步重算。例如 mini 720P 5秒 13→14，fast 720P 4秒 25→26；两款的 5 秒基准价（mini 480P=7、fast 480P=16/720P=32）未变。</li><li><b>2026-09-07 更新（接口实时核对）：</b><b>seedance2.0-fast、seedance 2.0 mini、MiniMax H3 三款限时折扣结束</b>，模型数量、画质/时长档位、三入口支持范围不变；Wan3.0 / Wan3.0 prime 仍为 7 折。fast、mini 恢复常规定价并上调（mini 各档约翻倍、fast 上调约 3–4 成），例如 mini 720P 5秒 14→28、480P 5秒 7→14，fast 720P 5秒 32→44、480P 5秒 16→22；MiniMax H3 数值不变（768P 5秒=23、1080P 5秒=30）仅取消折扣标签。折扣前原价组合由 246 个减为 174 个（仅剩两款 Wan3.0）。</li><li><b>2026-09-15 更新（接口实时核对）：</b>① <b>新增第 17 款模型「seedance2.5 普惠版」</b>（480P/720P/1080P、4–30 秒、三入口全支持），为 seedance2.5 的平价版本，5 秒价 480P=40、720P=50、1080P=95，其中 720P 较旗舰版下调 50%；② <b>seedance2.0-fast（7折）、seedance 2.0 mini（4折）、MiniMax H3（6折）限时折扣回归</b>，fast/mini 回到折扣价（如 mini 720P 5秒 28→14、fast 720P 5秒 44→35），MiniMax H3 数值不变、重新标注 6 折与原价；③ <b>Wan3.0 / Wan3.0 prime 调价</b>：prime 480P/720P 下调、1080P 微涨（5 秒 480P 20→18、720P 40→36、1080P 70→71），Wan3.0 1080P 小涨（5 秒 45→47）；④ 其余 11 款价格、档位、入口不变。模型数 16→17，价格组合 593→674，折扣原价组合 174→246。</li></ul></div><div class="summary"><h2>📊 价格分析</h2><div class="summary-grid" id="summaryGrid"></div></div><div class="footer" id="footer"></div>
+</div>
+
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <div class="modal-header"><h3>📄 导出价格明细为 PDF</h3><button class="modal-close" type="button" onclick="closeExportModal()">&times;</button></div>
+    <div class="modal-body"><div class="modal-tip">勾选要导出的模型（支持按系列批量全选/取消）。导出包含所选模型当前真实存在的全部画质与时长。</div><div id="exportSeriesList"></div></div>
+    <div class="modal-footer"><label class="opts"><input type="checkbox" id="expRmb" checked> 包含人民币估算（¥）</label><div class="modal-actions"><button class="btn-cancel" type="button" onclick="closeExportModal()">取消</button><button class="btn-gen" type="button" onclick="generateAndPrint()">生成并打印</button></div></div>
+  </div>
+</div>
+<div id="export-area"></div>
+
+<script>
+var RATE=0.12;
+var QUALITY_LABELS={"480p":"480P","720p":"720P","768p":"768P","1080p":"1080P","2k":"2K","4k":"4K"};
+var QUALITIES=["480p","720p","768p","1080p","4k"];
+var MODELS=[{"name":"seedance2.5","desc":"旗舰视频模型 · 30s长视频+多图参考","apps":[true,true,true],"disc":0,"prices":{"4":{"480p":40,"720p":76,"1080p":160},"5":{"480p":50,"720p":95,"1080p":200},"6":{"480p":60,"720p":114,"1080p":240},"7":{"480p":70,"720p":133,"1080p":280},"8":{"480p":80,"720p":152,"1080p":320},"9":{"480p":90,"720p":171,"1080p":360},"10":{"480p":100,"720p":190,"1080p":400},"11":{"480p":110,"720p":209,"1080p":440},"12":{"480p":120,"720p":228,"1080p":480},"13":{"480p":130,"720p":247,"1080p":520},"14":{"480p":140,"720p":266,"1080p":560},"15":{"480p":150,"720p":285,"1080p":600},"16":{"480p":160,"720p":304,"1080p":640},"17":{"480p":170,"720p":323,"1080p":680},"18":{"480p":180,"720p":342,"1080p":720},"19":{"480p":190,"720p":361,"1080p":760},"20":{"480p":200,"720p":380,"1080p":800},"21":{"480p":210,"720p":399,"1080p":840},"22":{"480p":220,"720p":418,"1080p":880},"23":{"480p":230,"720p":437,"1080p":920},"24":{"480p":240,"720p":456,"1080p":960},"25":{"480p":250,"720p":475,"1080p":1000},"26":{"480p":260,"720p":494,"1080p":1040},"27":{"480p":270,"720p":513,"1080p":1080},"28":{"480p":280,"720p":532,"1080p":1120},"29":{"480p":290,"720p":551,"1080p":1160},"30":{"480p":300,"720p":570,"1080p":1200}},"origin":{}},{"name":"seedance2.5 普惠版","desc":"旗舰同款 · 720P价格下调50%，高性价比","apps":[true,true,true],"disc":0,"prices":{"4":{"480p":32,"720p":40,"1080p":76},"5":{"480p":40,"720p":50,"1080p":95},"6":{"480p":48,"720p":60,"1080p":114},"7":{"480p":56,"720p":70,"1080p":133},"8":{"480p":64,"720p":80,"1080p":152},"9":{"480p":72,"720p":90,"1080p":171},"10":{"480p":80,"720p":100,"1080p":190},"11":{"480p":88,"720p":110,"1080p":209},"12":{"480p":96,"720p":120,"1080p":228},"13":{"480p":104,"720p":130,"1080p":247},"14":{"480p":112,"720p":140,"1080p":266},"15":{"480p":120,"720p":150,"1080p":285},"16":{"480p":128,"720p":160,"1080p":304},"17":{"480p":136,"720p":170,"1080p":323},"18":{"480p":144,"720p":180,"1080p":342},"19":{"480p":152,"720p":190,"1080p":361},"20":{"480p":160,"720p":200,"1080p":380},"21":{"480p":168,"720p":210,"1080p":399},"22":{"480p":176,"720p":220,"1080p":418},"23":{"480p":184,"720p":230,"1080p":437},"24":{"480p":192,"720p":240,"1080p":456},"25":{"480p":200,"720p":250,"1080p":475},"26":{"480p":208,"720p":260,"1080p":494},"27":{"480p":216,"720p":270,"1080p":513},"28":{"480p":224,"720p":280,"1080p":532},"29":{"480p":232,"720p":290,"1080p":551},"30":{"480p":240,"720p":300,"1080p":570}},"origin":{}},{"name":"seedance2.0","desc":"专业级多模态 · 支持4K","apps":[true,true,true],"disc":0,"prices":{"4":{"480p":22,"720p":44,"1080p":110,"4k":255},"5":{"480p":28,"720p":55,"1080p":138,"4k":319},"6":{"480p":33,"720p":66,"1080p":165,"4k":382},"7":{"480p":39,"720p":77,"1080p":193,"4k":336},"8":{"480p":44,"720p":88,"1080p":220,"4k":510},"9":{"480p":50,"720p":99,"1080p":248,"4k":574},"10":{"480p":55,"720p":110,"1080p":275,"4k":638},"11":{"480p":61,"720p":121,"1080p":303,"4k":702},"12":{"480p":66,"720p":132,"1080p":330,"4k":766},"13":{"480p":72,"720p":143,"1080p":358,"4k":830},"14":{"480p":77,"720p":154,"1080p":385,"4k":894},"15":{"480p":83,"720p":165,"1080p":413,"4k":958}},"origin":{}},{"name":"seedance2.0-fast","desc":"2.0 快速版 · 限时7折","apps":[true,true,true],"disc":0.7,"prices":{"4":{"480p":15,"720p":29},"5":{"480p":18,"720p":35},"6":{"480p":22,"720p":42},"7":{"480p":25,"720p":49},"8":{"480p":29,"720p":56},"9":{"480p":32,"720p":63},"10":{"480p":35,"720p":69},"11":{"480p":39,"720p":76},"12":{"480p":42,"720p":83},"13":{"480p":46,"720p":90},"14":{"480p":49,"720p":97},"15":{"480p":52,"720p":103}},"origin":{"4":{"480p":21,"720p":41},"5":{"480p":26,"720p":50},"6":{"480p":31,"720p":60},"7":{"480p":36,"720p":70},"8":{"480p":41,"720p":80},"9":{"480p":46,"720p":90},"10":{"480p":50,"720p":99},"11":{"480p":56,"720p":109},"12":{"480p":60,"720p":119},"13":{"480p":66,"720p":129},"14":{"480p":70,"720p":139},"15":{"480p":74,"720p":147}}},{"name":"seedance 2.0 mini","desc":"2.0 轻量版 · 限时4折高性价比","apps":[true,true,true],"disc":0.4,"prices":{"4":{"480p":6,"720p":11},"5":{"480p":7,"720p":14},"6":{"480p":9,"720p":16},"7":{"480p":10,"720p":19},"8":{"480p":11,"720p":22},"9":{"480p":12,"720p":24},"10":{"480p":14,"720p":27},"11":{"480p":15,"720p":30},"12":{"480p":16,"720p":32},"13":{"480p":18,"720p":35},"14":{"480p":19,"720p":37},"15":{"480p":21,"720p":40}},"origin":{"4":{"480p":15,"720p":28},"5":{"480p":18,"720p":35},"6":{"480p":22,"720p":40},"7":{"480p":25,"720p":48},"8":{"480p":28,"720p":55},"9":{"480p":30,"720p":60},"10":{"480p":35,"720p":68},"11":{"480p":38,"720p":75},"12":{"480p":40,"720p":80},"13":{"480p":45,"720p":88},"14":{"480p":48,"720p":92},"15":{"480p":52,"720p":100}}},{"name":"Seedance 1.0 Fast","desc":"质量高·速度快·价格低","apps":[true,true,false],"disc":0,"prices":{"5":{"720p":5,"1080p":12},"10":{"720p":10,"1080p":24}},"origin":{}},{"name":"MiniMax H3","desc":"动态表现强，适合复杂场景 · 限时6折","apps":[true,true,true],"disc":0.6,"prices":{"4":{"768p":19,"1080p":24},"5":{"768p":23,"1080p":30},"6":{"768p":27,"1080p":36},"7":{"768p":31,"1080p":42},"8":{"768p":35,"1080p":48},"9":{"768p":39,"1080p":54},"10":{"768p":43,"1080p":60},"11":{"768p":47,"1080p":66},"12":{"768p":51,"1080p":72},"13":{"768p":55,"1080p":78},"14":{"768p":59,"1080p":84},"15":{"768p":63,"1080p":90}},"origin":{"4":{"768p":32,"1080p":40},"5":{"768p":38,"1080p":50},"6":{"768p":45,"1080p":60},"7":{"768p":52,"1080p":70},"8":{"768p":58,"1080p":80},"9":{"768p":65,"1080p":90},"10":{"768p":72,"1080p":100},"11":{"768p":78,"1080p":110},"12":{"768p":85,"1080p":120},"13":{"768p":92,"1080p":130},"14":{"768p":98,"1080p":140},"15":{"768p":105,"1080p":150}}},{"name":"可灵3.0 Omni","desc":"音画同出，一致性增强 · 支持4K","apps":[true,true,true],"disc":0,"prices":{"3":{"720p":18,"1080p":23,"4k":66},"4":{"720p":24,"1080p":31,"4k":88},"5":{"720p":30,"1080p":38,"4k":110},"6":{"720p":36,"1080p":46,"4k":132},"7":{"720p":42,"1080p":54,"4k":154},"8":{"720p":48,"1080p":61,"4k":176},"9":{"720p":54,"1080p":68,"4k":198},"10":{"720p":60,"1080p":76,"4k":220},"11":{"720p":66,"1080p":84,"4k":242},"12":{"720p":72,"1080p":92,"4k":264},"13":{"720p":78,"1080p":99,"4k":286},"14":{"720p":84,"1080p":107,"4k":308},"15":{"720p":90,"1080p":114,"4k":330}},"origin":{}},{"name":"可灵3.0","desc":"音画同出，多镜头叙事 · 支持4K","apps":[true,true,false],"disc":0,"prices":{"3":{"720p":20,"1080p":27,"4k":66},"4":{"720p":27,"1080p":36,"4k":88},"5":{"720p":34,"1080p":45,"4k":110},"6":{"720p":41,"1080p":54,"4k":132},"7":{"720p":48,"1080p":63,"4k":154},"8":{"720p":54,"1080p":72,"4k":176},"9":{"720p":61,"1080p":81,"4k":198},"10":{"720p":68,"1080p":90,"4k":220},"11":{"720p":75,"1080p":99,"4k":242},"12":{"720p":82,"1080p":108,"4k":264},"13":{"720p":88,"1080p":117,"4k":286},"14":{"720p":95,"1080p":126,"4k":308},"15":{"720p":102,"1080p":135,"4k":330}},"origin":{}},{"name":"Wan3.0 prime","desc":"新模型7折 · 超快速，全模态参考，30s直出","apps":[true,true,true],"disc":0.7,"prices":{"2":{"480p":8,"720p":15,"1080p":29},"3":{"480p":11,"720p":22,"1080p":43},"4":{"480p":15,"720p":29,"1080p":57},"5":{"480p":18,"720p":36,"1080p":71},"6":{"480p":22,"720p":43,"1080p":86},"7":{"480p":25,"720p":50,"1080p":100},"8":{"480p":29,"720p":57,"1080p":114},"9":{"480p":32,"720p":64,"1080p":128},"10":{"480p":36,"720p":71,"1080p":142},"11":{"480p":40,"720p":79,"1080p":157},"12":{"480p":43,"720p":86,"1080p":171},"13":{"480p":47,"720p":93,"1080p":185},"14":{"480p":50,"720p":100,"1080p":199},"15":{"480p":54,"720p":107,"1080p":213},"16":{"480p":57,"720p":114,"1080p":228},"17":{"480p":61,"720p":121,"1080p":242},"18":{"480p":64,"720p":128,"1080p":256},"19":{"480p":68,"720p":135,"1080p":270},"20":{"480p":71,"720p":142,"1080p":284},"21":{"480p":75,"720p":150,"1080p":299},"22":{"480p":79,"720p":157,"1080p":313},"23":{"480p":82,"720p":164,"1080p":327},"24":{"480p":86,"720p":171,"1080p":341},"25":{"480p":89,"720p":178,"1080p":355},"26":{"480p":93,"720p":185,"1080p":370},"27":{"480p":96,"720p":192,"1080p":384},"28":{"480p":100,"720p":199,"1080p":398},"29":{"480p":103,"720p":206,"1080p":412},"30":{"480p":107,"720p":213,"1080p":426}},"origin":{"2":{"480p":11,"720p":21,"1080p":41},"3":{"480p":16,"720p":31,"1080p":61},"4":{"480p":21,"720p":41,"1080p":81},"5":{"480p":26,"720p":51,"1080p":101},"6":{"480p":31,"720p":61,"1080p":123},"7":{"480p":36,"720p":71,"1080p":143},"8":{"480p":41,"720p":81,"1080p":163},"9":{"480p":46,"720p":91,"1080p":183},"10":{"480p":51,"720p":101,"1080p":203},"11":{"480p":57,"720p":113,"1080p":224},"12":{"480p":61,"720p":123,"1080p":244},"13":{"480p":67,"720p":133,"1080p":264},"14":{"480p":71,"720p":143,"1080p":284},"15":{"480p":77,"720p":153,"1080p":304},"16":{"480p":81,"720p":163,"1080p":326},"17":{"480p":87,"720p":173,"1080p":346},"18":{"480p":91,"720p":183,"1080p":366},"19":{"480p":97,"720p":193,"1080p":386},"20":{"480p":101,"720p":203,"1080p":406},"21":{"480p":107,"720p":214,"1080p":427},"22":{"480p":113,"720p":224,"1080p":447},"23":{"480p":117,"720p":234,"1080p":467},"24":{"480p":123,"720p":244,"1080p":487},"25":{"480p":127,"720p":254,"1080p":507},"26":{"480p":133,"720p":264,"1080p":529},"27":{"480p":137,"720p":274,"1080p":549},"28":{"480p":143,"720p":284,"1080p":569},"29":{"480p":147,"720p":294,"1080p":589},"30":{"480p":153,"720p":304,"1080p":609}}},{"name":"Wan3.0","desc":"多镜头叙事，音画同出 · 限时7折","apps":[true,true,true],"disc":0.7,"prices":{"2":{"480p":6,"720p":10,"1080p":19},"3":{"480p":9,"720p":15,"1080p":28},"4":{"480p":12,"720p":20,"1080p":37},"5":{"480p":15,"720p":25,"1080p":47},"6":{"480p":18,"720p":30,"1080p":56},"7":{"480p":20,"720p":35,"1080p":65},"8":{"480p":23,"720p":40,"1080p":74},"9":{"480p":26,"720p":45,"1080p":84},"10":{"480p":29,"720p":50,"1080p":93},"11":{"480p":32,"720p":55,"1080p":102},"12":{"480p":35,"720p":60,"1080p":111},"13":{"480p":37,"720p":65,"1080p":120},"14":{"480p":40,"720p":70,"1080p":130},"15":{"480p":43,"720p":75,"1080p":139},"16":{"480p":46,"720p":80,"1080p":148},"17":{"480p":49,"720p":85,"1080p":157},"18":{"480p":52,"720p":90,"1080p":167},"19":{"480p":54,"720p":95,"1080p":176},"20":{"480p":57,"720p":100,"1080p":185},"21":{"480p":60,"720p":105,"1080p":194},"22":{"480p":63,"720p":110,"1080p":204},"23":{"480p":66,"720p":115,"1080p":213},"24":{"480p":69,"720p":120,"1080p":222},"25":{"480p":71,"720p":125,"1080p":231},"26":{"480p":74,"720p":130,"1080p":240},"27":{"480p":77,"720p":135,"1080p":250},"28":{"480p":80,"720p":140,"1080p":259},"29":{"480p":83,"720p":145,"1080p":268},"30":{"480p":86,"720p":150,"1080p":277}},"origin":{"2":{"480p":9,"720p":14,"1080p":27},"3":{"480p":13,"720p":21,"1080p":40},"4":{"480p":17,"720p":29,"1080p":53},"5":{"480p":21,"720p":36,"1080p":67},"6":{"480p":26,"720p":43,"1080p":80},"7":{"480p":29,"720p":50,"1080p":93},"8":{"480p":33,"720p":57,"1080p":106},"9":{"480p":37,"720p":64,"1080p":120},"10":{"480p":41,"720p":71,"1080p":133},"11":{"480p":46,"720p":79,"1080p":146},"12":{"480p":50,"720p":86,"1080p":159},"13":{"480p":53,"720p":93,"1080p":171},"14":{"480p":57,"720p":100,"1080p":186},"15":{"480p":61,"720p":107,"1080p":199},"16":{"480p":66,"720p":114,"1080p":211},"17":{"480p":70,"720p":121,"1080p":224},"18":{"480p":74,"720p":129,"1080p":239},"19":{"480p":77,"720p":136,"1080p":251},"20":{"480p":81,"720p":143,"1080p":264},"21":{"480p":86,"720p":150,"1080p":277},"22":{"480p":90,"720p":157,"1080p":291},"23":{"480p":94,"720p":164,"1080p":304},"24":{"480p":99,"720p":171,"1080p":317},"25":{"480p":101,"720p":179,"1080p":330},"26":{"480p":106,"720p":186,"1080p":343},"27":{"480p":110,"720p":193,"1080p":357},"28":{"480p":114,"720p":200,"1080p":370},"29":{"480p":119,"720p":207,"1080p":383},"30":{"480p":123,"720p":214,"1080p":396}}},{"name":"Wan 2.7","desc":"多镜头叙事，音画同出","apps":[true,true,true],"disc":0,"prices":{"2":{"720p":9,"1080p":15},"3":{"720p":14,"1080p":22},"4":{"720p":18,"1080p":30},"5":{"720p":22,"1080p":38},"6":{"720p":27,"1080p":44},"7":{"720p":31,"1080p":52},"8":{"720p":36,"1080p":59},"9":{"720p":40,"1080p":66},"10":{"720p":45,"1080p":74},"11":{"720p":49,"1080p":82},"12":{"720p":54,"1080p":89},"13":{"720p":58,"1080p":96},"14":{"720p":62,"1080p":104},"15":{"720p":67,"1080p":112}},"origin":{}},{"name":"Vidu Q3 pro","desc":"声画同出，多镜头直出","apps":[true,true,false],"disc":0,"prices":{"1":{"720p":5,"1080p":6},"2":{"720p":10,"1080p":12},"3":{"720p":15,"1080p":18},"4":{"720p":20,"1080p":24},"5":{"720p":25,"1080p":30},"6":{"720p":30,"1080p":36},"7":{"720p":35,"1080p":42},"8":{"720p":40,"1080p":48},"9":{"720p":45,"1080p":54},"10":{"720p":50,"1080p":60},"11":{"720p":55,"1080p":66},"12":{"720p":60,"1080p":72},"13":{"720p":65,"1080p":78},"14":{"720p":70,"1080p":82},"15":{"720p":75,"1080p":86},"16":{"720p":80,"1080p":92}},"origin":{}},{"name":"Vidu Q2","desc":"动态鲜活，语义精准，音画同出","apps":[true,false,false],"disc":0,"prices":{"5":{"720p":6,"1080p":10},"10":{"720p":10,"1080p":18}},"origin":{}},{"name":"PixVerse V6","desc":"原生音效，导演级运镜","apps":[true,true,false],"disc":0,"prices":{"1":{"720p":4,"1080p":7},"2":{"720p":8,"1080p":14},"3":{"720p":11,"1080p":21},"4":{"720p":15,"1080p":29},"5":{"720p":19,"1080p":35},"6":{"720p":23,"1080p":43},"7":{"720p":27,"1080p":50},"8":{"720p":30,"1080p":57},"9":{"720p":34,"1080p":64},"10":{"720p":38,"1080p":71},"11":{"720p":41,"1080p":78},"12":{"720p":45,"1080p":85},"13":{"720p":49,"1080p":92},"14":{"720p":53,"1080p":100},"15":{"720p":57,"1080p":105}},"origin":{}},{"name":"Fun-GV Omni","desc":"电影级画质，精准模拟物理现实","apps":[true,true,true],"disc":0,"prices":{"3":{"720p":25,"1080p":32},"4":{"720p":30,"1080p":40},"5":{"720p":35,"1080p":49},"6":{"720p":40,"1080p":58},"7":{"720p":46,"1080p":66},"8":{"720p":52,"1080p":74},"9":{"720p":57,"1080p":82},"10":{"720p":62,"1080p":90}},"origin":{}},{"name":"Happy Horse 1.1","desc":"物理真实、运动流畅","apps":[true,true,true],"disc":0,"prices":{"3":{"720p":12,"1080p":18},"4":{"720p":16,"1080p":24},"5":{"720p":20,"1080p":30},"6":{"720p":24,"1080p":36},"7":{"720p":28,"1080p":42},"8":{"720p":32,"1080p":48},"9":{"720p":36,"1080p":54},"10":{"720p":40,"1080p":60},"11":{"720p":44,"1080p":66},"12":{"720p":48,"1080p":72},"13":{"720p":52,"1080p":78},"14":{"720p":56,"1080p":84},"15":{"720p":60,"1080p":90}},"origin":{}}];var CLARITIES=QUALITIES;
+var CLARITY_LABELS=QUALITY_LABELS;
+var currentClarity="720p",showRmb=false,showCmpRmb=false,selectedModels=new Set();
+function getPriceClass(p){if(p<=10)return"p1";if(p<=30)return"p2";if(p<=60)return"p3";if(p<=120)return"p4";return"p5"}
+function getAppBadges(apps){var a=apps||[true,false,false],h="";if(a[0])h+='<span class="app-badge text">文生</span>';if(a[1])h+='<span class="app-badge single">图生</span>';if(a[2])h+='<span class="app-badge multi">多图</span>';return'<div class="app-badges">'+h+'</div>'}
+function getSeriesLabel(n){if(/seedance/i.test(n))return'Seedance 系列';if(/可灵/.test(n))return'可灵 系列';if(/wan/i.test(n))return'Wan 系列';if(/vidu/i.test(n))return'Vidu 系列';if(/minimax|海螺/i.test(n))return'MiniMax / 海螺 系列';if(/fun-gv/i.test(n))return'Fun-GV 系列';if(/pixverse/i.test(n))return'PixVerse 系列';if(/happy/i.test(n))return'Happy Horse 系列';return'其他系列'}
+function hasClarity(m,q){return Object.keys(m.prices).some(function(s){return m.prices[s][q]!==undefined})}
+function renderTable(){var html='',last=null,visible=MODELS.filter(function(m){return hasClarity(m,currentClarity)});visible.forEach(function(m){var ser=getSeriesLabel(m.name);if(ser!==last){html+='<tr class="series-row"><td colspan="4"><span class="series-badge">'+ser+'</span></td></tr>';last=ser}var cells=Object.keys(m.prices).map(Number).sort(function(a,b){return a-b}).filter(function(s){return m.prices[s][currentClarity]!==undefined}).map(function(s){var p=m.prices[s][currentClarity],r=(p*RATE).toFixed(2);var op=(m.origin[s]||{})[currentClarity];return'<span class="duration-price '+getPriceClass(p)+(showRmb?' show-rmb':'')+'"><span class="sec">'+s+'秒</span><span class="deal">'+p+'</span>'+(op?'<span class="ori">'+op+'</span>':'')+'<span class="rmb">¥'+r+'</span></span>'}).join('');html+='<tr><td class="model-cell">'+m.name+'</td><td class="type-cell">'+getAppBadges(m.apps)+'</td><td class="tag-cell">'+m.desc+'</td><td><div class="duration-list">'+cells+'</div></td></tr>'});document.getElementById('tbody').innerHTML=html;var st=document.getElementById('clarityStatus');if(st)st.textContent=CLARITY_LABELS[currentClarity]+'：显示 '+visible.length+' 个真实支持此档位的模型，其余模型已隐藏。'}
+function toggleCompare(){var p=document.getElementById('comparePanel'),b=document.getElementById('compareBtn'),on=!p.classList.contains('show');p.classList.toggle('show',on);b.classList.toggle('active',on);b.textContent=on?'✕ 关闭对比':'📊 对比';if(on){renderModelCheckboxes();renderCompare();p.scrollIntoView({behavior:'smooth',block:'start'})}}
+function renderModelCheckboxes(){document.getElementById('modelCheckboxes').innerHTML=MODELS.map(function(m,i){return'<label class="model-check '+(selectedModels.has(i)?'selected':'')+'"><input type="checkbox" '+(selectedModels.has(i)?'checked':'')+' onchange="toggleModel('+i+',this.checked)"> '+m.name+'</label>'}).join('')}
+function toggleModel(i,on){on?selectedModels.add(i):selectedModels.delete(i);renderModelCheckboxes();renderCompare()}
+function selectAllModels(on){selectedModels.clear();if(on)MODELS.forEach(function(_,i){selectedModels.add(i)});renderModelCheckboxes();renderCompare()}
+function selectPopularModels(){selectedModels.clear();['seedance2.5','seedance2.0','可灵3.0','Wan3.0','Vidu Q3 pro','MiniMax H3'].forEach(function(n){var i=MODELS.findIndex(function(m){return m.name===n});if(i>=0)selectedModels.add(i)});renderModelCheckboxes();renderCompare()}
+function toggleCmpRmb(){showCmpRmb=!showCmpRmb;document.getElementById('cmpRmbToggle').classList.toggle('on',showCmpRmb);renderCompare()}
+function renderCompare(){var s=Number(document.getElementById('compareDuration').value),rows=[];Array.from(selectedModels).sort(function(a,b){return a-b}).forEach(function(i){var m=MODELS[i],pd=m.prices[s];if(!pd)return;var q=CLARITIES.filter(function(x){return pd[x]!==undefined}).map(function(x){var p=pd[x];return'<span class="quality-price '+getPriceClass(p)+'"><small>'+CLARITY_LABELS[x]+'</small><b>'+p+'</b>'+(showCmpRmb?'<small>¥'+(p*RATE).toFixed(2)+'</small>':'')+'</span>'}).join('');if(q)rows.push('<tr><td class="model-col">'+m.name+'<br><span style="font-size:11px;color:#999;font-weight:400">'+m.desc+'</span></td><td><div class="quality-price-list">'+q+'</div></td></tr>')});document.getElementById('compareTbody').innerHTML=rows.length?rows.join(''):'<tr><td colspan="2" class="compare-empty">所选模型在 '+s+' 秒没有已确认价格</td></tr>'}
+function allEntries(){var e=[];MODELS.forEach(function(m){Object.keys(m.prices).forEach(function(s){Object.keys(m.prices[s]).forEach(function(q){e.push({model:m.name,sec:Number(s),q:q,p:m.prices[s][q]})})})});return e}
+function renderSummary(){var e=allEntries(),min=e.reduce(function(a,b){return b.p<a.p?b:a}),max=e.reduce(function(a,b){return b.p>a.p?b:a}),best=e.reduce(function(a,b){return b.p/b.sec<a.p/a.sec?b:a}),long=Math.max.apply(null,e.map(function(x){return x.sec})),names=MODELS.filter(function(m){return Math.max.apply(null,Object.keys(m.prices).map(Number))===long}).map(function(m){return m.name}).join('、');var d=[['💰 全场最低价',min.model+' '+CLARITY_LABELS[min.q]+' '+min.sec+'秒：<span class="hl">'+min.p+' 梦想值</span>（¥'+(min.p*RATE).toFixed(2)+'）'],['💸 全场最高价',max.model+' '+CLARITY_LABELS[max.q]+' '+max.sec+'秒：<span class="hl">'+max.p+' 梦想值</span>（¥'+(max.p*RATE).toFixed(2)+'）'],['🎯 最低每秒成本',best.model+' '+CLARITY_LABELS[best.q]+' '+best.sec+'秒：<span class="hl">'+(best.p/best.sec).toFixed(3)+' 梦想值/秒</span>'],['⏱️ 最长时长','<span class="hl">'+names+'</span>：最长 '+long+' 秒'],['📊 数据规模',MODELS.length+' 个模型，共 <span class="hl">'+e.length+' 个</span>已确认价格组合'],['💱 换算规则','严格按 <span class="hl">100 梦想值 = 12 元</span>计算']];document.getElementById('summaryGrid').innerHTML=d.map(function(x){return'<div class="summary-item"><h3>'+x[0]+'</h3><p>'+x[1]+'</p></div>'}).join('');document.getElementById('footer').textContent='数据由 ai.fun.tv 当前登录账号计费接口核对 · '+MODELS.length+' 个模型 · '+e.length+' 个真实价格组合'}
+function exportSeriesOrder(){return['Seedance 系列','可灵 系列','Wan 系列','Vidu 系列','MiniMax / 海螺 系列','Fun-GV 系列','PixVerse 系列','Happy Horse 系列','其他系列']}
+function openExportModal(){var groups={};MODELS.forEach(function(m,i){var s=getSeriesLabel(m.name);if(!groups[s])groups[s]=[];groups[s].push(i)});var html='';exportSeriesOrder().forEach(function(s){if(!groups[s])return;var items=groups[s].map(function(i){return'<label class="exp-model-item"><input type="checkbox" class="exp-cb" data-idx="'+i+'" checked> '+MODELS[i].name+'</label>'}).join('');html+='<div class="series-group"><div class="series-group-title"><input type="checkbox" class="exp-series-cb" checked onchange="toggleExportSeries(this)"> '+s+' <span class="series-count">('+groups[s].length+')</span></div><div class="series-models">'+items+'</div></div>'});document.getElementById('exportSeriesList').innerHTML=html;document.getElementById('exportModal').classList.add('show')}
+function toggleExportSeries(cb){var cbs=cb.closest('.series-group').querySelectorAll('.exp-cb');for(var i=0;i<cbs.length;i++)cbs[i].checked=cb.checked}
+function closeExportModal(){document.getElementById('exportModal').classList.remove('show')}
+function collectExportSelection(){return Array.from(document.querySelectorAll('#exportSeriesList .exp-cb')).filter(function(x){return x.checked}).map(function(x){return Number(x.dataset.idx)})}
+function modelTypes(m){var a=m.apps||[],t=[];if(a[0])t.push('文生');if(a[1])t.push('图生');if(a[2])t.push('多图');return t.join('·')}
+function buildExportTable(idxs,qualities,includeRmb,title){var cols=3+qualities.length+(includeRmb?1:0),head='<tr><th>模型</th><th>类型</th><th>秒数</th>'+qualities.map(function(q){return'<th>'+CLARITY_LABELS[q]+'</th>'}).join('')+(includeRmb?'<th>参考¥/条</th>':'')+'</tr>',rows='',grouped={};idxs.forEach(function(i){var s=getSeriesLabel(MODELS[i].name);if(!grouped[s])grouped[s]=[];grouped[s].push(i)});exportSeriesOrder().forEach(function(s){if(!grouped[s])return;rows+='<tr class="exp-series"><td colspan="'+cols+'">'+s+'</td></tr>';grouped[s].forEach(function(i){var m=MODELS[i];Object.keys(m.prices).map(Number).sort(function(a,b){return a-b}).forEach(function(sec){var pd=m.prices[sec];var tds=qualities.map(function(q){if(pd[q]===undefined)return'<td style="color:#ccc">—</td>';var op=(m.origin[sec]||{})[q];return'<td>'+pd[q]+(op?' <s style="color:#bbb;font-size:11px">'+op+'</s>':'')+'</td>'}).join('');var firstQ=null;for(var k=0;k<qualities.length;k++){if(pd[qualities[k]]!==undefined){firstQ=qualities[k];break}}var rmb=includeRmb?('<td>'+(firstQ?('¥'+(pd[firstQ]*RATE).toFixed(2)):'—')+'</td>'):'';rows+='<tr><td class="exp-model">'+m.name+'</td><td>'+modelTypes(m)+'</td><td class="exp-sec">'+sec+'秒</td>'+tds+rmb+'</tr>'})})});return rows?'<div class="exp-sub" style="font-weight:700;color:#555;margin-top:12px">'+title+'</div><table class="exp-table"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table>':''}
+function buildExportHTML(idxs,includeRmb){var date=new Date().toLocaleDateString('zh-CN'),Q=['480p','720p','768p','1080p','4k'];return'<div class="exp-wrap"><div class="exp-title">橙星梦工厂 · 视频模型价格明细</div><div class="exp-sub">导出 '+idxs.length+' 个模型 · 单位：梦想值/条（灰色删除线为折扣前原价）· 1 梦想值 = ¥0.12 · “—”表示该模型不支持此画质 · 生成日期 '+date+'</div>'+buildExportTable(idxs,Q,includeRmb,'全部视频模型价格明细（按画质分列）')+'</div>'}
+function generateAndPrint(){var idxs=collectExportSelection();if(!idxs.length){alert('请至少选择一个模型再导出');return}var body=buildExportHTML(idxs,document.getElementById('expRmb').checked),area=document.getElementById('export-area');area.innerHTML=body;closeExportModal();var styles='@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Microsoft YaHei",Arial,sans-serif;color:#333;margin:0}.exp-wrap{max-width:1150px;margin:auto;padding:24px 16px}.exp-title{font-size:22px;font-weight:800;margin-bottom:4px}.exp-sub{font-size:12px;color:#777;margin-bottom:12px}.exp-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px}.exp-table th{background:#667eea;color:#fff;padding:7px 5px;text-align:center}.exp-table td{padding:5px;text-align:center;border-bottom:1px solid #eee}.exp-table td.exp-model{text-align:left;font-weight:600}.exp-series td{background:#eef0fb;font-weight:700;text-align:left;padding:8px 12px}';var doc='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>橙星梦工厂·视频模型价格明细</title><style>'+styles+'</style></head><body>'+body+'</body></html>',w=null;try{w=window.open('','_blank')}catch(e){}if(w){w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(function(){try{w.print()}catch(e){}},300)}else{setTimeout(function(){window.print()},120)}}
+var tabBtns=document.querySelectorAll('.tab');for(var i=0;i<tabBtns.length;i++)tabBtns[i].addEventListener('click',function(){for(var j=0;j<tabBtns.length;j++)tabBtns[j].classList.remove('active');this.classList.add('active');currentClarity=this.getAttribute('data-clarity');renderTable()});document.getElementById('rmbToggle').addEventListener('click',function(){showRmb=!showRmb;this.classList.toggle('on',showRmb);renderTable()});renderTable();renderSummary();
+/* ===== 实时更新模块（自包含，注入到价格表页面）===== */
+(function(){
+  var API='https://ai.fun.tv/service/workflow/project/appbox/video';
+  var CORDER=['480p','720p','768p','1080p','4k'];
+  var ENTRY2='2-image2video', ENTRYN='n-image2video';
+  // 组内展示顺序（已知模型），新模型自动排到组内末尾
+  var RANK=['seedance2.5','seedance2.5 普惠版','seedance2.0','seedance2.0-fast','seedance 2.0 mini','Seedance 1.0 Fast',
+    'MiniMax H3','可灵3.0 Omni','可灵3.0','Wan3.0 prime','Wan3.0','Wan 2.7','Vidu Q3 pro','Vidu Q2',
+    'PixVerse V6','Fun-GV Omni','Happy Horse 1.1'];
+  var busy=false, lastModels=null;
+  var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)});};
+
+  /* ---- 注入样式 ---- */
+  var css='.btn-live{padding:8px 16px;border:none;background:linear-gradient(135deg,#f0933b,#e8651f);color:#fff;cursor:pointer;border-radius:8px;font-size:13px;font-weight:700;margin-right:8px}.btn-live:hover{filter:brightness(1.05)}'+
+    '.live-stamp{font-size:12px;color:#e8651f;font-weight:600;margin-left:10px}'+
+    '#liveModal .modal{width:640px}.lu-field{margin:10px 0}.lu-field label{font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px}'+
+    '.lu-token{width:100%;min-height:64px;padding:9px 11px;border:1px solid #ddd;border-radius:8px;font-size:12px;font-family:monospace;box-sizing:border-box;resize:vertical}'+
+    '.lu-help{font-size:12px;color:#888;line-height:1.7;background:#f7f8fc;border-radius:8px;padding:9px 12px;margin:8px 0}'+
+    '.lu-help code{background:#eee;padding:1px 6px;border-radius:4px;color:#c0392b;word-break:break-all}'+
+    '.lu-progwrap{height:14px;background:#eef0f4;border-radius:8px;overflow:hidden;margin:10px 0}.lu-prog{height:100%;width:0;background:linear-gradient(90deg,#f6b26b,#e8651f);transition:width .2s}'+
+    '.lu-log{height:180px;overflow-y:auto;background:#1e1e24;color:#d6e4ff;font-size:11.5px;line-height:1.65;border-radius:8px;padding:10px 12px;font-family:monospace;white-space:pre-wrap}'+
+    '.lu-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#666;margin:6px 0}.lu-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}'+
+    '.btn-dl{padding:8px 18px;border:none;background:#2e7d32;color:#fff;border-radius:8px;font-weight:700;cursor:pointer;display:none}.btn-dl:hover{background:#1b5e20}'+
+    '.lu-bmrow{margin:8px 0 4px;padding:8px 10px;background:#fff8e6;border:1px dashed #e0a93a;border-radius:8px;font-size:12px;color:#7a5b12}'+
+    '.lu-bm{display:inline-block;margin-left:6px;padding:5px 12px;background:linear-gradient(135deg,#ffd54a,#f5b700);color:#5a4100;font-weight:700;border-radius:16px;text-decoration:none;cursor:grab;user-select:none;white-space:nowrap}'+
+    '.lu-bm:active{cursor:grabbing}.lu-help details{margin-top:6px;color:#999}.lu-help details summary{cursor:pointer;color:#777;outline:none}'+
+    '.lu-readbtn{padding:7px 14px;border:1px solid #e8651f;background:#fff4ec;color:#e8651f;border-radius:8px;font-weight:700;cursor:pointer;font-size:12.5px}.lu-readbtn:hover{background:#ffe6d6}';
+  var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+
+  /* ---- 工具栏按钮 ---- */
+  var btn=document.createElement('button');
+  btn.className='btn-live';btn.innerHTML='🔄 实时更新';
+  btn.onclick=openModal;
+  var stamp=document.createElement('span');stamp.className='live-stamp';stamp.id='liveStamp';
+  var expBtn=document.querySelector('.btn-export');
+  if(expBtn){expBtn.parentNode.insertBefore(btn,expBtn);expBtn.parentNode.insertBefore(stamp,expBtn);}
+
+  /* ---- 弹窗 ---- */
+  var modal=document.createElement('div');modal.className='modal-overlay';modal.id='liveModal';
+  modal.innerHTML=
+    '<div class="modal">'+
+      '<div class="modal-header"><h3>🔄 从平台接口实时更新价格</h3><button class="modal-close" onclick="window.__lu.close()">×</button></div>'+
+      '<div class="modal-body">'+
+        '<div class="lu-help">价格直接读取自 ai.fun.tv 官方计费接口（与实际扣费一致），仅本机使用、不上传第三方。<b>令牌 7 天有效</b>，勾上下面“记住令牌”，一周只需弄一次。<br>'+
+        '<b>推荐 · 每次只要点两下：</b><br>'+
+        '① 打开并停留在已登录的 <b>ai.fun.tv</b> 页面，点浏览器书签栏里的「⭐复制令牌」书签，看到“已复制”提示；<br>'+
+        '② 回到本表，点下面的「📋 从剪贴板读取并更新」，剩下全自动。<br>'+
+        '<div class="lu-bmrow">⬇ 首次安装（仅一次）：把下面这个按钮<b>按住拖到浏览器的书签栏</b>即可：<a class="lu-bm" id="luBm" href="javascript:void(0)">⭐ 复制令牌</a></div>'+
+        '<details><summary>浏览器没有书签栏？点这里用 F12 方式（也只需复制一段）</summary>'+
+        '第1步：点 <button type="button" class="lu-readbtn" onclick="window.__lu.copyHelper()">📋 复制取令牌代码</button>；'+
+        '第2步：在 ai.fun.tv 页面按 F12 → 点 Console/控制台 → Ctrl+V 粘贴 → 回车，会自动把令牌复制好；'+
+        '第3步：回本页点上方「📋 从剪贴板读取并更新」即可。</details></div>'+
+        '<div class="lu-field"><label>登录令牌 token</label><textarea class="lu-token" id="luToken" placeholder="一般不用手动粘：先在 ai.fun.tv 点「复制令牌」书签，再点下方按钮自动读取"></textarea>'+
+        '<div style="margin-top:6px"><button type="button" class="lu-readbtn" onclick="window.__lu.readClip(true)">📋 从剪贴板读取并更新</button></div></div>'+
+        '<div class="lu-row"><label><input type="checkbox" id="luRemember" checked> 在本文件记住令牌（下次免粘贴）</label></div>'+
+        '<div class="lu-progwrap"><div class="lu-prog" id="luBar"></div></div>'+
+        '<div class="lu-log" id="luLog">就绪。粘贴 token 后点“开始更新”，将自动拉取全部模型的真实画质/时长/最新价格与折扣原价。</div>'+
+      '</div>'+
+      '<div class="modal-footer">'+
+        '<span id="luPct" style="font-size:12px;color:#999"></span>'+
+        '<div class="lu-actions">'+
+          '<button class="btn-dl" id="luOpen" onclick="window.__lu.copyDoc()" style="background:#1565c0;display:none">📋 复制HTML源码</button>'+
+          '<button class="btn-dl" id="luDownload" onclick="window.__lu.download()">💾 下载更新后的HTML</button>'+
+          '<button class="btn-cancel" onclick="window.__lu.close()">关闭</button>'+
+          '<button class="btn-gen" id="luGo" onclick="window.__lu.start()">开始更新</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(modal);
+  // 一键复制令牌的小书签（在 ai.fun.tv 页面点击时运行）
+  var BM_SRC="(function(){var t=localStorage.getItem('token');if(!t){alert('本页没找到登录信息，请先在这个标签页登录 ai.fun.tv 后再点我');return;}function fb(){window.prompt('按 Ctrl+C 复制下面整段，再回价格表点“从剪贴板读取”：',t);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){alert('令牌已复制！回到价格表点“从剪贴板读取并更新”即可');},fb);}else{fb();}})();";
+  var bmEl=document.getElementById('luBm');
+  if(bmEl){bmEl.href='javascript:'+encodeURIComponent(BM_SRC);
+    bmEl.onclick=function(){alert('不是直接点我哦～\n请按住我，拖到浏览器上方的“书签栏”里松开（只需安装一次）。\n\n以后：在 ai.fun.tv 页面点书签栏里的「⭐复制令牌」就能一键复制。');return false;};}
+  try{var saved=localStorage.getItem('lu_token');if(saved)document.getElementById('luToken').value=saved;}catch(e){}
+
+  function log(s){var el=document.getElementById('luLog');el.innerHTML+=s+'\n';el.scrollTop=el.scrollHeight;}
+  function setPct(p){document.getElementById('luBar').style.width=p+'%';document.getElementById('luPct').textContent=p+'%';}
+  function openModal(){modal.classList.add('show');}
+  function close(){modal.classList.remove('show');}
+  async function readClip(autoStart){
+    try{
+      var t=((await navigator.clipboard.readText())||'').trim().replace(/^["']|["']$/g,'');
+      if(t.length<40){alert('剪贴板里没有有效令牌。\n\n请先：①打开已登录的 ai.fun.tv ②点书签栏里的「⭐复制令牌」，看到“已复制”后，再回来点本按钮。');return;}
+      document.getElementById('luToken').value=t;
+      log('✅ 已从剪贴板读取令牌（'+t.length+' 字符）。');
+      if(autoStart)start();
+    }catch(e){alert('这个浏览器不允许网页自动读取剪贴板。\n请在令牌框里点一下，按 Ctrl+V 手动粘贴，再点“开始更新”。');}
+  }
+  function copyHelper(){
+    var code=BM_SRC;
+    function show(){window.prompt('复制下面整段代码，到 ai.fun.tv 的 Console 里粘贴回车：',code);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(code).then(function(){alert('已复制“取令牌代码”！\n\n接下来：到 ai.fun.tv 按 F12 → Console → Ctrl+V → 回车，令牌会自动复制好，再回本页点“从剪贴板读取并更新”。');},show);
+    }else{show();}
+  }
+
+  async function post(path,body,token){
+    var r=await fetch(API+path,{method:'POST',credentials:'omit',
+      headers:{'Content-Type':'application/json','Authorization':token},body:JSON.stringify(body)});
+    return await r.json();
+  }
+  function soBody(ac,model){return{appCode:ac,prompt:'',model:model,aspectRatio:'16:9',clarity:'720p',duration:'5',audioEnable:true,videoCount:'1'};}
+
+  function sortModels(arr){
+    var order=exportSeriesOrder();
+    return arr.slice().sort(function(a,b){
+      var ia=order.indexOf(getSeriesLabel(a.name)),ib=order.indexOf(getSeriesLabel(b.name));
+      if(ia!==ib)return ia-ib;
+      var ra=RANK.indexOf(a.name),rb=RANK.indexOf(b.name);
+      if(ra===-1)ra=999;if(rb===-1)rb=999;
+      if(ra!==rb)return ra-rb;
+      return a.name<b.name?-1:1;
+    });
+  }
+  // 更新画质tab显隐
+  function refreshTabs(){
+    var have={};MODELS.forEach(function(m){Object.keys(m.prices).forEach(function(s){Object.keys(m.prices[s]).forEach(function(q){have[q]=1})})});
+    var btns=document.querySelectorAll('#clarityTabs .tab');var firstAvail=null;
+    btns.forEach(function(b){var q=b.getAttribute('data-clarity');var on=!!have[q];b.style.display=on?'':'none';if(on&&!firstAvail)firstAvail=q;});
+    if(!have[currentClarity]&&firstAvail){currentClarity=firstAvail;
+      btns.forEach(function(b){b.classList.toggle('active',b.getAttribute('data-clarity')===firstAvail)});}
+  }
+
+  async function start(){
+    if(busy)return;
+    var token=(document.getElementById('luToken').value||'').trim().replace(/^["']|["']$/g,'');
+    if(!token){alert('请先粘贴 token');return;}
+    if(document.getElementById('luRemember').checked){try{localStorage.setItem('lu_token',token)}catch(e){}}
+    busy=true;document.getElementById('luGo').disabled=true;document.getElementById('luDownload').style.display='none';document.getElementById('luOpen').style.display='none';
+    document.getElementById('luLog').innerHTML='';setPct(0);
+    try{
+      log('① 拉取模型清单…');
+      var first=await post('/select-options',soBody('text2video','doubao-2.5'),token);
+      if(first.code!==200)throw new Error('令牌无效或已过期（code '+first.code+' / '+(first.msg||'')+'），请重新获取 token');
+      var remote=first.data.model||[];log('　平台当前共 '+remote.length+' 个模型，开始逐个核对…');
+      var oldMap={};MODELS.forEach(function(m){oldMap[m.name]=m;});
+      var built=[],t0=Date.now();
+      for(var i=0;i<remote.length;i++){
+        var rm=remote[i];
+        var so=await post('/select-options',soBody('text2video',rm.value),token);
+        var clr=(so.data.clarity||[]).map(function(x){return x.value});
+        var dur=(so.data.duration||[]).map(function(x){return String(x.value)});
+        // 三入口
+        var apps=[true,false,false];
+        var e2=await post('/select-options',soBody(ENTRY2,rm.value),token);
+        apps[1]=e2.code===200&&(e2.data.model||[]).some(function(x){return x.value===rm.value});
+        var en=await post('/select-options',soBody(ENTRYN,rm.value),token);
+        apps[2]=en.code===200&&(en.data.model||[]).some(function(x){return x.value===rm.value});
+        // 折扣率
+        var rate=0,mt=(rm.tip||'').match(/([\d.]+)\s*折/);if(mt)rate=parseFloat(mt[1])/10;
+        var prices={},origin={},combos=0;
+        for(var a=0;a<clr.length;a++){for(var b=0;b<dur.length;b++){
+          var c=clr[a],d=dur[b];
+          var cp=await post('/charge-point',{prompt:'',model:rm.value,aspectRatio:'16:9',clarity:c,duration:d,audioEnable:true,videoCount:'1',tabAppCode:'text2video'},token);
+          if(cp.code!==200){log('　⚠ '+rm.label+' '+c+' '+d+'秒 取价失败：'+(cp.msg||cp.code));continue;}
+          var price=cp.data.estimateCoinCount;
+          prices[d]=prices[d]||{};prices[d][c.toLowerCase()]=price;
+          if(rate){origin[d]=origin[d]||{};origin[d][c.toLowerCase()]=Math.round(price/rate);}
+          combos++;await sleep(15);
+        }}
+        var old=oldMap[rm.label];
+        built.push({name:rm.label,desc:old?old.desc:((rm.tag&&rm.tag[0])||rm.tip||''),apps:apps,disc:rate,prices:prices,origin:origin});
+        setPct(Math.round((i+1)/remote.length*100));
+        log('　✓ '+(i+1)+'/'+remote.length+' '+rm.label+(rate?'（'+rm.tip+'）':'')+'  '+clr.length+'档×'+dur.length+'时长='+combos+'价');
+      }
+      MODELS=sortModels(built);lastModels=MODELS;
+      refreshTabs();renderTable();renderCompare();renderSummary();
+      var sec=((Date.now()-t0)/1000).toFixed(0);
+      log('✅ 全部完成，用时 '+sec+' 秒：'+MODELS.length+' 个模型，页面表格/对比/价格分析已刷新。');
+      log('   确认无误后点右下角「下载更新后的HTML」保存一份新文件。');
+      document.getElementById('luDownload').style.display='inline-block';
+      document.getElementById('luOpen').style.display='inline-block';
+      document.getElementById('liveStamp').textContent='已实时更新 '+new Date().toLocaleString('zh-CN');
+    }catch(err){log('❌ 出错：'+err.message);}
+    busy=false;document.getElementById('luGo').disabled=false;
+  }
+
+  function pad2(n){return('0'+n).slice(-2)}
+  function stampName(){var d=new Date();return'橙星梦工厂·视频模型价格表（实时'+d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+' '+pad2(d.getHours())+pad2(d.getMinutes())+'）.html';}
+  // 用最新数据构建一份完整、自包含、且不含令牌的HTML
+  function buildDoc(){
+    var root=document.documentElement.cloneNode(true);
+    var ta=root.querySelector('#luToken');if(ta)ta.textContent='';
+    var html='<!DOCTYPE html>'+root.outerHTML;
+    html=html.replace(/var MODELS=\[[\s\S]*?\];var CLARITIES=QUALITIES;/,'var MODELS='+JSON.stringify(lastModels)+';var CLARITIES=QUALITIES;');
+    return html;
+  }
+  function download(){
+    if(!lastModels){alert('请先完成一次更新');return;}
+    var html=buildDoc(),name=stampName();
+    try{
+      var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+      var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      log('💾 已开始下载：'+name+'（若浏览器未弹出下载，请点“新窗口打开/另存”）');
+    }catch(e){log('下载失败，可改用“新窗口打开/另存”：'+e.message);}
+  }
+  function copyDoc(){
+    if(!lastModels){alert('请先完成一次更新');return;}
+    var html=buildDoc();
+    function showSource(){
+      var old=document.getElementById('__srcMask');if(old)old.remove();
+      var mask=document.createElement('div');mask.id='__srcMask';
+      mask.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;padding:24px';
+      mask.innerHTML='<div style="background:#fff;border-radius:10px;height:100%;display:flex;flex-direction:column;padding:16px;box-sizing:border-box">'+
+        '<div style="margin-bottom:8px;font-weight:700;color:#333">按 Ctrl+A 全选、Ctrl+C 复制下面全部内容，粘贴到记事本，另存为「名字.html」即可 <button id="__cls" style="float:right;padding:4px 12px">关闭</button></div>'+
+        '<textarea style="flex:1;width:100%;font-family:Consolas,monospace;font-size:11px;box-sizing:border-box"></textarea></div>';
+      document.body.appendChild(mask);
+      var ta=mask.querySelector('textarea');ta.value=html;ta.focus();ta.select();
+      ta.onclick=function(){ta.select();};
+      mask.querySelector('#__cls').onclick=function(){mask.remove();};
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(html).then(function(){log('📋 完整HTML已复制到剪贴板：粘贴到记事本，另存为 .html 即可。');},showSource);
+    }else{showSource();}
+  }
+
+  window.__lu={open:openModal,close:close,start:start,download:download,copyDoc:copyDoc,readClip:readClip,copyHelper:copyHelper};
+})();
+
+</script></body></html>

@@ -13,7 +13,7 @@
 <p align="center">
   <img alt="Node.js 22.5+" src="https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white">
   <img alt="SQLite" src="https://img.shields.io/badge/SQLite-内置-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-43%20passing-0f766e">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-71%20passing-0f766e">
   <img alt="Dependencies" src="https://img.shields.io/badge/npm_dependencies-0-f97316">
 </p>
 
@@ -36,6 +36,47 @@
 全站 `138/138` 个已发布工具已配置本站本地 Logo 资产：`136` 个来自官网或官方静态资源，`2` 个因官网限制使用域名 favicon 兜底；Logo 清单、来源、哈希和核验日期保存在 `backend/catalog/tool-logo-manifest-2026-07-15.json`。
 
 ## 核心功能
+
+### 站内小工具：视频转 GIF
+
+小工具索引：`/utilities`，包含视频转 GIF、视频画面裁剪和视频马赛克与模糊。
+
+从桌面或手机导航「小工具」进入 `/utilities/video-to-gif`。选择或拖入视频，设置起止时间、最长边尺寸、帧率和播放速度，生成后预览并下载循环 GIF；支持进度显示和取消重试。
+
+- 文件在浏览器本地处理，不上传服务器；编码器和 Worker 均由本站提供。
+- 输入上限 200MiB，每次截取最长 30 秒，尺寸最高 720px（最长边，不放大原视频）。默认前 5 秒、480px、10fps、原速。
+- 输出最多 600 帧，累计处理最多 120M 像素，GIF 输出最多 80MiB。超过预算时提示缩小尺寸、降低帧率或缩短片段。
+- 视频编码需浏览器支持，建议 MP4/H.264 或 WebM。GIF 不包含声音，最多 256 色；复杂渐变可能有色阶，转换速度取决于用户设备。
+- 本地固定版本编码库：`assets/vendor/gifenc/`，gifenc 1.0.3（MIT），保留许可证及来源记录。无需安装新 npm 依赖。
+
+### 站内小工具：视频画面裁剪
+
+访问 `/utilities/video-crop`，支持拖动裁剪框、四角缩放、方向键移动/缩放，以及原比例、自由、1:1、16:9、9:16、4:3、3:4 预设。宽高和左/上边距可精确输入，预览按实际裁剪区域更新。MP4 输出按偶数像素对齐，锁定比例可能因像素对齐有微小偏差。
+
+浏览器模块 Worker 使用本站固定版本 `@ffmpeg/core 0.12.10` 单线程 WASM，输出 H.264/AAC MP4，保留第一条音轨（若存在）和完整时长，不上传输入。导出会重新编码，音画质量和文件大小可能变化。支持进度、取消和重试；取消后销毁 Worker 释放编码内存。
+
+当前输入限制：100MiB、120 秒、显示尺寸最长边 1920px。首次导出需要加载约 31MiB 运行资源，实际耗时取决于设备。解码格式受浏览器支持限制，建议 MP4/H.264 或 WebM。内置编码器许可证、来源和文件哈希见 `assets/vendor/ffmpeg/NOTICE.txt` 与 `LICENSE.txt`（GPL-2.0-or-later）。
+
+### 站内小工具：分享链接提取（本机版）
+
+访问 `/utilities/link-extract`，粘贴抖音或小红书的作品链接/分享文案，分别提取视频、视频音频、帖子文案和封面。音频导出 MP3；文案支持复制。优先读取同一视频的独立音轨，缺少独立音轨时从完整视频提取，不使用帖子的背景音乐地址。水印状态按来源标记显示，不去除画面中烧录的水印。小红书适配尚待真实分享链接验证。
+
+此功能依赖本机 Chrome 远程调试和原生 FFmpeg（需在 PATH，或设置 `NIKE_FFMPEG_PATH`）。默认关闭，Windows 可显式启用：
+
+```powershell
+$env:NIKE_LINK_BROWSER_FILE="$env:LOCALAPPDATA/Google/Chrome/User Data/DevToolsActivePort"
+npm start
+```
+
+需先在 Chrome 的 `chrome://inspect/#remote-debugging` 启用远程调试。也可设置 `NIKE_LINK_BROWSER_WS` 为本机浏览器的完整 WebSocket 地址；浏览器重启后地址可能变化，推荐连接文件配置。解析只创建并关闭自己的后台标签，沿用浏览器的访问状态，不读取或导出 Cookie。需要登录/验证的作品应先在浏览器中打开处理。
+
+解析和媒体接口仅接受本机回环地址及本机 Host，拒绝跨站调用；本版本不能直接部署为公网解析服务。分享链接需访问平台，媒体经过本机服务转发，和纯浏览器视频编辑工具的处理方式不同。并发解析/音频转换各 1 个，解析每分钟 5 次，文件上限 1GiB，下载票据有效 20 分钟，音频任务超时 10 分钟。下载限制域名、固定公网 DNS 地址并逐跳验证，临时音频文件在完成、失败或取消后清理。
+
+### 站内小工具：视频马赛克与模糊
+
+站内视频遮挡工具位于 `/utilities/video-mask`：选择一个固定矩形区域，使用马赛克或模糊，调整 1–10 强度及开始/结束时间；支持拖动、四角缩放和精确像素设置。生效时间为左闭右开区间 `[开始, 结束)`。提供整幅画面实时预览，浏览器模糊预览与导出可能有细微区别。
+
+复用本地 FFmpeg WASM 输出 H.264/AAC MP4，保留完整画面、时长和第一条音轨（如有），不上传文件。输入上限 100MiB、120 秒、最长边 1920px；奇数尺寸向下对齐到偶数（最多1px）。首版仅单个固定区域，不自动跟踪移动目标。取消终止 Worker，重试重新加载；不修改现有 GIF 与裁剪工具的数据。
 
 ### 用户端
 
@@ -317,3 +358,14 @@ npm test
 - 本项目并非各收录工具的官方网站，与相关品牌不存在隶属或背书关系；产品名称和商标归各自权利人所有。
 - 正式商业上线前，应重新核验内容时效、图片授权、品牌规范和第三方链接。
 - 本仓库未附带开源许可证；代码与内容的使用、分发权限以仓库所有者后续声明为准。
+
+
+## 图片处理套件（2026-09-09）
+
+- `/utilities/image-edit`：本地裁剪、旋转、尺寸调整和 PNG/JPEG/WebP 压缩转换，工作图最长边 4096px。
+- `/utilities/image-background`：U2NetP 去背景，透明 PNG、白底、黑底、自选底色，模型输入最长边 2048px。
+- `/utilities/image-enhance`：SubPixel CNN 3 倍放大及可恢复的清晰度微调。模型输入最长边 512px；大图会先缩小，页面显示输入、输出尺寸。
+
+三种工具均支持 PNG/JPEG/WebP/BMP 输入，最大 20MiB、16Mi 像素，文件头先于解码验证。基础编辑不上传图片；另外两种工具使用本站 CPU 服务，任务结束清理临时图片。服务器两种新模型共用一个处理槽、60 秒超时，不需要用户 API Key。
+
+Python 3.11 环境安装 `scripts/image-tools-requirements.txt`，按 `assets/vendor/image-tools/NOTICE.md` 下载并核对两个模型；配置 `.env.example` 的三个 `NIKE_IMAGE_*` 路径后重启服务。状态接口为 `/api/utilities/image-tools/status`。部署验证与公网限制见 `docs/deployment-image-suite-20260909.md`。
