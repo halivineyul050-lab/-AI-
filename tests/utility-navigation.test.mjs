@@ -45,3 +45,9 @@ test('utility navigation collapses into a labeled menu that opens and closes', (
   assert.equal(classes.has('is-mobile-open'), false);
   assert.equal(button.attributes['aria-expanded'], 'false');
 });
+
+test('navigation menu button covers the same responsive range that hides desktop navigation', () => {
+  const css = readFileSync(new URL('../utility-theme.css', import.meta.url), 'utf8');
+  assert.match(css, /@media\(min-width:1281px\)\{\.utility-menu-button\{display:none!important\}\}/);
+  assert.match(css, /@media\(max-width:1280px\).*\.site-nav\{display:none!important\}/s);
+});
