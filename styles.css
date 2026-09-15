@@ -218,7 +218,7 @@ input, select, textarea {
   padding: 34px 24px 80px;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1281px) {
   .sidebar-drawer,
   .sidebar-scrim {
     display: none !important;
@@ -244,7 +244,7 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 20px;
-  max-width: calc(var(--content-max) + 48px);
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0 24px;
   min-height: var(--header-height);
@@ -4471,7 +4471,7 @@ input, select, textarea {
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1280px) {
   .site-nav {
     display: none;
   }
