@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { buildFramePlan, createGifSession } from '../video-gif-core.js';
+import { validateVideoFile } from '../video-input-limits.js';
 
 const input = { duration: 20, width: 1920, height: 1080, start: 2, end: 7, fps: 10, speed: 1, maxEdge: 480 };
+test('GIF source validation accepts 500MB while frame planning retains its work guard', () => {
+  assert.doesNotThrow(() => validateVideoFile({size:500 * 1024 * 1024}));
+  assert.throws(() => validateVideoFile({size:500 * 1024 * 1024 + 1}));
+  assert.throws(() => buildFramePlan({...input,start:0,end:20,fps:20,maxEdge:720,width:1000,height:1000}));
+});
 test('GIF frame planning preserves aspect ratio, trim and playback speed', () => {
   const plan = buildFramePlan(input);
   assert.deepEqual([plan.width, plan.height], [480, 270]);

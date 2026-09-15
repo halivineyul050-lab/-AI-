@@ -10,6 +10,10 @@ test('crop presets fit landscape and portrait video without leaving the picture'
   assert.ok(c.x>=0 && c.y>=0 && c.x+c.width<=1920 && c.y+c.height<=1080);
   assert.equal(c.width%2,0); assert.equal(c.height%2,0);
 });
+test('crop accepts 4K dimensions and rejects inputs beyond the longest-edge limit', () => {
+  assert.deepEqual(fitCrop(3840, 2160), {x:0,y:0,width:3840,height:2160});
+  assert.throws(() => fitCrop(3841, 2160), /3840px/);
+});
 test('crop movement clamps at both edges while preserving dimensions', () => {
   const c={x:20,y:40,width:100,height:80};
   assert.deepEqual(moveCrop(c,-100,-100,320,180),{x:0,y:0,width:100,height:80});

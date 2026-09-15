@@ -1,7 +1,9 @@
+import { VIDEO_MAX_EDGE } from './video-input-limits.js';
+
 const even = (n) => Math.max(2, Math.floor(n / 2) * 2);
 const clamp = (n, low, high) => Math.min(high, Math.max(low, n));
 function dimensions(width, height) {
-  if (![width,height].every(Number.isFinite) || width<2 || height<2 || width>1920 || height>1920) throw new Error('视频显示尺寸需在 2–1920px 之间，请先压缩较大的视频。');
+  if (![width,height].every(Number.isFinite) || width<2 || height<2 || width>VIDEO_MAX_EDGE || height>VIDEO_MAX_EDGE) throw new Error('视频显示尺寸需在 2–3840px 之间，请先压缩较大的视频。');
 }
 
 function fitSize(width, height, maxWidth, maxHeight, ratio) {

@@ -108,6 +108,7 @@ const mimeTypes = {
 };
 
 const staticFiles = new Set([
+  "video-input-limits.js",
   "design-system.css",
   "game-shell.css",
   "link-extract.html",

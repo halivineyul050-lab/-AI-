@@ -10,7 +10,7 @@
   <link rel="canonical" href="https://ontimo.cn/utilities/video-to-gif">
   <link rel="stylesheet" href="/design-system.css?v=20260915-2">
 <link rel="stylesheet" href="/video-gif.css">
-  <script type="module" src="/video-gif.js"></script>
+  <script type="module" src="/video-gif.js?v=20260915-limit-1"></script>
 <link rel="stylesheet" href="/styles.css?v=20260915-nav-1"><link rel="stylesheet" href="/utility-theme.css?v=20260915-nav-1"><script defer src="/utility-theme.js?v=20260915-nav-1"></script></head>
 <body>
   <a class="skip" href="#main">跳到转换工具</a>
@@ -20,8 +20,8 @@
     <section class="intro"><div><p class="eyebrow">泥壳AI · 实用小工具</p><h1>留住精彩的<span>那几秒。</span></h1><p class="lead">视频转 GIF，把操作演示、灵感片段变成随手可用的动图。</p></div><span class="privacy"><span aria-hidden="true">◉</span> 本地转换 · 文件无需上传</span></section>
     <div class="workspace">
       <section class="panel source" aria-labelledby="source-heading">
-        <div class="panel-heading"><h2 id="source-heading"><span class="step">01</span>选择视频</h2><span class="muted">最多 200MB</span></div>
-        <label class="dropzone" id="dropzone" for="video-file"><span class="upload-icon" aria-hidden="true">↥</span><strong>把视频拖到这里</strong><span>或点击选择本地文件</span><small>MP4、WebM、MOV 等，支持情况取决于浏览器编码兼容性</small><input id="video-file" type="file"></label>
+        <div class="panel-heading"><h2 id="source-heading"><span class="step">01</span>选择视频</h2><span class="muted">最多 500MB</span></div>
+        <label class="dropzone" id="dropzone" for="video-file"><span class="upload-icon" aria-hidden="true">↥</span><strong>把视频拖到这里</strong><span>或点击选择本地文件</span><small>支持较长源视频；GIF 输出仍受所选片段、尺寸和帧率限制<br>大文件需要更多内存，格式支持取决于浏览器</small><input id="video-file" type="file"></label>
         <div id="source-preview" hidden><video id="source-video" controls playsinline muted preload="auto"></video><div class="file-row"><div><strong id="file-name"></strong><p id="file-meta" class="muted"></p></div><button id="replace-file" class="text-button" type="button">更换视频</button></div></div>
         <div class="source-note"><span aria-hidden="true">◎</span><p>你的视频只在当前设备上处理。适合制作教程演示、产品片段和聊天动图。</p></div>
       </section>

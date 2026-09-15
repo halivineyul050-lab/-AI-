@@ -5,7 +5,10 @@ import { validateMask, effectParameters, createMaskCommand } from '../video-mask
 const settings={width:320,height:180,duration:3,region:{x:40,y:20,width:160,height:100},mode:'mosaic',strength:5,start:1,end:2};
 test('mask validation rejects invalid timing and regions before processing',()=>{
   assert.doesNotThrow(()=>validateMask(settings));
-  for(const patch of [{start:-1},{end:4},{start:2,end:1},{start:1,end:1},{start:NaN},{mode:'anything'},{strength:0},{strength:11},{strength:1.5},{width:3200},{duration:121},{region:{x:300,y:0,width:100,height:100}},{region:{x:41,y:20,width:160,height:100}}])assert.throws(()=>validateMask({...settings,...patch}));
+  for(const patch of [{start:-1},{end:4},{start:2,end:1},{start:1,end:1},{start:NaN},{mode:'anything'},{strength:0},{strength:11},{strength:1.5},{width:3841},{duration:1800.01},{region:{x:300,y:0,width:100,height:100}},{region:{x:41,y:20,width:160,height:100}}])assert.throws(()=>validateMask({...settings,...patch}));
+});
+test('mask accepts 30-minute 4K video metadata',()=>{
+  assert.doesNotThrow(()=>validateMask({...settings,width:3840,height:2160,duration:1800}));
 });
 test('stronger mosaic uses larger blocks and stronger blur remains valid for tiny regions',()=>{
   const weak=effectParameters({...settings,strength:1}),strong=effectParameters({...settings,strength:10});

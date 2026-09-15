@@ -1,7 +1,9 @@
+import { validateFullVideoMetadata } from './video-input-limits.js';
+
 export function validateMask(settings) {
   const { width, height, duration, region, mode, strength, start, end } = settings;
-  if (![width,height].every(n=>Number.isInteger(n)&&n>=2&&n<=1920&&n%2===0)
-      || !Number.isFinite(duration)||duration<=0||duration>120) throw new Error('请选择 2 分钟以内、最长边不超过 1920px 的视频。');
+  validateFullVideoMetadata({width,height,duration});
+  if (![width,height].every(n=>Number.isInteger(n)&&n%2===0)) throw new Error('视频尺寸需按 2px 对齐。');
   if (!region || ![region.x,region.y,region.width,region.height].every(n=>Number.isInteger(n)&&n%2===0)
       || region.x<0||region.y<0||region.width<2||region.height<2
       || region.x+region.width>width||region.y+region.height>height) throw new Error('请将遮挡区域保持在视频画面内。');

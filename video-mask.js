@@ -1,5 +1,6 @@
-import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize } from './video-crop-core.js';
-import { validateMask, effectParameters } from './video-mask-core.js?v=20260908-2';
+import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize } from './video-crop-core.js?v=20260915-limit-1';
+import { validateMask, effectParameters } from './video-mask-core.js?v=20260915-limit-1';
+import { VIDEO_EXPORT_TIMEOUT_MS, validateFullVideoMetadata, validateVideoFile } from './video-input-limits.js';
 
 const $=id=>document.getElementById(id);
 const video=$('mask-video'), stage=$('mask-stage'), box=$('mask-box'), input=$('mask-file');
@@ -104,14 +105,13 @@ async function choose(candidate){
   $('active-label').textContent='等待选择视频';$('active-label').classList.remove('active');
     $('mask-estimate').textContent='完整画面 · 完整时长 · 保留音频（如有）';
   video.removeAttribute('src');video.load();if(sourceURL)URL.revokeObjectURL(sourceURL);sourceURL=null;
-  if(!candidate.size||candidate.size>100*1048576){status('请选择非空且不超过 100MB 的视频。',true);return;}
+  try{validateVideoFile(candidate);}catch(error){status(error.message,true);return;}
   if(!candidate.type.startsWith('video/')&&!/\.(mp4|m4v|webm|mov|mkv)$/i.test(candidate.name)){status('请选择视频文件，例如 MP4 或 WebM。',true);return;}
   sourceURL=URL.createObjectURL(candidate);status('正在读取本地视频…');
   try{
     await loadVideo(sourceURL,signal);if(signal.aborted)return;
-    if(video.videoWidth>1920||video.videoHeight>1920)throw new Error('请选择最长边不超过 1920px 的视频。');
+    validateFullVideoMetadata({duration:video.duration,width:video.videoWidth,height:video.videoHeight});
     width=Math.floor(video.videoWidth/2)*2;height=Math.floor(video.videoHeight/2)*2;
-    if(!Number.isFinite(video.duration)||video.duration<=0||video.duration>120)throw new Error('请选择时长不超过 2 分钟的视频。');
     fitCrop(width,height);file=candidate;resetSettings();
     $('mask-file-name').textContent=file.name;$('mask-file-meta').textContent=`${size(file.size)} · ${width} × ${height} · ${video.duration.toFixed(2)} 秒`;
     stage.style.maxWidth=`${width/height*480}px`;stage.style.marginInline='auto';
@@ -197,7 +197,7 @@ function encode(buffer,selected,signal){
     const clean=()=>{clearTimeout(timeout);signal.removeEventListener('abort',abort);};
     const fail=error=>{clean();reject(error);};
     const abort=()=>fail(cancelled());
-    const timeout=setTimeout(()=>fail(new Error('导出超过 10 分钟，请缩小视频后重试。')),600000);
+    const timeout=setTimeout(()=>fail(new Error('导出超过 30 分钟，请缩小视频后重试。')),VIDEO_EXPORT_TIMEOUT_MS);
     signal.addEventListener('abort',abort,{once:true});
     worker.onerror=()=>fail(new Error('处理资源加载或运行失败，请刷新重试，或使用较小的视频。'));
     worker.onmessage=({data})=>{

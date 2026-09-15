@@ -1,4 +1,5 @@
-import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize } from './video-crop-core.js';
+import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize } from './video-crop-core.js?v=20260915-limit-1';
+import { VIDEO_EXPORT_TIMEOUT_MS, validateFullVideoMetadata, validateVideoFile } from './video-input-limits.js';
 
 const $=id=>document.getElementById(id);
 const video=$('crop-video'), stage=$('crop-stage'), box=$('crop-box'), input=$('crop-file');
@@ -53,13 +54,13 @@ async function choose(candidate){
   $('crop-progress-area').hidden=true;preview.style.display='none';$('preview-placeholder').hidden=false;
   $('crop-estimate').textContent='MP4 视频 · 保留原音频（如有）';
   video.removeAttribute('src');video.load();if(sourceURL)URL.revokeObjectURL(sourceURL);sourceURL=null;
-  if(!candidate.size||candidate.size>100*1048576){status('请选择非空且不超过 100MB 的视频。',true);return;}
+  try{validateVideoFile(candidate);}catch(error){status(error.message,true);return;}
   if(!candidate.type.startsWith('video/')&&!/\.(mp4|m4v|webm|mov|mkv)$/i.test(candidate.name)){status('请选择视频文件，例如 MP4 或 WebM。',true);return;}
   sourceURL=URL.createObjectURL(candidate);status('正在读取本地视频…');
   try{
     await loadVideo(sourceURL,signal);if(signal.aborted)return;
     width=video.videoWidth;height=video.videoHeight;
-    if(!Number.isFinite(video.duration)||video.duration<=0||video.duration>120)throw new Error('请选择时长不超过 2 分钟的视频。');
+    validateFullVideoMetadata({duration:video.duration,width,height});
     crop=fitCrop(width,height);file=candidate;$('ratio').value='free';
     $('crop-file-name').textContent=file.name;$('crop-file-meta').textContent=`${size(file.size)} · ${width} × ${height} · ${video.duration.toFixed(2)} 秒`;
     stage.style.maxWidth=`${width/height*480}px`;stage.style.marginInline='auto';
@@ -138,7 +139,7 @@ function encode(buffer,selected,signal){
     const clean=()=>{clearTimeout(timeout);signal.removeEventListener('abort',abort);};
     const fail=error=>{clean();reject(error);};
     const abort=()=>fail(cancelled());
-    const timeout=setTimeout(()=>fail(new Error('导出超过 10 分钟，请缩小视频后重试。')),600000);
+    const timeout=setTimeout(()=>fail(new Error('导出超过 30 分钟，请缩小视频后重试。')),VIDEO_EXPORT_TIMEOUT_MS);
     signal.addEventListener('abort',abort,{once:true});
     worker.onerror=()=>fail(new Error('处理资源加载或运行失败，请刷新重试，或使用较小的视频。'));
     worker.onmessage=({data})=>{

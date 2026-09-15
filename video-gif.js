@@ -1,4 +1,5 @@
-import { buildFramePlan } from './video-gif-core.js';
+import { buildFramePlan } from './video-gif-core.js?v=20260915-limit-1';
+import { validateVideoFile } from './video-input-limits.js';
 
 const $ = (id) => document.getElementById(id);
 const video = $('source-video');
@@ -75,9 +76,7 @@ async function loadFile(candidate) {
   if (sourceUrl) URL.revokeObjectURL(sourceUrl);
   sourceUrl = null;
   $('estimate').textContent = '选择视频后即可调整参数';
-  if (!candidate.size || candidate.size > 200 * 1024 * 1024) {
-    status('请选择非空且不超过 200MB 的视频文件。', true); return;
-  }
+  try { validateVideoFile(candidate); } catch (error) { status(error.message, true); return; }
   if (!candidate.type.startsWith('video/') && !/\.(mp4|webm|mov|m4v|ogv|mkv)$/i.test(candidate.name)) {
     status('请选择视频文件，例如 MP4、WebM 或 MOV。', true); return;
   }
