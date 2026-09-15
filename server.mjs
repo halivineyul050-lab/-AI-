@@ -324,6 +324,7 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
   response.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   if (isProduction) response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   const requestPath = new URL(request.url || "/", "http://localhost").pathname;
+  const isPricingPage = requestPath === "/video-pricing.html";
   const isAdminResource = requestPath.startsWith("/api/admin/") || /^\/admin(?:\.|$)/.test(requestPath);
   const isGifPage = requestPath === "/utilities/video-to-gif" || requestPath === "/video-gif.html";
   const isCropPage = requestPath === "/utilities/video-crop" || requestPath === "/video-crop.html";
@@ -334,11 +335,11 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
   const isErasePage = requestPath === "/utilities/image-erase" || requestPath === "/image-erase.html";
   response.setHeader("Content-Security-Policy", [
     "default-src 'self'",
-    isCropPage || isCropWorker || isMaskPage || isMaskWorker ? "script-src 'self' 'wasm-unsafe-eval'" : isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
+    isPricingPage ? "script-src 'self' 'unsafe-inline'" : isCropPage || isCropWorker || isMaskPage || isMaskWorker ? "script-src 'self' 'wasm-unsafe-eval'" : isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
     "style-src 'self' 'unsafe-inline'",
     isGifPage || isErasePage || ["/utilities/image-edit","/utilities/image-background","/utilities/image-enhance","/image-edit.html","/image-background.html","/image-enhance.html"].includes(requestPath) ? "img-src 'self' data: blob:" : "img-src 'self' data: https:",
     ...(isGifPage || isCropPage || isMaskPage || isLinkPage ? ["media-src 'self' blob:", "worker-src 'self'"] : []),
-    "connect-src 'self'",
+    isPricingPage ? "connect-src 'self' https://ai.fun.tv" : "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
     "frame-ancestors 'none'",
