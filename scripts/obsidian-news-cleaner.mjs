@@ -63,7 +63,7 @@ export function cleanBody(sourceBody, title = '') {
     if (trimmed.startsWith('>')) {
       const block = [];
       while (index < lines.length && (lines[index].trim().startsWith('>') || lines[index].trim() === '')) block.push(lines[index++]);
-      if (imagePattern.test(block.join('\n'))) continue;
+      if (/图片|配图|封面|素材记录/.test(block.join('\n'))) continue;
       output.push(...block);
       continue;
     }
