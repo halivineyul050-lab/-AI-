@@ -22,6 +22,6 @@ test('MariaDB dialect translates monitoring time buckets and JSON text casts', (
   const hourly = translateMariaSql("SELECT CAST(((julianday(received_at) - julianday(?)) * 24.0) + 0.0000001 AS INTEGER) bucket_index");
   assert.match(hourly, /TIMESTAMPDIFF\(HOUR, \?, received_at\)/);
   assert.match(translateMariaSql("SELECT date(received_at, '+8 hours') AS day"), /DATE_ADD\(received_at, INTERVAL 8 HOUR\)/);
-  assert.match(translateMariaSql("CAST(json_extract(properties_json, '$.query') AS TEXT)"), /AS CHAR/);
+  assert.match(translateMariaSql("CAST(json_extract(properties_json, '$.query') AS TEXT)"), /AS CHAR\) COLLATE utf8mb4_unicode_ci/);
   assert.match(translateMariaSql("json_type(properties_json, '$.tool_id') = 'text'"), /JSON_TYPE\(JSON_EXTRACT\(properties_json, '\$\.tool_id'\)\) = 'STRING'/);
 });

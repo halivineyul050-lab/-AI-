@@ -14,7 +14,7 @@ const targetOptions = (env = process.env) => ({
   user: env.NIKAI_DB_USER,
   password: env.NIKAI_DB_PASSWORD,
   database: env.NIKAI_DB_NAME || 'nikai_ai',
-  charset: 'utf8mb4',
+  charset: 'utf8mb4_unicode_ci',
   multipleStatements: true,
 });
 
