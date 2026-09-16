@@ -13,6 +13,9 @@ export function translateMariaSql(sql) {
   value = value.replace(/strftime\('%Y-%m-%dT%H:%M:%fZ',\s*'now',\s*'-(\d+) seconds'\s*\)/gi, "DATE_FORMAT(DATE_SUB(UTC_TIMESTAMP(3), INTERVAL $1 SECOND), '%Y-%m-%dT%H:%i:%s.%fZ')");
   value = value.replace(/date\('now',\s*'-(\d+) days'\)/gi, 'DATE_SUB(UTC_DATE(), INTERVAL $1 DAY)');
   value = value.replace(/date\('now',\s*'-(\d+) day'\)/gi, 'DATE_SUB(UTC_DATE(), INTERVAL $1 DAY)');
+  value = value.replace(/CAST\(\(\(julianday\(([^)]+)\)\s*-\s*julianday\(\?\)\)\s*\*\s*24\.0\)\s*\+\s*0\.0000001\s+AS\s+INTEGER\)/gi, 'TIMESTAMPDIFF(HOUR, ?, $1)');
+  value = value.replace(/date\(([^,()]+),\s*'\+8 hours'\)/gi, "DATE_FORMAT(DATE_ADD($1, INTERVAL 8 HOUR), '%Y-%m-%d')");
+  value = value.replace(/\s+AS\s+TEXT\b/gi, ' AS CHAR');
   value = value.replace(/\s+COLLATE\s+NOCASE/gi, ' COLLATE utf8mb4_unicode_ci');
   value = value.replace(/CAST\((json_extract\([^)]*\))\s+AS\s+REAL\)/gi, 'CAST($1 AS DECIMAL(30,8))');
   value = value.replace(/\bMIN\(([^,()]+),\s*([^()]+)\)/gi, 'LEAST($1, $2)');
