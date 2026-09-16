@@ -5,7 +5,7 @@ import { test } from 'node:test';
 const entries = [
   'index.html', 'admin.html', 'auth.html', 'utilities.html',
   'image-edit.html', 'image-background.html', 'image-enhance.html', 'image-erase.html', 'link-extract.html',
-  'video-crop.html', 'video-gif.html', 'video-mask.html', 'video-pricing.html',
+  'video-crop.html', 'video-gif.html', 'video-mask.html', 'video-pricing.html', 'image-generation.html',
   'games.html', 'game-2048.html', 'memory-game.html', 'breakout.html', 'snake.html', 'gomoku.html', 'flight.html', 'never-retreat.html'
 ];
 
@@ -13,7 +13,7 @@ test('every application page loads the shared design system first', () => {
   for (const file of entries) {
     const html = readFileSync(file, 'utf8');
     const shared = html.indexOf('/design-system.css');
-    const local = html.search(/(?:styles|admin|auth|utility-theme|image-ai|image-edit|image-erase|link-extract|video-(?:crop|gif|mask)|games|game-2048|memory-game|breakout|snake|gomoku|flight|never-retreat)\.css/);
+    const local = html.search(/(?:styles|admin|auth|utility-theme|image-generation|image-ai|image-edit|image-erase|link-extract|video-(?:crop|gif|mask)|games|game-2048|memory-game|breakout|snake|gomoku|flight|never-retreat)\.css/);
     assert.ok(shared >= 0, `${file} does not load design-system.css`);
     if (local >= 0) assert.ok(shared < local, `${file} loads its local stylesheet before the design system`);
   }

@@ -113,6 +113,7 @@ const staticFiles = new Set([
   "game-shell.css",
   "link-extract.html",
   "video-pricing.html",
+  "image-generation.html", "image-generation.css",
   "image-edit.html", "image-edit.css", "image-edit.js", "image-edit-core.mjs", "image-input.mjs",
   "image-background.html", "image-enhance.html", "image-ai.css", "image-ai.js",
   "game-2048.html", "game-2048.css", "game-2048.js", "game-2048-core.mjs",
@@ -363,7 +364,7 @@ function serveStatic(request, response, pathname, staticDir) {
   if(pathname === "/utilities/never-retreat"){response.writeHead(301,{Location:"/games/never-retreat","Cache-Control":"no-store"});response.end();return true;}
   const logoMatch = pathname.match(/^\/assets\/tool-logos\/([a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif))$/);
   const isAppRoute = publicAppRoutes.has(pathname) || /^\/category\/[a-z0-9-]+$/.test(pathname);
-  const utilityPages = new Map([["/games/2048","game-2048.html"],["/games/memory","memory-game.html"],["/games/breakout","breakout.html"],["/games","games.html"],["/games/never-retreat","never-retreat.html"],["/games/snake","snake.html"],["/games/gomoku","gomoku.html"],["/games/flight","flight.html"],["/utilities","utilities.html"],["/utilities/video-to-gif","video-gif.html"],["/utilities/video-crop","video-crop.html"],["/utilities/video-mask","video-mask.html"],["/utilities/link-extract","link-extract.html"],["/utilities/image-erase","image-erase.html"],["/utilities/image-edit","image-edit.html"],["/utilities/image-background","image-background.html"],["/utilities/image-enhance","image-enhance.html"]]);
+  const utilityPages = new Map([["/image-generation","image-generation.html"],["/games/2048","game-2048.html"],["/games/memory","memory-game.html"],["/games/breakout","breakout.html"],["/games","games.html"],["/games/never-retreat","never-retreat.html"],["/games/snake","snake.html"],["/games/gomoku","gomoku.html"],["/games/flight","flight.html"],["/utilities","utilities.html"],["/utilities/video-to-gif","video-gif.html"],["/utilities/video-crop","video-crop.html"],["/utilities/video-mask","video-mask.html"],["/utilities/link-extract","link-extract.html"],["/utilities/image-erase","image-erase.html"],["/utilities/image-edit","image-edit.html"],["/utilities/image-background","image-background.html"],["/utilities/image-enhance","image-enhance.html"]]);
   const fileName = utilityPages.get(pathname) || (pathname === "/" || isAppRoute ? "index.html" : pathname.slice(1));
   if (!logoMatch && !staticFiles.has(fileName)) return false;
   const filePath = logoMatch
@@ -1036,6 +1037,7 @@ function buildSitemap(request, db) {
   const baseEntries = [
     ["/", "daily", "1.0"],
     ["/discover", "weekly", "0.8"],
+    ["/image-generation", "monthly", "0.8"],
     ["/utilities/video-to-gif", "monthly", "0.8"],
     ["/utilities", "monthly", "0.8"],
     ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight","/games/ironfront","/games/yiren-buche"].map(path=>[path,"monthly","0.8"]),
