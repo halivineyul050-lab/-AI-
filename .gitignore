@@ -12,3 +12,4 @@ Thumbs.db
 imports/*
 !imports/tool-catalog.template.csv
 .workbuddy/
+.superpowers/
