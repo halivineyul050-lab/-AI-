@@ -1157,7 +1157,7 @@ function safeAccentColor(value, fallback = "#0f766e") {
   return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
 }
 
-function safeMediaUrl(value, fallback = "/brand-icon-192.png") {
+function safeMediaUrl(value, fallback = "/brand-icon-192.png?v=20260916-2") {
   const candidate = String(value || "").trim();
   if (!candidate) return fallback;
   try {
@@ -1174,7 +1174,7 @@ function refreshIcons() {
 }
 
 function logoMarkup(tool, extraClass = "") {
-  let src = "/brand-icon-192.png";
+  let src = "/brand-icon-192.png?v=20260916-2";
   try {
     const explicit = new URL(String(tool.logoUrl || ""), document.baseURI);
     if (explicit.protocol === "https:" || explicit.origin === location.origin) src = explicit.href;

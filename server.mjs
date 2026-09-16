@@ -161,6 +161,7 @@ const staticFiles = new Set([
   "admin.js",
   "admin-icons.js",
   "brand-icon-192.png",
+  "brand-icon-512.png",
   "baidu_verify_codeva-FSh1NIJkcR.html",
   "robots.txt",
   "sitemap.xml"
@@ -609,7 +610,7 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
       applicationCategory: category?.name || "AI 工具",
       operatingSystem: listText((tool.platforms || []).map((platform) => platformLabels[platform] || platform), "Web"),
       url: canonical,
-      image: absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png"),
+      image: absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png?v=20260916-2"),
       offers: {
         "@type": "Offer",
         price: tool.price === "free" ? "0" : undefined,
@@ -654,15 +655,15 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
   <meta property="og:title" content="${escapeAttribute(title)}">
   <meta property="og:description" content="${escapeAttribute(description)}">
   <meta property="og:url" content="${escapeAttribute(canonical)}">
-  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png"))}">
-  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png?v=20260916-2"))}">
+  <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page">
   <header class="seo-tool-topbar">
-    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png?v=20260916-2" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
     <nav aria-label="工具详情导航">
       <a href="/">工具库</a>
       <a href="/category/${escapeAttribute(tool.category)}">${escapeHTML(category?.name || "同类工具")}</a>
@@ -674,7 +675,7 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
       <div class="seo-tool-copy">
         <p class="seo-tool-eyebrow">AI TOOL PROFILE</p>
         <div class="seo-tool-title-row">
-          <img class="seo-tool-logo" src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png")}" alt="${escapeAttribute(tool.name)} Logo">
+          <img class="seo-tool-logo" src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png?v=20260916-2")}" alt="${escapeAttribute(tool.name)} Logo">
           <h1>${escapeHTML(tool.name)}</h1>
         </div>
         <p class="seo-tool-summary">${escapeHTML(tool.summary || description)}</p>
@@ -715,7 +716,7 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
       <h2>${escapeHTML(tool.name)} 的同类替代工具</h2>
       <div class="seo-tool-related">${related.map((item) => `
         <a href="/tools/${escapeAttribute(item.slug || item.id)}">
-          <img src="${escapeAttribute(item.logoUrl || "/brand-icon-192.png")}" alt="">
+          <img src="${escapeAttribute(item.logoUrl || "/brand-icon-192.png?v=20260916-2")}" alt="">
           <strong>${escapeHTML(item.name)}</strong>
           <span>${escapeHTML(item.summary || "")}</span>
         </a>
@@ -749,7 +750,7 @@ function seoToolCard(tool, index) {
   return `
     <article class="seo-collection-tool">
       <span class="seo-collection-rank">${String(index + 1).padStart(2, "0")}</span>
-      <img src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png")}" alt="${escapeAttribute(tool.name)} Logo">
+      <img src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png?v=20260916-2")}" alt="${escapeAttribute(tool.name)} Logo">
       <div>
         <h3><a href="/tools/${escapeAttribute(tool.slug || tool.id)}">${escapeHTML(tool.name)}</a></h3>
         <p>${escapeHTML(tool.summary || "")}</p>
@@ -772,7 +773,7 @@ function buildGuideSeoPage(request, topic, tools) {
       description: topic.description,
       dateModified: new Date().toISOString().slice(0, 10),
       mainEntityOfPage: canonical,
-      publisher: { "@type": "Organization", name: "泥壳AI工具站", logo: { "@type": "ImageObject", url: absoluteSiteUrl(request, "/brand-icon-192.png") } }
+      publisher: { "@type": "Organization", name: "泥壳AI工具站", logo: { "@type": "ImageObject", url: absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2") } }
     },
     {
       "@context": "https://schema.org",
@@ -806,15 +807,15 @@ function buildGuideSeoPage(request, topic, tools) {
   <meta property="og:title" content="${escapeAttribute(topic.title)}">
   <meta property="og:description" content="${escapeAttribute(topic.description)}">
   <meta property="og:url" content="${escapeAttribute(canonical)}">
-  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
-  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
+  <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
-    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png?v=20260916-2" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
     <nav aria-label="专题导航"><a href="/">工具库</a><a href="/guides">按任务找</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
   </header>
   <main class="seo-tool-main">
@@ -850,7 +851,7 @@ function buildCompareSeoPage(request, topic, tools) {
       description: topic.description,
       dateModified: new Date().toISOString().slice(0, 10),
       mainEntityOfPage: canonical,
-      publisher: { "@type": "Organization", name: "泥壳AI工具站", logo: { "@type": "ImageObject", url: absoluteSiteUrl(request, "/brand-icon-192.png") } }
+      publisher: { "@type": "Organization", name: "泥壳AI工具站", logo: { "@type": "ImageObject", url: absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2") } }
     },
     {
       "@context": "https://schema.org",
@@ -875,15 +876,15 @@ function buildCompareSeoPage(request, topic, tools) {
   <meta property="og:title" content="${escapeAttribute(topic.title)}">
   <meta property="og:description" content="${escapeAttribute(topic.description)}">
   <meta property="og:url" content="${escapeAttribute(canonical)}">
-  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
-  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
+  <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
-    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png?v=20260916-2" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
     <nav aria-label="对比导航"><a href="/">工具库</a><a href="/compare">对比页</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
   </header>
   <main class="seo-tool-main">
@@ -899,7 +900,7 @@ function buildCompareSeoPage(request, topic, tools) {
       <div class="seo-compare-table">
         <div class="seo-compare-head"><span>工具</span><span>价格</span><span>平台</span><span>语言</span><span>适合场景</span></div>
         ${tools.map((tool) => `<a class="seo-compare-row" href="/tools/${escapeAttribute(tool.slug || tool.id)}">
-          <span><img src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png")}" alt="">${escapeHTML(tool.name)}</span>
+          <span><img src="${escapeAttribute(tool.logoUrl || "/brand-icon-192.png?v=20260916-2")}" alt="">${escapeHTML(tool.name)}</span>
           <span>${escapeHTML(priceLabels[tool.price] || tool.price || "待核验")}</span>
           <span>${escapeHTML(listText((tool.platforms || []).map((platform) => platformLabels[platform] || platform)))}</span>
           <span>${escapeHTML(languageLabels[tool.language] || tool.language || "待核验")}</span>
@@ -937,14 +938,14 @@ function buildGuideIndexPage(request) {
   <meta property="og:title" content="按任务找 AI 工具专题 | 泥壳AI工具站">
   <meta property="og:description" content="从写作、绘图、对话、漫剧到编程，按任务浏览泥壳AI精选专题。">
   <meta property="og:url" content="${escapeAttribute(canonical)}">
-  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
-  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
+  <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
-    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png?v=20260916-2" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
     <nav aria-label="专题导航"><a href="/">工具库</a><a href="/compare">对比页</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
   </header>
   <main class="seo-tool-main">
@@ -994,14 +995,14 @@ function buildCompareIndexPage(request) {
   <meta property="og:title" content="AI 工具对比页 | 泥壳AI工具站">
   <meta property="og:description" content="从 ChatGPT 到豆包、从 Midjourney 到即梦、从 Cursor 到 Copilot，查看真实可读的 AI 工具对比页。">
   <meta property="og:url" content="${escapeAttribute(canonical)}">
-  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png"))}">
-  <link rel="icon" href="/brand-icon-192.png" type="image/png" sizes="192x192">
+  <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
+  <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/styles.css?v=20260805-21">
   <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
-    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
+    <a class="seo-tool-brand" href="/"><img src="/brand-icon-192.png?v=20260916-2" alt=""><span><strong>泥壳AI</strong><small>工具站</small></span></a>
     <nav aria-label="对比导航"><a href="/">工具库</a><a href="/guides">按任务找</a><a href="/rankings">排行榜</a><a href="/standards">收录标准</a></nav>
   </header>
   <main class="seo-tool-main">

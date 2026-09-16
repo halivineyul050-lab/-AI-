@@ -154,12 +154,25 @@ test("favorites route serves the app shell for direct navigation", async () => {
 test("brand icon is served with the expected media type", async () => {
   const page = await fetch(`${baseUrl}/`);
   assert.equal(page.status, 200);
-  assert.match(await page.text(), /brand-icon-192\.png/);
+  assert.match(await page.text(), /brand-icon-192\.png\?v=20260916-2/);
 
-  const icon = await fetch(`${baseUrl}/brand-icon-192.png`);
-  assert.equal(icon.status, 200);
-  assert.equal(icon.headers.get("content-type"), "image/png");
-  assert.ok((await icon.arrayBuffer()).byteLength > 10_000);
+  for (const size of [192, 512]) {
+    const icon = await fetch(`${baseUrl}/brand-icon-${size}.png`);
+    assert.equal(icon.status, 200);
+    assert.equal(icon.headers.get("content-type"), "image/png");
+    const bytes = new Uint8Array(await icon.arrayBuffer());
+    const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    assert.deepEqual([...bytes.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    assert.equal(view.getUint32(16), size);
+    assert.equal(view.getUint32(20), size);
+    assert.ok([4, 6].includes(bytes[25]), `brand-icon-${size}.png should retain alpha`);
+  }
+
+  const manifest = await (await fetch(`${baseUrl}/manifest.webmanifest`)).json();
+  assert.deepEqual(manifest.icons.map(({ src, sizes }) => ({ src, sizes })), [
+    { src: "/brand-icon-192.png?v=20260916-2", sizes: "192x192" },
+    { src: "/brand-icon-512.png?v=20260916-2", sizes: "512x512" }
+  ]);
 
   const toolLogo = await fetch(`${baseUrl}/assets/tool-logos/orange-dream-factory.ico`);
   assert.equal(toolLogo.status, 200);
