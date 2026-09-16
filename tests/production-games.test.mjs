@@ -60,7 +60,10 @@ test("production game asset routes reject traversal", async () => {
 
 test("games index and sitemap list both new games", async () => {
   const games = await (await fetch(`${baseUrl}/games`)).text();
-  assert.equal((games.match(/class="game-card"/g) || []).length, 9);
+  assert.equal((games.match(/class="[^"]*\bgame-card\b[^"]*"/g) || []).length, 9);
+  assert.equal((games.match(/\bgame-card--hero\b/g) || []).length, 1);
+  assert.equal((games.match(/\bgame-card--wide\b/g) || []).length, 2);
+  assert.equal((games.match(/\bgame-card--compact\b/g) || []).length, 6);
   assert.match(games, /href="\/games\/ironfront"/);
   assert.match(games, /href="\/games\/yiren-buche"/);
 
