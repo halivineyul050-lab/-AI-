@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import { openMariaDatabase } from './mariadb-compat.mjs';
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
@@ -41,6 +42,7 @@ function rowsToStrings(rows, key) {
 }
 
 export function openDatabase(dbPath) {
+  if (process.env.NIKAI_DB_ENGINE === 'mariadb') return openMariaDatabase();
   mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
   db.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;");

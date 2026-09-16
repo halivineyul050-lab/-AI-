@@ -1323,7 +1323,7 @@ export function buildApplication(options = {}) {
         rateLimit(`${ip}:read`, 120, 60_000);
         sendData(response, getBootstrap(db), {
           contentVersion: new Date().toISOString(),
-          backend: "node-sqlite"
+          backend: db.backend || "node-sqlite"
         });
         return;
       }
