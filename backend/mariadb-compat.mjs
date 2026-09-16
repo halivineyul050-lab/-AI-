@@ -16,6 +16,7 @@ export function translateMariaSql(sql) {
   value = value.replace(/CAST\(\(\(julianday\(([^)]+)\)\s*-\s*julianday\(\?\)\)\s*\*\s*24\.0\)\s*\+\s*0\.0000001\s+AS\s+INTEGER\)/gi, 'TIMESTAMPDIFF(HOUR, ?, $1)');
   value = value.replace(/date\(([^,()]+),\s*'\+8 hours'\)/gi, "DATE_FORMAT(DATE_ADD($1, INTERVAL 8 HOUR), '%Y-%m-%d')");
   value = value.replace(/\s+AS\s+TEXT\b/gi, ' AS CHAR');
+  value = value.replace(/json_type\(([^,()]+),\s*([^()]+)\)\s*=\s*'text'/gi, "JSON_TYPE(JSON_EXTRACT($1, $2)) = 'STRING'");
   value = value.replace(/\s+COLLATE\s+NOCASE/gi, ' COLLATE utf8mb4_unicode_ci');
   value = value.replace(/CAST\((json_extract\([^)]*\))\s+AS\s+REAL\)/gi, 'CAST($1 AS DECIMAL(30,8))');
   value = value.replace(/\bMIN\(([^,()]+),\s*([^()]+)\)/gi, 'LEAST($1, $2)');
