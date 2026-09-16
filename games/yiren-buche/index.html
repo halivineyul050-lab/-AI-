@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <base href="/games/yiren-buche/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>一人不撤 - 离线 3D 触控生存射击</title>
+  <link rel="stylesheet" href="style.css?v=20260916-1">
+</head>
+<body>
+  <a class="site-return" href="/games" aria-label="返回休闲小游戏">← 返回小游戏</a>
+  <!-- ========== 开始菜单 ========== -->
+  <div id="menu" class="overlay">
+    <div class="panel">
+      <h1 class="title">一人不撤</h1>
+      <p id="menuSubtitle" class="subtitle">离线 3D 触控生存射击</p>
+      <div class="map-picker" id="menuMapPicker">
+        <div class="map-picker-heading"><span>选择游戏地图</span><span id="menuMapStatus" class="map-picker-status"></span></div>
+        <div id="menuMapOptions" class="map-options" role="radiogroup" aria-label="开始地图">
+          <button type="button" class="map-option" data-map-id="container-port" aria-pressed="false">
+            <span class="map-option-name">港口集装箱仓库</span><span class="map-option-desc">集装箱通道与高低掩体</span>
+          </button>
+          <button type="button" class="map-option" data-map-id="classic" aria-pressed="false">
+            <span class="map-option-name">经典竞技场</span><span class="map-option-desc">西侧仓库、东侧仓库与中央长廊</span>
+          </button>
+        </div>
+        <p id="menuMapHint" class="map-picker-hint">开始后地图将锁定，阵亡后才能重新选择。</p>
+      </div>
+
+      <!-- ========== 出战配置：全部武器勾选携带 + 首发选择（卡片由 main.js 按 CONFIG 生成）========== -->
+      <div class="loadout-picker" id="menuLoadout">
+        <div class="map-picker-heading"><span>出战配置</span><span id="loadoutStatus" class="map-picker-status"></span></div>
+        <div id="loadoutOptions" class="loadout-options" role="group" aria-label="携带武器"></div>
+        <p id="loadoutHint" class="map-picker-hint">点卡片勾选/取消携带，点「首发」设为开局手持；全部携带时局内 1–6 切换与经典操作一致。</p>
+      </div>
+      <button id="startBtn" class="btn">点击开始</button>
+      <button id="menuSettingsBtn" class="btn btn-ghost">设置</button>
+      <button id="menuMedalsBtn" class="btn btn-ghost">勋章</button>
+      <div class="controls">
+        <div><b>WASD</b> 移动 · <b>按住鼠标拖动</b> 视角</div>
+        <div><b>左键</b> 射击 · <b>R</b> 换弹 · <b>Space</b> 跳跃 · <b>Shift/Ctrl</b> 蹲伏</div>
+        <div><b>Z</b> 卧倒/起身 · <b>Q/E</b> 左右探头 · <b>1–4</b> 切换携带武器 · <b>C</b> 开镜 · <b>Esc</b> 暂停</div>
+      </div>
+      <p class="tip">消灭所有敌人，存活到回合结束即胜利</p>
+    </div>
+  </div>
+
+  <!-- ========== 结算界面 ========== -->
+  <div id="result" class="overlay hidden">
+    <div class="panel">
+      <h2 id="resultTitle" class="title">回合结束</h2>
+      <div id="resultEndLine" class="result-endline hidden"></div>
+      <div id="resultStats" class="stats"></div>
+      <div id="resultHighlight" class="result-highlight hidden"></div>
+      <div id="resultMedalSummary" class="medal-result-summary hidden"></div>
+      <button id="restartBtn" class="btn">再来一局</button>
+      <button id="resultMedalsBtn" class="btn btn-ghost">查看勋章</button>
+    </div>
+  </div>
+
+  <!-- ========== 勋章中心 ========== -->
+  <div id="medalCenter" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="medalCenterTitle">
+    <div class="panel medal-panel">
+      <h2 id="medalCenterTitle" class="title">勋章中心</h2>
+      <button id="medalCenterCloseBtn" class="btn btn-ghost" type="button">返回上一页</button>
+      <div id="medalCareerSummary" class="medal-career-summary"></div>
+      <div id="medalGrid" class="medal-grid"></div>
+    </div>
+  </div>
+
+  <!-- ========== 勋章分享预览 ========== -->
+  <div id="medalShare" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="medalShareTitle">
+    <div class="panel medal-share-panel">
+      <h2 id="medalShareTitle" class="title">分享勋章</h2>
+      <div class="medal-share-actions">
+        <button id="medalPostBtn" class="btn" type="button">发送小红书笔记</button>
+        <button id="medalSaveBtn" class="btn btn-ghost" type="button">保存图片</button>
+        <button id="medalShareCloseBtn" class="btn btn-ghost" type="button">返回勋章页</button>
+      </div>
+      <p id="medalShareStatus" class="medal-share-status" aria-live="polite"></p>
+      <canvas id="medalShareCanvas" width="1080" height="1440"></canvas>
+    </div>
+  </div>
+
+  <!-- ========== 暂停界面 ========== -->
+  <div id="pause" class="overlay hidden">
+    <div class="panel">
+      <h2 class="title">已暂停</h2>
+      <button id="resumeBtn" class="btn">继续游戏</button>
+      <button id="pauseSettingsBtn" class="btn btn-ghost">设置</button>
+    </div>
+  </div>
+
+  <!-- ========== 横屏提示（移动端竖屏时显示，可手动跳过） ========== -->
+  <div id="rotateHint" class="overlay">
+    <div class="panel rotate-panel">
+      <div class="rotate-icon">📱</div>
+      <h2 class="title">请横屏游戏</h2>
+      <p class="tip">将手机旋转为横屏，获得最佳射击体验</p>
+      <button id="continuePortraitBtn">仍然进入游戏</button>
+    </div>
+  </div>
+
+  <!-- ========== 设置中心 ========== -->
+  <div id="settingsMenu" class="overlay hidden">
+    <div class="panel set-panel">
+      <h2 class="title">设置</h2>
+      <div class="map-picker settings-map-picker" id="settingsMapPicker">
+        <div class="map-picker-heading"><span>游戏地图</span><span id="settingsMapStatus" class="map-picker-status"></span></div>
+        <div id="settingsMapOptions" class="map-options" role="radiogroup" aria-label="设置地图">
+          <button type="button" class="map-option" data-map-id="container-port" aria-pressed="false">
+            <span class="map-option-name">港口集装箱仓库</span><span class="map-option-desc">集装箱通道与高低掩体</span>
+          </button>
+          <button type="button" class="map-option" data-map-id="classic" aria-pressed="false">
+            <span class="map-option-name">经典竞技场</span><span class="map-option-desc">西侧仓库、东侧仓库与中央长廊</span>
+          </button>
+        </div>
+        <p id="settingsMapHint" class="map-picker-hint">未开始游戏时可以选择地图。</p>
+      </div>
+      <section class="graphics-settings" aria-labelledby="graphicsSettingsTitle">
+        <div class="graphics-heading">
+          <span id="graphicsSettingsTitle">画面效果</span>
+          <span id="graphicsStatus" class="graphics-status">自动调节</span>
+        </div>
+        <div id="graphicsPresetOptions" class="graphics-preset-options" role="radiogroup" aria-label="画面预设">
+          <button type="button" class="setting-choice" data-graphics-preset="auto" aria-pressed="false">自动</button>
+          <button type="button" class="setting-choice" data-graphics-preset="performance" aria-pressed="false">流畅</button>
+          <button type="button" class="setting-choice" data-graphics-preset="balanced" aria-pressed="false">平衡</button>
+          <button type="button" class="setting-choice" data-graphics-preset="quality" aria-pressed="false">高清</button>
+          <button type="button" class="setting-choice" data-graphics-preset="custom" aria-pressed="false">自定义</button>
+        </div>
+        <div class="set-row">
+          <label for="renderScaleSlider">渲染清晰度</label>
+          <input type="range" id="renderScaleSlider" min="85" max="200" step="5" value="115">
+          <span id="renderScaleVal">1.15×</span>
+        </div>
+        <div class="set-row set-row-wide">
+          <span class="set-label">阴影质量</span>
+          <div id="shadowQualityOptions" class="setting-choice-options graphics-three-options" role="radiogroup" aria-label="阴影质量">
+            <button type="button" class="setting-choice" data-shadow-quality="off" aria-pressed="false">关闭</button>
+            <button type="button" class="setting-choice" data-shadow-quality="contact" aria-pressed="false">接触阴影</button>
+            <button type="button" class="setting-choice" data-shadow-quality="dynamic" aria-pressed="false">动态阴影</button>
+          </div>
+        </div>
+        <div class="set-row set-row-wide">
+          <span class="set-label">特效质量</span>
+          <div id="effectQualityOptions" class="setting-choice-options graphics-three-options" role="radiogroup" aria-label="特效质量">
+            <button type="button" class="setting-choice" data-effect-quality="low" aria-pressed="false">低</button>
+            <button type="button" class="setting-choice" data-effect-quality="balanced" aria-pressed="false">平衡</button>
+            <button type="button" class="setting-choice" data-effect-quality="high" aria-pressed="false">高</button>
+          </div>
+        </div>
+        <div class="set-row set-row-wide">
+          <span class="set-label">敌人动画质量</span>
+          <div id="enemyAnimationOptions" class="setting-choice-options graphics-three-options" role="radiogroup" aria-label="敌人动画质量">
+            <button type="button" class="setting-choice" data-animation-quality="performance" aria-pressed="false">省性能</button>
+            <button type="button" class="setting-choice" data-animation-quality="balanced" aria-pressed="false">平衡</button>
+            <button type="button" class="setting-choice" data-animation-quality="smooth" aria-pressed="false">流畅</button>
+          </div>
+        </div>
+        <div class="set-row set-row-wide">
+          <span class="set-label">性能保护</span>
+          <div class="setting-toggle-options">
+            <button id="autoPerformanceBtn" type="button" class="setting-choice active" aria-pressed="true">自动保护：开</button>
+          </div>
+        </div>
+        <p class="tip graphics-setting-tip">切换立即生效；已缓存贴图沿用同一份本地资源，不增加第二套贴图。</p>
+      </section>
+      <div class="set-row">
+        <label for="uiSizeSlider">按钮大小</label>
+        <input type="range" id="uiSizeSlider" min="70" max="140" step="5" value="100">
+        <span id="uiSizeVal">100%</span>
+      </div>
+      <div class="set-row set-row-wide">
+        <span class="set-label">右上角小地图</span>
+        <div class="setting-toggle-options">
+          <button id="minimapToggleBtn" type="button" class="setting-choice active" aria-pressed="true">小地图：开</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <label for="minimapSizeSlider">小地图大小</label>
+        <input type="range" id="minimapSizeSlider" min="40" max="100" step="10" value="50">
+        <span id="minimapSizeVal">50%</span>
+      </div>
+      <div class="set-row set-row-wide">
+        <span class="set-label">性能诊断</span>
+        <div class="setting-toggle-options">
+          <button id="perfDiagBtn" type="button" class="setting-choice" aria-pressed="false">性能诊断：关</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <label for="sensitivitySlider">转身灵敏度</label>
+        <input type="range" id="sensitivitySlider" min="70" max="150" step="5" value="100">
+        <span id="sensitivityVal">100%</span>
+      </div>
+      <div class="set-row">
+        <label for="enemyDamageMinSlider">敌方最低伤害</label>
+        <input type="range" id="enemyDamageMinSlider" min="1" max="100" step="1" value="6">
+        <span id="enemyDamageMinVal">6点</span>
+      </div>
+      <div class="set-row">
+        <label for="enemyDamageMaxSlider">敌方最高伤害</label>
+        <input type="range" id="enemyDamageMaxSlider" min="1" max="100" step="1" value="12">
+        <span id="enemyDamageMaxVal">12点</span>
+      </div>
+      <p class="tip damage-setting-tip">敌方普通射击伤害按玩家 100 点生命值校准，爆头和精英加成仍会生效。</p>
+      <div class="set-row">
+        <label for="armorDropChanceSlider">护甲掉落概率</label>
+        <input type="range" id="armorDropChanceSlider" min="0" max="100" step="1" value="18">
+        <span id="armorDropChanceVal">18%</span>
+      </div>
+      <div class="set-row set-row-wide">
+        <span class="set-label">敌人 AI 难度</span>
+        <div id="aiDifficultyOptions" class="setting-choice-options" role="radiogroup" aria-label="敌人 AI 难度">
+          <button type="button" class="setting-choice" data-ai-difficulty="easy" aria-pressed="false">简单</button>
+          <button type="button" class="setting-choice" data-ai-difficulty="normal" aria-pressed="false">中等</button>
+          <button type="button" class="setting-choice" data-ai-difficulty="hard" aria-pressed="false">困难</button>
+          <button type="button" class="setting-choice danger" data-ai-difficulty="catastrophe" aria-pressed="false">灾难级</button>
+        </div>
+      </div>
+      <div class="set-row">
+        <label for="waveWarningDurationSlider">波次警告倒计时</label>
+        <input type="range" id="waveWarningDurationSlider" min="3" max="10" step="1" value="5">
+        <span id="waveWarningDurationVal">5秒</span>
+      </div>
+      <div class="set-row set-row-wide">
+        <span class="set-label">波次警告效果</span>
+        <div class="setting-toggle-options">
+          <button id="waveWarningSoundBtn" type="button" class="setting-choice" aria-pressed="true">倒计时声音：开</button>
+          <button id="waveWarningFlashBtn" type="button" class="setting-choice" aria-pressed="true">红色闪屏：开</button>
+        </div>
+      </div>
+      <div class="set-row set-row-wide">
+        <span class="set-label">准星样式</span>
+        <div id="crosshairStyleOptions" class="crosshair-options" role="radiogroup" aria-label="准星样式">
+          <button type="button" class="crosshair-option" data-crosshair-style="classic" aria-pressed="false">
+            <span class="crosshair-preview preview-classic" aria-hidden="true"></span><span>经典十字</span>
+          </button>
+          <button type="button" class="crosshair-option" data-crosshair-style="dot" aria-pressed="false">
+            <span class="crosshair-preview preview-dot" aria-hidden="true"></span><span>点式</span>
+          </button>
+          <button type="button" class="crosshair-option" data-crosshair-style="circle" aria-pressed="false">
+            <span class="crosshair-preview preview-circle" aria-hidden="true"></span><span>圆环</span>
+          </button>
+          <button type="button" class="crosshair-option" data-crosshair-style="plus" aria-pressed="false">
+            <span class="crosshair-preview preview-plus" aria-hidden="true"></span><span>实心十字</span>
+          </button>
+          <button type="button" class="crosshair-option" data-crosshair-style="tactical" aria-pressed="false">
+            <span class="crosshair-preview preview-tactical" aria-hidden="true"></span><span>战术十字点</span>
+          </button>
+        </div>
+      </div>
+      <button id="settingsMedalsBtn" class="btn btn-ghost">查看勋章</button>
+      <button id="layoutEditBtn" class="btn">自定义按钮位置</button>
+      <button id="layoutResetBtn" class="btn btn-ghost">恢复默认布局</button>
+      <button id="settingsCloseBtn" class="btn">关闭</button>
+      <p class="tip">自定义布局会保存在本机，随时可改</p>
+    </div>
+  </div>
+
+  <!-- 布局编辑模式提示条 -->
+  <div id="layoutEditBar" class="hidden">
+    <span id="layoutEditHint">拖动调整位置 · 点按按钮选中后可单独缩放</span>
+    <span id="layoutEditSizeCtl" class="hidden">
+      <span id="layoutEditSizeName" class="layout-size-name"></span>
+      <button id="layoutEditSmaller" class="layout-size-btn" type="button">－</button>
+      <span id="layoutEditSizeVal" class="layout-size-val">100%</span>
+      <button id="layoutEditLarger" class="layout-size-btn" type="button">＋</button>
+    </span>
+    <button id="layoutEditDone" class="btn">完成</button>
+  </div>
+
+  <!-- ========== 电影感暗角（冷峻军事，阶段1） ========== -->
+  <div id="vignette"></div>
+
+  <!-- ========== 游戏 HUD ========== -->
+  <div id="hud" class="hidden">
+    <!-- 中心准星 -->
+    <div id="crosshair">
+      <span></span><span></span><span></span><span></span>
+      <div class="dot"></div>
+    </div>
+
+    <!-- AWP 瞄准镜画面（开镜时显示：圆形镜筒 + 放大视图 + 十字线 + 外围暗角） -->
+    <div id="scopeOverlay" class="hidden">
+      <div class="so-vignette"></div>
+      <div class="so-ring"></div>
+      <div class="so-h"></div>
+      <div class="so-v"></div>
+      <div class="so-dot"></div>
+    </div>
+
+    <!-- 命中标记（X 形：普通命中白 / 爆头金放大 / 击杀更大更久） -->
+    <div id="hitmarker">
+      <span class="hm-l"></span><span class="hm-r"></span>
+    </div>
+
+    <!-- 伤害飘字容器（DOM 池，命中点投影位置显示 -24/-96） -->
+    <div id="damageNumbers"></div>
+
+    <!-- 受击红色边缘 -->
+    <div id="damageFlash"></div>
+
+    <!-- 左下：血量/护甲 -->
+    <div id="vitals">
+      <div class="vital">
+        <span class="icon">✚</span>
+        <div class="bar"><div id="healthBar" class="fill health"></div></div>
+        <span id="healthText">100</span>
+      </div>
+      <div class="vital">
+        <span class="icon">🛡</span>
+        <div class="bar"><div id="armorBar" class="fill armor"></div></div>
+        <span id="armorText">100</span>
+      </div>
+    </div>
+
+    <!-- 右下：武器与弹药 -->
+    <div id="weaponHud">
+      <div id="weaponName">Glock-18</div>
+      <div id="ammo"><span id="ammoMag">20</span> <span class="slash">/</span> <span id="ammoReserve">120</span></div>
+      <div id="weaponSlots">
+        <span class="slot active" data-slot="1">1 Glock-18</span>
+        <span class="slot" data-slot="2">2 AK-47</span>
+        <span class="slot" data-slot="3">3 AWP</span>
+        <span class="slot" data-slot="4">4 M249</span>
+        <span class="slot" data-slot="5">5 M9 刺刀</span>
+        <span class="slot" data-slot="6">6 M26</span>
+      </div>
+    </div>
+
+    <!-- 顶部：得分与回合 -->
+    <div id="topbar">
+      <div class="score-block enemy">
+        <span class="label">敌人剩余</span>
+        <span id="enemyCount" class="num">0</span>
+      </div>
+      <div class="score-block center">
+        <span id="waveLabel" class="label">回合 1</span>
+      </div>
+      <div class="score-block you">
+        <span class="label">击杀</span>
+        <span id="killCount" class="num">0</span>
+      </div>
+      <div class="score-block score">
+        <span class="label">分数</span>
+        <span id="scoreCount" class="num">0</span>
+      </div>
+    </div>
+
+    <!-- 连杀播报（双杀/三连杀/…，短时弹出） -->
+    <div id="comboBanner" class="combo-banner" aria-live="polite"></div>
+
+    <!-- 小地图（左上角，避开顶部 HUD） -->
+    <div id="minimapWrap">
+      <canvas id="minimap" width="160" height="160"></canvas>
+    </div>
+
+    <!-- 性能诊断悬浮层（设置页开关控制显隐） -->
+    <div id="perfHud" class="perf-hud hidden"></div>
+
+    <!-- 击杀提示 -->
+    <div id="killFeed"></div>
+
+    <!-- 提示信息 -->
+    <div id="toast"></div>
+
+    <!-- 点击锁定提示 -->
+    <div id="clickHint" class="hidden">点击继续<br><small>(Esc 暂停)</small></div>
+
+    <!-- ?debug=1 时显示的自诊断条：视口尺寸/缩放系数/旋转状态 -->
+    <div id="debugBar"></div>
+
+  </div>
+
+  <!-- ========== 本地资源加载（点击开始后分段加载，不阻塞首屏菜单） ========== -->
+  <div id="loadingScreen" class="overlay hidden" role="status" aria-live="polite">
+    <div class="panel loading-panel">
+      <h2 class="loading-title">正在准备战场</h2>
+      <p id="loadingLabel" class="loading-label">加载本地资源…</p>
+      <div class="loading-track" aria-hidden="true"><div id="loadingBar" class="loading-bar"></div></div>
+      <p id="loadingPercent" class="loading-percent">0%</p>
+    </div>
+  </div>
+
+  <!-- ========== 局内强化三选一（每波清空后弹出，2 秒倒计时自动随机） ========== -->
+  <div id="upgradePick" class="overlay upgrade-pick hidden" role="dialog" aria-modal="true" aria-label="选择强化">
+    <div class="upgrade-head">
+      <h2 class="upgrade-title">选择强化</h2>
+      <p id="upgradeHint" class="upgrade-hint">战斗暂停 · 立即选择，超时将随机强化</p>
+      <div class="upgrade-timer-track" aria-hidden="true">
+        <div id="upgradeTimerBar" class="upgrade-timer-bar"></div>
+      </div>
+    </div>
+    <div id="upgradeCards" class="upgrade-cards"></div>
+  </div>
+
+  <!-- 勋章解锁提示不阻断战斗输入，内容由 medal UI 控制器按队列填充。 -->
+  <div id="medalUnlockBanner" class="medal-unlock-banner hidden" aria-live="polite">
+    <img id="medalUnlockImage" class="medal-unlock-image" alt="勋章">
+    <div id="medalUnlockTitle" class="medal-unlock-title"></div>
+    <div id="medalUnlockProgress" class="medal-unlock-progress"></div>
+  </div>
+
+  <div id="waveWarning" class="wave-warning hidden" aria-live="assertive" aria-atomic="true">
+    <div class="wave-warning-vignette"></div>
+    <div class="wave-warning-content">
+      <div class="wave-warning-label">下一波敌人来袭</div>
+      <div id="waveWarningCount" class="wave-warning-count">5</div>
+      <div id="waveWarningWave" class="wave-warning-wave">第 2 波</div>
+    </div>
+  </div>
+
+  <button id="internalGameBackBtn" class="internal-game-back hidden" type="button" aria-label="返回游戏">‹ 返回游戏</button>
+
+  <!-- ========== 武器检视浮层（透明背景透出主画布，中央区域为拖拽旋转面）========== -->
+  <div id="weaponInspect" class="overlay weapon-inspect hidden" role="dialog" aria-modal="true" aria-label="武器检视">
+    <div class="inspect-topbar">
+      <h2 id="inspectWeaponName" class="inspect-name">AK-47</h2>
+      <div class="inspect-topbar-actions">
+        <button id="inspectCloseBtn" class="btn btn-ghost inspect-back-btn inspect-topbar-btn" type="button">‹ 返回</button>
+        <button id="inspectEquipBtn" class="btn inspect-topbar-btn" type="button">设为首发</button>
+      </div>
+    </div>
+    <p id="inspectStatus" class="inspect-status" aria-live="polite"></p>
+    <p class="inspect-hint">拖动旋转 · 滚轮 / 双指缩放</p>
+    <div class="inspect-nav">
+      <button id="inspectPrevBtn" class="inspect-nav-btn" type="button" aria-label="上一件武器">‹</button>
+      <div id="inspectDots" class="inspect-dots"></div>
+      <button id="inspectNextBtn" class="inspect-nav-btn" type="button" aria-label="下一件武器">›</button>
+    </div>
+  </div>
+
+  <!-- 移动端虚拟控制（独立于 HUD，设置编辑态也必须可见） -->
+  <div id="touchControls" class="hidden">
+    <!-- 左半屏：浮动摇杆（三角洲式大摇杆：任意处按下出现，拖动模拟量移动） -->
+    <div id="joyZone">
+      <div id="joyBase"><div id="joyKnob"></div></div>
+    </div>
+    <!-- 左侧独立开火：给三指布局预留，不抢占左摇杆，也不拖动视角 -->
+    <button class="act-btn fire-btn fire-btn-left" id="btnFireLeft"
+            data-action="fire" data-fire-look="false">FIRE</button>
+    <!-- 右下：拇指弧线控制簇（固定设计尺寸 + 整体缩放，锚定屏幕角，不随屏幕尺寸逐项换算） -->
+    <div id="actionBtns">
+      <button class="act-btn fire-btn" id="btnFireRight" data-action="fire" data-fire-look="true">FIRE</button>
+      <button class="act-btn" id="btnJump" data-key="Space">跳</button>
+      <button class="act-btn" id="btnCrouch" data-key="ShiftLeft">蹲</button>
+      <button class="act-btn" id="btnProne" data-action="prone" title="卧倒/起身">卧</button>
+      <button class="act-btn" id="btnReload" data-key="KeyR">⟳</button>
+      <button class="act-btn lean-btn" id="btnLeanLeft" data-action="lean" data-lean-dir="left" title="左探头">探L</button>
+      <button class="act-btn lean-btn" id="btnLeanRight" data-action="lean" data-lean-dir="right" title="右探头">探R</button>
+      <button class="wpn-btn" id="btnWeaponCycle" data-action="weapon-cycle" title="切换武器">换</button>
+    </div>
+    <!-- 中间偏右：暂停 + 设置，位于右下动作簇左侧 -->
+    <div id="topControls">
+      <button class="top-btn" data-action="pause">II</button>
+      <button class="top-btn" data-action="settings">⚙</button>
+    </div>
+    <!-- 右缘中部：AWP 开镜/关镜（仅狙击枪生效，其他枪无操作） -->
+    <button class="act-btn scope-btn" id="btnScope" data-action="scope">镜</button>
+  </div>
+
+  <!-- 首屏只加载菜单、渲染器和交互所需的经典脚本。点击开始后由
+       resource_loader.js 按所选地图分段加载 ZIP 内其余脚本与图片。 -->
+  <script src="config.js"></script>
+  <script src="three.min.js"></script>
+  <script src="hud.js"></script>
+  <script src="audio.js"></script>
+  <script src="medal_system.js"></script>
+  <script src="medal_ui.js"></script>
+  <script src="medal_share.js"></script>
+  <script src="resource_loader.js"></script>
+  <script src="loadout.js"></script>
+  <script src="inspect.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

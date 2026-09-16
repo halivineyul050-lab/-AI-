@@ -530,7 +530,7 @@ test('game collection is separate from utilities with working routes and legacy 
 
 
 test('three new casual games have playable routes and module resources',async()=>{
- const hall=await request('/games');assert.match(hall.body,/07 款小游戏/);
+ const hall=await request('/games');assert.match(hall.body,/09 款小游戏/);
  for(const [slug,file] of [['2048','game-2048'],['memory','memory-game'],['breakout','breakout']]){
   assert.match(hall.body,new RegExp('href="/games/'+slug+'"'));
   const page=await request('/games/'+slug);assert.equal(page.response.status,200);assert.match(page.body,/休闲小游戏/);

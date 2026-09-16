@@ -5,7 +5,7 @@ import { createImageEraser } from "./backend/image-erase.mjs";
 import { gzipSync } from "node:zlib";
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { extname, resolve } from "node:path";
+import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getMonitoringSnapshot } from "./backend/monitoring.mjs";
 import { scheduleNewsPublisher } from "./backend/news-publisher.mjs";
@@ -382,6 +382,39 @@ function serveStatic(request, response, pathname, staticDir) {
     "Cache-Control": isAdminResource
       ? "no-store, private"
       : (fileName.endsWith(".html") || /^image-edit(?:-core)?\.(?:js|mjs|css)$/.test(fileName)) ? "no-store" : logoMatch ? "public, max-age=86400" : "public, max-age=300"
+  });
+  if (request.method === "HEAD") response.end();
+  else response.end(content);
+  return true;
+}
+
+function serveProductionGame(request, response, pathname, staticDir) {
+  const match = pathname.match(/^\/games\/(ironfront|yiren-buche)(?:\/(.*))?$/);
+  if (!match) return false;
+  let relativePath;
+  try {
+    relativePath = decodeURIComponent(match[2] || "index.html");
+  } catch {
+    return false;
+  }
+  if (!relativePath || relativePath.includes("\\") || relativePath.includes("\0")) return false;
+  const segments = relativePath.split("/");
+  if (segments.some((segment) => !segment || segment === "." || segment === "..")) return false;
+
+  const gameRoot = resolve(staticDir, "games", match[1]);
+  const filePath = resolve(gameRoot, ...segments);
+  if (!filePath.startsWith(`${gameRoot}${sep}`) || !existsSync(filePath) || !statSync(filePath).isFile()) return false;
+
+  let content = readFileSync(filePath);
+  const acceptsGzip = /\bgzip\b/i.test(String(request.headers["accept-encoding"] || ""));
+  const compressible = /\.(?:html|css|js|json|txt)$/i.test(filePath);
+  const compressed = acceptsGzip && compressible && content.length > 1024;
+  if (compressed) content = gzipSync(content, { level: 6 });
+  response.writeHead(200, {
+    "Content-Type": mimeTypes[extname(filePath).toLowerCase()] || "application/octet-stream",
+    "Content-Length": content.length,
+    ...(compressed ? { "Content-Encoding": "gzip", Vary: "Accept-Encoding" } : {}),
+    "Cache-Control": extname(filePath).toLowerCase() === ".html" ? "no-store" : "public, max-age=86400"
   });
   if (request.method === "HEAD") response.end();
   else response.end(content);
@@ -1004,7 +1037,7 @@ function buildSitemap(request, db) {
     ["/discover", "weekly", "0.8"],
     ["/utilities/video-to-gif", "monthly", "0.8"],
     ["/utilities", "monthly", "0.8"],
-    ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight"].map(path=>[path,"monthly","0.8"]),
+    ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight","/games/ironfront","/games/yiren-buche"].map(path=>[path,"monthly","0.8"]),
     ["/utilities/video-crop", "monthly", "0.8"],
     ["/utilities/video-mask", "monthly", "0.8"],
     ["/utilities/image-erase", "monthly", "0.8"],
@@ -1299,6 +1332,7 @@ export function buildApplication(options = {}) {
         return;
       }
 
+      if ((method === "GET" || method === "HEAD") && serveProductionGame(request, response, pathname, staticDir)) return;
       if ((method === "GET" || method === "HEAD") && serveStatic(request, response, pathname, staticDir)) return;
 
       if (method === "GET" && pathname === "/api/v1/health/live") {

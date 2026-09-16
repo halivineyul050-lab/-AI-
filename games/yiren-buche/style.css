@@ -1,0 +1,1953 @@
+/* ========== 全局重置 ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: #000; color: #e8e8e8;
+  font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+  user-select: none; cursor: default;
+  touch-action: none;   /* 禁止浏览器默认触屏行为（滚动/缩放） */
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+}
+body { background: #0a0a0a; }
+
+/* 设置、勋章或分享页打开时恢复页面级滚动手势；游戏态仍保持全局 touch-action:none。 */
+html.settings-open,
+body.settings-open {
+  touch-action: pan-y;
+}
+body.rotated.settings-open,
+html.rotated.settings-open {
+  touch-action: pan-x;
+}
+
+/* ========== 强制横屏包装层（main.js 在竖屏触屏视口下整体旋转 90°）========== */
+#gameRoot {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #000;
+  transform-origin: 0 0;
+  /* Chrome 61 也能使用的固定兜底；main.js 会按逻辑横屏与 visualViewport
+     进一步更新。左侧留给宿主退出键/刘海，底部与强制旋转后的逻辑右侧
+     留给系统手势区。 */
+  --interaction-safe-left: 88px;
+  --interaction-safe-right: 0px;
+  --interaction-safe-bottom: 32px;
+  --joy-top-reserve: 62px;
+  /* Chrome 61 不识别 env()。先给安全区变量可解析的零值，再由支持 env()
+     的现代 WebView 覆盖，避免整条 calc()/var() 声明失效。 */
+  --safe-area-inset-top: 0px;
+  --safe-area-inset-right: 0px;
+  --safe-area-inset-bottom: 0px;
+  --safe-area-inset-left: 0px;
+  /* 内部 fixed 元素（overlay/HUD）以本层为包含块，跟随整体旋转 */
+}
+
+@supports (top: env(safe-area-inset-top)) {
+  #gameRoot {
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-right: env(safe-area-inset-right, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  }
+}
+
+#gameRoot canvas { touch-action: none; }
+
+.hidden { display: none !important; }
+
+/* ========== 遮罩层 ========== */
+.overlay {
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(20,25,35,0.92), rgba(0,0,0,0.97));
+  z-index: 100; backdrop-filter: blur(4px);
+}
+.panel {
+  text-align: center; padding: 48px 64px;
+  background: linear-gradient(180deg, rgba(30,38,52,0.85), rgba(18,22,30,0.95));
+  border: 1px solid rgba(255,180,60,0.25);
+  border-radius: 12px;
+  box-shadow: 0 0 60px rgba(255,170,40,0.08), inset 0 0 30px rgba(0,0,0,0.4);
+  min-width: 380px;
+}
+.title {
+  font-size: 56px; font-weight: 900; letter-spacing: 4px;
+  color: #f5b53a;
+  text-shadow: 0 0 20px rgba(245,181,58,0.4);
+  margin-bottom: 6px;
+}
+.title span { color: #fff; }
+.subtitle { color: #9aa4b2; letter-spacing: 6px; margin-bottom: 32px; font-size: 14px; }
+
+.btn {
+  display: inline-block; padding: 14px 56px; margin: 8px 0 24px;
+  background: linear-gradient(180deg, #f5b53a, #d99020);
+  color: #1a1208; border: none; border-radius: 6px;
+  font-size: 18px; font-weight: 700; letter-spacing: 2px;
+  cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(245,181,58,0.3);
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(245,181,58,0.5); }
+.btn:active { transform: translateY(0); }
+
+.controls {
+  margin-top: 16px; color: #c2cad6; font-size: 13px; line-height: 2;
+  border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;
+}
+.tip { margin-top: 14px; color: #6b7280; font-size: 12px; }
+
+/* 点击开始后才加载地图、敌人和枪械。加载层覆盖菜单，但不使用持续动画占用真机帧预算。 */
+#loadingScreen { z-index: 240; backdrop-filter: none; }
+.loading-panel { width: min(520px, 78vw); min-width: 0; padding: 34px 42px; }
+.loading-title {
+  color: #e9e5d6; font-size: 30px; font-weight: 800; letter-spacing: 3px;
+  margin-bottom: 18px;
+}
+.loading-label {
+  min-height: 1.5em; color: #aeb8c4; font-size: 14px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.loading-track {
+  height: 10px; margin: 16px 0 9px; overflow: hidden;
+  border: 1px solid rgba(61,137,150,0.5); border-radius: 999px;
+  background: rgba(4,8,12,0.78);
+}
+.loading-bar {
+  width: 0; height: 100%; border-radius: inherit;
+  background: linear-gradient(90deg, #3d8996, #d97035);
+  transition: width 0.12s linear;
+}
+.loading-percent { color: #d97035; font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.stats { margin: 16px 0 24px; color: #c2cad6; line-height: 1.9; font-size: 15px; }
+.stats b { color: #f5b53a; }
+
+/* V5 结算主题台词副行：紧跟结算标题下方，弱化色调，缺省时由 .hidden 隐藏。 */
+.result-endline {
+  margin: -6px 0 14px;
+  color: #9aa7b8;
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 1px;
+}
+/* V4 结算本局高光行：与统计区同色调、强调数字色沿用 .stats b 的金橙。 */
+.result-highlight {
+  margin: -14px 0 18px;
+  color: #c2cad6;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+/* ========== HUD ========== */
+#hud { position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0; pointer-events: none; z-index: 50; }
+
+/* 准星（--gap 由 JS 按当前散布动态设置：静止收拢、移动张开） */
+#crosshair {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  --gap: 4px;
+  --cross-color: #00ff88;
+  --cross-shadow: 0 0 4px rgba(0,255,136,0.8);
+  pointer-events: none;
+}
+#crosshair span {
+  position: absolute; background: var(--cross-color);
+  box-shadow: var(--cross-shadow);
+}
+#crosshair span:nth-child(1) { top: var(--gap); left: 50%; width: 2px; height: 7px; transform: translateX(-50%); }
+#crosshair span:nth-child(2) { bottom: var(--gap); left: 50%; width: 2px; height: 7px; transform: translateX(-50%); }
+#crosshair span:nth-child(3) { left: var(--gap); top: 50%; height: 2px; width: 7px; transform: translateY(-50%); }
+#crosshair span:nth-child(4) { right: var(--gap); top: 50%; height: 2px; width: 7px; transform: translateY(-50%); }
+#crosshair .dot {
+  position: absolute; top: 50%; left: 50%;
+  width: 2px; height: 2px; background: var(--cross-color);
+  box-shadow: var(--cross-shadow);
+  transform: translate(-50%, -50%); border-radius: 50%;
+}
+#crosshair.firing span, #crosshair.firing .dot {
+  --cross-color: #ff4040;
+  --cross-shadow: 0 0 6px rgba(255,64,64,0.9);
+}
+/* 经典 FPS 开放式十字：四根短线保留散布间隙，不显示中心点。 */
+#crosshair.style-classic .dot { display: none; }
+/* 点式准星：射击游戏中最简洁的中心定位点。 */
+#crosshair.style-dot span { display: none; }
+#crosshair.style-dot .dot { width: 4px; height: 4px; }
+/* 圆环准星：保留中心点，外围圆环不受动态散布影响。 */
+#crosshair.style-circle span { display: none; }
+#crosshair.style-circle::before {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  width: 18px; height: 18px;
+  border: 2px solid var(--cross-color);
+  box-shadow: var(--cross-shadow);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+#crosshair.style-circle .dot { width: 3px; height: 3px; }
+#crosshair.firing.style-circle::before {
+  border-color: #ff4040;
+  box-shadow: 0 0 6px rgba(255,64,64,0.9);
+}
+/* 实心十字：四根线在中心闭合，适合快速近距离瞄准。 */
+#crosshair.style-plus { --gap: 0px; }
+#crosshair.style-plus .dot { display: none; }
+#crosshair.style-plus span { height: 10px; width: 2px; }
+#crosshair.style-plus span:nth-child(3), #crosshair.style-plus span:nth-child(4) { height: 2px; width: 10px; }
+/* 战术十字点：开放式短线 + 中心点，保留动态散布提示。 */
+#crosshair.style-tactical { --gap: 5px; }
+#crosshair.style-tactical .dot { width: 4px; height: 4px; }
+
+/* 电影感暗角（冷峻军事，阶段1）：固定全屏径向渐变，中心透明边缘压暗 */
+#vignette {
+  position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  z-index: 40;                  /* 盖住 3D 画面，但低于 HUD(50)/菜单，不挡交互 */
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.25) 100%);
+}
+#scopeOverlay {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  pointer-events: none;      /* 不挡触控 */
+  z-index: 46;               /* 在准星之上、HUD 文字之下 */
+}
+.so-vignette {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  background: radial-gradient(circle at center,
+    transparent 0%,
+    transparent 27%,
+    rgba(0,0,0,0.42) 30%,
+    rgba(0,0,0,0.96) 34%
+  );
+}
+.so-ring {
+  position: absolute; left: 50%; top: 50%;
+  width: 56vmin; height: 56vmin;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 4px solid #0a0d10;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15), 0 0 14px rgba(0,0,0,0.8);
+}
+.so-h, .so-v {
+  position: absolute; left: 50%; top: 50%;
+  background: rgba(0,0,0,0.8);
+}
+.so-h { width: 56vmin; height: 1.5px; transform: translate(-50%, -50%); }
+.so-v { width: 1.5px; height: 56vmin; transform: translate(-50%, -50%); }
+.so-dot {
+  position: absolute; left: 50%; top: 50%;
+  width: 5px; height: 5px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #ff4040;
+}
+
+/* ========== 命中标记（X 形，三态：白/爆头金/击杀） ========== */
+#hitmarker {
+  position: absolute; top: 50%; left: 50%;
+  width: 22px; height: 22px;
+  transform: translate(-50%, -50%);
+  opacity: 0; pointer-events: none;
+  z-index: 60;
+}
+#hitmarker span {
+  position: absolute; left: 50%; top: 50%;
+  width: 12px; height: 3px;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(255,255,255,0.7);
+}
+#hitmarker .hm-l { transform: translate(-50%, -50%) rotate(45deg); }
+#hitmarker .hm-r { transform: translate(-50%, -50%) rotate(-45deg); }
+#hitmarker.show { opacity: 1; animation: hmPop 0.18s ease-out forwards; }
+@keyframes hmPop {
+  0% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+/* 爆头：金色放大 */
+#hitmarker.head span { background: #f5b53a; box-shadow: 0 0 8px rgba(245,181,58,0.9); }
+#hitmarker.head { width: 30px; height: 30px; }
+#hitmarker.head .hm-l { width: 17px; }
+#hitmarker.head .hm-r { width: 17px; }
+/* 击杀：更大更久 + 双线 */
+#hitmarker.kill { width: 38px; height: 38px; }
+#hitmarker.kill span { width: 22px; height: 4px; background: #ff4040; box-shadow: 0 0 10px rgba(255,64,64,0.9); }
+#hitmarker.kill.show { animation: hmKill 0.3s ease-out forwards; }
+@keyframes hmKill {
+  0% { transform: translate(-50%, -50%) scale(1.6); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
+/* ========== 伤害飘字（-24 / -96，上浮淡出） ========== */
+#damageNumbers {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  pointer-events: none; overflow: hidden;
+  z-index: 55;
+}
+.dmg-num {
+  position: absolute;
+  font-size: 22px; font-weight: 900; color: #fff;
+  text-shadow: 0 0 6px rgba(0,0,0,0.8), 0 2px 3px rgba(0,0,0,0.6);
+  opacity: 0; transform: translate(-50%, -50%);
+}
+.dmg-num.head { color: #f5b53a; font-size: 30px; text-shadow: 0 0 10px rgba(245,181,58,0.8), 0 2px 3px rgba(0,0,0,0.6); }
+.dmg-num.show { opacity: 1; animation: dmgFloat 0.65s ease-out forwards; }
+@keyframes dmgFloat {
+  0% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(-50%, -170%); }
+}
+
+/* ========== 弹药告警（低弹量黄 / 空仓红闪） ========== */
+#ammoMag.ammo-low { color: #f5b53a; text-shadow: 0 0 8px rgba(245,181,58,0.6); }
+#ammoMag.ammo-empty {
+  color: #ff4040;
+  animation: ammoBlink 0.5s steps(2, start) infinite;
+  text-shadow: 0 0 10px rgba(255,64,64,0.8);
+}
+@keyframes ammoBlink { 50% { opacity: 0.25; } }
+
+/* 受击红屏 */
+#damageFlash {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(200,20,20,0.55) 100%);
+  opacity: 0; pointer-events: none; transition: opacity 0.4s;
+}
+#damageFlash.show { opacity: 1; transition: opacity 0.05s; }
+
+/* 左下：血量护甲 */
+#vitals {
+  position: absolute; bottom: calc(24px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); left: 28px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.vital { display: flex; align-items: center; gap: 10px; }
+.vital .icon { font-size: 20px; width: 24px; text-align: center; }
+.vital .bar {
+  width: 200px; height: 14px;
+  background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 3px; overflow: hidden;
+}
+.vital .fill { height: 100%; width: 100%; transition: width 0.25s; }
+.fill.health { background: linear-gradient(90deg, #ff4040, #ff8060); }
+.fill.armor { background: linear-gradient(90deg, #4a90e2, #7ec0ff); }
+.vital span:not(.icon) { width: 36px; font-weight: 700; color: #fff; }
+
+/* 右下：武器 */
+#weaponHud {
+  position: absolute; bottom: calc(24px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); right: calc(28px + var(--interaction-safe-right, 0px));
+  text-align: right;
+}
+#weaponName { font-size: 14px; color: #9aa4b2; letter-spacing: 2px; }
+#ammo { font-size: 38px; font-weight: 900; color: #fff; line-height: 1; }
+#ammo .slash { color: #6b7280; font-weight: 400; margin: 0 4px; }
+#ammoMag { color: #f5b53a; }
+#weaponSlots {
+  margin-top: 8px; display: grid; grid-template-columns: repeat(3, auto);
+  gap: 5px 8px; justify-content: end;
+}
+.slot {
+  padding: 3px 10px; font-size: 12px; color: #6b7280;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 3px;
+  pointer-events: auto; cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.slot.active { color: #f5b53a; border-color: rgba(245,181,58,0.5); background: rgba(245,181,58,0.08); }
+
+/* 顶栏：得分 */
+#topbar {
+  position: absolute; top: calc(16px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 0;
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; overflow: hidden;
+}
+.score-block {
+  padding: 8px 24px; text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+}
+.score-block + .score-block { border-left: 1px solid rgba(255,255,255,0.08); }
+.score-block .label { font-size: 11px; color: #9aa4b2; letter-spacing: 1px; }
+.score-block .num { font-size: 22px; font-weight: 900; color: #fff; }
+.score-block.enemy .num { color: #ff6060; }
+.score-block.you .num { color: #00ff88; }
+.score-block.center .label { font-size: 14px; color: #f5b53a; font-weight: 700; }
+
+/* 击杀提示（左上角，位于武器切换按钮下方，避免与右上角小地图重叠） */
+#killFeed {
+  position: absolute; top: 140px; left: 28px;
+  display: flex; flex-direction: column; gap: 6px;
+  align-items: flex-start;
+}
+.kill-msg {
+  background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 4px;
+  font-size: 13px; color: #ff6060;
+  border-right: 3px solid #ff4040;
+  animation: fadeOut 3s forwards;
+}
+.kill-msg .you { color: #00ff88; }
+@keyframes fadeOut {
+  0%, 70% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(20px); }
+}
+
+/* 提示 toast */
+#toast {
+  position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%);
+  color: #f5b53a; font-size: 16px; font-weight: 700; letter-spacing: 2px;
+  opacity: 0; transition: opacity 0.3s;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+}
+#toast.show { opacity: 1; }
+
+/* 点击锁定提示 */
+#clickHint {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center; color: #fff; font-size: 22px; font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9); pointer-events: none;
+  background: rgba(0,0,0,0.4); padding: 20px 40px; border-radius: 8px;
+}
+#clickHint small { font-size: 12px; color: #9aa4b2; font-weight: 400; }
+
+/* ========== 移动端虚拟控制 ========== */
+#touchControls {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  inset: 0;
+  pointer-events: none;   /* 让子元素单独控制点击 */
+  z-index: 50;
+}
+/* ---- 左半屏浮动摇杆（三角洲式大摇杆：按下处出现，松手回到待机位） ---- */
+#joyZone {
+  position: absolute;
+  left: var(--interaction-safe-left, 88px);
+  bottom: var(--interaction-safe-bottom, 32px);
+  width: calc(45% - var(--interaction-safe-left, 88px));
+  height: calc(100% - var(--interaction-safe-bottom, 32px) - var(--joy-top-reserve, 62px));
+  pointer-events: auto;
+  touch-action: none;
+}
+#joyBase {
+  position: absolute;
+  width: 124px; height: 124px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.30);
+  background: rgba(255,255,255,0.05);
+  left: 96px; bottom: 64px;               /* 待机示意位（非固定摇杆，仅提示可按） */
+  /* 定位偏移 + 整体尺寸缩放（变量失效时兜底 0.85，仍可用） */
+  transform: translate(-50%, 50%) scale(var(--ctrl-scale, 0.85)) scale(var(--ui-size, 1));
+  opacity: 0.4;
+  transition: opacity 0.15s;
+  pointer-events: none;                    /* 触摸统一由 joyZone 接管 */
+}
+#joyZone.active #joyBase { opacity: 0.95; }
+#joyKnob {
+  position: absolute; left: 50%; top: 50%;
+  width: 56px; height: 56px;               /* 随 joyBase 整体缩放 */
+  border-radius: 50%;
+  background: rgba(255,255,255,0.32);
+  border: 2px solid rgba(255,255,255,0.60);
+  transform: translate(-50%, -50%);
+}
+
+/* ---- 右下拇指控制簇：固定设计尺寸（250×290），锚定屏幕右下角整体缩放 ----
+   按钮位置是簇内设计坐标（与屏幕尺寸无关），屏幕适配只靠这一个 scale，
+   --ctrl-scale 未生效时兜底 0.85，按钮仍聚在角落可用，不会散落错位 */
+#actionBtns {
+  position: absolute;
+  right: 0;
+  right: calc(var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  bottom: var(--interaction-safe-bottom, 32px);
+  width: 250px; height: 350px;
+  pointer-events: none;
+  transform: scale(var(--ctrl-scale, 0.85)) scale(var(--ui-size, 1));
+  transform-origin: 100% 100%;
+  touch-action: none;   /* 多指：禁止浏览器对动作簇做滚动/缩放手势，保障同时开火/切枪不卡 */
+}
+#actionBtns .act-btn, #actionBtns .wpn-btn { position: absolute; }
+.act-btn {
+  width: 58px; height: 58px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  color: #fff; font-size: 16px; font-weight: 700;
+  pointer-events: auto;
+  touch-action: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.act-btn:active, .act-btn.active {
+  background: rgba(245,181,58,0.6);
+  border-color: rgba(245,181,58,0.9);
+}
+/* FIRE 主键：簇右下角（拇指自然弯曲位） */
+.fire-btn {
+  width: 92px; height: 92px;
+  right: 8px; bottom: 8px;
+  background: rgba(220,60,60,0.65);
+  border: 2px solid rgba(255,120,120,0.55);
+  font-size: 19px; font-weight: 900; letter-spacing: 1px;
+}
+.fire-btn:active, .fire-btn.active {
+  background: rgba(255,80,80,0.95);
+  border-color: rgba(255,200,200,0.9);
+}
+/* 左侧独立开火：左手食指可用，且不把该触点当成视角滑动 */
+.fire-btn-left {
+  position: absolute;
+  left: calc(var(--interaction-safe-left, 88px) + 8px); top: 82px;
+  width: 72px; height: 72px;
+  background: rgba(220,60,60,0.42);
+  border-color: rgba(255,120,120,0.42);
+  font-size: 15px;
+  transform: scale(var(--ctrl-scale, 0.85)) scale(var(--ui-size, 1));
+  transform-origin: 0 0;
+}
+.fire-btn-left:active, .fire-btn-left.active {
+  background: rgba(255,80,80,0.88);
+  border-color: rgba(255,200,200,0.84);
+}
+/* 跳：FIRE 左侧低位（跳枪常用） */
+#btnJump { width: 62px; height: 62px; right: 110px; bottom: 6px; }
+/* 蹲：FIRE 左上斜位 */
+#btnCrouch { width: 54px; height: 54px; right: 116px; bottom: 82px; }
+/* 卧：蹲键左侧，和 FIRE/跳跃保持独立触控区域 */
+#btnProne { right: 176px; bottom: 82px; }
+/* 换弹：FIRE 正上方 */
+#btnReload { right: 16px; bottom: 108px; }
+/* 武器切换：右缘竖排（1 上 2 下），保证任何机型都有换枪入口 */
+.wpn-btn {
+  width: 48px; height: 48px;
+  right: 10px;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.28);
+  border-radius: 12px;
+  color: #fff; font-size: 18px; font-weight: 800;
+  pointer-events: auto;
+  touch-action: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.wpn-btn:active, .wpn-btn.active {
+  background: rgba(245,181,58,0.6);
+  border-color: rgba(245,181,58,0.9);
+}
+#btnWeaponCycle { bottom: 176px; }
+
+/* 触屏设备自动显示虚拟控制 */
+@media (hover: none) and (pointer: coarse) {
+  #touchControls:not(.hidden) { display: block; }
+}
+
+/* 小屏设备 / 容器内始终显示虚拟控制（兜底，阈值与 main.js 一致） */
+@media (max-width: 1024px) {
+  #touchControls:not(.hidden) { display: block; }
+}
+
+/* 自诊断条（URL 加 ?debug=1 显示）：视口/缩放/旋转，排查真机适配 */
+#debugBar {
+  position: absolute; left: 50%; bottom: 4px;
+  transform: translateX(-50%);
+  font-size: 11px; color: #4ade60;
+  background: rgba(0,0,0,0.55); padding: 2px 8px;
+  border-radius: 4px; z-index: 200;
+  pointer-events: none; display: none;
+  white-space: nowrap;
+}
+body.debug #debugBar { display: block; }
+
+/* ========== 设置中心 ========== */
+/* #settingsMenu 在 #hud(pointer-events:none) 内部，必须显式开启事件，否则点击穿透到画布 */
+#settingsMenu {
+  pointer-events: auto;
+  align-items: flex-start;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: max(16px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) 12px max(16px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+.set-panel {
+  flex: 0 0 auto;
+  margin: 0 auto;
+}
+.set-panel { display: flex; flex-direction: column; gap: 12px; min-width: 260px; }
+.set-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; color: #d8dde5;
+}
+.set-row-wide {
+  display: block;
+}
+.set-label {
+  display: block;
+  margin-bottom: 8px;
+}
+.crosshair-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.crosshair-option {
+  min-width: 0;
+  min-height: 58px;
+  padding: 5px 3px 4px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  color: #cbd3df;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.15;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  user-select: none;
+}
+.crosshair-option.active {
+  border-color: #f5b53a;
+  background: rgba(245,181,58,0.16);
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(245,181,58,0.24);
+}
+.setting-choice-options,
+.setting-toggle-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.setting-toggle-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.graphics-settings {
+  padding: 11px;
+  border: 1px solid rgba(245,181,58,0.22);
+  border-radius: 8px;
+  background: rgba(10,16,25,0.42);
+}
+.graphics-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: #f3f4f6;
+  font-size: 14px;
+  font-weight: 700;
+}
+.graphics-status { color: #f5b53a; font-size: 11px; font-weight: 600; }
+.graphics-preset-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.graphics-three-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.graphics-settings .set-row { margin-top: 8px; }
+.graphics-setting-tip { margin: 8px 0 0; }
+.setting-choice {
+  min-height: 42px;
+  padding: 8px 6px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  color: #cbd3df;
+  font: inherit;
+  font-size: 12px;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+.setting-choice.active {
+  border-color: #f5b53a;
+  background: rgba(245,181,58,0.17);
+  color: #fff;
+}
+.setting-choice.danger.active {
+  border-color: #ff4040;
+  background: rgba(255,64,64,0.18);
+}
+@media (max-width: 380px) {
+  .crosshair-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.crosshair-preview {
+  display: block;
+  position: relative;
+  width: 34px;
+  height: 24px;
+  margin: 0 auto 3px;
+  --preview-color: #00ff88;
+  background-color: transparent;
+}
+.preview-classic {
+  background:
+    linear-gradient(var(--preview-color),var(--preview-color)) center top / 2px 6px no-repeat,
+    linear-gradient(var(--preview-color),var(--preview-color)) center bottom / 2px 6px no-repeat,
+    linear-gradient(var(--preview-color),var(--preview-color)) left center / 6px 2px no-repeat,
+    linear-gradient(var(--preview-color),var(--preview-color)) right center / 6px 2px no-repeat;
+}
+.preview-dot {
+  background: radial-gradient(circle, var(--preview-color) 0 3px, transparent 3.5px);
+}
+.preview-circle {
+  background: radial-gradient(circle, var(--preview-color) 0 2px, transparent 2.5px 8px, var(--preview-color) 8.5px 10px, transparent 10.5px);
+}
+.preview-plus {
+  background:
+    linear-gradient(var(--preview-color),var(--preview-color)) center / 2px 18px no-repeat,
+    linear-gradient(var(--preview-color),var(--preview-color)) center / 18px 2px no-repeat;
+}
+.preview-tactical {
+  background:
+    radial-gradient(circle, var(--preview-color) 0 2px, transparent 2.5px),
+    linear-gradient(var(--preview-color),var(--preview-color)) center top / 2px 5px no-repeat,
+    linear-gradient(var(--preview-color),var(--preview-color)) center bottom / 2px 5px no-repeat,
+    linear-gradient(var(--preview-color),var(--preview-color)) left center / 5px 2px no-repeat,
+    linear-gradient(var(--preview-color),var(--preview-color)) right center / 5px 2px no-repeat;
+}
+.set-row input[type="range"] {
+  flex: 1;
+  min-width: 120px;
+  height: 32px;
+  margin: 0;
+  accent-color: #f5b53a;
+  pointer-events: auto;
+  touch-action: none;
+  cursor: pointer;
+}
+#uiSizeVal, #sensitivityVal, #enemyDamageMinVal, #enemyDamageMaxVal,
+#armorDropChanceVal, #waveWarningDurationVal, #renderScaleVal {
+  min-width: 42px; text-align: right; color: #f5b53a; font-weight: 700;
+}
+@media (max-width: 520px) {
+  .graphics-preset-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.damage-setting-tip { margin: -4px 0 0; }
+.btn-ghost { background: rgba(255,255,255,0.08); }
+
+/* ========== 地图选择 ========== */
+.map-picker {
+  width: 100%;
+  margin: 0 auto 12px;
+  text-align: left;
+}
+.map-picker-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: #f3f4f6;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.map-picker-status {
+  color: #f5b53a;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.map-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.map-option {
+  min-width: 0;
+  min-height: 64px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 7px;
+  background: rgba(255,255,255,0.05);
+  color: #cbd3df;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.map-option-name,
+.map-option-desc { display: block; }
+.map-option-name { color: #f3f4f6; font-size: 13px; font-weight: 700; }
+.map-option-desc { margin-top: 4px; color: #9aa4b2; font-size: 11px; line-height: 1.3; }
+.map-option.active {
+  border-color: #f5b53a;
+  background: rgba(245,181,58,0.16);
+  box-shadow: 0 0 0 1px rgba(245,181,58,0.22);
+}
+.map-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+.map-option:disabled.active { opacity: 1; }
+.map-picker-hint {
+  margin-top: 7px;
+  color: #7f8998;
+  font-size: 11px;
+  line-height: 1.4;
+}
+#menuSettingsBtn { margin-top: -12px; }
+.settings-map-picker { margin-bottom: 2px; }
+@media (max-width: 380px) {
+  .map-options { grid-template-columns: 1fr; }
+}
+
+/* 布局编辑模式：可拖动控件高亮 + 顶部提示条 */
+.edit-drag {
+  outline: 2px dashed rgba(245,181,58,0.9) !important;
+  outline-offset: 2px;
+  opacity: 0.92;
+  pointer-events: auto !important;   /* joyBase 等默认不接受事件，编辑时打开 */
+  touch-action: none;
+}
+#layoutEditBar {
+  position: absolute; top: 10px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(0,0,0,0.7); border: 1px solid rgba(245,181,58,0.5);
+  border-radius: 8px; padding: 8px 14px;
+  z-index: 210; pointer-events: auto;
+  font-size: 14px; color: #f0f0f0;
+  white-space: nowrap;
+}
+#layoutEditBar .btn { padding: 6px 18px; font-size: 13px; }
+
+/* 中右：暂停与设置。避开小地图和右下动作簇，首次点击更容易命中。 */
+#topControls {
+  position: absolute;
+  left: auto;
+  right: calc(var(--action-cluster-width, 212px) + 18px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 10px;
+  pointer-events: auto;
+  z-index: 50;
+}
+.top-btn {
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  color: #fff; font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.top-btn:active, .top-btn.active {
+  background: rgba(245,181,58,0.6);
+  border-color: rgba(245,181,58,0.9);
+}
+
+/* AWP 开镜/关镜按钮：右缘中部，避开小地图与右下动作簇。
+   常驻显示（非狙击枪按下无效），触屏便携开镜 */
+.scope-btn {
+  position: absolute;
+  right: calc(76px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  top: 46%;
+  width: 54px; height: 54px;
+  background: rgba(20,40,60,0.55);
+  border: 2px solid rgba(120,200,255,0.4);
+  border-radius: 50%;
+  color: #9fd8ff; font-size: 17px; font-weight: 800; letter-spacing: 1px;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: auto;
+  touch-action: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+  z-index: 55;
+}
+.scope-btn.active {
+  background: rgba(80,180,255,0.6);
+  border-color: rgba(180,230,255,0.9);
+  color: #fff;
+}
+
+/* ========== 小地图 ========== */
+#minimapWrap {
+  position: absolute; right: calc(16px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px))); top: calc(80px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+  width: var(--minimap-size, 80px); height: var(--minimap-size, 80px);
+  background: rgba(0,0,0,0.65);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  z-index: 40;
+  overflow: hidden;
+}
+#minimap {
+  width: 100%; height: 100%;
+  display: block;
+}
+
+/* ========== 横屏提示（body.hint-show 由 JS 按视口尺寸驱动，不依赖会误报的 orientation 媒体查询） ========== */
+#rotateHint {
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.92);
+  display: none;   /* 默认隐藏 */
+  pointer-events: none;   /* 遮罩不挡点击，穿透到下方菜单/游戏（避免"点击无响应"） */
+}
+#rotateHint #continuePortraitBtn {
+  pointer-events: auto;   /* 仅"仍然进入游戏"按钮可点 */
+}
+/* 触屏 + 竖屏视口 → 显示横屏提示（body.hint-show 由 _bindResize 用 vh>vw 判定）；.hidden 优先隐藏（continue 按钮） */
+body.hint-show #rotateHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#continuePortraitBtn {
+  margin-top: 18px;
+  padding: 10px 24px;
+  font-size: 14px;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  cursor: pointer;
+}
+#continuePortraitBtn:active { background: rgba(255, 255, 255, 0.14); }
+.rotate-panel { text-align: center; }
+.rotate-icon {
+  display: inline-block;
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 14px;
+  animation: rotateHintAnim 1.8s ease-in-out infinite;
+}
+.rotate-panel .title { font-size: 30px; }
+.rotate-panel .tip { font-size: 14px; margin-top: 8px; color: #d1d5db; }
+@keyframes rotateHintAnim {
+  0%, 20% { transform: rotate(0deg); }
+  60%, 100% { transform: rotate(90deg); }
+}
+
+/* ========== 横竖屏自适应布局 ========== */
+
+/* ---- 竖屏（手机竖拿）---- */
+@media (orientation: portrait) {
+  .panel {
+    min-width: 0;
+    width: min(440px, calc(100vw - 24px));
+    padding: 28px 20px;
+  }
+  .title { font-size: 40px; }
+  .subtitle { font-size: 12px; margin-bottom: 20px; }
+  .btn { padding: 12px 40px; font-size: 16px; }
+  .controls { font-size: 12px; }
+  .tip { font-size: 11px; }
+
+  /* 顶栏：收窄居中 */
+  #topbar {
+    top: calc(8px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    transform: translateX(-50%) scale(0.82);
+    transform-origin: top center;
+  }
+  .score-block { padding: 6px 14px; }
+  .score-block .num { font-size: 18px; }
+  .score-block.center .label { font-size: 12px; }
+
+  /* 左上：武器切换（缩窄，避开顶栏） */
+  #topControls {
+    left: calc(10px + var(--safe-area-inset-left, env(safe-area-inset-left, 0px)));
+    top: calc(56px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+    gap: 6px;
+  }
+  .top-btn { width: 40px; height: 40px; font-size: 16px; }
+
+  /* 右上：小地图缩小 */
+  #minimapWrap {
+    right: calc(10px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+    top: calc(56px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+  }
+
+  /* 左下：血量护甲收窄 */
+  #vitals { left: 12px; bottom: calc(10px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); gap: 6px; }
+  .vital .bar { width: 120px; height: 12px; }
+  .vital span:not(.icon) { width: 30px; font-size: 14px; }
+  .vital .icon { font-size: 16px; width: 20px; }
+
+  /* 右下：武器弹药收窄，为动作键让位 */
+  #weaponHud { right: calc(12px + var(--interaction-safe-right, 0px)); bottom: calc(10px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); }
+  #ammo { font-size: 28px; }
+  #weaponName { font-size: 12px; }
+  #weaponSlots { gap: 5px; }
+  .slot { padding: 2px 7px; font-size: 10px; }
+
+  /* 动作键（含 FIRE）上移，避开武器 HUD */
+  #actionBtns {
+    right: calc(10px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+    bottom: calc(150px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+    gap: 8px;
+  }
+  .act-btn { width: 48px; height: 48px; font-size: 14px; }
+  .fire-btn { width: 64px; height: 64px; font-size: 16px; }
+
+  #toast { bottom: 170px; font-size: 14px; }
+  #killFeed { top: 104px; left: 12px; }
+}
+
+/* ---- 横屏低高度（手机横拿，高度 ≤ 520px）---- */
+@media (orientation: landscape) and (max-height: 520px) {
+  .panel {
+    min-width: 0;
+    width: min(560px, 92vw);
+    padding: 20px 28px;
+  }
+  .title { font-size: 34px; }
+  .subtitle { font-size: 12px; margin-bottom: 14px; }
+  .btn { padding: 10px 36px; font-size: 15px; margin-bottom: 14px; }
+  .controls { font-size: 11px; line-height: 1.8; }
+  .tip { font-size: 11px; }
+
+  #topbar { top: calc(6px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); transform: translateX(-50%) scale(0.78); transform-origin: top center; }
+  .score-block { padding: 5px 12px; }
+  .score-block .num { font-size: 16px; }
+  .score-block.center .label { font-size: 11px; }
+
+  #topControls { left: calc(10px + var(--safe-area-inset-left, env(safe-area-inset-left, 0px))); top: calc(48px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); gap: 6px; }
+  .top-btn { width: 36px; height: 36px; font-size: 14px; }
+
+  #minimapWrap { right: calc(10px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px))); top: calc(48px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); }
+
+  #vitals { left: 10px; bottom: calc(8px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); gap: 5px; }
+  .vital .bar { width: 110px; height: 10px; }
+  .vital span:not(.icon) { width: 28px; font-size: 13px; }
+  .vital .icon { font-size: 14px; width: 18px; }
+
+  #weaponHud { right: calc(12px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px))); bottom: auto; top: calc(150px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); }
+  #ammo { font-size: 24px; }
+  #weaponName { font-size: 11px; }
+  #weaponSlots { gap: 5px; }
+  .slot { padding: 2px 6px; font-size: 10px; }
+
+  #actionBtns { right: calc(10px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px))); bottom: calc(8px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); gap: 6px; }
+  .act-btn { width: 44px; height: 44px; font-size: 13px; }
+  .fire-btn { width: 58px; height: 58px; font-size: 15px; }
+
+  #toast { bottom: 150px; font-size: 13px; }
+  #killFeed { top: 92px; left: 10px; }
+}
+
+/* ---- 极端小屏兜底（老机型/折叠屏）：在竖屏/矮横屏基础上进一步压缩 ---- */
+@media (orientation: portrait) and (max-width: 340px) {
+  #actionBtns { bottom: calc(140px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); gap: 6px; }
+  .act-btn { width: 44px; height: 44px; font-size: 13px; }
+  .fire-btn { width: 58px; height: 58px; font-size: 15px; }
+  #vitals { left: 8px; }
+  .vital .bar { width: 100px; }
+  #weaponHud { right: calc(8px + var(--interaction-safe-right, 0px)); }
+  #ammo { font-size: 24px; }
+  #topControls { gap: 4px; }
+  .top-btn { width: 34px; height: 34px; font-size: 14px; }
+}
+
+@media (orientation: landscape) and (max-height: 380px) {
+  #actionBtns { gap: 4px; }
+  .act-btn { width: 40px; height: 40px; font-size: 12px; }
+  .fire-btn { width: 52px; height: 52px; font-size: 14px; }
+  #vitals { gap: 4px; }
+  .vital .bar { width: 92px; height: 9px; }
+  #weaponHud { top: calc(138px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); }
+  #ammo { font-size: 21px; }
+  #topControls { top: calc(42px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); }
+  .top-btn { width: 32px; height: 32px; font-size: 13px; }
+  #killFeed { top: 86px; }
+  #toast { bottom: 130px; font-size: 12px; }
+}
+
+/* JS 用 body.rotated 表示“物理竖屏、逻辑横屏”。此时 orientation 媒体查询仍是 portrait，
+   必须把会改变关键控件坐标的竖屏规则纠正回逻辑横屏布局。 */
+body.rotated #topControls,
+body:not(.rotated) #topControls {
+  left: auto;
+  right: 230px;
+  right: calc(var(--action-cluster-width, 212px) + 18px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 10px;
+}
+body.rotated #topControls .top-btn,
+body:not(.rotated) #topControls .top-btn {
+  width: 48px;
+  height: 48px;
+  font-size: 17px;
+}
+body.rotated #actionBtns {
+  right: 0;
+  bottom: 0;
+  right: calc(var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+}
+body.rotated #minimapWrap {
+  right: calc(16px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  top: calc(80px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+}
+body.rotated #vitals {
+  left: 28px;
+  bottom: calc(24px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+}
+body.rotated #weaponHud {
+  right: calc(28px + var(--interaction-safe-right, 0px));
+  bottom: calc(24px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  top: auto;
+}
+body.rotated #killFeed { top: 140px; left: 28px; }
+body.rotated #toast { bottom: 110px; }
+body.rotated .panel {
+  width: calc(var(--gw, 932px) - 48px);
+  max-width: 560px;
+  width: min(560px, calc(var(--gw, 932px) - 48px));
+  padding: 20px 28px;
+}
+
+/* 逻辑横屏统一保留左、右、底三侧不可交互安全带。3D 画面仍铺满屏幕，只有 HUD、
+   虚拟按键和触摸命中区域内移，避免覆盖小红书宿主退出键、刘海和系统手势条。 */
+body.landscape #vitals {
+  left: calc(var(--interaction-safe-left, 88px) + 12px);
+  bottom: calc(var(--interaction-safe-bottom, 32px) + 12px);
+}
+body.landscape #weaponHud {
+  right: calc(28px + var(--interaction-safe-right, 0px));
+  bottom: calc(var(--interaction-safe-bottom, 32px) + 12px);
+}
+body.landscape #killFeed {
+  left: calc(var(--interaction-safe-left, 88px) + 12px);
+}
+body.landscape #actionBtns {
+  right: calc(var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  bottom: var(--interaction-safe-bottom, 32px);
+}
+
+/* 平板触控：主逻辑尺寸由 main.js 根据 visualViewport 设置，CSS 只负责给更宽的内容留出呼吸区。 */
+body.tablet #topControls .top-btn { width: 58px; height: 58px; font-size: 20px; }
+body.tablet #settingsMenu .set-panel { min-width: min(560px, calc(var(--gw, 1024px) - 80px)); }
+/* 平板动作簇放大后占据右下区域，弹药 HUD 移到其左上方，避免信息被按钮遮挡。 */
+body.tablet #weaponHud {
+  right: calc(var(--action-cluster-width, 212px) + 34px + var(--interaction-safe-right, 0px) + var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));
+  top: calc(96px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
+  bottom: auto;
+}
+body.tablet #ammo { font-size: 30px; }
+
+/* ========== 生涯勋章 UI ========== */
+/* 勋章层是独立滚动上下文；不改全局 overlay/panel，只覆盖本地面板尺寸与交互。 */
+#medalCenter,
+#medalShare {
+  pointer-events: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: max(12px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)))
+    max(12px, var(--safe-area-inset-right, env(safe-area-inset-right, 0px)))
+    max(12px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)))
+    max(12px, var(--safe-area-inset-left, env(safe-area-inset-left, 0px)));
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+body.rotated #settingsMenu,
+body.rotated #medalCenter,
+body.rotated #medalShare {
+  touch-action: pan-x;
+}
+
+#medalCenter { align-items: flex-start; }
+.medal-panel,
+.medal-share-panel {
+  flex: 0 0 auto;
+  width: min(920px, calc(100vw - 24px));
+  min-width: 0;
+  margin: auto;
+  padding: clamp(20px, 4vw, 42px) clamp(16px, 4vw, 52px);
+}
+.medal-panel { text-align: left; }
+.medal-panel > .btn { min-height: 44px; margin: 0 0 12px; }
+.medal-panel > .btn.btn-ghost,
+.medal-card-share.btn-ghost,
+.medal-share-actions .btn-ghost {
+  color: #e5edf5;
+  border: 1px solid rgba(61, 137, 150, 0.52);
+  box-shadow: none;
+}
+.medal-panel > .title,
+.medal-share-panel > .title { text-align: center; }
+.medal-panel > .title,
+.medal-share-panel > .title {
+  font-size: clamp(28px, 5vw, 44px);
+  margin-bottom: 14px;
+}
+
+.medal-career-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 11px 14px;
+  color: #cbd3df;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+  background: rgba(5, 10, 16, 0.68);
+  border: 1px solid rgba(61, 137, 150, 0.42);
+  border-radius: 8px;
+}
+.medal-career-summary strong,
+.medal-career-summary b { color: #f5b53a; }
+
+.medal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+}
+.medal-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 11px;
+  color: #d8dde5;
+  text-align: center;
+  background: linear-gradient(165deg, rgba(37, 47, 60, 0.92), rgba(12, 17, 24, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.28);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+.medal-card.locked { filter: saturate(0.35); opacity: 0.74; }
+.medal-card.unlocked {
+  border-color: rgba(61, 137, 150, 0.68);
+  box-shadow: 0 0 18px rgba(61, 137, 150, 0.16), inset 0 0 20px rgba(0, 0, 0, 0.28);
+  border-color: color-mix(in srgb, var(--medal-accent, #3d8996) 68%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--medal-accent, #3d8996) 16%, transparent), inset 0 0 20px rgba(0, 0, 0, 0.28);
+}
+.medal-card.selected {
+  border-color: #f5b53a;
+  box-shadow: 0 0 0 1px rgba(245, 181, 58, 0.42), 0 0 22px rgba(245, 181, 58, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.28);
+  transform: translateY(-2px);
+}
+.medal-card-visual {
+  display: grid;
+  place-items: center;
+  min-height: 136px;
+  padding: 4px;
+  border-radius: 7px;
+  background: radial-gradient(circle at center, rgba(61, 137, 150, 0.14), rgba(0, 0, 0, 0.12) 68%, transparent 70%);
+}
+.medal-card-image {
+  display: block;
+  width: min(100%, 164px);
+  height: 136px;
+  object-fit: contain;
+  object-position: center;
+}
+.medal-card.locked .medal-card-image { filter: grayscale(1) brightness(0.58); }
+.medal-card-name,
+.medal-card-title {
+  margin-top: 7px;
+  color: #f3f4f6;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 1.3;
+}
+.medal-card-threshold,
+.medal-card-requirement {
+  margin-top: 4px;
+  color: #f5b53a;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+.medal-card-progress {
+  min-height: 1.4em;
+  margin-top: 3px;
+  color: #9aa4b2;
+  font-size: 11px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+.medal-card-progress-track {
+  height: 5px;
+  margin: 7px 2px 4px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(61, 137, 150, 0.36);
+  border-radius: 999px;
+}
+.medal-card-progress-bar {
+  width: var(--medal-progress, 0%);
+  height: 100%;
+  background: linear-gradient(90deg, #3d8996, #f5b53a);
+  border-radius: inherit;
+  transition: width 0.2s ease;
+}
+.medal-card-share {
+  width: 100%;
+  min-height: 44px;
+  margin: 9px 0 0;
+  padding: 9px 10px;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.medal-card.locked .medal-card-share { display: none; }
+
+.medal-result-summary {
+  margin: -6px 0 16px;
+  padding: 10px 12px;
+  color: #d8dde5;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+  background: rgba(61, 137, 150, 0.12);
+  border-left: 3px solid #d97035;
+  border-radius: 4px;
+}
+#result .medal-result-summary + .btn { margin-top: 0; }
+#result .medal-result-summary ~ .btn { min-height: 44px; }
+
+.medal-share-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+#medalShareCanvas {
+  display: block;
+  width: min(100%, 360px);
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
+  background: #090c11;
+  border: 1px solid rgba(61, 137, 150, 0.46);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.42);
+}
+.medal-share-status {
+  min-height: 1.5em;
+  max-width: 100%;
+  color: #aeb8c4;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.medal-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+.medal-share-actions .btn {
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 18px;
+  font-size: 14px;
+}
+
+/* 横幅只展示状态，完全不参与命中测试，避免挡住准星和开火/移动。 */
+.medal-unlock-banner {
+  position: fixed;
+  z-index: 70;
+  top: max(14px, calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 14px));
+  left: 50%;
+  display: grid;
+  grid-template-columns: 52px minmax(0, auto);
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  align-items: center;
+  width: min(360px, calc(100vw - 28px));
+  min-height: 64px;
+  padding: 8px 12px 8px 8px;
+  pointer-events: none;
+  user-select: none;
+  transform: translateX(-50%);
+  background: linear-gradient(110deg, rgba(15, 25, 32, 0.96), rgba(29, 22, 18, 0.96));
+  border: 1px solid rgba(245, 181, 58, 0.68);
+  border-radius: 8px;
+  box-shadow: 0 6px 26px rgba(0, 0, 0, 0.46), 0 0 18px rgba(245, 181, 58, 0.14);
+}
+.medal-unlock-image {
+  grid-row: 1 / span 2;
+  display: block;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+.medal-unlock-title {
+  overflow: hidden;
+  color: #f5b53a;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.medal-unlock-progress {
+  overflow: hidden;
+  color: #cbd3df;
+  font-size: 12px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.internal-game-back {
+  /* 这是二级页面的“返回游戏”，不是宿主退出键。默认放在宿主/刘海安全带
+     右侧；小红书原生退出键保留在宿主原位并继续直接退出。
+     禁用 fixed——手机 WebView 常不把旋转容器当作 fixed 的包含块，
+     会被按未旋转竖屏视口解释而落错位置；absolute 跟随旋转容器。
+     玩家可在「自定义按钮位置」里拖放到任意位置（归一化坐标保存）。 */
+  position: absolute;
+  z-index: 260;
+  left: calc(var(--interaction-safe-left, 88px) + 12px);
+  top: 64px;
+  top: max(64px, calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 64px));
+  min-width: 112px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.38);
+  border-radius: 999px;
+  background: rgba(8,14,20,0.94);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+  font: 700 14px/1 sans-serif;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+/* 性能诊断悬浮层（设置页开关）：左上角小字，等宽字体避免刷新跳动 */
+.perf-hud {
+  position: absolute;
+  left: calc(var(--interaction-safe-left, 88px) + 8px);
+  top: 8px;
+  z-index: 262;
+  max-width: 70%;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #9fe1cb;
+  font: 500 11px/1.5 ui-monospace, Consolas, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wave-warning {
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;   /* Chrome 61 回退 */
+  inset: 0;
+  z-index: 68;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.wave-warning-vignette {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;   /* Chrome 61 回退 */
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(160,0,0,0.04) 15%, rgba(190,0,0,0.62) 100%);
+  animation: wave-warning-pulse 0.5s steps(2, end) infinite;
+}
+.wave-warning.no-flash .wave-warning-vignette { display: none; }
+.wave-warning-content {
+  position: relative;
+  min-width: min(420px, 74vw);
+  padding: 20px 34px;
+  text-align: center;
+  border: 2px solid rgba(255,62,62,0.88);
+  background: rgba(38,0,0,0.84);
+  box-shadow: 0 0 46px rgba(255,0,0,0.46);
+  transform: skewX(-4deg);
+}
+.wave-warning-label { color: #fff; font-size: clamp(18px, 4vw, 30px); font-weight: 900; letter-spacing: 5px; }
+.wave-warning-count { color: #ff3131; font-size: clamp(58px, 13vw, 110px); font-weight: 1000; line-height: 0.98; text-shadow: 0 0 18px #ff0000; }
+.wave-warning-wave { color: #ffc4c4; font-size: clamp(13px, 2.5vw, 18px); font-weight: 700; }
+@keyframes wave-warning-pulse {
+  0% { opacity: 0.28; }
+  50% { opacity: 0.96; }
+  100% { opacity: 0.42; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-warning-vignette { animation: none; opacity: 0.58; }
+}
+
+/* 矮横屏与逻辑横屏都收紧弹窗，保证按钮仍保持最小触控高度。 */
+@media (orientation: landscape) and (max-height: 520px) {
+  #medalCenter,
+  #medalShare { padding: 8px 12px; }
+  .medal-panel,
+  .medal-share-panel {
+    width: min(900px, calc(100vw - 24px));
+    padding: 14px 20px;
+  }
+  .medal-panel > .title,
+  .medal-share-panel > .title { font-size: 30px; margin-bottom: 8px; }
+  .medal-career-summary { margin-bottom: 10px; padding: 7px 10px; }
+  .medal-grid { gap: 8px; }
+  .medal-card { padding: 7px; }
+  .medal-card-visual { min-height: 92px; }
+  .medal-card-image { height: 88px; }
+  .medal-card-name,
+  .medal-card-title { margin-top: 4px; font-size: 14px; }
+  .medal-card-threshold,
+  .medal-card-requirement,
+  .medal-card-progress { font-size: 10px; }
+  .medal-card-share { min-height: 44px; margin-top: 5px; padding: 7px 8px; font-size: 12px; }
+  #medalShareCanvas { width: min(220px, 34vh); }
+}
+
+@media (orientation: portrait) {
+  .medal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .medal-card { padding: 8px; }
+  .medal-card-visual { min-height: 112px; }
+  .medal-card-image { height: 108px; }
+  .medal-card-name,
+  .medal-card-title { font-size: 15px; }
+  .medal-share-actions { flex-direction: column; }
+  .medal-share-actions .btn { width: 100%; }
+}
+
+@media (orientation: portrait) and (max-width: 380px) {
+  .medal-panel,
+  .medal-share-panel { width: calc(100vw - 16px); padding: 16px 10px; }
+  .medal-grid { gap: 7px; }
+  .medal-card { padding: 6px; }
+  .medal-card-visual { min-height: 94px; }
+  .medal-card-image { height: 90px; }
+  .medal-card-name,
+  .medal-card-title { font-size: 13px; letter-spacing: 0; }
+  .medal-card-threshold,
+  .medal-card-requirement,
+  .medal-card-progress { font-size: 10px; }
+}
+
+/* main.js 的逻辑横屏标记覆盖物理竖屏下的 portrait 规则。 */
+body.rotated #medalCenter,
+body.rotated #medalShare {
+  padding: 8px 12px;
+}
+body.rotated .medal-panel,
+body.rotated .medal-share-panel {
+  width: min(900px, calc(var(--gw, 932px) - 24px));
+  padding: 14px 20px;
+}
+body.rotated .medal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+body.rotated .medal-card-visual { min-height: 92px; }
+body.rotated .medal-card-image { height: 88px; }
+body.rotated .medal-card-name,
+body.rotated .medal-card-title { font-size: 14px; }
+body.rotated #medalShareCanvas { width: min(168px, 26vh); }
+
+/* ========== 启动菜单：出战配置（主武器/副武器/近战）========== */
+/* 新增出战配置后菜单内容变高：菜单层改为可滚动（与设置中心同一套滚动方案，
+   main.js 会为 #menu 绑定旋转 WebView 的手动滚动兜底）。 */
+#menu {
+  align-items: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: max(18px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) 12px
+           max(18px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+}
+#menu .panel { flex: 0 0 auto; margin: 0 auto; }
+
+.loadout-picker {
+  width: 100%;
+  margin: 0 auto 12px;
+  text-align: left;
+}
+.loadout-row + .loadout-row { margin-top: 8px; }
+/* 武器卡右上角的行内操作：首发（单选）/ 检视。 */
+.loadout-card-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+}
+.card-chip {
+  padding: 3px 9px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #9fd8ff;
+  background: rgba(20, 40, 60, 0.6);
+  border: 1px solid rgba(120, 200, 255, 0.4);
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-chip:active { background: rgba(80, 180, 255, 0.6); color: #fff; }
+.card-chip.start-chip.active {
+  color: #1a1208;
+  background: #f5b53a;
+  border-color: #ffd58a;
+}
+/* 未携带的武器卡：整卡降透明度，勾选状态一目了然。 */
+.loadout-option.carry-off { opacity: 0.45; }
+.loadout-option.carry-off .loadout-option-name { color: #9aa4b2; }
+
+.loadout-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-gap: 8px;
+}
+.loadout-options .loadout-option + .loadout-option { margin-left: 0; }
+.loadout-option {
+  position: relative;
+  min-width: 0;
+  min-height: 58px;
+  padding: 8px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd3df;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.loadout-option-name,
+.loadout-option-desc { display: block; }
+.loadout-option-name { color: #f3f4f6; font-size: 13px; font-weight: 700; }
+.loadout-option-desc { margin-top: 3px; color: #9aa4b2; font-size: 11px; line-height: 1.3; }
+.loadout-option.active {
+  border-color: #f5b53a;
+  background: rgba(245, 181, 58, 0.16);
+  box-shadow: 0 0 0 1px rgba(245, 181, 58, 0.22);
+}
+.loadout-option.active .loadout-option-name { color: #ffd58a; }
+/* 枪械专精进度徽标：未解锁显示 x/100；解锁后显示 ✓ 并点亮主题色。 */
+.mastery-badge {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #7f8998;
+}
+.mastery-badge.unlocked { color: #e1b953; }
+.mastery-badge.unlocked::before { content: '✓ '; }
+@media (max-width: 380px) {
+  .loadout-options { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-gap: 5px; }
+  .loadout-option { padding: 6px; min-height: 52px; }
+  .loadout-option-desc { font-size: 10px; }
+  .card-chip { padding: 2px 7px; font-size: 9px; }
+}
+
+/* ========== 武器检视浮层 ========== */
+/* 背景半透明透出主画布的 3D 检视场景；浮层自身是拖拽旋转面。 */
+.weapon-inspect {
+  background: rgba(8, 13, 20, 0.62);
+  backdrop-filter: none;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: max(14px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px))) 14px
+           max(14px, var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  touch-action: none;
+}
+.inspect-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.inspect-topbar .btn { padding: 8px 18px; font-size: 13px; margin: 0; }
+/* 返回与「设为首发」成组放在同一排（用户指定）；返回加箭头并提高底色对比。 */
+.inspect-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.inspect-back-btn {
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  font-weight: 800;
+}
+.inspect-back-btn:active { background: rgba(255, 255, 255, 0.4); }
+.inspect-name {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffd58a;
+  text-shadow: 0 0 16px rgba(245, 181, 58, 0.35);
+  margin: 0;
+}
+.inspect-status {
+  text-align: center;
+  color: #9fd8ff;
+  font-size: 13px;
+  min-height: 1.2em;
+  margin: 6px 0 0;
+}
+.inspect-hint {
+  text-align: center;
+  color: #6b7280;
+  font-size: 11px;
+  margin: 4px 0 0;
+}
+.inspect-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+.inspect-nav-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.inspect-nav-btn:active {
+  background: rgba(245, 181, 58, 0.6);
+  border-color: rgba(245, 181, 58, 0.9);
+}
+.inspect-dots { display: flex; align-items: center; }
+.inspect-dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+.inspect-dot.active { background: #f5b53a; }
+.inspect-dot.unsupported { opacity: 0.35; }
+
+/* ========== 勋章中心：枪械专精分区与占位视觉 ========== */
+.medal-section-title {
+  grid-column: 1 / -1;
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f3f4f6;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+.medal-card-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--medal-accent, #3d8996);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.25));
+  color: var(--medal-accent, #3d8996);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+.medal-card.locked .medal-card-placeholder {
+  border-color: rgba(127, 137, 152, 0.5);
+  color: #7f8998;
+}
+.medal-card-share-pending {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* 横屏矮屏：压缩出战配置的占位，保证菜单可完整滚动浏览。 */
+@media (orientation: landscape) and (max-height: 520px) {
+  .loadout-option { min-height: 50px; padding: 6px 8px; }
+  .loadout-row + .loadout-row { margin-top: 6px; }
+  .inspect-topbar .btn { padding: 6px 14px; font-size: 12px; }
+  .inspect-name { font-size: 18px; }
+  .inspect-nav-btn { width: 40px; height: 40px; font-size: 19px; }
+}
+
+/* ========== 连杀播报与分数块 ========== */
+.score-block.score .num { color: #ffd58a; font-variant-numeric: tabular-nums; }
+
+/* 连杀播报：中上方弹出，短时高亮（配合 FIRE 区域不遮挡准星）。 */
+.combo-banner {
+  position: absolute;
+  top: 24%;
+  left: 50%;
+  transform: translateX(-50%) scale(0.8);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 58;
+  transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+}
+.combo-banner.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  animation: comboPop 1.4s ease-out forwards;
+}
+.combo-main {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #ffd58a;
+  text-shadow: 0 0 18px rgba(245, 181, 58, 0.65), 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+.combo-sub {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #f5efe3;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+@keyframes comboPop {
+  0% { opacity: 1; transform: translateX(-50%) scale(1.25); }
+  12% { transform: translateX(-50%) scale(1); }
+  78% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) scale(1) translateY(-14px); }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .combo-banner { top: 21%; }
+  .combo-main { font-size: 28px; letter-spacing: 4px; }
+}
+
+/* ========== 局内强化三选一（清爽型：战斗冻结 + 2 秒倒计时） ========== */
+.upgrade-pick {
+  background: rgba(8, 13, 20, 0.78);
+  backdrop-filter: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 120;   /* 高于普通 overlay，低于加载层 */
+  touch-action: none;
+}
+.upgrade-head { text-align: center; width: min(560px, 92%); }
+.upgrade-title {
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #ffd58a;
+  text-shadow: 0 0 18px rgba(245, 181, 58, 0.4);
+  margin: 0 0 6px;
+}
+.upgrade-hint { color: #9aa4b2; font-size: 12px; margin: 0 0 10px; }
+.upgrade-timer-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.upgrade-timer-bar {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f5b53a, #ff7a18);
+  /* 宽度由 JS 每帧写入（冻结期间不跑 CSS transition，倒计时更精确） */
+}
+.upgrade-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-gap: 12px;
+  width: min(720px, 94%);
+}
+.upgrade-card {
+  min-height: 150px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid var(--up-accent, #9aa4b2);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.35));
+  color: #e8ecf2;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s ease-out;
+}
+.upgrade-card:active { transform: scale(0.96); background: rgba(245, 181, 58, 0.14); }
+.up-rarity {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--up-accent, #9aa4b2);
+  border: 1px solid var(--up-accent, #9aa4b2);
+  border-radius: 4px;
+  padding: 1px 8px;
+}
+.up-title { font-size: 19px; font-weight: 900; letter-spacing: 2px; color: #f3f4f6; }
+.up-desc { font-size: 12px; line-height: 1.5; color: #cbd3df; }
+.rarity-common { --up-accent: #9aa4b2; }
+.rarity-rare { --up-accent: #f5b53a; }
+.rarity-epic { --up-accent: #b07cff; }
+.rarity-label-common { content: ''; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .upgrade-card { min-height: 118px; padding: 10px 8px; }
+  .up-title { font-size: 16px; }
+  .up-desc { font-size: 11px; }
+  .upgrade-title { font-size: 24px; letter-spacing: 4px; }
+}
+
+/* 布局编辑条：选中控件后的独立缩放控制（－/＋ 步进 10%，0.6~2.2） */
+.layout-size-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px 14px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffd58a;
+  background: rgba(245, 181, 58, 0.16);
+  border: 1px solid rgba(245, 181, 58, 0.6);
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.layout-size-btn:active { background: rgba(245, 181, 58, 0.5); color: #1a1208; }
+.layout-size-name { color: #ffd58a; font-size: 13px; font-weight: 700; }
+.layout-size-val {
+  min-width: 52px;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .layout-size-btn { min-width: 40px; min-height: 40px; padding: 2px 10px; font-size: 17px; }
+}
+
+/* ---- 左右探头按钮：动作簇顶排（换枪上方），46px 小按钮 ---- */
+#btnLeanLeft {
+  width: 46px; height: 46px;
+  right: 16px; bottom: 244px;
+  font-size: 13px;
+}
+#btnLeanRight {
+  width: 46px; height: 46px;
+  right: 68px; bottom: 244px;
+  font-size: 13px;
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #btnLeanLeft { right: 12px; bottom: 232px; width: 42px; height: 42px; font-size: 12px; }
+  #btnLeanRight { right: 60px; bottom: 232px; width: 42px; height: 42px; font-size: 12px; }
+}
+.site-return{position:fixed;z-index:2147483647;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));display:inline-flex;align-items:center;width:max-content;max-width:calc(100vw - 24px);min-height:40px;white-space:nowrap;padding:0 15px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(15,18,24,.82);box-shadow:0 8px 28px rgba(0,0,0,.28);color:#fff;text-decoration:none;font:600 14px/1 system-ui,-apple-system,"Segoe UI",sans-serif;backdrop-filter:blur(12px)}.site-return:hover,.site-return:focus-visible{border-color:#ff7a1a;background:rgba(31,24,20,.94);outline:none}
+
