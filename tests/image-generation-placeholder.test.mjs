@@ -83,3 +83,24 @@ test('AI image studio stylesheet defines responsive, accessible creation and can
   assert.match(css, /var\(--bg-surface\)/);
   assert.doesNotMatch(css, /\.image-generation-main\s*\{[^}]*(?:^|;)width:\s*\d{4,}px/s);
 });
+
+test('AI image studio script validates local input and simulates results without network calls', () => {
+  const script = readFileSync('image-generation.js', 'utf8');
+  assert.match(script, /15\s*\*\s*1024\s*\*\s*1024/);
+  assert.match(script, /file\?*\.type\?*\.startsWith\(['"]image\/['"]\)/);
+  assert.match(script, /function validateReferenceFile\s*\(/);
+  assert.match(script, /function createDemoResults\s*\(/);
+  assert.match(script, /startSimulatedGeneration/);
+  assert.match(script, /downloadResult/);
+  assert.match(script, /sendResultToCanvas/);
+  assert.match(script, /URL\.createObjectURL/);
+  assert.match(script, /URL\.revokeObjectURL/);
+  assert.match(script, /演示结果/);
+  assert.match(script, /1000/);
+  assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|WebSocket|api[_-]?key|openai\.com/i);
+
+  for (const asset of ['demo-square.svg', 'demo-landscape.svg', 'demo-portrait.svg']) {
+    const path = join('assets', 'image-generation', asset);
+    assert.match(readFileSync(path, 'utf8'), /<svg[\s>]/);
+  }
+});
