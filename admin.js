@@ -2159,7 +2159,7 @@
       });
       if (response.status === 401) {
         const next = `${location.pathname}${location.search}${location.hash}`;
-        location.replace(`/auth.html?next=${encodeURIComponent(next)}`);
+        location.replace(`/auth.html?mode=admin&next=${encodeURIComponent(next)}`);
         return false;
       }
       if (response.ok) {

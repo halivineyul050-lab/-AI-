@@ -363,6 +363,7 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
 }
 
 function serveStatic(request, response, pathname, staticDir) {
+  if(pathname === "/admin"){response.writeHead(302,{Location:"/admin.html","Cache-Control":"no-store"});response.end();return true;}
   if(pathname === "/utilities/never-retreat"){response.writeHead(301,{Location:"/games/never-retreat","Cache-Control":"no-store"});response.end();return true;}
   const logoMatch = pathname.match(/^\/assets\/tool-logos\/([a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif))$/);
   const isAppRoute = publicAppRoutes.has(pathname) || /^\/category\/[a-z0-9-]+$/.test(pathname);

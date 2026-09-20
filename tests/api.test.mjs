@@ -145,6 +145,16 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 13);
 });
 
+test("admin short route and unauthenticated flow lead to management-token login", async () => {
+  const shortRoute = await request("/admin");
+  assert.equal(shortRoute.response.status, 302);
+  assert.equal(shortRoute.response.headers.get("location"), "/admin.html");
+
+  const script = await request("/admin.js");
+  assert.equal(script.response.status, 200);
+  assert.match(script.body, /auth\.html\?mode=admin&next=/);
+});
+
 test("favorites route serves the app shell for direct navigation", async () => {
   const result = await request("/favorites");
   assert.equal(result.response.status, 200);
