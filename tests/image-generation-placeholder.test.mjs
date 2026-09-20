@@ -19,6 +19,7 @@ test('AI image studio is routed, crawlable, and exposes the complete creation wo
     const base = `http://127.0.0.1:${address.port}`;
     const response = await fetch(`${base}/image-generation`);
     assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-security-policy'), /img-src 'self' data: blob:/);
     const html = await response.text();
     assert.match(html, /<title>AI 生图/);
     assert.match(html, /href="\/image-generation"[^>]+aria-current="page"/);

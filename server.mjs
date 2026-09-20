@@ -339,11 +339,12 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
   const isMaskWorker = requestPath === "/video-mask-worker.js";
   const isLinkPage = requestPath === "/utilities/link-extract" || requestPath === "/link-extract.html";
   const isErasePage = requestPath === "/utilities/image-erase" || requestPath === "/image-erase.html";
+  const isImageGenerationPage = requestPath === "/image-generation" || requestPath === "/image-generation.html";
   response.setHeader("Content-Security-Policy", [
     "default-src 'self'",
     isPricingPage ? "script-src 'self' 'unsafe-inline'" : isCropPage || isCropWorker || isMaskPage || isMaskWorker ? "script-src 'self' 'wasm-unsafe-eval'" : isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
     "style-src 'self' 'unsafe-inline'",
-    isGifPage || isErasePage || ["/utilities/image-edit","/utilities/image-background","/utilities/image-enhance","/image-edit.html","/image-background.html","/image-enhance.html"].includes(requestPath) ? "img-src 'self' data: blob:" : "img-src 'self' data: https:",
+    isGifPage || isErasePage || isImageGenerationPage || ["/utilities/image-edit","/utilities/image-background","/utilities/image-enhance","/image-edit.html","/image-background.html","/image-enhance.html"].includes(requestPath) ? "img-src 'self' data: blob:" : "img-src 'self' data: https:",
     ...(isGifPage || isCropPage || isMaskPage || isLinkPage ? ["media-src 'self' blob:", "worker-src 'self'"] : []),
     isPricingPage ? "connect-src 'self' https://ai.fun.tv" : "connect-src 'self'",
     "object-src 'none'",
