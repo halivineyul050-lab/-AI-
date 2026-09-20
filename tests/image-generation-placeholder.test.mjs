@@ -36,6 +36,8 @@ test('AI image studio is routed, crawlable, and exposes the complete creation wo
     assert.match(html, /id="canvas-stage"/);
     assert.match(html, /id="canvas-export"/);
     assert.match(html, /<script defer src="\/image-generation\.js\?v=/);
+    assert.match(html, /\/image-generation\.css\?v=20260920-2/);
+    assert.match(html, /\/image-generation\.js\?v=20260920-2/);
     assert.doesNotMatch(html, /api[_-]?key|sk-[a-z0-9]|openai\.com/i);
 
     const scriptResponse = await fetch(`${base}/image-generation.js`);
@@ -79,6 +81,7 @@ test('AI image studio stylesheet defines responsive, accessible creation and can
   assert.match(css, /@media\s*\(max-width:\s*900px\)/);
   assert.match(css, /@media\s*\(max-width:\s*640px\)/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /\.inspiration-row\{[^}]*scrollbar-width:none/);
   assert.match(css, /var\(--brand\)/);
   assert.match(css, /var\(--bg-surface\)/);
   assert.doesNotMatch(css, /\.image-generation-main\s*\{[^}]*(?:^|;)width:\s*\d{4,}px/s);
@@ -118,4 +121,5 @@ test('AI image studio canvas decodes, edits, deletes, and exports local images',
   assert.match(script, /Math\.min\([^\n]+Math\.max/);
   assert.match(script, /toBlob\s*\([\s\S]*?,\s*['"]image\/png['"]\s*\)/);
   assert.match(script, /canvas-export/);
+  assert.match(script, /Math\.min\(canvas\.width\s*\*\s*\.72\s*\/\s*image\.naturalWidth,\s*canvas\.height\s*\*\s*\.72\s*\/\s*image\.naturalHeight\)/);
 });

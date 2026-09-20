@@ -246,7 +246,7 @@ function createCanvasController(elements) {
       if (ownedUrl) URL.revokeObjectURL(source);
       throw new Error('图片无法读取，请换一张图片重试。');
     }
-    const fit = Math.min(canvas.width * .72 / image.naturalWidth, canvas.height * .72 / image.naturalHeight, 1);
+    const fit = Math.min(canvas.width * .72 / image.naturalWidth, canvas.height * .72 / image.naturalHeight);
     const layer = {
       id: `layer-${Date.now()}-${layers.length}`,
       image,
