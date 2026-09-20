@@ -153,6 +153,172 @@ function startSimulatedGeneration(elements) {
   window.setTimeout(advance, 80);
 }
 
+function createCanvasController(elements) {
+  const canvas = elements.stage;
+  const context = canvas.getContext('2d');
+  const layers = [];
+  let selectedId = '';
+  let drag = null;
+
+  const selectedLayer = () => layers.find((layer) => layer.id === selectedId) || null;
+  const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
+  const updateControls = () => {
+    const selected = selectedLayer();
+    elements.empty.hidden = layers.length > 0;
+    elements.deleteButton.disabled = !selected;
+    elements.exportButton.disabled = layers.length === 0;
+    elements.scale.disabled = !selected;
+    elements.scale.value = String(Math.round((selected?.scale || 1) * 100));
+    canvas.classList.toggle('is-selected', Boolean(selected));
+  };
+  const drawLayer = (layer) => {
+    const width = layer.width * layer.scale;
+    const height = layer.height * layer.scale;
+    context.drawImage(layer.image, layer.x - width / 2, layer.y - height / 2, width, height);
+    if (layer.id === selectedId) {
+      context.save();
+      context.strokeStyle = '#7c66ee';
+      context.lineWidth = Math.max(3, canvas.width / 300);
+      context.setLineDash([12, 8]);
+      context.strokeRect(layer.x - width / 2, layer.y - height / 2, width, height);
+      context.restore();
+    }
+  };
+  const render = (includeSelection = true) => {
+    context.save();
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    layers.forEach((layer) => {
+      if (!includeSelection && layer.id === selectedId) {
+        const prior = selectedId;
+        selectedId = '';
+        drawLayer(layer);
+        selectedId = prior;
+      } else drawLayer(layer);
+    });
+    context.restore();
+    updateControls();
+  };
+  const hitTest = (x, y) => [...layers].reverse().find((layer) => {
+    const halfWidth = layer.width * layer.scale / 2;
+    const halfHeight = layer.height * layer.scale / 2;
+    return x >= layer.x - halfWidth && x <= layer.x + halfWidth && y >= layer.y - halfHeight && y <= layer.y + halfHeight;
+  });
+  const pointFromEvent = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    return { x: (event.clientX - rect.left) * canvas.width / rect.width, y: (event.clientY - rect.top) * canvas.height / rect.height };
+  };
+
+  canvas.addEventListener('pointerdown', (event) => {
+    const point = pointFromEvent(event);
+    const layer = hitTest(point.x, point.y);
+    selectedId = layer?.id || '';
+    if (layer) {
+      canvas.setPointerCapture(event.pointerId);
+      drag = { pointerId: event.pointerId, offsetX: point.x - layer.x, offsetY: point.y - layer.y };
+    }
+    render();
+  });
+  canvas.addEventListener('pointermove', (event) => {
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const layer = selectedLayer();
+    if (!layer) return;
+    const point = pointFromEvent(event);
+    const halfWidth = layer.width * layer.scale / 2;
+    const halfHeight = layer.height * layer.scale / 2;
+    layer.x = clamp(point.x - drag.offsetX, -halfWidth * .7, canvas.width + halfWidth * .7);
+    layer.y = clamp(point.y - drag.offsetY, -halfHeight * .7, canvas.height + halfHeight * .7);
+    render();
+  });
+  const endDrag = (event) => {
+    if (drag?.pointerId === event.pointerId) drag = null;
+  };
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  async function addImage(source, alt = '画布图片', ownedUrl = false) {
+    const image = new Image();
+    image.alt = alt;
+    image.src = source;
+    try {
+      await image.decode();
+    } catch {
+      if (ownedUrl) URL.revokeObjectURL(source);
+      throw new Error('图片无法读取，请换一张图片重试。');
+    }
+    const fit = Math.min(canvas.width * .72 / image.naturalWidth, canvas.height * .72 / image.naturalHeight, 1);
+    const layer = {
+      id: `layer-${Date.now()}-${layers.length}`,
+      image,
+      src: source,
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      scale: 1,
+      width: image.naturalWidth * fit,
+      height: image.naturalHeight * fit,
+      ownedUrl
+    };
+    layers.push(layer);
+    selectedId = layer.id;
+    render();
+    setMessage(elements.message, '图片已加入画布，可拖动或缩放。', 'success');
+    return layer;
+  }
+  function removeSelected() {
+    const index = layers.findIndex((layer) => layer.id === selectedId);
+    if (index < 0) return;
+    const [removed] = layers.splice(index, 1);
+    if (removed.ownedUrl) URL.revokeObjectURL(removed.src);
+    selectedId = layers.at(-1)?.id || '';
+    render();
+    setMessage(elements.message, '已删除所选图片。');
+  }
+  function setScale(value) {
+    const layer = selectedLayer();
+    if (!layer) return;
+    layer.scale = clamp(Number(value) / 100, .2, 2.4);
+    render();
+  }
+  function setRatio(ratio) {
+    const [width, height] = ratio.split(':').map(Number);
+    const longest = 960;
+    canvas.width = width >= height ? longest : Math.round(longest * width / height);
+    canvas.height = height >= width ? longest : Math.round(longest * height / width);
+    layers.forEach((layer) => {
+      layer.x = clamp(layer.x, 0, canvas.width);
+      layer.y = clamp(layer.y, 0, canvas.height);
+    });
+    render();
+  }
+  function exportPng() {
+    if (!layers.length) return;
+    render(false);
+    canvas.toBlob((blob) => {
+      render(true);
+      if (!blob) {
+        setMessage(elements.message, '导出失败，请重试。', 'error');
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `泥壳AI-画布-${Date.now()}.png`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+      setMessage(elements.message, '画布已导出为 PNG。', 'success');
+    }, 'image/png');
+  }
+  function destroy() {
+    layers.forEach((layer) => {
+      if (layer.ownedUrl) URL.revokeObjectURL(layer.src);
+    });
+  }
+  render();
+  return { addImage, removeSelected, setScale, setRatio, render, exportPng, destroy };
+}
+
 function initImageStudio() {
   const elements = {
     form: document.querySelector('#generation-form'),
@@ -228,7 +394,45 @@ function initImageStudio() {
       panels[index].hidden = !active;
     });
   }));
-  window.addEventListener('pagehide', clearReference, { once: true });
+  const canvasElements = {
+    stage: document.querySelector('#canvas-stage'),
+    empty: document.querySelector('#canvas-empty'),
+    upload: document.querySelector('#canvas-upload'),
+    ratio: document.querySelector('#canvas-ratio'),
+    scale: document.querySelector('#canvas-scale'),
+    scaleDown: document.querySelector('#canvas-scale-down'),
+    scaleUp: document.querySelector('#canvas-scale-up'),
+    deleteButton: document.querySelector('#canvas-delete'),
+    exportButton: document.querySelector('#canvas-export'),
+    message: document.querySelector('#canvas-message')
+  };
+  canvasController = createCanvasController(canvasElements);
+  canvasElements.upload.addEventListener('change', async () => {
+    const file = canvasElements.upload.files?.[0];
+    const validation = validateReferenceFile(file);
+    if (!validation.ok) {
+      setMessage(canvasElements.message, validation.message, 'error');
+      canvasElements.upload.value = '';
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    try {
+      await canvasController.addImage(url, file.name, true);
+    } catch (error) {
+      setMessage(canvasElements.message, error.message, 'error');
+    }
+    canvasElements.upload.value = '';
+  });
+  canvasElements.ratio.addEventListener('change', () => canvasController.setRatio(canvasElements.ratio.value));
+  canvasElements.scale.addEventListener('input', () => canvasController.setScale(canvasElements.scale.value));
+  canvasElements.scaleDown.addEventListener('click', () => canvasController.setScale(Number(canvasElements.scale.value) - 10));
+  canvasElements.scaleUp.addEventListener('click', () => canvasController.setScale(Number(canvasElements.scale.value) + 10));
+  canvasElements.deleteButton.addEventListener('click', () => canvasController.removeSelected());
+  canvasElements.exportButton.addEventListener('click', () => canvasController.exportPng());
+  window.addEventListener('pagehide', () => {
+    clearReference();
+    canvasController.destroy();
+  }, { once: true });
 }
 
 document.addEventListener('DOMContentLoaded', initImageStudio);

@@ -104,3 +104,18 @@ test('AI image studio script validates local input and simulates results without
     assert.match(readFileSync(path, 'utf8'), /<svg[\s>]/);
   }
 });
+
+test('AI image studio canvas decodes, edits, deletes, and exports local images', () => {
+  const script = readFileSync('image-generation.js', 'utf8');
+  assert.match(script, /function createCanvasController\s*\(/);
+  assert.match(script, /addImage\s*\(/);
+  assert.match(script, /image\.decode\s*\(/);
+  assert.match(script, /setPointerCapture\s*\(/);
+  assert.match(script, /pointermove/);
+  assert.match(script, /removeSelected\s*\(/);
+  assert.match(script, /setScale\s*\(/);
+  assert.match(script, /setRatio\s*\(/);
+  assert.match(script, /Math\.min\([^\n]+Math\.max/);
+  assert.match(script, /toBlob\s*\([\s\S]*?,\s*['"]image\/png['"]\s*\)/);
+  assert.match(script, /canvas-export/);
+});
