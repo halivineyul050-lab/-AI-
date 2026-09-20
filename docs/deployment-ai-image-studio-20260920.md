@@ -40,3 +40,13 @@ server.mjs             e810f376ab82cab03f917d4b924a58bb8fb558842c3bd820ee6e334fd
 发布复用既有 SSH 通道与 `/opt/nikai-ai/scripts/release-production.sh`，发布脚本在切换版本前创建应用快照并在失败时自动恢复。
 
 如需手动回滚，将回滚快照解压恢复到 `/opt/nikai-ai`，重新启动 `nikai-ai.service`，再检查 `/api/v1/health/ready`。
+
+## 参考图预览修复
+
+- 发布时间：`2026-09-20T13:18:22+08:00`
+- 发布版本：`ai-image-preview-fix-20260920-b84180c`
+- 修复提交：`b84180c`
+- 回滚快照：`/opt/nikai-ai-backups/releases/release-20260920-131803-ai-image-pre.tgz`
+- 根因：页面使用 `blob:` 地址显示本地参考图，但该页面的内容安全策略没有允许 `blob:` 图片。
+- 修复：仅为 `/image-generation` 与 `/image-generation.html` 的 `img-src` 增加 `blob:`，后台及其他页面的策略保持不变。
+- 验证：回归测试经历红灯后转绿；本地完整测试 158/158 通过；生产发布测试 129/129 通过；线上响应头已包含 `img-src 'self' data: blob:`；两个发布文件 SHA-256 与本地一致。
