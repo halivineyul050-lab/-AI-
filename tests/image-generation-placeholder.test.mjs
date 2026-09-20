@@ -67,3 +67,19 @@ test('every static site header links to AI image generation exactly once before 
   const home = readFileSync('index.html', 'utf8');
   assert.match(home, /class="primary-nav"[\s\S]*href="\/image-generation"[\s\S]*href="\/utilities"/);
 });
+
+test('AI image studio stylesheet defines responsive, accessible creation and canvas states', () => {
+  const css = readFileSync('image-generation.css', 'utf8');
+  for (const selector of [
+    '.generation-composer', '.generation-results', '.result-card', '.canvas-toolbar',
+    '.canvas-workspace', '.is-active', '.is-busy', '.has-reference', '.has-results',
+    '.is-selected', '.studio-message[data-tone="error"]'
+  ]) assert.ok(css.includes(selector), selector);
+  assert.match(css, /:focus-visible/);
+  assert.match(css, /@media\s*\(max-width:\s*900px\)/);
+  assert.match(css, /@media\s*\(max-width:\s*640px\)/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /var\(--brand\)/);
+  assert.match(css, /var\(--bg-surface\)/);
+  assert.doesNotMatch(css, /\.image-generation-main\s*\{[^}]*(?:^|;)width:\s*\d{4,}px/s);
+});
