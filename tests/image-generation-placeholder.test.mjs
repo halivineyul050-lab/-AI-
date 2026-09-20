@@ -6,7 +6,7 @@ import { test } from 'node:test';
 
 import { buildApplication } from '../server.mjs';
 
-test('AI image placeholder is routed, crawlable, and contains no inactive generator controls', async () => {
+test('AI image studio is routed, crawlable, and exposes the complete creation workflow', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'nikai-image-placeholder-'));
   const app = buildApplication({
     dbPath: join(directory, 'test.db'),
@@ -22,10 +22,26 @@ test('AI image placeholder is routed, crawlable, and contains no inactive genera
     const html = await response.text();
     assert.match(html, /<title>AI 生图/);
     assert.match(html, /href="\/image-generation"[^>]+aria-current="page"/);
-    assert.match(html, /GPT 图片生成 API/);
-    assert.match(html, /即将上线/);
-    assert.doesNotMatch(html, /<(?:form|input|textarea)\b/i);
-    assert.doesNotMatch(html, /fetch\s*\(/);
+    assert.match(html, /id="studio-mode-generate"/);
+    assert.match(html, /id="studio-mode-canvas"/);
+    assert.match(html, /id="generation-form"/);
+    assert.match(html, /id="prompt-input"[^>]+maxlength="1000"/);
+    assert.match(html, /id="reference-input"[^>]+accept="image\/\*"/);
+    assert.match(html, /<select name="ratio"/);
+    assert.match(html, /<option value="1:1">1:1<\/option>/);
+    assert.match(html, /name="style"/);
+    assert.match(html, /name="count"/);
+    assert.match(html, /id="generation-status"[^>]+aria-live="polite"/);
+    assert.match(html, /id="generation-results"/);
+    assert.match(html, /id="canvas-stage"/);
+    assert.match(html, /id="canvas-export"/);
+    assert.match(html, /<script defer src="\/image-generation\.js\?v=/);
+    assert.doesNotMatch(html, /api[_-]?key|sk-[a-z0-9]|openai\.com/i);
+
+    const scriptResponse = await fetch(`${base}/image-generation.js`);
+    assert.equal(scriptResponse.status, 200);
+    const script = await scriptResponse.text();
+    assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|WebSocket/);
 
     const sitemap = await (await fetch(`${base}/sitemap.xml`)).text();
     assert.match(sitemap, /\/image-generation<\/loc>/);

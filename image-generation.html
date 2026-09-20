@@ -5,43 +5,83 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#6558f5">
   <title>AI 生图 · 泥壳AI</title>
-  <meta name="description" content="泥壳AI图片生成能力即将上线，后续接入 GPT 图片生成 API，支持提示词创作、参考图编辑与多尺寸输出。">
+  <meta name="description" content="泥壳AI生图创作台，支持提示词、参考图、模拟生成与基础图片画布。">
   <link rel="canonical" href="https://ontimo.cn/image-generation">
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2">
   <link rel="stylesheet" href="/design-system.css?v=20260915-2">
   <link rel="stylesheet" href="/styles.css?v=20260915-nav-1">
   <link rel="stylesheet" href="/utility-theme.css?v=20260915-nav-1">
-  <link rel="stylesheet" href="/image-generation.css?v=20260916-1">
+  <link rel="stylesheet" href="/image-generation.css?v=20260920-1">
   <script defer src="/utility-theme.js?v=20260915-nav-1"></script>
+  <script defer src="/image-generation.js?v=20260920-1"></script>
 </head>
 <body>
   <header class="site-header"><div class="site-header-inner"><a class="site-brand" href="/" aria-label="泥壳AI工具站首页"><span class="brand-mark"><img src="/brand-icon-192.png?v=20260916-2" alt=""></span><span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span></a><nav class="site-nav" aria-label="主导航"><a class="nav-item" href="/">工具库</a><a class="nav-item" href="/discover">发现</a><a class="nav-item" href="/rankings">榜单</a><a class="nav-item" href="/tutorials">教程</a><a class="nav-item" href="/news">资讯</a><a class="nav-item is-active" href="/image-generation" aria-current="page">AI 生图</a><a class="nav-item" href="/utilities">小工具</a><a class="nav-item" href="/games">休闲小游戏</a></nav><div class="erase-header-actions"><a class="nav-item" href="/favorites">我的收藏</a><button class="icon-button" id="utility-theme" type="button" aria-label="切换明暗主题" title="切换明暗主题">◐</button></div></div></header>
 
   <main class="image-generation-main">
-    <section class="image-generation-hero" aria-labelledby="image-generation-title">
-      <div class="image-generation-copy">
-        <p class="image-generation-kicker">泥壳AI · IMAGE LAB</p>
-        <span class="image-generation-status">即将上线</span>
-        <h1 id="image-generation-title">把脑海里的画面，<span>变成作品。</span></h1>
-        <p class="image-generation-lead">这里将接入 GPT 图片生成 API。用自然语言描述想法，也可以基于参考图继续创作。</p>
-        <div class="image-generation-actions">
-          <a class="image-generation-primary" href="/">浏览 AI 工具</a>
-          <a class="image-generation-secondary" href="/utilities">看看小工具</a>
+    <section class="studio-intro" aria-labelledby="image-generation-title">
+      <p class="studio-kicker">泥壳AI · IMAGE STUDIO</p>
+      <h1 id="image-generation-title">你好，今天想要创作什么？</h1>
+      <p>描述灵感、上传参考图，在浏览器里体验从构思到画布的完整流程。</p>
+    </section>
+
+    <div class="studio-mode-switch" role="tablist" aria-label="创作模式">
+      <button id="studio-mode-generate" class="studio-mode is-active" type="button" role="tab" aria-selected="true" aria-controls="generate-panel"><span aria-hidden="true">✦</span> 生成</button>
+      <button id="studio-mode-canvas" class="studio-mode" type="button" role="tab" aria-selected="false" aria-controls="canvas-panel"><span aria-hidden="true">▣</span> 画布</button>
+    </div>
+
+    <section id="generate-panel" class="studio-panel" role="tabpanel" aria-labelledby="studio-mode-generate">
+      <form id="generation-form" class="generation-composer" novalidate>
+        <div class="composer-main">
+          <div class="reference-control">
+            <input id="reference-input" type="file" accept="image/*" hidden>
+            <button id="reference-trigger" class="reference-tile" type="button" aria-describedby="reference-help"><span class="reference-plus" aria-hidden="true">＋</span><span>添加参考图</span></button>
+            <div id="reference-preview" class="reference-preview" hidden></div>
+            <p id="reference-help" class="sr-only">支持常见图片格式，最大 15MB</p>
+          </div>
+          <div class="prompt-field">
+            <label class="sr-only" for="prompt-input">画面描述</label>
+            <textarea id="prompt-input" maxlength="1000" rows="5" placeholder="描述你想生成的画面，例如：一只举着火炬的黑白猫，紫色梦幻背景，精致插画风……"></textarea>
+            <p id="prompt-error" class="field-error" hidden></p>
+          </div>
         </div>
+
+        <div class="composer-toolbar">
+          <label class="compact-select"><span>比例</span><select name="ratio" aria-label="画面比例"><option value="1:1">1:1</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="16:9">16:9</option><option value="9:16">9:16</option></select></label>
+          <label class="compact-select"><span>风格</span><select name="style" aria-label="图片风格"><option value="自动">自动</option><option value="电影感">电影感</option><option value="插画">插画</option><option value="3D">3D</option><option value="写实">写实</option><option value="国风">国风</option></select></label>
+          <label class="compact-select"><span>数量</span><select name="count" aria-label="生成数量"><option value="1">1 张</option><option value="2">2 张</option><option value="4">4 张</option></select></label>
+          <span class="prompt-count"><b id="prompt-count">0</b> / 1000</span>
+          <button id="generate-submit" class="generate-button" type="submit">生成图片 <span aria-hidden="true">↑</span></button>
+        </div>
+        <p id="reference-error" class="studio-message" data-tone="error" hidden></p>
+      </form>
+
+      <div class="inspiration-row" aria-label="快捷灵感">
+        <button type="button" class="inspiration-chip" data-prompt="电影感产品海报，戏剧光影，精致构图，高级质感">电影感海报</button>
+        <button type="button" class="inspiration-chip" data-prompt="公众号头图，主题突出，留出标题空间，紫色科技感">公众号封面</button>
+        <button type="button" class="inspiration-chip" data-prompt="可爱的3D萌宠角色，柔和灯光，细腻材质，纯净背景">3D 萌宠</button>
+        <button type="button" class="inspiration-chip" data-prompt="国风插画，东方留白，细腻笔触，雅致配色">国风插画</button>
+        <button type="button" class="inspiration-chip" data-prompt="电商产品主图，干净背景，商业摄影，细节清晰">电商产品图</button>
       </div>
-      <div class="image-generation-art" aria-hidden="true">
-        <span class="art-orbit"></span><span class="art-frame"></span><span class="art-spark art-spark-one">✦</span><span class="art-spark art-spark-two">✦</span>
-        <div class="art-landscape"><i></i><b></b><em></em></div>
-      </div>
+
+      <div id="generation-status" class="generation-status" aria-live="polite" hidden></div>
+      <section id="generation-results" class="generation-results" aria-label="生成结果" hidden></section>
     </section>
 
-    <section class="image-generation-features" aria-label="计划支持的能力">
-      <article><span>01</span><div class="feature-icon" aria-hidden="true">✦</div><h2>提示词创作</h2><p>描述主题、风格和画面细节，让一句想法逐步变成清晰画面。</p></article>
-      <article><span>02</span><div class="feature-icon" aria-hidden="true">◫</div><h2>参考图编辑</h2><p>后续支持上传参考图，调整构图、色彩、材质与局部内容。</p></article>
-      <article><span>03</span><div class="feature-icon" aria-hidden="true">↗</div><h2>多尺寸输出</h2><p>为公众号封面、社交媒体、海报等场景准备合适的画面比例。</p></article>
+    <section id="canvas-panel" class="studio-panel canvas-panel" role="tabpanel" aria-labelledby="studio-mode-canvas" hidden>
+      <div class="canvas-toolbar">
+        <label class="canvas-upload-button" for="canvas-upload">上传图片<input id="canvas-upload" type="file" accept="image/*" hidden></label>
+        <label class="compact-select"><span>画布</span><select id="canvas-ratio" aria-label="画布比例"><option value="1:1">1:1</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="16:9">16:9</option><option value="9:16">9:16</option></select></label>
+        <div class="canvas-scale"><button id="canvas-scale-down" type="button" aria-label="缩小图片">−</button><label for="canvas-scale">缩放</label><input id="canvas-scale" type="range" min="20" max="240" value="100"><button id="canvas-scale-up" type="button" aria-label="放大图片">＋</button></div>
+        <button id="canvas-delete" class="canvas-secondary" type="button" disabled>删除</button>
+        <button id="canvas-export" class="canvas-primary" type="button" disabled>导出 PNG</button>
+      </div>
+      <div class="canvas-workspace">
+        <canvas id="canvas-stage" width="960" height="960" aria-label="图片编辑画布"></canvas>
+        <div id="canvas-empty" class="canvas-empty"><strong>把图片放进画布</strong><p>上传本地图片，或者把模拟生成结果送入这里。</p><label for="canvas-upload">选择图片</label></div>
+      </div>
+      <p id="canvas-message" class="studio-message" aria-live="polite"></p>
     </section>
-
-    <section class="image-generation-note"><span aria-hidden="true">◉</span><div><strong>正在准备中</strong><p>功能上线前，这里不会收集提示词或图片。接入完成后再开放生成入口。</p></div></section>
   </main>
 </body>
 </html>

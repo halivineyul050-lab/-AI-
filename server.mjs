@@ -113,7 +113,7 @@ const staticFiles = new Set([
   "game-shell.css",
   "link-extract.html",
   "video-pricing.html",
-  "image-generation.html", "image-generation.css",
+  "image-generation.html", "image-generation.css", "image-generation.js",
   "image-edit.html", "image-edit.css", "image-edit.js", "image-edit-core.mjs", "image-input.mjs",
   "image-background.html", "image-enhance.html", "image-ai.css", "image-ai.js",
   "game-2048.html", "game-2048.css", "game-2048.js", "game-2048-core.mjs",
