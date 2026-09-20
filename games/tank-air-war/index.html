@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0e12">
+  <base href="/games/tank-air-war/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>坦克飞机大战 · 空地无尽防线</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="site-return" href="/games" aria-label="返回休闲小游戏">← 返回休闲小游戏</a>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- ========== 主菜单 ========== -->
+  <div id="menu" class="overlay show">
+    <div class="menu-inner">
+      <div class="menu-head">
+        <h1 class="title">坦克飞机大战</h1>
+        <p class="subtitle">孤胆坦克 · 空地无尽防线</p>
+      </div>
+      <div class="difficulty-block">
+        <div class="difficulty-label">作战难度</div>
+        <div class="seg-group seg-group-wide" id="seg-difficulty">
+          <button data-diff="recruit" class="seg">新兵</button>
+          <button data-diff="veteran" class="seg active">老兵</button>
+          <button data-diff="hell" class="seg">地狱</button>
+        </div>
+        <p class="difficulty-tag" id="difficulty-tag">标准战场节奏 · 推荐</p>
+      </div>
+      <div class="menu-buttons">
+        <button id="btn-start" class="btn btn-primary">开始作战</button>
+        <button id="btn-records" class="btn">战绩档案</button>
+        <button id="btn-settings" class="btn">设置</button>
+        <button id="btn-help" class="btn">操作说明</button>
+      </div>
+      <p class="menu-foot">移动端：左侧摇杆移动 · 右侧摇杆瞄准推射 · 开火键开炮<br>桌面端：WASD 移动 · 鼠标瞄准 · 左键开炮 · V 切视角 · Q 释放电磁脉冲</p>
+    </div>
+  </div>
+
+  <!-- ========== 战绩档案 ========== -->
+  <div id="records-panel" class="overlay">
+    <div class="panel">
+      <h2 class="panel-title">战绩档案</h2>
+      <div class="records-grid" id="records-grid"></div>
+      <div class="records-diff" id="records-diff"></div>
+      <div class="panel-actions">
+        <button id="btn-records-reset" class="btn btn-danger">清空纪录</button>
+        <button id="btn-records-close" class="btn btn-primary">返回</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 设置 ========== -->
+  <div id="settings-panel" class="overlay">
+    <div class="panel">
+      <h2 class="panel-title">设置</h2>
+      <div class="setting-row">
+        <span class="setting-label">画质</span>
+        <div class="seg-group" id="seg-graphics">
+          <button data-gfx="auto" class="seg active">自动</button>
+          <button data-gfx="performance" class="seg">流畅</button>
+          <button data-gfx="quality" class="seg">高清</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">自动瞄准</span>
+        <div class="seg-group" id="seg-assist">
+          <button data-assist="1" class="seg active">开</button>
+          <button data-assist="0" class="seg">关</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">战斗反馈</span>
+        <div class="seg-group" id="seg-feedback">
+          <button data-fb="1" class="seg active">开</button>
+          <button data-fb="0" class="seg">关</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">视角</span>
+        <div class="seg-group" id="seg-view">
+          <button data-view="tp" class="seg active">俯视</button>
+          <button data-view="fp" class="seg">第一人称</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">音量</span>
+        <input id="setting-volume" type="range" min="0" max="100" value="70">
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">摇杆灵敏度</span>
+        <input id="setting-sens" type="range" min="50" max="150" value="100">
+      </div>
+      <div class="panel-actions">
+        <button id="btn-settings-close" class="btn btn-primary">返回</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 操作说明 ========== -->
+  <div id="help-panel" class="overlay">
+    <div class="panel">
+      <h2 class="panel-title">操作说明</h2>
+      <div class="help-body">
+        <p><b>移动</b>：左侧虚拟摇杆（桌面 WASD / 方向键）。车体朝移动方向转向，炮塔独立瞄准。</p>
+        <p><b>视角</b>：设置内可切「俯视 / 第一人称」，也可随时按 <b>V</b> 键或点顶部视角按钮切换。第一人称下炮塔随视线转动 —— <b>点击画面可锁定鼠标</b>（此时用鼠标位移控制最跟手，按 Esc 解除）；未锁定时鼠标越靠近屏幕边缘转得越快，松开不动约 1 秒即停。移动方向随视线。</p>
+        <p><b>主炮</b>：按住右侧开火键连射，弹夹 5 发打完自动装填（桌面 鼠标左键 / 空格）。炮口会随目标高度自动俯仰，<b>可以打空中单位</b>。</p>
+        <p><b>高射机枪</b>：全自动防空，优先锁定空中目标，注意过热条，打红会卡壳。</p>
+        <p><b>自动瞄准</b>：设置内可开关。开启时炮塔自动咬住最近敌人，并预判提前量；第一人称下作为软性吸附辅助。</p>
+        <p><b>补给</b>：绿色修理箱回血，蓝色装甲板回护甲。精英与每 45 秒空投必带补给。</p>
+        <p><b>敌情</b>：红点地面装甲，橙点空中单位。雷达橙色扇形 = 敌群来向预警。</p>
+        <p><b>波次</b>：清空当波敌群后三选一强化，越打越猛；每 5 波出现空中炮艇 boss。不满意可<b>重掷</b>换一批，也可<b>跳过</b>换分数与护甲。</p>
+        <p><b>电磁脉冲（Q）</b>：主动大招。以自身为中心瘫痪并灼伤范围内全部敌军，同时清空来袭弹药，冷却 32 秒（右下角有冷却读数）。</p>
+        <p><b>战场</b>：每局随机一种环境（黄昏平原 / 午夜战区 / 沙暴前线），只影响光影与能见度。命中会飘出伤害数字，暴击为橙色；血量低于 30% 时屏幕四周泛红并有心跳提示。</p>
+        <p><b>难度</b>：主菜单可选新兵 / 老兵 / 地狱，各自独立记录战绩。</p>
+      </div>
+      <div class="panel-actions">
+        <button id="btn-help-close" class="btn btn-primary">返回</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 战斗 HUD ========== -->
+  <div id="hud" class="hud hidden">
+    <!-- 低血警戒红晕（纯装饰，不拦事件） -->
+    <div id="low-hp-vignette" class="low-hp-vignette"></div>
+    <div class="hud-top-left">
+      <div class="bar-wrap">
+        <div class="bar-label">机体</div>
+        <div class="bar bar-hp"><div id="bar-hp-fill" class="bar-fill"></div></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label">装甲</div>
+        <div class="bar bar-armor"><div id="bar-armor-fill" class="bar-fill"></div></div>
+      </div>
+      <div class="hud-stats">
+        <span id="hud-wave" class="hud-wave">第 1 波</span>
+        <span id="hud-theme" class="hud-theme">地面集群</span>
+        <span id="hud-score" class="hud-score">0 分</span>
+        <span id="hud-kills" class="hud-kills">0 击杀</span>
+      </div>
+    </div>
+    <div class="hud-top-right">
+      <canvas id="radar" width="240" height="240"></canvas>
+    </div>
+    <div id="boss-bar-wrap" class="boss-bar-wrap hidden">
+      <div class="boss-bar-name" id="boss-name">浮空炮艇</div>
+      <div class="bar bar-boss"><div id="bar-boss-fill" class="bar-fill"></div></div>
+    </div>
+    <div id="wave-banner" class="wave-banner hidden"></div>
+    <div id="combo-banner" class="combo-banner"></div>
+    <div id="kill-feed" class="kill-feed"></div>
+    <!-- 伤害飘字层：世界坐标投影到屏幕 -->
+    <div id="dmg-layer" class="dmg-layer"></div>
+    <div id="pickup-toast" class="pickup-toast"></div>
+    <div id="heat-wrap" class="heat-wrap hidden">
+      <div class="bar bar-heat"><div id="bar-heat-fill" class="bar-fill"></div></div>
+    </div>
+    <div id="reload-tip" class="reload-tip hidden">装填中…</div>
+
+    <!-- 第一人称准星 + 视角标识 -->
+    <div id="crosshair" class="crosshair hidden">
+      <span class="ch-h"></span><span class="ch-v"></span><span class="ch-dot"></span>
+    </div>
+    <!-- 命中标记（四斜杠，命中闪白 / 击杀转橙） -->
+    <div id="hit-marker" class="hit-marker"><span></span><span></span><span></span><span></span></div>
+    <div id="view-tag" class="view-tag hidden">TP 俯视视角</div>
+
+    <!-- 触控控件 -->
+    <div id="touch-zone-left" class="touch-zone"></div>
+    <div id="touch-zone-right" class="touch-zone"></div>
+    <div id="joy-base" class="joy-base hidden"><div id="joy-knob" class="joy-knob"></div></div>
+    <div id="btn-fire" class="btn-fire">开火</div>
+    <div id="btn-pause" class="btn-pause">Ⅱ</div>
+    <div id="btn-view" class="btn-view">TP</div>
+    <!-- 主动技能：电磁脉冲 -->
+    <div id="btn-emp" class="btn-emp">
+      <span class="emp-icon">EMP</span>
+      <span class="emp-name">电磁脉冲</span>
+      <span class="emp-cd" id="emp-cd"></span>
+    </div>
+  </div>
+
+  <!-- ========== 新手引导（浮层卡片，不拦截战斗操作） ========== -->
+  <div id="tutorial" class="tutorial hidden">
+    <div class="tut-card">
+      <div class="tut-step" id="tut-step">1 / 4</div>
+      <div class="tut-title" id="tut-title">移动</div>
+      <div class="tut-desc" id="tut-desc"></div>
+      <div class="tut-actions">
+        <button id="btn-tut-skip" class="btn btn-sm btn-ghost">跳过引导</button>
+        <button id="btn-tut-next" class="btn btn-sm btn-primary">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 暂停 ========== -->
+  <div id="pause-panel" class="overlay">
+    <div class="panel">
+      <h2 class="panel-title">暂停</h2>
+      <div class="panel-actions vertical">
+        <button id="btn-resume" class="btn btn-primary">继续作战</button>
+        <button id="btn-restart" class="btn">重新开始</button>
+        <button id="btn-quit" class="btn">返回主菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 强化三选一 ========== -->
+  <div id="upgrade-panel" class="overlay">
+    <div class="upgrade-head">波次肃清 · 选择一项强化</div>
+    <div class="upgrade-cards" id="upgrade-cards"></div>
+    <div class="upgrade-timer" id="upgrade-timer"></div>
+    <div class="upgrade-actions">
+      <button id="btn-reroll" class="btn btn-sm">重掷（剩 <span id="reroll-left">1</span> 次）</button>
+      <button id="btn-skip" class="btn btn-sm">跳过 · 换 <span id="skip-reward">120</span> 分</button>
+    </div>
+  </div>
+
+  <!-- ========== 结算 ========== -->
+  <div id="result-panel" class="overlay">
+    <div class="panel panel-result">
+      <h2 class="panel-title" id="result-title">防线告破</h2>
+      <p id="result-line" class="result-line"></p>
+      <div class="result-context" id="result-context"></div>
+      <div class="result-grid">
+        <div class="result-item"><span class="result-num" id="result-wave">0</span><span class="result-label">最远波次</span></div>
+        <div class="result-item"><span class="result-num" id="result-score">0</span><span class="result-label">总得分</span></div>
+        <div class="result-item"><span class="result-num" id="result-kills">0</span><span class="result-label">击杀数</span></div>
+        <div class="result-item"><span class="result-num" id="result-time">0:00</span><span class="result-label">生存时长</span></div>
+      </div>
+      <div class="result-grid result-grid-detail">
+        <div class="result-item"><span class="result-num" id="result-acc">0%</span><span class="result-label">主炮命中率</span></div>
+        <div class="result-item"><span class="result-num" id="result-chain">0</span><span class="result-label">最高连杀</span></div>
+        <div class="result-item"><span class="result-num" id="result-dealt">0</span><span class="result-label">造成伤害</span></div>
+        <div class="result-item"><span class="result-num" id="result-taken">0</span><span class="result-label">承受伤害</span></div>
+      </div>
+      <div class="result-upgrades" id="result-upgrades"></div>
+      <p id="result-death" class="result-death"></p>
+      <p id="result-best" class="result-best"></p>
+      <div class="panel-actions">
+        <button id="btn-again" class="btn btn-primary">再来一局</button>
+        <button id="btn-result-menu" class="btn">返回主菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/three.min.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/enemies.js"></script>
+  <script src="js/waves.js"></script>
+  <script src="js/pickups.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -30,7 +30,8 @@ after(async () => {
 test("production game roots and representative assets are served", async () => {
   const cases = [
     ["/games/ironfront", "一人不撤2", "/games/ironfront/assets/main.js", /javascript/],
-    ["/games/yiren-buche", "一人不撤", "/games/yiren-buche/style.css", /text\/css/]
+    ["/games/yiren-buche", "一人不撤", "/games/yiren-buche/style.css", /text\/css/],
+    ["/games/tank-air-war", "坦克飞机大战", "/games/tank-air-war/js/main.js", /javascript/]
   ];
 
   for (const [route, title, assetPath, contentType] of cases) {
@@ -51,29 +52,34 @@ test("production game roots and representative assets are served", async () => {
 test("production game asset routes reject traversal", async () => {
   for (const path of [
     "/games/ironfront/%2e%2e/%2e%2e/server.mjs",
-    "/games/yiren-buche/%2e%2e/%2e%2e/package.json"
+    "/games/yiren-buche/%2e%2e/%2e%2e/package.json",
+    "/games/tank-air-war/%2e%2e/%2e%2e/server.mjs"
   ]) {
     const response = await fetch(`${baseUrl}${path}`);
     assert.equal(response.status, 404, path);
   }
 });
 
-test("games index and sitemap list both new games", async () => {
+test("games index and sitemap list all production games", async () => {
   const games = await (await fetch(`${baseUrl}/games`)).text();
-  assert.equal((games.match(/class="[^"]*\bgame-card\b[^"]*"/g) || []).length, 9);
+  assert.equal((games.match(/class="[^"]*\bgame-card\b[^"]*"/g) || []).length, 10);
   assert.equal((games.match(/\bgame-card--hero\b/g) || []).length, 1);
   assert.equal((games.match(/\bgame-card--wide\b/g) || []).length, 2);
-  assert.equal((games.match(/\bgame-card--compact\b/g) || []).length, 6);
+  assert.equal((games.match(/\bgame-card--compact\b/g) || []).length, 7);
   assert.match(games, /href="\/games\/ironfront"/);
   assert.match(games, /href="\/games\/yiren-buche"/);
+  assert.match(games, /href="\/games\/tank-air-war"/);
+  assert.match(games, /10 款小游戏/);
+  assert.match(games, /class="card-art tank-air-war"/);
 
   const sitemap = await (await fetch(`${baseUrl}/sitemap.xml`)).text();
   assert.match(sitemap, /\/games\/ironfront<\/loc>/);
   assert.match(sitemap, /\/games\/yiren-buche<\/loc>/);
+  assert.match(sitemap, /\/games\/tank-air-war<\/loc>/);
 });
 
-test("both game documents expose a return link and reachable local dependencies", async () => {
-  for (const route of ["/games/ironfront", "/games/yiren-buche"]) {
+test("production game documents expose a return link and reachable local dependencies", async () => {
+  for (const route of ["/games/ironfront", "/games/yiren-buche", "/games/tank-air-war"]) {
     const pageUrl = new URL(route, baseUrl);
     const html = await (await fetch(pageUrl)).text();
     assert.match(html, /class="site-return" href="\/games"/);
@@ -94,7 +100,8 @@ test("both game documents expose a return link and reachable local dependencies"
 test("return controls resist narrow-screen wrapping", async () => {
   for (const path of [
     "/games/ironfront/assets/style.css",
-    "/games/yiren-buche/style.css"
+    "/games/yiren-buche/style.css",
+    "/games/tank-air-war/style.css"
   ]) {
     const css = await (await fetch(`${baseUrl}${path}`)).text();
     assert.match(css, /\.site-return\{[^}]*white-space:nowrap/);

@@ -392,7 +392,7 @@ function serveStatic(request, response, pathname, staticDir) {
 }
 
 function serveProductionGame(request, response, pathname, staticDir) {
-  const match = pathname.match(/^\/games\/(ironfront|yiren-buche)(?:\/(.*))?$/);
+  const match = pathname.match(/^\/games\/(ironfront|yiren-buche|tank-air-war)(?:\/(.*))?$/);
   if (!match) return false;
   let relativePath;
   try {
@@ -1041,7 +1041,7 @@ function buildSitemap(request, db) {
     ["/image-generation", "monthly", "0.8"],
     ["/utilities/video-to-gif", "monthly", "0.8"],
     ["/utilities", "monthly", "0.8"],
-    ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight","/games/ironfront","/games/yiren-buche"].map(path=>[path,"monthly","0.8"]),
+    ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight","/games/ironfront","/games/yiren-buche","/games/tank-air-war"].map(path=>[path,"monthly","0.8"]),
     ["/utilities/video-crop", "monthly", "0.8"],
     ["/utilities/video-mask", "monthly", "0.8"],
     ["/utilities/image-erase", "monthly", "0.8"],
