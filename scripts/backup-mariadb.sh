@@ -10,6 +10,6 @@ chmod 700 "$backup_dir"
 target="$backup_dir/nikai-ai-$timestamp.sql.gz"
 umask 077
 mariadb-dump --defaults-extra-file="$defaults_file" --single-transaction --routines --triggers --events --hex-blob --default-character-set=utf8mb4 "$database" | gzip -9 > "$target"
-sha256sum "$target" > "$target.sha256"
+sha256sum "$target" | awk '{print $1}' > "$target.sha256"
 find "$backup_dir" -type f \( -name 'nikai-ai-*.sql.gz' -o -name 'nikai-ai-*.sql.gz.sha256' \) -mtime "+$retention_days" -delete
 echo "$target"

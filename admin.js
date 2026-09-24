@@ -6,6 +6,8 @@
   const SVG_NS = "http://www.w3.org/2000/svg";
   const WINDOW_HOURS = { "24h": 24, "7d": 168 };
   const DEFAULT_RANGE = "7d";
+  const IMAGE_PROVIDER_API = "/api/admin/v1/image-providers";
+  const IMAGE_MODEL_API = "/api/admin/v1/image-models";
 
   const state = {
     window: "24h",
@@ -33,13 +35,28 @@
     cmsCategory: "",
     cmsCategories: [],
     cmsLoading: false,
+    cmsSessionUnlocked: false,
     cmsRequestId: 0,
     cmsSearchTimer: null,
     cmsEditing: null,
     cmsUploading: false
     ,isSuperAdmin: false,
     users: []
-    ,feedback: []
+    ,feedback: [],
+    imageProviders: [],
+    imageModels: [],
+    imageDiscoveredModels: [],
+    imageAdminToken: "",
+    imageLoading: false,
+    imageRefreshPromise: null,
+    imageRefreshQueued: false,
+    imageAuthGeneration: 0,
+    imageEditorSequence: 0,
+    imageEditingProvider: null,
+    imageEditingModel: null,
+    imageProviderEditorSession: null,
+    imageModelEditorSession: null,
+    imageActions: new Set()
   };
 
   const dom = {
@@ -143,7 +160,62 @@
     ,feedbackStatusFilter: document.querySelector("#feedback-status-filter"),
     feedbackRefresh: document.querySelector("#feedback-refresh"),
     feedbackTableBody: document.querySelector("#feedback-table-body"),
-    feedbackEmpty: document.querySelector("#feedback-empty")
+    feedbackEmpty: document.querySelector("#feedback-empty"),
+    imageWorkspaceStatus: document.querySelector("#image-workspace-status"),
+    imageWorkspaceRefresh: document.querySelector("#image-workspace-refresh"),
+    imageWorkspaceLock: document.querySelector("#image-workspace-lock"),
+    imageTokenForm: document.querySelector("#image-token-form"),
+    imageAdminToken: document.querySelector("#image-admin-token"),
+    imageTokenSubmit: document.querySelector("#image-token-submit"),
+    imageProviderList: document.querySelector("#image-provider-list"),
+    imageProviderEmpty: document.querySelector("#image-provider-empty"),
+    imageProviderAdd: document.querySelector("#image-provider-add"),
+    imageModelList: document.querySelector("#image-model-list"),
+    imageModelEmpty: document.querySelector("#image-model-empty"),
+    imageModelAdd: document.querySelector("#image-model-add"),
+    imageProviderDialog: document.querySelector("#image-provider-dialog"),
+    imageProviderForm: document.querySelector("#image-provider-form"),
+    imageProviderDialogTitle: document.querySelector("#image-provider-dialog-title"),
+    imageProviderDialogClose: document.querySelector("#image-provider-dialog-close"),
+    imageProviderDialogCancel: document.querySelector("#image-provider-dialog-cancel"),
+    imageProviderId: document.querySelector("#image-provider-id"),
+    imageProviderRevision: document.querySelector("#image-provider-revision"),
+    imageProviderName: document.querySelector("#image-provider-name"),
+    imageProviderBaseUrl: document.querySelector("#image-provider-base-url"),
+    imageProviderGenerationPath: document.querySelector("#image-provider-generation-path"),
+    imageProviderEditPath: document.querySelector("#image-provider-edit-path"),
+    imageProviderTimeout: document.querySelector("#image-provider-timeout"),
+    imageProviderEnabled: document.querySelector("#image-provider-enabled"),
+    imageProviderKeyHint: document.querySelector("#image-provider-key-hint"),
+    imageProviderReplaceKeyWrap: document.querySelector("#image-provider-replace-key-wrap"),
+    imageProviderReplaceKey: document.querySelector("#image-provider-replace-key"),
+    imageProviderKeyField: document.querySelector("#image-provider-key-field"),
+    imageProviderTestModel: document.querySelector("#image-provider-test-model"),
+    imageProviderTest: document.querySelector("#image-provider-test"),
+    imageProviderTestStatus: document.querySelector("#image-provider-test-status"),
+    imageProviderDiscoverModels: document.querySelector("#image-provider-discover-models"),
+    imageProviderDiscoveryStatus: document.querySelector("#image-provider-discovery-status"),
+    imageProviderDiscoveryList: document.querySelector("#image-provider-discovery-list"),
+    imageProviderImportModels: document.querySelector("#image-provider-import-models"),
+    imageProviderFormError: document.querySelector("#image-provider-form-error"),
+    imageProviderSave: document.querySelector("#image-provider-save"),
+    imageModelDialog: document.querySelector("#image-model-dialog"),
+    imageModelForm: document.querySelector("#image-model-form"),
+    imageModelDialogTitle: document.querySelector("#image-model-dialog-title"),
+    imageModelDialogClose: document.querySelector("#image-model-dialog-close"),
+    imageModelDialogCancel: document.querySelector("#image-model-dialog-cancel"),
+    imageModelId: document.querySelector("#image-model-id"),
+    imageModelRevision: document.querySelector("#image-model-revision"),
+    imageModelProvider: document.querySelector("#image-model-provider"),
+    imageModelUpstreamId: document.querySelector("#image-model-upstream-id"),
+    imageModelDisplayName: document.querySelector("#image-model-display-name"),
+    imageModelRatios: document.querySelector("#model-supported-ratios"),
+    imageModelMaxImages: document.querySelector("#model-max-images"),
+    imageModelSortOrder: document.querySelector("#image-model-sort-order"),
+    imageModelEnabled: document.querySelector("#image-model-enabled"),
+    imageModelDefault: document.querySelector("#image-model-default"),
+    imageModelFormError: document.querySelector("#image-model-form-error"),
+    imageModelSave: document.querySelector("#image-model-save")
   };
 
   async function loadFeedback() {
@@ -243,7 +315,8 @@
     tools: { label: "工具", listTitle: "工具管理", columns: ["工具", "分类", "价格", "状态", "推广", "更新时间", "操作"] },
     categories: { label: "分类", listTitle: "分类管理", columns: ["分类", "说明", "排序", "状态", "操作"] },
     articles: { label: "文章", listTitle: "文章管理", columns: ["文章", "类型", "主题", "发布日期", "状态", "操作"] },
-    collections: { label: "首页专题", listTitle: "首页专题管理", columns: ["专题", "工具数量", "排序", "状态", "操作"] }
+    collections: { label: "首页专题", listTitle: "首页专题管理", columns: ["专题", "工具数量", "排序", "状态", "操作"] },
+    announcements: { label: "上线公告", listTitle: "上线公告管理", columns: ["公告", "发布时间", "版本", "状态", "操作"] }
   });
 
   function renderIcons() {
@@ -426,6 +499,727 @@
     dom.toastRegion.append(item);
     renderIcons();
     window.setTimeout(() => item.remove(), 3_600);
+  }
+
+  function imageRequest(path, options = {}) {
+    return fetchJson(path, {
+      ...options,
+      headers: { Authorization: `Bearer ${state.imageAdminToken}`, ...(options.headers || {}) }
+    });
+  }
+
+  function nextImageEditorSession(kind) {
+    state.imageEditorSequence += 1;
+    return Object.freeze({ kind, id: state.imageEditorSequence });
+  }
+
+  function isCurrentImageAuth(generation, token) {
+    return state.imageAuthGeneration === generation && state.imageAdminToken === token;
+  }
+
+  function isCurrentProviderEditor(session) {
+    return Boolean(session && state.imageProviderEditorSession === session && dom.imageProviderDialog.open);
+  }
+
+  function isCurrentModelEditor(session) {
+    return Boolean(session && state.imageModelEditorSession === session && dom.imageModelDialog.open);
+  }
+
+  function providerFormConfigFingerprint() {
+    return JSON.stringify([
+      dom.imageProviderName.value.trim(),
+      dom.imageProviderBaseUrl.value.trim(),
+      dom.imageProviderGenerationPath.value.trim(),
+      dom.imageProviderEditPath.value.trim(),
+      Number(dom.imageProviderTimeout.value),
+      dom.imageProviderEnabled.checked
+    ]);
+  }
+
+  function providerRecordConfigFingerprint(provider) {
+    return JSON.stringify([
+      String(provider?.name || "").trim(),
+      String(provider?.baseUrl || "").trim(),
+      String(provider?.generationPath || "").trim(),
+      String(provider?.editPath || "/v1/images/edits").trim(),
+      Number(provider?.timeoutMs),
+      Boolean(provider?.enabled)
+    ]);
+  }
+
+  function setImageActionBusy(key, busy, buttons = []) {
+    if (busy) state.imageActions.add(key);
+    else state.imageActions.delete(key);
+    buttons.filter(Boolean).forEach((button) => { button.disabled = busy; });
+  }
+
+  function startImageAction(key, buttons = []) {
+    if (state.imageActions.has(key)) return false;
+    setImageActionBusy(key, true, buttons);
+    return true;
+  }
+
+  function imageText(tag, text, className = "") {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    element.textContent = text;
+    return element;
+  }
+
+  function imageButton(label, iconName, className, handler) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = className;
+    if (iconName) button.append(makeIcon(iconName));
+    button.append(document.createTextNode(label));
+    button.addEventListener("click", handler);
+    return button;
+  }
+
+  function providerForModel(model) {
+    return state.imageProviders.find((provider) => provider.id === model.providerId);
+  }
+
+  function modelsForProvider(providerId) {
+    return state.imageModels.filter((model) => model.providerId === providerId);
+  }
+
+  function providerHealth(provider) {
+    if (provider.lastTestStatus === "success") return { label: "连接正常", className: "is-success" };
+    if (provider.lastTestStatus === "failed") return { label: "连接失败", className: "is-failed" };
+    return { label: "尚未测试", className: "is-untested" };
+  }
+
+  function populateProviderSelect(select, selectedId = "") {
+    select.replaceChildren();
+    state.imageProviders.forEach((provider) => {
+      const option = document.createElement("option");
+      option.value = provider.id;
+      option.textContent = provider.name;
+      option.selected = provider.id === selectedId;
+      select.append(option);
+    });
+  }
+
+  async function refreshImageWorkspace({ quiet = false } = {}) {
+    if (!state.imageAdminToken) {
+      dom.imageWorkspaceStatus.textContent = "图片平台设置需要管理令牌。";
+      dom.imageProviderList.setAttribute("aria-busy", "false");
+      dom.imageWorkspaceLock.hidden = false;
+      dom.imageProviderAdd.disabled = true;
+      dom.imageModelAdd.disabled = true;
+      return;
+    }
+    if (state.imageRefreshPromise) {
+      state.imageRefreshQueued = true;
+      return state.imageRefreshPromise;
+    }
+
+    state.imageRefreshPromise = (async () => {
+      const authGeneration = state.imageAuthGeneration;
+      const authToken = state.imageAdminToken;
+      state.imageLoading = true;
+      dom.imageProviderList.setAttribute("aria-busy", "true");
+      dom.imageWorkspaceRefresh.disabled = true;
+      dom.imageProviderAdd.disabled = false;
+      dom.imageWorkspaceLock.hidden = true;
+      do {
+        state.imageRefreshQueued = false;
+        dom.imageWorkspaceStatus.textContent = "正在同步平台与模型";
+        try {
+          const [providerPayload, modelPayload] = await Promise.all([
+            imageRequest(IMAGE_PROVIDER_API),
+            imageRequest(IMAGE_MODEL_API)
+          ]);
+          if (!isCurrentImageAuth(authGeneration, authToken)) break;
+          state.imageProviders = asArray(providerPayload?.items);
+          state.imageModels = asArray(modelPayload?.items);
+          renderImageProviders();
+          renderImageModels();
+          dom.imageWorkspaceStatus.textContent = `${state.imageProviders.length} 个平台 · ${state.imageModels.length} 个模型`;
+        } catch (error) {
+          if (!isCurrentImageAuth(authGeneration, authToken)) break;
+          dom.imageWorkspaceStatus.textContent = messageForError(error);
+          if (error.status === 401) {
+            resetImageWorkspace();
+          }
+          if (!quiet) toast(messageForError(error), "error");
+        }
+      } while (state.imageRefreshQueued && isCurrentImageAuth(authGeneration, authToken));
+      if (isCurrentImageAuth(authGeneration, authToken)) {
+        state.imageLoading = false;
+        dom.imageProviderList.setAttribute("aria-busy", "false");
+        dom.imageWorkspaceRefresh.disabled = false;
+      }
+    })();
+
+    try {
+      await state.imageRefreshPromise;
+    } finally {
+      state.imageRefreshPromise = null;
+      if (state.imageRefreshQueued && state.imageAdminToken) {
+        state.imageRefreshQueued = false;
+        await refreshImageWorkspace({ quiet });
+      }
+    }
+  }
+
+  async function unlockImageWorkspace(event) {
+    event.preventDefault();
+    const candidate = dom.imageAdminToken.value.trim();
+    if (!candidate) return;
+    const key = "image-token-unlock";
+    if (!startImageAction(key, [dom.imageTokenSubmit])) return;
+    const authGeneration = state.imageAuthGeneration;
+    dom.imageWorkspaceStatus.textContent = "正在验证管理令牌";
+    try {
+      await fetchJson(IMAGE_PROVIDER_API, { headers: { Authorization: `Bearer ${candidate}` } });
+      if (state.imageAuthGeneration !== authGeneration) return;
+      state.imageAdminToken = candidate;
+      state.imageAuthGeneration += 1;
+      dom.imageAdminToken.value = "";
+      dom.imageWorkspaceLock.hidden = true;
+      await refreshImageWorkspace({ quiet: true });
+      toast("图片平台设置已解锁");
+    } catch (error) {
+      if (state.imageAuthGeneration !== authGeneration) return;
+      dom.imageWorkspaceStatus.textContent = messageForError(error);
+      toast(messageForError(error), "error");
+    } finally {
+      const buttons = state.imageAuthGeneration === authGeneration || state.imageAdminToken === candidate
+        ? [dom.imageTokenSubmit]
+        : [];
+      setImageActionBusy(key, false, buttons);
+    }
+  }
+
+  function resetImageWorkspace() {
+    state.imageAdminToken = "";
+    state.imageAuthGeneration += 1;
+    state.imageRefreshQueued = false;
+    state.imageProviders = [];
+    state.imageModels = [];
+    state.imageActions.clear();
+    dom.imageAdminToken.value = "";
+    closeImageProviderDialog();
+    closeImageModelDialog();
+    renderImageProviders();
+    renderImageModels();
+    dom.imageWorkspaceStatus.textContent = "图片平台设置需要管理令牌。";
+    dom.imageWorkspaceLock.hidden = false;
+    dom.imageProviderList.setAttribute("aria-busy", "false");
+    dom.imageWorkspaceRefresh.disabled = true;
+    dom.imageProviderAdd.disabled = true;
+    dom.imageModelAdd.disabled = true;
+    dom.imageTokenSubmit.disabled = false;
+  }
+
+  function renderImageProviders() {
+    dom.imageProviderList.replaceChildren();
+    dom.imageProviderEmpty.hidden = state.imageProviders.length > 0;
+
+    state.imageProviders.forEach((provider) => {
+      const health = providerHealth(provider);
+      const card = document.createElement("article");
+      card.className = `image-provider-card ${health.className}`;
+
+      const head = document.createElement("div");
+      head.className = "image-provider-card-head";
+      const title = document.createElement("div");
+      const name = imageText("h3", provider.name);
+      const url = imageText("p", provider.baseUrl, "image-provider-url");
+      url.title = provider.baseUrl;
+      title.append(name, url);
+      const badge = imageText("span", health.label, `image-health-badge ${health.className}`);
+      head.append(title, badge);
+
+      const facts = document.createElement("div");
+      facts.className = "image-provider-facts";
+      const factValues = [
+        ["API 密钥", provider.hasApiKey ? (provider.apiKeyHint || "已配置") : "未配置"],
+        ["模型数量", `${modelsForProvider(provider.id).length} 个`],
+        ["服务状态", provider.enabled ? "已启用" : "已停用"],
+        ["最近测试", provider.lastTestedAt ? formatDateTime(provider.lastTestedAt) : "尚未测试"]
+      ];
+      factValues.forEach(([label, value]) => {
+        const fact = document.createElement("div");
+        fact.className = "image-provider-fact";
+        fact.append(imageText("span", label), imageText("strong", value));
+        facts.append(fact);
+      });
+
+      const testCopy = imageText(
+        "p",
+        provider.lastTestMessage || (provider.lastTestStatus === "untested" ? "测试连接可验证密钥、模型和上游响应。" : health.label),
+        "image-provider-test-copy"
+      );
+      const actions = document.createElement("div");
+      actions.className = "image-card-actions";
+      actions.append(
+        imageButton("编辑与测试", "pencil", "secondary-button", () => openImageProviderDialog(provider, { focusTest: true })),
+        imageButton(provider.enabled ? "停用" : "启用", "power", "secondary-button", (event) => void toggleImageProvider(provider, event.currentTarget)),
+        imageButton("删除", "trash-2", "danger-button", (event) => void deleteImageProvider(provider, event.currentTarget))
+      );
+      card.append(head, facts, testCopy, actions);
+      dom.imageProviderList.append(card);
+    });
+    renderIcons();
+  }
+
+  function renderImageModels() {
+    dom.imageModelList.replaceChildren();
+    dom.imageModelEmpty.hidden = state.imageModels.length > 0;
+    dom.imageModelAdd.disabled = state.imageProviders.length === 0;
+
+    state.imageModels.forEach((model) => {
+      const provider = providerForModel(model);
+      const row = document.createElement("tr");
+      const primary = document.createElement("td");
+      primary.className = "image-model-primary";
+      primary.append(imageText("strong", model.displayName), imageText("small", model.modelId));
+
+      const providerCell = imageText("td", provider?.name || "平台已删除");
+      const capabilities = document.createElement("td");
+      const capabilityList = document.createElement("div");
+      capabilityList.className = "image-model-capabilities";
+      asArray(model.supportedRatios).forEach((ratio) => capabilityList.append(imageText("span", ratio, "image-capability-badge")));
+      capabilityList.append(imageText("span", `最多 ${model.maxImages} 张`, "image-capability-badge"));
+      capabilities.append(capabilityList);
+
+      const enabled = document.createElement("td");
+      enabled.append(imageText("span", model.enabled ? "已开放" : "已停用", `image-state-badge ${model.enabled ? "is-enabled" : "is-disabled"}`));
+      const defaultCell = document.createElement("td");
+      defaultCell.append(imageText("span", model.isDefault ? "默认模型" : "—", `image-state-badge${model.isDefault ? " is-default" : ""}`));
+      const sortOrder = imageText("td", String(model.sortOrder ?? 0));
+      const actions = document.createElement("td");
+      const actionGroup = document.createElement("div");
+      actionGroup.className = "image-model-actions";
+      const defaultButton = imageButton("设为默认", "star", "secondary-button", (event) => void setDefaultImageModel(model, event.currentTarget));
+      defaultButton.disabled = Boolean(model.isDefault);
+      actionGroup.append(
+        imageButton(model.enabled ? "停用" : "启用", "power", "secondary-button", (event) => void toggleImageModel(model, event.currentTarget)),
+        defaultButton,
+        imageButton("编辑", "pencil", "secondary-button", () => openImageModelDialog(model)),
+        imageButton("删除", "trash-2", "danger-button", (event) => void deleteImageModel(model, event.currentTarget))
+      );
+      actions.append(actionGroup);
+      row.append(primary, providerCell, capabilities, enabled, defaultCell, sortOrder, actions);
+      dom.imageModelList.append(row);
+    });
+    renderIcons();
+  }
+
+  function openImageProviderDialog(provider = null, { focusTest = false } = {}) {
+    state.imageProviderEditorSession = nextImageEditorSession("provider");
+    state.imageEditingProvider = provider;
+    dom.imageProviderForm.reset();
+    dom.imageProviderFormError.hidden = true;
+    dom.imageProviderId.value = provider?.id || "";
+    dom.imageProviderRevision.value = provider?.revision ?? "";
+    dom.imageProviderName.value = provider?.name || "";
+    dom.imageProviderBaseUrl.value = provider?.baseUrl || "";
+    dom.imageProviderGenerationPath.value = provider?.generationPath || "/v1/images/generations";
+    dom.imageProviderEditPath.value = provider?.editPath || "/v1/images/edits";
+    dom.imageProviderTimeout.value = provider?.timeoutMs ?? 180000;
+    dom.imageProviderEnabled.checked = provider ? Boolean(provider.enabled) : true;
+    dom.imageProviderDialogTitle.textContent = provider ? "编辑图片平台" : "新增图片平台";
+    dom.imageProviderKeyHint.textContent = provider
+      ? (provider.hasApiKey ? (provider.apiKeyHint || "已保存") : "未配置")
+      : "保存时加密写入服务器";
+    dom.imageProviderReplaceKeyWrap.hidden = !provider;
+    dom.imageProviderReplaceKey.checked = false;
+    renderImageProviderKeyField(!provider);
+    state.imageDiscoveredModels = [];
+    renderDiscoveredImageModels();
+    dom.imageProviderDiscoverModels.disabled = !provider;
+    dom.imageProviderDiscoveryStatus.className = "";
+    dom.imageProviderDiscoveryStatus.textContent = provider
+      ? "读取平台当前开放的模型，不会产生生图费用。"
+      : "请先保存平台，再读取模型列表。";
+
+    populateProviderTestModels(provider?.id || "");
+    const hasTestModels = dom.imageProviderTestModel.options.length > 0;
+    dom.imageProviderTest.disabled = !provider;
+    dom.imageProviderTestStatus.className = "";
+    dom.imageProviderTestStatus.textContent = provider
+      ? (provider.lastTestMessage || (hasTestModels ? "选择一个模型验证上游连接。" : "当前平台还没有模型，请先添加模型后再测试连接。"))
+      : "保存平台并添加模型后可测试连接。";
+    dom.imageProviderDialog.showModal();
+    renderIcons();
+    if (focusTest && !dom.imageProviderTest.disabled) dom.imageProviderTest.focus();
+    else dom.imageProviderName.focus();
+  }
+
+  function renderImageProviderKeyField(visible) {
+    dom.imageProviderKeyField.replaceChildren();
+    if (!visible) return;
+    const label = document.createElement("label");
+    label.className = "image-form-field";
+    label.htmlFor = "image-provider-api-key";
+    label.append(imageText("span", state.imageEditingProvider ? "新 API 密钥" : "API 密钥"));
+    const input = document.createElement("input");
+    input.id = "image-provider-api-key";
+    input.name = "apiKey";
+    input.type = "password";
+    input.required = true;
+    input.autocomplete = "new-password";
+    input.maxLength = 4096;
+    input.placeholder = "仅在本次保存时发送";
+    label.append(input);
+    dom.imageProviderKeyField.append(label);
+  }
+
+  function populateProviderTestModels(providerId) {
+    dom.imageProviderTestModel.replaceChildren();
+    modelsForProvider(providerId).forEach((model) => {
+      const option = document.createElement("option");
+      option.value = model.id;
+      option.textContent = `${model.displayName} · ${model.modelId}`;
+      dom.imageProviderTestModel.append(option);
+    });
+  }
+
+  function renderDiscoveredImageModels() {
+    dom.imageProviderDiscoveryList.replaceChildren();
+    dom.imageProviderDiscoveryList.hidden = state.imageDiscoveredModels.length === 0;
+    dom.imageProviderImportModels.hidden = state.imageDiscoveredModels.length === 0;
+    const existing = new Set(modelsForProvider(state.imageEditingProvider?.id || "").map((model) => model.modelId));
+    state.imageDiscoveredModels.forEach((model) => {
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.value = model.modelId;
+      input.checked = Boolean(model.imageLikely) && !existing.has(model.modelId);
+      input.disabled = existing.has(model.modelId);
+      label.append(input, imageText("span", model.displayName || model.modelId));
+      if (existing.has(model.modelId)) label.append(imageText("small", "已导入"));
+      else if (model.imageLikely) label.append(imageText("small", "图片模型候选"));
+      dom.imageProviderDiscoveryList.append(label);
+    });
+  }
+
+  async function discoverImageProviderModels() {
+    const provider = state.imageEditingProvider;
+    if (!provider) return;
+    const editorSession = state.imageProviderEditorSession;
+    const key = `provider-discover:${provider.id}`;
+    if (!startImageAction(key, [dom.imageProviderDiscoverModels, dom.imageProviderImportModels])) return;
+    dom.imageProviderDiscoveryStatus.className = "";
+    dom.imageProviderDiscoveryStatus.textContent = "正在读取平台模型列表";
+    try {
+      const result = await imageRequest(`${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}/discover-models`, { method: "POST", body: "{}" });
+      if (!isCurrentProviderEditor(editorSession)) return;
+      state.imageDiscoveredModels = asArray(result?.items);
+      renderDiscoveredImageModels();
+      dom.imageProviderDiscoveryStatus.className = state.imageDiscoveredModels.length ? "is-success" : "";
+      dom.imageProviderDiscoveryStatus.textContent = state.imageDiscoveredModels.length
+        ? `读取到 ${state.imageDiscoveredModels.length} 个模型，已优先勾选图片模型候选。`
+        : "平台返回了空模型列表，请在平台控制台确认当前分组的模型权限。";
+    } catch (error) {
+      if (isCurrentProviderEditor(editorSession)) {
+        state.imageDiscoveredModels = [];
+        renderDiscoveredImageModels();
+        dom.imageProviderDiscoveryStatus.className = "is-error";
+        dom.imageProviderDiscoveryStatus.textContent = messageForError(error);
+      }
+    } finally {
+      setImageActionBusy(key, false, isCurrentProviderEditor(editorSession) ? [dom.imageProviderDiscoverModels, dom.imageProviderImportModels] : []);
+    }
+  }
+
+  async function importDiscoveredImageModels() {
+    const provider = state.imageEditingProvider;
+    if (!provider) return;
+    const selected = [...dom.imageProviderDiscoveryList.querySelectorAll("input[type='checkbox']:checked")]
+      .filter((input) => !input.disabled).map((input) => input.value);
+    if (!selected.length) {
+      dom.imageProviderDiscoveryStatus.className = "is-error";
+      dom.imageProviderDiscoveryStatus.textContent = "请至少选择一个尚未导入的模型。";
+      return;
+    }
+    const key = `provider-import:${provider.id}`;
+    if (!startImageAction(key, [dom.imageProviderDiscoverModels, dom.imageProviderImportModels, dom.imageProviderSave])) return;
+    const existingCount = state.imageModels.length;
+    try {
+      for (const [index, modelId] of selected.entries()) {
+        const candidate = state.imageDiscoveredModels.find((item) => item.modelId === modelId);
+        await imageRequest(IMAGE_MODEL_API, { method: "POST", body: JSON.stringify({
+          providerId: provider.id, modelId, displayName: candidate?.displayName || modelId,
+          supportedRatios: ["1:1", "16:9", "9:16", "4:3", "3:4"], maxImages: 1,
+          sortOrder: index, enabled: true, isDefault: existingCount === 0 && index === 0
+        }) });
+      }
+      await refreshImageWorkspace({ quiet: true });
+      if (state.imageEditingProvider?.id === provider.id) {
+        populateProviderTestModels(provider.id);
+        renderDiscoveredImageModels();
+        dom.imageProviderDiscoveryStatus.className = "is-success";
+        dom.imageProviderDiscoveryStatus.textContent = `已导入 ${selected.length} 个模型。`;
+      }
+      toast(`已导入 ${selected.length} 个图片模型`);
+    } catch (error) {
+      dom.imageProviderDiscoveryStatus.className = "is-error";
+      dom.imageProviderDiscoveryStatus.textContent = messageForError(error);
+    } finally {
+      setImageActionBusy(key, false, [dom.imageProviderDiscoverModels, dom.imageProviderImportModels, dom.imageProviderSave]);
+    }
+  }
+
+  function closeImageProviderDialog() {
+    if (dom.imageProviderDialog.open) dom.imageProviderDialog.close();
+    cleanupImageProviderDialog();
+  }
+
+  function cleanupImageProviderDialog() {
+    state.imageProviderEditorSession = null;
+    state.imageEditingProvider = null;
+    dom.imageProviderKeyField.replaceChildren();
+    dom.imageProviderSave.disabled = false;
+    dom.imageProviderTest.disabled = false;
+  }
+
+  function openImageModelDialog(model = null) {
+    state.imageModelEditorSession = nextImageEditorSession("model");
+    state.imageEditingModel = model;
+    dom.imageModelForm.reset();
+    dom.imageModelFormError.hidden = true;
+    dom.imageModelId.value = model?.id || "";
+    dom.imageModelRevision.value = model?.revision ?? "";
+    populateProviderSelect(dom.imageModelProvider, model?.providerId || state.imageProviders[0]?.id || "");
+    dom.imageModelUpstreamId.value = model?.modelId || "";
+    dom.imageModelDisplayName.value = model?.displayName || "";
+    dom.imageModelMaxImages.value = model?.maxImages ?? 1;
+    dom.imageModelSortOrder.value = model?.sortOrder ?? 0;
+    dom.imageModelEnabled.checked = model ? Boolean(model.enabled) : true;
+    dom.imageModelDefault.checked = Boolean(model?.isDefault);
+    const ratios = new Set(asArray(model?.supportedRatios).length ? model.supportedRatios : ["1:1"]);
+    dom.imageModelRatios.querySelectorAll("input[name='supportedRatios']").forEach((input) => {
+      input.checked = ratios.has(input.value);
+    });
+    dom.imageModelDialogTitle.textContent = model ? "编辑图片模型" : "新增图片模型";
+    dom.imageModelSave.disabled = state.imageProviders.length === 0;
+    if (state.imageProviders.length === 0) {
+      dom.imageModelFormError.textContent = "请先新增图片平台。";
+      dom.imageModelFormError.hidden = false;
+    }
+    dom.imageModelDialog.showModal();
+    renderIcons();
+    if (state.imageProviders.length) dom.imageModelProvider.focus();
+  }
+
+  function closeImageModelDialog() {
+    if (dom.imageModelDialog.open) dom.imageModelDialog.close();
+    cleanupImageModelDialog();
+  }
+
+  function cleanupImageModelDialog() {
+    state.imageModelEditorSession = null;
+    state.imageEditingModel = null;
+  }
+
+  async function saveImageProvider(event) {
+    event.preventDefault();
+    const provider = state.imageEditingProvider;
+    const editorSession = state.imageProviderEditorSession;
+    if (!editorSession) return;
+    const key = `provider-save:${provider?.id || "new"}`;
+    if (!startImageAction(key, [dom.imageProviderSave])) return;
+    dom.imageProviderFormError.hidden = true;
+    try {
+      const payload = {
+        name: dom.imageProviderName.value.trim(),
+        baseUrl: dom.imageProviderBaseUrl.value.trim(),
+        generationPath: dom.imageProviderGenerationPath.value.trim(),
+        editPath: dom.imageProviderEditPath.value.trim(),
+        timeoutMs: Number(dom.imageProviderTimeout.value),
+        enabled: dom.imageProviderEnabled.checked
+      };
+      if (provider) payload.revision = Number(dom.imageProviderRevision.value);
+      const keyInput = dom.imageProviderKeyField.querySelector("#image-provider-api-key");
+      if (keyInput) payload.apiKey = keyInput.value;
+      await imageRequest(provider ? `${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}` : IMAGE_PROVIDER_API, {
+        method: provider ? "PATCH" : "POST",
+        body: JSON.stringify(payload)
+      });
+      if (isCurrentProviderEditor(editorSession)) closeImageProviderDialog();
+      await refreshImageWorkspace();
+      toast(provider ? "图片平台已更新" : "图片平台已新增");
+    } catch (error) {
+      if (isCurrentProviderEditor(editorSession)) {
+        dom.imageProviderFormError.textContent = messageForError(error);
+        dom.imageProviderFormError.hidden = false;
+      }
+    } finally {
+      setImageActionBusy(key, false, isCurrentProviderEditor(editorSession) ? [dom.imageProviderSave] : []);
+    }
+  }
+
+  async function testImageProvider() {
+    const provider = state.imageEditingProvider;
+    const modelRecordId = dom.imageProviderTestModel.value;
+    if (!provider) return;
+    if (!modelRecordId) {
+      dom.imageProviderTestStatus.className = "is-error";
+      dom.imageProviderTestStatus.textContent = "当前平台还没有模型，请先添加模型后再测试连接。";
+      return;
+    }
+    const editorSession = state.imageProviderEditorSession;
+    const submittedRevision = Number(dom.imageProviderRevision.value);
+    const submittedConfig = providerFormConfigFingerprint();
+    const key = `provider-test:${provider.id}`;
+    if (!startImageAction(key, [dom.imageProviderTest, dom.imageProviderSave])) return;
+    dom.imageProviderTestStatus.className = "";
+    dom.imageProviderTestStatus.textContent = "正在验证上游连接";
+    let error = null;
+    try {
+      await imageRequest(`${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}/test`, {
+        method: "POST",
+        body: JSON.stringify({ revision: submittedRevision, modelRecordId })
+      });
+    } catch (caught) {
+      error = caught;
+    }
+    await refreshImageWorkspace({ quiet: true });
+    const latest = state.imageProviders.find((item) => item.id === provider.id);
+    const sameEditor = isCurrentProviderEditor(editorSession);
+    const sameEditorConfig = sameEditor && providerFormConfigFingerprint() === submittedConfig;
+    if (sameEditor) {
+      const mayAdvanceRevision = sameEditorConfig && error?.status !== 409 && latest
+        && Number(latest.revision) > submittedRevision
+        && providerRecordConfigFingerprint(latest) === submittedConfig;
+      if (mayAdvanceRevision) {
+        state.imageEditingProvider = latest;
+        dom.imageProviderRevision.value = latest.revision;
+      }
+      dom.imageProviderTestStatus.className = error ? "is-error" : "is-success";
+      dom.imageProviderTestStatus.textContent = error
+        ? messageForError(error)
+        : (mayAdvanceRevision ? "连接测试成功" : "连接测试成功；平台配置已变化，请刷新后继续编辑");
+      setImageActionBusy(key, false, [dom.imageProviderTest, dom.imageProviderSave]);
+    } else {
+      setImageActionBusy(key, false);
+    }
+  }
+
+  async function patchImageProvider(provider, changes, button, successMessage) {
+    const key = `provider-patch:${provider.id}`;
+    if (!startImageAction(key, [button])) return;
+    try {
+      await imageRequest(`${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ revision: provider.revision, ...changes })
+      });
+      await refreshImageWorkspace();
+      toast(successMessage);
+    } catch (error) {
+      toast(messageForError(error), "error");
+    } finally {
+      setImageActionBusy(key, false, [button]);
+    }
+  }
+
+  function toggleImageProvider(provider, button) {
+    return patchImageProvider(provider, { enabled: !provider.enabled }, button, provider.enabled ? "图片平台已停用" : "图片平台已启用");
+  }
+
+  async function deleteImageProvider(provider, button) {
+    if (!window.confirm(`删除图片平台“${provider.name}”？`)) return;
+    const key = `provider-delete:${provider.id}`;
+    if (!startImageAction(key, [button])) return;
+    try {
+      await imageRequest(`${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}`, {
+        method: "DELETE",
+        body: JSON.stringify({ revision: provider.revision })
+      });
+      await refreshImageWorkspace();
+      toast("图片平台已删除");
+    } catch (error) {
+      toast(messageForError(error), "error");
+    } finally {
+      setImageActionBusy(key, false, [button]);
+    }
+  }
+
+  async function saveImageModel(event) {
+    event.preventDefault();
+    const model = state.imageEditingModel;
+    const editorSession = state.imageModelEditorSession;
+    if (!editorSession) return;
+    const key = `model-save:${model?.id || "new"}`;
+    if (!startImageAction(key, [dom.imageModelSave])) return;
+    dom.imageModelFormError.hidden = true;
+    try {
+      const supportedRatios = [...dom.imageModelRatios.querySelectorAll("input[name='supportedRatios']:checked")].map((input) => input.value);
+      if (!supportedRatios.length) throw new Error("至少选择一个支持画幅");
+      const payload = {
+        providerId: dom.imageModelProvider.value,
+        modelId: dom.imageModelUpstreamId.value.trim(),
+        displayName: dom.imageModelDisplayName.value.trim(),
+        supportedRatios,
+        maxImages: Number(dom.imageModelMaxImages.value),
+        sortOrder: Number(dom.imageModelSortOrder.value),
+        enabled: dom.imageModelEnabled.checked,
+        isDefault: dom.imageModelDefault.checked
+      };
+      if (model) payload.revision = Number(dom.imageModelRevision.value);
+      await imageRequest(model ? `${IMAGE_MODEL_API}/${encodeURIComponent(model.id)}` : IMAGE_MODEL_API, {
+        method: model ? "PATCH" : "POST",
+        body: JSON.stringify(payload)
+      });
+      if (isCurrentModelEditor(editorSession)) closeImageModelDialog();
+      await refreshImageWorkspace();
+      toast(model ? "图片模型已更新" : "图片模型已新增");
+    } catch (error) {
+      if (isCurrentModelEditor(editorSession)) {
+        dom.imageModelFormError.textContent = messageForError(error);
+        dom.imageModelFormError.hidden = false;
+      }
+    } finally {
+      setImageActionBusy(key, false, isCurrentModelEditor(editorSession) ? [dom.imageModelSave] : []);
+    }
+  }
+
+  async function patchImageModel(model, changes, button, successMessage) {
+    const key = `model-patch:${model.id}`;
+    if (!startImageAction(key, [button])) return;
+    try {
+      await imageRequest(`${IMAGE_MODEL_API}/${encodeURIComponent(model.id)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ revision: model.revision, ...changes })
+      });
+      await refreshImageWorkspace();
+      toast(successMessage);
+    } catch (error) {
+      toast(messageForError(error), "error");
+    } finally {
+      setImageActionBusy(key, false, [button]);
+    }
+  }
+
+  function toggleImageModel(model, button) {
+    return patchImageModel(model, { enabled: !model.enabled }, button, model.enabled ? "图片模型已停用" : "图片模型已启用");
+  }
+
+  function setDefaultImageModel(model, button) {
+    return patchImageModel(model, { isDefault: true }, button, "默认图片模型已更新");
+  }
+
+  async function deleteImageModel(model, button) {
+    if (!window.confirm(`删除图片模型“${model.displayName}”？`)) return;
+    const key = `model-delete:${model.id}`;
+    if (!startImageAction(key, [button])) return;
+    try {
+      await imageRequest(`${IMAGE_MODEL_API}/${encodeURIComponent(model.id)}`, {
+        method: "DELETE",
+        body: JSON.stringify({ revision: model.revision })
+      });
+      await refreshImageWorkspace();
+      toast("图片模型已删除");
+    } catch (error) {
+      toast(messageForError(error), "error");
+    } finally {
+      setImageActionBusy(key, false, [button]);
+    }
   }
 
   function normalizeMonitoring(raw) {
@@ -993,7 +1787,7 @@
       }
       const data = await fetchJson(`/api/admin/v1/monitoring?${params.toString()}`, {
         signal: state.monitoringController.signal,
-        ...(state.token ? { headers: { Authorization: `Bearer ${state.token}` } } : {})
+        ...(state.token && state.token !== "__session_admin__" ? { headers: { Authorization: `Bearer ${state.token}` } } : {})
       });
       if (requestId !== state.monitoringRequestId) return;
       renderMonitoring(data);
@@ -1006,7 +1800,7 @@
         void loadSubmissions({ quiet: true });
       }
     } catch (error) {
-      if (error.status === 401 && state.token) {
+      if (error.status === 401 && state.token && state.token !== "__session_admin__") {
         lockReviews(false);
         window.setTimeout(() => void loadMonitoring({ manual: true }), 0);
       }
@@ -1071,7 +1865,7 @@
     }
     try {
       const data = await fetchJson("/api/admin/v1/submissions?status=pending", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: token !== "__session_admin__" ? { Authorization: `Bearer ${token}` } : {}
       });
       state.token = token;
       state.submissions = submissionArray(data);
@@ -1088,11 +1882,13 @@
       return true;
     } catch (error) {
       if (error.status === 401) {
-        state.token = "";
+        if (token !== "__session_admin__") {
+          state.token = "";
+          lockCmsUi();
+        }
         state.submissions = [];
         dom.reviewWorkspace.hidden = true;
         dom.reviewLock.hidden = false;
-        lockCmsUi();
       }
       if (quiet) {
         toast(messageForError(error), "error");
@@ -1199,6 +1995,7 @@
 
   function lockReviews(refreshMonitoring = true) {
     state.token = "";
+    resetImageWorkspace();
     state.submissions = [];
     state.lastReviewFetchAt = 0;
     dom.tokenInput.value = "";
@@ -1293,6 +2090,7 @@
     state.cmsTotal = 0;
     state.cmsOffset = 0;
     state.cmsEditing = null;
+    state.cmsSessionUnlocked = false;
     dom.cmsWorkspace.hidden = true;
     dom.cmsLock.hidden = false;
     dom.cmsTokenInput.value = "";
@@ -1336,6 +2134,7 @@
   }
 
   function cmsListUrl() {
+    if (state.cmsEntity === "announcements") return "/api/admin/v1/site-announcements";
     const params = new URLSearchParams({ limit: String(state.cmsLimit), offset: String(state.cmsOffset) });
     if (state.cmsEntity === "tools") {
       if (state.cmsQuery) params.set("q", state.cmsQuery);
@@ -1345,16 +2144,22 @@
     return `/api/admin/v1/content/${state.cmsEntity}?${params}`;
   }
 
+  function cmsBearerToken() {
+    return state.token && state.token !== "__session_admin__" ? state.token : "";
+  }
+
   async function loadCmsEntity({ candidateToken = "", quiet = false } = {}) {
-    const token = candidateToken || state.token;
-    if (!token) return { ok: false, error: new Error("请输入管理令牌") };
+    const token = candidateToken || cmsBearerToken();
+    const useAdminSession = !token && state.token === "__session_admin__";
+    if (!token && !useAdminSession) return { ok: false, error: new Error("请输入管理令牌") };
     const requestId = ++state.cmsRequestId;
     setCmsLoading(true);
     try {
-      const data = await fetchJson(cmsListUrl(), { headers: { Authorization: `Bearer ${token}` } });
+      const data = await fetchJson(cmsListUrl(), { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       if (requestId !== state.cmsRequestId) return { ok: false };
       const list = cmsListPayload(data);
-      state.token = token;
+      if (token) state.token = token;
+      state.cmsSessionUnlocked = useAdminSession;
       state.cmsItems = list.items;
       state.cmsTotal = list.total;
       state.cmsLimit = list.limit;
@@ -1369,7 +2174,8 @@
       dom.cmsListMeta.textContent = `${formatNumber(state.cmsTotal)} 条内容 · ${formatDateTime(new Date().toISOString(), true)} 同步`;
       return { ok: true };
     } catch (error) {
-      if (error.status === 401 && token === state.token) lockReviews(false);
+      if (error.status === 401 && useAdminSession) lockCmsUi();
+      else if (error.status === 401 && token === state.token) lockReviews(false);
       if (!quiet && token === state.token) toast(messageForError(error), "error");
       return { ok: false, error };
     } finally {
@@ -1520,7 +2326,7 @@
     });
     dom.cmsTableHead.append(headerRow);
     dom.cmsTableBody.replaceChildren();
-    const renderers = { tools: renderToolRow, categories: renderCategoryRow, articles: renderArticleRow, collections: renderCollectionRow };
+    const renderers = { tools: renderToolRow, categories: renderCategoryRow, articles: renderArticleRow, collections: renderCollectionRow, announcements: renderAnnouncementRow };
     state.cmsItems.forEach((item) => dom.cmsTableBody.append(renderers[state.cmsEntity](item)));
     dom.cmsEmpty.hidden = state.cmsItems.length > 0 || state.cmsLoading;
     const page = Math.floor(state.cmsOffset / state.cmsLimit) + 1;
@@ -1541,6 +2347,28 @@
     dom.cmsWorkspace.setAttribute("aria-labelledby", `cms-tab-${state.cmsEntity}`);
   }
 
+  function renderAnnouncementRow(item) {
+    const row = document.createElement("tr");
+    row.append(makePrimaryCell({ title: item.title, subtitle: item.summary || item.body, fallbackIcon: "bell-ring" }));
+    row.append(makeTextCell(formatDateTime(item.availableAt, true)));
+    row.append(makeTextCell(String(item.version)));
+    const status = document.createElement("td");
+    const stateLabel = !item.enabled ? "已停用" : Date.parse(item.availableAt) > Date.now() ? "待定时" : "已启用";
+    const stateBadge = makeStatusBadge(item.enabled ? (stateLabel === "待定时" ? "draft" : "published") : "archived");
+    stateBadge.textContent = stateLabel;
+    status.append(stateBadge);
+    row.append(status);
+    const actions = document.createElement("td");
+    const wrap = document.createElement("div");
+    wrap.className = "cms-table-actions";
+    wrap.append(makeCmsAction("toggle-announcement", item.id, item.enabled ? "bell-off" : "bell-ring", item.enabled ? "停用公告" : "启用公告"));
+    wrap.append(makeCmsAction("edit-announcement", item.id, "pencil", "编辑公告"));
+    wrap.append(makeCmsAction("delete-announcement", item.id, "trash-2", "删除公告", true));
+    actions.append(wrap);
+    row.append(actions);
+    return row;
+  }
+
   async function switchCmsEntity(entity) {
     if (!CMS_CONFIG[entity] || entity === state.cmsEntity) return;
     state.cmsEntity = entity;
@@ -1553,10 +2381,25 @@
     });
     updateCmsToolbar();
     renderCmsList();
-    if (state.token) await loadCmsEntity();
+    if (cmsBearerToken() || state.token === "__session_admin__") await loadCmsEntity({ quiet: !cmsBearerToken() });
+    else if (state.cmsSessionUnlocked) lockCmsUi();
   }
 
   function cmsFieldSpecs(entity, record = {}) {
+    if (entity === "announcements") {
+      const scheduled = record.availableAt ? new Date(record.availableAt) : new Date(Date.now() + 5 * 60_000);
+      const localValue = new Date(scheduled.getTime() - scheduled.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+      return [
+        { name: "title", label: "公告标题", required: true, full: true, maxlength: 120 },
+        { name: "summary", label: "简短说明", type: "textarea", full: true, rows: 2, maxlength: 240 },
+        { name: "body", label: "公告正文", type: "textarea", required: true, full: true, rows: 7, maxlength: 4000, placeholder: "纯文本内容，空行分段显示" },
+        { name: "availableAt", label: "发布时间", type: "datetime-local", required: true, value: localValue, help: "达到发布时间且启用后，所有页面都会展示。" },
+        { name: "version", label: "公告版本", type: "number", required: true, min: 1, max: 1000000, value: record.version ?? 1, help: "内容有重大更新时递增版本，可让已看过的访客再次看到。" },
+        { name: "buttonLabel", label: "可选按钮文字", maxlength: 40 },
+        { name: "buttonUrl", label: "可选站內链接", placeholder: "/games", maxlength: 2048 },
+        { name: "enabled", label: "启用公告", type: "checkbox", value: record.enabled ?? false, help: "关闭后不会再向访客展示。" }
+      ];
+    }
     const today = new Date().toISOString().slice(0, 10);
     if (entity === "tools") return [
       { name: "id", label: "内容 ID", placeholder: "留空则自动生成", readonly: Boolean(record.id) },
@@ -1761,6 +2604,12 @@
     if (spec.max !== undefined) input.max = String(spec.max);
     if (spec.maxlength) input.maxLength = spec.maxlength;
     wrapper.append(input);
+    if (spec.help) {
+      const help = document.createElement("small");
+      help.className = "cms-field-help";
+      help.textContent = spec.help;
+      wrapper.append(help);
+    }
     return wrapper;
   }
 
@@ -1811,7 +2660,7 @@
   }
 
   async function openCmsEditor(record = null) {
-    if (!state.token) return;
+    if (!cmsBearerToken() && !state.cmsSessionUnlocked) return;
     if (state.cmsEntity === "tools") {
       try { await ensureCmsCategories(); } catch (error) { toast(messageForError(error), "error"); return; }
     }
@@ -1840,6 +2689,16 @@
   function cmsFormPayload() {
     const data = new FormData(dom.cmsForm);
     const id = String(data.get("id") || "").trim();
+    if (state.cmsEntity === "announcements") return {
+      title: String(data.get("title") || "").trim(),
+      summary: String(data.get("summary") || "").trim(),
+      body: String(data.get("body") || "").trim(),
+      availableAt: new Date(String(data.get("availableAt") || "")).toISOString(),
+      version: asNumber(data.get("version"), 1),
+      buttonLabel: String(data.get("buttonLabel") || "").trim(),
+      buttonUrl: String(data.get("buttonUrl") || "").trim(),
+      enabled: data.has("enabled")
+    };
     if (state.cmsEntity === "tools") return {
       ...(id ? { id } : {}),
       name: String(data.get("name") || "").trim(),
@@ -1882,7 +2741,7 @@
 
   async function saveCmsRecord(event) {
     event.preventDefault();
-    if (!state.token || state.cmsUploading || !dom.cmsForm.reportValidity()) return;
+    if ((!cmsBearerToken() && !state.cmsSessionUnlocked) || state.cmsUploading || !dom.cmsForm.reportValidity()) return;
     const editingId = dom.cmsRecordId.value;
     const payload = cmsFormPayload();
     if (state.cmsEntity === "tools" && !payload.platforms.length) {
@@ -1897,9 +2756,10 @@
     dom.cmsFormError.hidden = true;
     dom.cmsSave.disabled = true;
     try {
-      await fetchJson(`/api/admin/v1/content/${state.cmsEntity}${editingId ? `/${encodeURIComponent(editingId)}` : ""}`, {
+      const endpoint = state.cmsEntity === "announcements" ? "/api/admin/v1/site-announcements" : `/api/admin/v1/content/${state.cmsEntity}`;
+      await fetchJson(`${endpoint}${editingId ? `/${encodeURIComponent(editingId)}` : ""}`, {
         method: editingId ? "PATCH" : "POST",
-        headers: { Authorization: `Bearer ${state.token}` },
+        headers: cmsBearerToken() ? { Authorization: `Bearer ${cmsBearerToken()}` } : {},
         body: JSON.stringify(payload)
       });
       const label = cmsEntityConfig().label;
@@ -1923,6 +2783,7 @@
   }
 
   async function fetchCmsRecord(id) {
+    if (state.cmsEntity === "announcements") return fetchJson(`/api/admin/v1/site-announcements/${encodeURIComponent(id)}`, { headers: cmsBearerToken() ? { Authorization: `Bearer ${cmsBearerToken()}` } : {} });
     return fetchJson(`/api/admin/v1/content/${state.cmsEntity}/${encodeURIComponent(id)}`, {
       headers: { Authorization: `Bearer ${state.token}` }
     });
@@ -1954,6 +2815,16 @@
   }
 
   async function archiveCmsRecord(id) {
+    if (state.cmsEntity === "announcements") {
+      const item = state.cmsItems.find((record) => record.id === id);
+      if (!window.confirm(`确定永久删除公告“${item?.title || "该公告"}”？`)) return;
+      try {
+        await fetchJson(`/api/admin/v1/site-announcements/${encodeURIComponent(id)}`, { method: "DELETE", headers: cmsBearerToken() ? { Authorization: `Bearer ${cmsBearerToken()}` } : {} });
+        toast("上线公告已删除");
+        await loadCmsEntity({ quiet: true });
+      } catch (error) { if (error.status === 401) lockReviews(false); toast(messageForError(error), "error"); }
+      return;
+    }
     const item = state.cmsItems.find((record) => record.id === id);
     if (!window.confirm(`确认归档“${item?.name || item?.title || "该内容"}”？归档后前端将不再展示。`)) return;
     try {
@@ -1974,6 +2845,17 @@
     if (!button) return;
     const item = state.cmsItems.find((record) => record.id === button.dataset.cmsId);
     if (!item) return;
+    if (state.cmsEntity === "announcements") {
+      if (button.dataset.cmsAction === "edit-announcement") void editCmsRecord(item.id);
+      if (button.dataset.cmsAction === "delete-announcement") void archiveCmsRecord(item.id);
+      if (button.dataset.cmsAction === "toggle-announcement") {
+        const payload = { title: item.title, summary: item.summary, body: item.body, availableAt: item.availableAt, buttonLabel: item.buttonLabel, buttonUrl: item.buttonUrl, version: item.version, enabled: !item.enabled };
+        void fetchJson(`/api/admin/v1/site-announcements/${encodeURIComponent(item.id)}`, { method: "PATCH", headers: cmsBearerToken() ? { Authorization: `Bearer ${cmsBearerToken()}` } : {}, body: JSON.stringify(payload) })
+          .then(() => loadCmsEntity({ quiet: true })).then(() => toast(payload.enabled ? "公告已启用" : "公告已停用"))
+          .catch((error) => { if (error.status === 401) lockReviews(false); toast(messageForError(error), "error"); });
+      }
+      return;
+    }
     if (button.dataset.cmsAction === "edit") void editCmsRecord(item.id);
     if (button.dataset.cmsAction === "archive") void archiveCmsRecord(item.id);
     if (button.dataset.cmsAction === "toggle-status") {
@@ -2032,6 +2914,12 @@
   }
 
   function bindEvents() {
+    document.querySelector("#announcement-settings-shortcut")?.addEventListener("click", () => {
+      void switchCmsEntity("announcements").then(() => {
+        document.querySelector("#cms")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (!dom.cmsLock.hidden) dom.cmsTokenInput.focus({ preventScroll: true });
+      });
+    });
     document.querySelectorAll("[data-window]").forEach((button) => {
       button.addEventListener("click", () => updateWindow(button.dataset.window));
     });
@@ -2123,6 +3011,31 @@
     dom.usersRefresh.addEventListener("click", () => void loadUsers());
     dom.feedbackRefresh.addEventListener("click", () => void loadFeedback());
     dom.feedbackStatusFilter.addEventListener("change", () => void loadFeedback());
+    dom.imageTokenForm.addEventListener("submit", unlockImageWorkspace);
+    dom.imageWorkspaceRefresh.addEventListener("click", () => void refreshImageWorkspace());
+    dom.imageProviderAdd.addEventListener("click", () => openImageProviderDialog());
+    dom.imageModelAdd.addEventListener("click", () => openImageModelDialog());
+    dom.imageProviderForm.addEventListener("submit", saveImageProvider);
+    dom.imageProviderDialogClose.addEventListener("click", closeImageProviderDialog);
+    dom.imageProviderDialogCancel.addEventListener("click", closeImageProviderDialog);
+    dom.imageProviderDialog.addEventListener("click", (event) => {
+      if (event.target === dom.imageProviderDialog) closeImageProviderDialog();
+    });
+    dom.imageProviderDialog.addEventListener("close", cleanupImageProviderDialog);
+    dom.imageProviderReplaceKey.addEventListener("change", () => {
+      renderImageProviderKeyField(dom.imageProviderReplaceKey.checked);
+      if (dom.imageProviderReplaceKey.checked) dom.imageProviderKeyField.querySelector("input")?.focus();
+    });
+    dom.imageProviderTest.addEventListener("click", () => void testImageProvider());
+    dom.imageProviderDiscoverModels.addEventListener("click", () => void discoverImageProviderModels());
+    dom.imageProviderImportModels.addEventListener("click", () => void importDiscoveredImageModels());
+    dom.imageModelForm.addEventListener("submit", saveImageModel);
+    dom.imageModelDialogClose.addEventListener("click", closeImageModelDialog);
+    dom.imageModelDialogCancel.addEventListener("click", closeImageModelDialog);
+    dom.imageModelDialog.addEventListener("click", (event) => {
+      if (event.target === dom.imageModelDialog) closeImageModelDialog();
+    });
+    dom.imageModelDialog.addEventListener("close", cleanupImageModelDialog);
 
     window.addEventListener("online", () => void loadMonitoring({ manual: true }));
     window.addEventListener("offline", () => showGlobalError(new Error("网络已断开，正在等待恢复")));
@@ -2132,69 +3045,77 @@
   }
 
   async function requireAccountSession() {
-    if (!state.token) {
-      try {
-        const probe = await fetch("/api/admin/v1/monitoring?hours=24", {
-          credentials: "same-origin",
-          headers: { Accept: "application/json" }
-        });
-        if (probe.ok) return true;
-      } catch {}
-    }
-    if (state.token) {
-      try {
-        const response = await fetch("/api/admin/v1/summary", {
-          credentials: "same-origin",
-          headers: { Accept: "application/json", Authorization: `Bearer ${state.token}` }
-        });
-        if (response.ok) return true;
-      } catch {}
-      sessionStorage.removeItem("nike-admin-token");
-      state.token = "";
-    }
+    const savedToken = state.token && state.token !== "__session_admin__" ? state.token : "";
+    let accountAuthenticated = false;
     try {
       const response = await fetch("/api/v1/auth/me", {
         credentials: "same-origin",
         headers: { Accept: "application/json" }
       });
-      if (response.status === 401) {
-        const next = `${location.pathname}${location.search}${location.hash}`;
-        location.replace(`/auth.html?mode=admin&next=${encodeURIComponent(next)}`);
-        return false;
-      }
       if (response.ok) {
         const payload = await response.json().catch(() => ({}));
         if (payload?.data?.user?.role === "admin") {
+          state.imageAdminToken = savedToken;
           state.token = "__session_admin__";
           state.isSuperAdmin = Boolean(payload.data.user.isSuperAdmin);
           return true;
         }
-        location.replace("/");
+        accountAuthenticated = true;
+      } else if (response.status !== 401) {
         return false;
       }
-      return false;
-    } catch {
-      return true;
+    } catch (error) {
+      if (!savedToken) {
+        showGlobalError(error);
+        return false;
+      }
     }
+    if (savedToken) {
+      try {
+        const response = await fetch("/api/admin/v1/summary", {
+          credentials: "same-origin",
+          headers: { Accept: "application/json", Authorization: `Bearer ${savedToken}` }
+        });
+        if (response.ok) {
+          state.token = savedToken;
+          return true;
+        }
+      } catch {}
+      sessionStorage.removeItem("nike-admin-token");
+      state.token = "";
+    }
+    if (accountAuthenticated) location.replace("/");
+    else {
+      const next = `${location.pathname}${location.search}${location.hash}`;
+      location.replace(`/auth.html?mode=admin&next=${encodeURIComponent(next)}`);
+    }
+    return false;
   }
 
   async function init() {
     if (!await requireAccountSession()) return;
+    state.imageAdminToken = state.imageAdminToken || (state.token === "__session_admin__" ? "" : state.token);
     renderIcons();
     updateCmsToolbar();
     renderCmsList();
+    renderImageProviders();
+    renderImageModels();
     bindEvents();
     setupNavigationObserver();
     setupChartResizeObserver();
     state.pollTimer = window.setInterval(() => void loadMonitoring(), POLL_INTERVAL_MS);
     state.relativeTimer = window.setInterval(updateRelativeStatus, 1_000);
-    if (state.token === "__session_admin__") void loadSubmissions({ quiet: true });
+    if (state.token === "__session_admin__") {
+      void loadSubmissions({ quiet: true });
+      void loadCmsEntity({ quiet: true });
+    }
     if (state.isSuperAdmin) {
       dom.usersSection.hidden = false;
       dom.usersNav.hidden = false;
       void loadUsers();
     }
     void loadFeedback();
+    void refreshImageWorkspace();
     void loadMonitoring({ manual: true });
   }
 

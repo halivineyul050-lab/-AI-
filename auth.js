@@ -22,6 +22,7 @@
   const adminEntry = document.getElementById("admin-entry");
   const logoutButton = document.getElementById("logout-button");
   const adminAuthPanel = document.getElementById("admin-auth-panel");
+  const adminAccountForm = document.getElementById("admin-account-form");
   const adminAuthForm = document.getElementById("admin-auth-form");
   const nextPath = (() => {
     const value = new URLSearchParams(location.search).get("next") || "/";
@@ -227,6 +228,7 @@
   }
 
   function showAdminAuth() {
+    document.body.classList.add("is-admin-auth");
     tabs.hidden = true;
     loginForm.hidden = true;
     registerForm.hidden = true;
@@ -354,6 +356,31 @@
       location.href = "/auth.html#register";
     } catch (error) {
       showMessage(errorMessage(error));
+      button.disabled = false;
+    }
+  });
+
+  adminAccountForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = adminAccountForm.querySelector('button[type="submit"]');
+    const data = new FormData(adminAccountForm);
+    button.disabled = true;
+    showMessage("");
+    try {
+      const result = await api("/api/v1/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email: String(data.get("email") || ""), password: String(data.get("password") || "") })
+      });
+      if (result.user?.role !== "admin") {
+        try { await api("/api/v1/auth/logout", { method: "POST", body: "{}" }); } catch {}
+        showMessage("该账号没有运营中心权限，请使用已授权的管理员账号。");
+        return;
+      }
+      showMessage("登录成功，正在进入运营中心。", true);
+      location.href = nextPath;
+    } catch (error) {
+      showMessage(errorMessage(error));
+    } finally {
       button.disabled = false;
     }
   });

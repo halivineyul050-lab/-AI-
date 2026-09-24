@@ -10,7 +10,7 @@ if [[ -z "$snapshot" || ! -f "$snapshot" ]]; then
   exit 1
 fi
 
-"${app_dir}/scripts/backup-database.sh"
+node "${app_dir}/scripts/active-database-backup.mjs" "$app_dir"
 systemctl stop nikai-ai.service
 tar -xzf "$snapshot" -C "$app_dir"
 chown root:nikai "$app_dir/scripts/release-production.sh" "$app_dir/scripts/rollback-production.sh"

@@ -16,7 +16,12 @@ mkdir -p "$snapshot_dir"
 timestamp="$(date +%Y%m%d-%H%M%S)"
 snapshot="${snapshot_dir}/release-${timestamp}-${release_id:0:12}.tgz"
 
-"${app_dir}/scripts/backup-database.sh"
+backup_helper_dir="$(mktemp -d)"
+trap 'rm -rf "$backup_helper_dir"' EXIT
+tar -xzf "$archive" -C "$backup_helper_dir" ./scripts/active-database-backup.mjs
+node "${backup_helper_dir}/scripts/active-database-backup.mjs" "$app_dir"
+rm -rf "$backup_helper_dir"
+trap - EXIT
 tar --exclude='./data' --exclude='./.env' --exclude='./node_modules' --exclude='./imports' --exclude='./.git' -czf "$snapshot" -C "$app_dir" .
 
 rollback() {

@@ -1,5 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
-import { openMariaDatabase } from './mariadb-compat.mjs';
+import { applyMariaMigrations, openMariaDatabase } from './mariadb-compat.mjs';
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
@@ -19,6 +19,10 @@ const migrations = [
   ,{ version: 11, name: "super_admin_controls", sql: readFileSync(resolve(import.meta.dirname, "migrations", "011_super_admin_controls.sql"), "utf8") }
   ,{ version: 12, name: "account_activity", sql: readFileSync(resolve(import.meta.dirname, "migrations", "012_account_activity.sql"), "utf8") }
   ,{ version: 13, name: "analytics_visitors", sql: readFileSync(resolve(import.meta.dirname, "migrations", "013_analytics_visitors.sql"), "utf8") }
+  ,{ version: 14, name: "image_generation_providers", sql: readFileSync(resolve(import.meta.dirname, "migrations", "014_image_generation_providers.sql"), "utf8") }
+  ,{ version: 15, name: "image_provider_timeout", sql: readFileSync(resolve(import.meta.dirname, "migrations", "015_image_provider_timeout.sql"), "utf8") }
+  ,{ version: 16, name: "site_announcements", sql: readFileSync(resolve(import.meta.dirname, "migrations", "016_site_announcements.sql"), "utf8") }
+  ,{ version: 17, name: "image_provider_edit_path", sql: readFileSync(resolve(import.meta.dirname, "migrations", "017_image_provider_edit_path.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -42,7 +46,11 @@ function rowsToStrings(rows, key) {
 }
 
 export function openDatabase(dbPath) {
-  if (process.env.NIKAI_DB_ENGINE === 'mariadb') return openMariaDatabase();
+  if (process.env.NIKAI_DB_ENGINE === 'mariadb') {
+    const db = openMariaDatabase();
+    applyMariaMigrations(db);
+    return db;
+  }
   mkdirSync(dirname(dbPath), { recursive: true });
   const db = new DatabaseSync(dbPath);
   db.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL;");

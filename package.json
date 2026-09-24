@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "泥壳AI工具站全栈原型，Node.js + SQLite 零外部依赖运行。",
+  "description": "泥壳AI工具站全栈应用，Node.js、SQLite 本地开发与 MariaDB 生产运行。",
   "scripts": {
     "start": "node --env-file-if-exists=.env --no-warnings server.mjs",
     "dev": "node --env-file-if-exists=.env --no-warnings --watch server.mjs",

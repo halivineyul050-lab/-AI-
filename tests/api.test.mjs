@@ -141,8 +141,8 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 13);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 13);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 17);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 17);
 });
 
 test("admin short route and unauthenticated flow lead to management-token login", async () => {

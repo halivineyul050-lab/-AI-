@@ -2,6 +2,12 @@ import { createServer } from "node:http";
 import { createLinkExtractor } from "./backend/link-extract.mjs";
 import { createImageTools } from "./backend/image-tools.mjs";
 import { createImageEraser } from "./backend/image-erase.mjs";
+import { createImageProviderStore } from "./backend/image-provider-store.mjs";
+import { createSiteAnnouncementStore } from "./backend/site-announcements.mjs";
+import { createSecretBox } from "./backend/image-provider-secrets.mjs";
+import { createImageGenerationGateway, imageErrorTitle } from "./backend/image-generation-gateway.mjs";
+import { createImageProviderDiscovery } from "./backend/image-provider-discovery.mjs";
+import { assertSafeUpstreamUrl } from "./backend/safe-upstream.mjs";
 import { gzipSync } from "node:zlib";
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
@@ -74,6 +80,12 @@ import {
 import {
   HttpError,
   readJsonBody,
+  readImageRequestBody,
+  validateImageProvider,
+  validateImageModel,
+  validateImageRevision,
+  validateImageGeneration,
+  sanitizeSensitiveData,
   validateEventBatch,
   validateFeedback,
   validateLogin,
@@ -109,11 +121,12 @@ const mimeTypes = {
 
 const staticFiles = new Set([
   "video-input-limits.js",
+  "site-announcements.js", "site-announcements.css",
   "design-system.css",
   "game-shell.css",
   "link-extract.html",
   "video-pricing.html",
-  "image-generation.html", "image-generation.css", "image-generation.js",
+  "image-generation.html", "image-generation.css", "image-generation.js", "image-generation-history.js",
   "assets/image-generation/demo-square.svg", "assets/image-generation/demo-landscape.svg", "assets/image-generation/demo-portrait.svg",
   "image-edit.html", "image-edit.css", "image-edit.js", "image-edit-core.mjs", "image-input.mjs",
   "image-background.html", "image-enhance.html", "image-ai.css", "image-ai.js",
@@ -312,7 +325,7 @@ function sendProblem(response, error, requestId) {
   const status = Number(error.status) || 500;
   const payload = {
     type: `https://nike-ai.local/problems/${error.code || "internal_error"}`,
-    title: status >= 500 ? "服务暂时不可用" : error.message,
+    title: imageErrorTitle(error.code) ?? (status >= 500 ? "服务暂时不可用" : error.message),
     status,
     code: error.code || "internal_error",
     requestId
@@ -375,6 +388,10 @@ function serveStatic(request, response, pathname, staticDir) {
     : resolve(staticDir, fileName);
   if (!existsSync(filePath) || !statSync(filePath).isFile()) return false;
   let content = readFileSync(filePath);
+  if (extname(filePath).toLowerCase() === ".html") {
+    const html = content.toString("utf8");
+    if (/<(?:!doctype\s+html|html\b)/i.test(html)) content = Buffer.from(injectAnnouncementAssets(html), "utf8");
+  }
   const acceptsGzip = /\bgzip\b/i.test(String(request.headers["accept-encoding"] || ""));
   const compressible = /\.(?:html|css|js|json|xml|txt|webmanifest)$/i.test(filePath);
   const compressed = acceptsGzip && compressible && content.length > 1024;
@@ -411,6 +428,7 @@ function serveProductionGame(request, response, pathname, staticDir) {
   if (!filePath.startsWith(`${gameRoot}${sep}`) || !existsSync(filePath) || !statSync(filePath).isFile()) return false;
 
   let content = readFileSync(filePath);
+  if (extname(filePath).toLowerCase() === ".html") content = Buffer.from(injectAnnouncementAssets(content.toString("utf8")), "utf8");
   const acceptsGzip = /\bgzip\b/i.test(String(request.headers["accept-encoding"] || ""));
   const compressible = /\.(?:html|css|js|json|txt)$/i.test(filePath);
   const compressed = acceptsGzip && compressible && content.length > 1024;
@@ -455,7 +473,7 @@ function absoluteSiteUrl(request, pathname = "/") {
 }
 
 function sendHtml(request, response, html, status = 200, headers = {}) {
-  const body = Buffer.from(html, "utf8");
+  const body = Buffer.from(injectAnnouncementAssets(html), "utf8");
   response.writeHead(status, {
     "Content-Type": "text/html; charset=utf-8",
     "Content-Length": body.length,
@@ -464,6 +482,12 @@ function sendHtml(request, response, html, status = 200, headers = {}) {
   });
   if (request.method === "HEAD") response.end();
   else response.end(body);
+}
+
+function injectAnnouncementAssets(html) {
+  if (html.includes('data-site-announcements="assets"')) return html;
+    const assets = '<link rel="stylesheet" href="/site-announcements.css?v=20260923-1" data-site-announcements="assets"><script src="/site-announcements.js?v=20260924-1" defer data-site-announcements="assets"></script>';
+  return /<\/head>/i.test(html) ? html.replace(/<\/head>/i, `${assets}</head>`) : `${assets}${html}`;
 }
 
 function sendXml(request, response, xml, status = 200) {
@@ -1102,6 +1126,42 @@ export function buildApplication(options = {}) {
   );
   const trustProxy = String(options.trustProxy ?? process.env.NIKE_TRUST_PROXY ?? "false") === "true";
   const db = openDatabase(dbPath);
+  const imageStore = createImageProviderStore(db);
+  const announcementStore = createSiteAnnouncementStore(db);
+  let imageSecretBox = null;
+  try { imageSecretBox = createSecretBox(options.imageConfigKey ?? process.env.NIKE_IMAGE_CONFIG_KEY); } catch { /* Fail closed on operations that require a key. */ }
+  const imageGenerationConfigured = Boolean(imageSecretBox);
+  const imageGateway = createImageGenerationGateway({ store: imageStore, secretBox: imageSecretBox, fetchImpl: options.imageFetch, tempRoot: options.imageTempRoot, now: options.imageNow });
+  const imageDiscovery = createImageProviderDiscovery({ store: imageStore, secretBox: imageSecretBox, fetchImpl: options.imageFetch });
+  const imageResults = new Map();
+  const pruneImageResults = () => {
+    for (const [id, result] of imageResults) if (Date.parse(result.images[0]?.expiresAt) <= Date.now()) imageResults.delete(id);
+  };
+  const imageResultTimer = setInterval(pruneImageResults, 60_000);
+  imageResultTimer.unref();
+  const imageUnconfigured = () => new HttpError(503, "image_service_unconfigured", "生图服务尚未配置，请联系管理员。");
+  const publicProvider = (provider) => {
+    let apiKeyHint = provider.encryptedApiKey ? "****" : "";
+    try {
+      const key = imageSecretBox?.decrypt(provider.encryptedApiKey);
+      if (key && key.length > 4) apiKeyHint += key.slice(-4);
+    } catch { /* A missing/rotated master key must not prevent redacted reads. */ }
+    const { id, name, baseUrl, generationPath, editPath, timeoutMs, enabled, lastTestStatus, lastTestMessage, lastTestedAt, revision, createdAt, updatedAt } = provider;
+    return { id, name, baseUrl, generationPath, editPath, timeoutMs, enabled, lastTestStatus, lastTestMessage, lastTestedAt, revision, createdAt, updatedAt, hasApiKey: Boolean(provider.encryptedApiKey), apiKeyHint };
+  };
+  const imageWrite = (write) => {
+    try {
+      const result = write();
+      if (!result) throw new HttpError(404, "image_config_not_found", "平台或模型不存在");
+      return result;
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      if (error.message === "revision conflict") throw new HttpError(409, "revision_conflict", "配置已更新，请刷新后重试");
+      if (error.message === "cannot delete provider while models reference it") throw new HttpError(409, "image_provider_in_use", "请先删除平台关联的模型");
+      if (/UNIQUE constraint|Duplicate entry/i.test(error.message)) throw new HttpError(409, "image_config_conflict", "平台中已存在该模型");
+      throw new HttpError(500, "image_config_failed", "生图配置操作失败");
+    }
+  };
   const seedResult = autoSeed
     ? seedDatabase(db, seedData)
     : { seeded: false, tools: Number(db.prepare("SELECT COUNT(*) AS count FROM tools").get().count) };
@@ -1150,7 +1210,7 @@ export function buildApplication(options = {}) {
     if (!access.user?.isSuperAdmin) throw new HttpError(403, "super_admin_required", "仅超级管理员可以管理账号权限");
     return access;
   };
-  const getSystemSnapshot = () => {
+  const getSystemSnapshot = ({ includeImageGenerationConfigured = false } = {}) => {
     const now = Date.now();
     const fiveMinutesAgo = now - 5 * 60_000;
     const recent = recentRequests.filter((item) => item.at >= fiveMinutesAgo);
@@ -1168,6 +1228,7 @@ export function buildApplication(options = {}) {
     return {
       status: databaseReady ? "healthy" : "degraded",
       databaseReady,
+      ...(includeImageGenerationConfigured ? { imageGenerationConfigured } : {}),
       startedAt: runtimeStartedAt.toISOString(),
       uptimeSeconds: Math.floor((now - runtimeStartedAt.getTime()) / 1000),
       requestsLast5Minutes: recent.length,
@@ -1205,17 +1266,110 @@ export function buildApplication(options = {}) {
         if (recentRequests.length > 10_000) recentRequests.splice(0, recentRequests.length - 10_000);
       }
       if (!logger) return;
-      console.log(JSON.stringify({
+      console.log(JSON.stringify(sanitizeSensitiveData({
         time: new Date().toISOString(),
         request_id: requestId,
         method,
         path: pathname,
         status: response.statusCode,
         duration_ms: durationMs
-      }));
+      })));
     });
 
     try {
+      if (pathname.startsWith("/api/admin/v1/image-")) {
+        requireTokenAdmin(request, ip);
+        const context = { actor: "admin-token", requestId };
+        const match = pathname.match(/^\/api\/admin\/v1\/(image-providers|image-models)(?:\/([^/]+)(?:\/(test|discover-models))?)?$/);
+        if (!match) throw new HttpError(404, "route_not_found", "接口不存在");
+        const [, kind, id, action] = match;
+        const isProvider = kind === "image-providers";
+        if (method === "GET" && !id) {
+          sendData(response, { items: isProvider ? imageStore.listProviders().map(publicProvider) : imageStore.listModels() });
+          return;
+        }
+        if (method === "POST" && isProvider && id && action === "test") {
+          const body = await readImageRequestBody(request);
+          const { revision } = validateImageRevision(body, ["modelRecordId"]);
+          const provider = imageStore.getProvider(id);
+          if (!provider) throw new HttpError(404, "image_config_not_found", "平台不存在");
+          if (provider.revision !== revision) throw new HttpError(409, "revision_conflict", "配置已更新，请刷新后重试");
+          if (typeof body.modelRecordId !== "string" || imageStore.getModel(body.modelRecordId)?.providerId !== id) throw new HttpError(422, "invalid_field", "请选择平台关联的模型");
+          let failure;
+          try { await imageGateway.testProvider(id, body.modelRecordId); } catch (error) { failure = error; }
+          const tested = imageWrite(() => imageStore.recordProviderTest(id, { revision, lastTestStatus: failure ? "failed" : "success", lastTestMessage: failure?.message || "连接测试成功", lastTestedAt: new Date().toISOString() }, context));
+          if (failure) throw failure;
+          sendData(response, publicProvider(tested));
+          return;
+        }
+        if (method === "POST" && isProvider && id && action === "discover-models") {
+          sendData(response, await imageDiscovery.discover(id));
+          return;
+        }
+        if (!action && ((method === "POST" && !id) || (method === "PATCH" && id))) {
+          const body = await readImageRequestBody(request);
+          const input = isProvider ? validateImageProvider(body, Boolean(id)) : validateImageModel(body, Boolean(id));
+          if (isProvider) {
+            if (input.baseUrl) {
+              try { await assertSafeUpstreamUrl(input.baseUrl, { signal: AbortSignal.timeout(5000) }); }
+              catch { throw new HttpError(422, "invalid_url", "生图平台地址必须指向可访问的公共 HTTPS 服务"); }
+            }
+            if (Object.hasOwn(input, "apiKey")) {
+              if (!imageSecretBox) throw imageUnconfigured();
+              input.encryptedApiKey = imageSecretBox.encrypt(input.apiKey);
+              delete input.apiKey;
+            }
+          } else if (input.providerId && !imageStore.getProvider(input.providerId)) throw new HttpError(422, "invalid_field", "所选平台不存在");
+          const saved = imageWrite(() => isProvider
+            ? id ? imageStore.updateProvider(id, input, context) : imageStore.createProvider(input, context)
+            : id ? imageStore.updateModel(id, input, context) : imageStore.createModel(input, context));
+          sendData(response, isProvider ? publicProvider(saved) : saved, null, id ? 200 : 201);
+          return;
+        }
+        if (method === "DELETE" && id && !action) {
+          const input = validateImageRevision(await readImageRequestBody(request));
+          imageWrite(() => isProvider ? imageStore.deleteProvider(id, input, context) : imageStore.deleteModel(id, input, context));
+          sendData(response, { deleted: true });
+          return;
+        }
+        throw new HttpError(404, "route_not_found", "接口不存在");
+      }
+      if (method === "GET" && pathname === "/api/v1/image-models") {
+        const providers = new Map(imageStore.listProviders().filter((provider) => provider.enabled).map((provider) => [provider.id, provider]));
+        const models = imageStore.listModels().filter((model) => model.enabled && providers.has(model.providerId));
+        sendData(response, {
+          items: models.map(({ id, displayName, providerId, supportedRatios, maxImages }) => ({ id, displayName, providerName: providers.get(providerId).name, supportedRatios, maxImages, supportsReferenceImage: Boolean(providers.get(providerId).editPath) })),
+          defaultModelId: (models.find((model) => model.isDefault) || models[0])?.id || null
+        }, null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+      if (method === "POST" && pathname === "/api/v1/image-generations") {
+        response.setHeader("Cache-Control", "no-store, private");
+        rateLimit(`${ip}:image-generation`, 20, 60_000);
+        const input = validateImageGeneration(await readImageRequestBody(request));
+        const model = imageStore.getModel(input.modelRecordId);
+        if (model?.enabled && imageStore.getProvider(model.providerId)?.enabled && (input.count > model.maxImages || !model.supportedRatios.includes(input.ratio))) throw new HttpError(422, "invalid_field", "数量或比例超出所选模型的支持范围");
+        const result = await imageGateway.generate(input);
+        pruneImageResults();
+        imageResults.set(result.generationId, result);
+        sendData(response, { generationId: result.generationId, images: result.images.map(({ id, mimeType, expiresAt }) => ({ id, mimeType, expiresAt, url: `/api/v1/image-generations/${result.generationId}/images/${id}` })) });
+        return;
+      }
+      const imageResultMatch = pathname.match(/^\/api\/v1\/image-generations\/([0-9a-f-]{36})\/images\/([0-9a-f-]{36})$/);
+      if (["GET", "HEAD"].includes(method) && imageResultMatch) {
+        response.setHeader("Cache-Control", "no-store, private");
+        const result = imageResults.get(imageResultMatch[1]);
+        const image = result?.images.find((item) => item.id === imageResultMatch[2]);
+        if (!image || Date.parse(image.expiresAt) <= Date.now()) {
+          pruneImageResults();
+          throw new HttpError(404, "image_result_not_found", "图片不存在或已过期，请重新生成");
+        }
+        let bytes;
+        try { bytes = readFileSync(image.localPath); } catch { throw new HttpError(404, "image_result_not_found", "图片不存在或已过期，请重新生成"); }
+        response.writeHead(200, { "Content-Type": image.mimeType, "Content-Length": bytes.length });
+        response.end(method === "HEAD" ? undefined : bytes);
+        return;
+      }
       if (pathname === "/api/utilities/image-tools/status" && method === "GET") {
         sendData(response,imageTools.status,null,200,{"Cache-Control":"no-store"}); return;
       }
@@ -1365,6 +1519,12 @@ export function buildApplication(options = {}) {
           contentVersion: new Date().toISOString(),
           backend: db.backend || "node-sqlite"
         });
+        return;
+      }
+
+      if (method === "GET" && pathname === "/api/v1/site-announcements") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        sendData(response, { items: announcementStore.listPublished() }, null, 200, { "Cache-Control": "no-store" });
         return;
       }
 
@@ -1754,7 +1914,7 @@ export function buildApplication(options = {}) {
           : { ...snapshot, topSearches: [], recentEvents: [] };
         sendData(response, {
           ...visibleSnapshot,
-          system: getSystemSnapshot(),
+          system: getSystemSnapshot({ includeImageGenerationConfigured: hasAdminAccess }),
           access: {
             mode: hasAdminAccess ? "admin" : "local-readonly",
             canManage: hasAdminAccess,
@@ -1799,6 +1959,37 @@ export function buildApplication(options = {}) {
         if (method === "GET" && pathname === "/api/admin/v1/summary") {
           sendData(response, getAdminSummary(db));
           return;
+        }
+        if (pathname === "/api/admin/v1/site-announcements") {
+          if (method === "GET") {
+            const items = announcementStore.listAdmin();
+            sendData(response, { items, total: items.length, limit: items.length || 30, offset: 0 });
+            return;
+          }
+          if (method === "POST") {
+            sendData(response, announcementStore.create(await readJsonBody(request, 16 * 1024)), null, 201);
+            return;
+          }
+        }
+        const announcementMatch = pathname.match(/^\/api\/admin\/v1\/site-announcements\/([0-9a-f-]+)$/i);
+        if (announcementMatch) {
+          if (method === "GET") {
+            const item = announcementStore.get(announcementMatch[1]);
+            if (!item) throw new HttpError(404, "announcement_not_found", "公告不存在");
+            sendData(response, item);
+            return;
+          }
+          if (method === "PATCH") {
+            const item = announcementStore.update(announcementMatch[1], await readJsonBody(request, 16 * 1024));
+            if (!item) throw new HttpError(404, "announcement_not_found", "公告不存在");
+            sendData(response, item);
+            return;
+          }
+          if (method === "DELETE") {
+            if (!announcementStore.remove(announcementMatch[1])) throw new HttpError(404, "announcement_not_found", "公告不存在");
+            sendData(response, { deleted: true });
+            return;
+          }
         }
         if (method === "POST" && pathname === "/api/admin/v1/content/media/logos") {
           const uploaded = saveAdminLogo(
@@ -1894,7 +2085,7 @@ export function buildApplication(options = {}) {
       throw new HttpError(404, "not_found", "页面不存在");
     } catch (error) {
       if (!(error instanceof HttpError) && logger) {
-        console.error(JSON.stringify({ request_id: requestId, event: "request_error", message: error.message, stack: error.stack }));
+        console.error(JSON.stringify(sanitizeSensitiveData({ request_id: requestId, event: "request_error", message: error.message, stack: error.stack })));
       }
       sendProblem(response, error, requestId);
     }
@@ -1906,6 +2097,7 @@ export function buildApplication(options = {}) {
     seedResult,
     contentSyncResult,
     logoSyncResult,
+    imageGenerationConfigured,
     server,
     listen(port = 4173, host = "127.0.0.1") {
       return new Promise((resolveListen, reject) => {
@@ -1916,14 +2108,21 @@ export function buildApplication(options = {}) {
         });
       });
     },
-    close() {
+    async close() {
+      imageGateway.close();
+      clearInterval(imageResultTimer);
+      imageResults.clear();
       clearInterval(retentionTimer);
       if (newsPublisher.timer) clearInterval(newsPublisher.timer);
       if (newsPublisher.startupTimer) clearTimeout(newsPublisher.startupTimer);
+      let cleanupError;
+      try { await imageGateway.cleanupExpired(); } catch (error) { cleanupError = error; }
       return new Promise((resolveClose, reject) => {
         server.close((error) => {
-          db.close();
-          if (error) reject(error);
+          let closeError = error;
+          try { db.close(); } catch (dbError) { closeError ??= dbError; }
+          if (closeError) reject(closeError);
+          else if (cleanupError) reject(cleanupError);
           else resolveClose();
         });
       });
@@ -1939,6 +2138,7 @@ if (isMain) {
   app.listen(port, host).then((address) => {
     console.log(`泥壳AI工具站全栈服务：http://${address.address}:${address.port}/`);
     console.log(`数据库：${app.dbPath}（种子：${app.seedResult.seeded ? "已导入" : "已存在"}）`);
+    console.log(`生图配置主密钥：${app.imageGenerationConfigured ? "已设置" : "未设置（密钥操作将拒绝）"}`);
   }).catch((error) => {
     console.error(error);
     process.exitCode = 1;

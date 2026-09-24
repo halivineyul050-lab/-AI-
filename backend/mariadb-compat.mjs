@@ -1,6 +1,39 @@
 import { Worker } from 'node:worker_threads';
+import { readFileSync } from 'node:fs';
 
 const BUFFER_BYTES = 64 * 1024 * 1024;
+const mariaMigrations = [
+  {
+    version: 14,
+    name: 'image_generation_providers',
+    sql: readFileSync(new URL('./mariadb/migrations/014_image_generation_providers.sql', import.meta.url), 'utf8')
+  },
+  {
+    version: 15,
+    name: 'image_provider_timeout',
+    sql: readFileSync(new URL('./mariadb/migrations/015_image_provider_timeout.sql', import.meta.url), 'utf8')
+  },
+  {
+    version: 16,
+    name: 'site_announcements',
+    sql: readFileSync(new URL('./mariadb/migrations/016_site_announcements.sql', import.meta.url), 'utf8')
+  },
+  {
+    version: 17,
+    name: 'image_provider_edit_path',
+    sql: readFileSync(new URL('./mariadb/migrations/017_image_provider_edit_path.sql', import.meta.url), 'utf8')
+  }
+];
+
+export function applyMariaMigrations(db) {
+  const hasMigration = db.prepare('SELECT 1 FROM schema_migrations WHERE version = ?');
+  const recordMigration = db.prepare('INSERT INTO schema_migrations (version, name) VALUES (?, ?)');
+  mariaMigrations.forEach((migration) => {
+    if (hasMigration.get(migration.version)) return;
+    db.exec(migration.sql);
+    recordMigration.run(migration.version, migration.name);
+  });
+}
 
 export function translateMariaSql(sql) {
   let value = String(sql).trim();

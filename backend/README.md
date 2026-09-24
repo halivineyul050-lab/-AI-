@@ -2,9 +2,9 @@
 
 ## 技术判断
 
-初始种子包含 28 个工具；当前本地数据库已扩充为 139 条工具记录，其中 138 条已发布，并已按 1,500–2,000 条目录容量改为服务端分页。138 个已发布工具均使用本站本地 Logo 资产（136 个官方资源、2 个域名 favicon 兜底）。第一阶段采用 Node.js 内置 HTTP 服务与 SQLite，可零 npm 依赖启动并完成真实持久化；API 契约、实体边界和字段命名按模块化单体设计，生产阶段可以替换为 NestJS + PostgreSQL。
+项目由 Node.js 内置 HTTP 服务提供 API。SQLite 用于本地开发与自动化测试，生产环境使用 MariaDB 10.5，通过 `mysql2` 连接。数据库选择由 `NIKAI_DB_ENGINE` 控制；生产数据库凭据只能放在服务器受限权限的环境文件中。
 
-SQLite 负责当前 MVP，不建议直接作为高并发公开生产数据库。正式上线前应迁移 PostgreSQL、托管对象存储和独立管理端。
+生产当前为单机 Node.js + MariaDB + Nginx。迁移到其他数据库、对象存储或多实例架构属于未来扩展，不是当前上线前置条件。
 
 ## 公开 API
 
@@ -144,7 +144,7 @@ DELETE /api/v1/newsletter/subscriptions/:unsubscribeToken
 - PV、UV、最近 5 分钟活跃 Session 与事件速率
 - 搜索、工具卡片点击、详情访问、官网跳转、广告 CTR
 - 小时趋势、访客转化漏斗、热门工具与热门搜索
-- 最近事件、投稿状态、服务响应时间、内存和 SQLite/WAL 大小
+- 最近事件、投稿状态、服务响应时间、内存和当前数据库后端的状态
 
 开发环境中，仅当 Socket、`Host`、`Origin` 和 `Sec-Fetch-Site` 均证明请求来自可信本机时，才允许匿名只读访问；匿名结果不返回搜索词或事件明细。携带有效 Bearer Token 后返回管理视图。生产环境始终要求 Token。后台 HTML 和所有管理 API 响应均使用 `no-store, private`。
 
@@ -163,14 +163,28 @@ DELETE /api/v1/newsletter/subscriptions/:unsubscribeToken
 - 本机只读监控校验可信 Host 和浏览器请求来源，避免 DNS Rebinding 将 loopback 当作认证。
 - CSP、`nosniff`、拒绝嵌入和严格 Referrer Policy 已在服务端设置。
 
-生产模式要求显式配置持久化 `NIKE_DB_PATH` 与稳定的 `NIKE_ANALYTICS_SALT`，否则服务拒绝启动；生产模式也不会自动导入演示数据或开启共享令牌管理接口。
+生产模式要求使用持久化数据库与稳定的 `NIKE_ANALYTICS_SALT`，否则服务拒绝启动；生产模式也不会自动导入演示数据或开启共享令牌管理接口。MariaDB 连接变量为 `NIKAI_DB_NAME`、`NIKAI_DB_USER`、`NIKAI_DB_PASSWORD`，可选本地 socket `NIKAI_DB_SOCKET`。
 
-## 生产迁移路线
+### 图片模型平台生产配置
 
-1. 用 Prisma 或 Drizzle 将 `schema.sql` 映射到 PostgreSQL。
-2. 保持 `/api/v1` 响应字段不变，将数据访问层替换为 PostgreSQL Repository。
-3. 使用 `pg_trgm` 完成中文名称和摘要模糊搜索。
-4. 将管理鉴权替换为账户、MFA、RBAC 和轮换刷新令牌。
-5. 增加 Redis + BullMQ，承担邮件、链接巡检、图片处理和 Sitemap 任务。
-6. 使用 S3 兼容对象存储与 CDN 托管 Logo、截图和文章封面。
-7. 将前端升级为 Next.js/Nuxt SSR 页面，提供可索引的工具和文章独立 URL。
+为平台 API Key 配置独立的 32 字节主密钥，并且只将它保存到服务器环境或权限为 `600` 的部署密钥文件中。生成一次随机值：
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+将命令输出完整写入 `NIKE_IMAGE_CONFIG_KEY`。它必须是 64 个十六进制字符，不能提交到仓库、写入浏览器或放进日志。缺少或格式无效时，后台仍可读取已脱敏的平台配置，但保存 API Key、测试连接和生成图片都会以 `image_service_unconfigured` 拒绝；配置密钥后重启服务即可恢复这些操作。
+
+管理员监控响应的 `system.imageGenerationConfigured` 仅表示该主密钥是否可用，不表示已经配置并启用了可生成图片的模型。公开 `/api/v1/health` 与 `/api/v1/health/ready` 不包含这个能力状态或任何图片平台配置。
+
+临时生成结果在 15 分钟后清理；服务关闭时也会停止清理定时器并再次清理已过期目录。MariaDB 备份与恢复脚本导出和校验完整数据库，因此迁移 14（`image_generation_providers`）与其他业务表一起受到备份和恢复保护。
+
+#### 灾难恢复
+
+MariaDB 备份只包含平台 API Key 的密文，不包含可用于解密的主密钥。将精确的 `NIKE_IMAGE_CONFIG_KEY` 与数据库备份分开安全托管，并在恢复数据库前将同一个值恢复到服务器环境或权限为 `600` 的密钥文件；更换为新值无法解密既有平台配置。若该密钥已丢失，恢复后必须在后台重新输入每个平台的 API Key，旧密文不能恢复。
+
+## 未来扩展方向
+
+1. 评估多实例需求后，再为会话、队列和媒体资源引入共享服务。
+2. 只有确认 MariaDB 无法满足实际负载时，再评估 PostgreSQL 等替代数据库。
+3. 周报邮件发送、后台授权细分和图片任务队列按真实需求逐步扩展。

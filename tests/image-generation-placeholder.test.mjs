@@ -24,27 +24,36 @@ test('AI image studio is routed, crawlable, and exposes the complete creation wo
     assert.match(html, /<title>AI 生图/);
     assert.match(html, /href="\/image-generation"[^>]+aria-current="page"/);
     assert.match(html, /id="studio-mode-generate"/);
-    assert.match(html, /id="studio-mode-canvas"/);
+    assert.doesNotMatch(html, /studio-mode-canvas|canvas-panel|canvas-stage|送入画布|图片画布/);
+    assert.match(html, /id="studio-mode-history"[^>]+aria-controls="history-panel"/);
     assert.match(html, /id="generation-form"/);
+    assert.match(html, /id="model-select"[^>]+name="modelRecordId"/);
     assert.match(html, /id="prompt-input"[^>]+maxlength="1000"/);
-    assert.match(html, /id="reference-input"[^>]+accept="image\/\*"/);
-    assert.match(html, /<select name="ratio"/);
-    assert.match(html, /<option value="1:1">1:1<\/option>/);
+    assert.match(html, /id="reference-input"[^>]+accept="image\/png,image\/jpeg,image\/webp"[^>]+aria-describedby="reference-help reference-error"/);
+    assert.match(html, /id="reference-trigger"[^>]+aria-describedby="reference-help reference-error"/);
+    assert.match(html, /id="reference-error"[^>]+role="alert"/);
+    assert.match(html, /<select id="ratio-select" name="ratio"/);
     assert.match(html, /name="style"/);
     assert.match(html, /name="count"/);
     assert.match(html, /id="generation-status"[^>]+aria-live="polite"/);
     assert.match(html, /id="generation-results"/);
-    assert.match(html, /id="canvas-stage"/);
-    assert.match(html, /id="canvas-export"/);
-    assert.match(html, /<script defer src="\/image-generation\.js\?v=/);
-    assert.match(html, /\/image-generation\.css\?v=20260920-2/);
-    assert.match(html, /\/image-generation\.js\?v=20260920-2/);
+    assert.match(html, /id="history-panel"[^>]+role="tabpanel"/);
+    for (const id of ['history-status', 'history-grid', 'history-empty', 'history-clear']) assert.match(html, new RegExp(`id="${id}"`));
+    assert.match(html, /<script type="module" src="\/image-generation\.js\?v=/);
+    assert.match(html, /\/image-generation\.css\?v=20260924-studio-1/);
+    assert.match(html, /\/image-generation\.js\?v=20260924-reference-1/);
     assert.doesNotMatch(html, /api[_-]?key|sk-[a-z0-9]|openai\.com/i);
 
     const scriptResponse = await fetch(`${base}/image-generation.js`);
     assert.equal(scriptResponse.status, 200);
     const script = await scriptResponse.text();
-    assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|WebSocket/);
+    assert.match(script, /fetch\(['"]\/api\/v1\/image-models['"]/);
+    assert.match(script, /fetch\(['"]\/api\/v1\/image-generations['"]/);
+
+    const historyScriptResponse = await fetch(`${base}/image-generation-history.js`);
+    assert.equal(historyScriptResponse.status, 200);
+    assert.match(historyScriptResponse.headers.get('content-type'), /javascript/);
+    assert.match(await historyScriptResponse.text(), /export function createImageHistory/);
 
     const sitemap = await (await fetch(`${base}/sitemap.xml`)).text();
     assert.match(sitemap, /\/image-generation<\/loc>/);
@@ -71,12 +80,11 @@ test('every static site header links to AI image generation exactly once before 
   assert.match(home, /class="primary-nav"[\s\S]*href="\/image-generation"[\s\S]*href="\/utilities"/);
 });
 
-test('AI image studio stylesheet defines responsive, accessible creation and canvas states', () => {
+test('AI image studio stylesheet defines responsive creation and history states without canvas styles', () => {
   const css = readFileSync('image-generation.css', 'utf8');
   for (const selector of [
-    '.generation-composer', '.generation-results', '.result-card', '.canvas-toolbar',
-    '.canvas-workspace', '.is-active', '.is-busy', '.has-reference', '.has-results',
-    '.is-selected', '.studio-message[data-tone="error"]'
+    '.generation-composer', '.generation-results', '.result-card', '.is-active',
+    '.is-busy', '.has-reference', '.has-results', '.studio-message[data-tone="error"]'
   ]) assert.ok(css.includes(selector), selector);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media\s*\(max-width:\s*900px\)/);
@@ -86,41 +94,31 @@ test('AI image studio stylesheet defines responsive, accessible creation and can
   assert.match(css, /var\(--brand\)/);
   assert.match(css, /var\(--bg-surface\)/);
   assert.doesNotMatch(css, /\.image-generation-main\s*\{[^}]*(?:^|;)width:\s*\d{4,}px/s);
+  for (const selector of ['.history-panel', '.history-grid', '.history-card', '.history-empty']) assert.ok(css.includes(selector), selector);
+  assert.match(css, /@media\(max-width:640px\)[\s\S]*\.history-grid\{[^}]*grid-template-columns:1fr/);
+  assert.doesNotMatch(css, /\.canvas-|#canvas-/);
 });
 
-test('AI image studio script validates local input and simulates results without network calls', () => {
+test('AI image studio script validates local input and connects generation to configured models', () => {
   const script = readFileSync('image-generation.js', 'utf8');
-  assert.match(script, /15\s*\*\s*1024\s*\*\s*1024/);
-  assert.match(script, /file\?*\.type\?*\.startsWith\(['"]image\/['"]\)/);
+  assert.match(script, /10\s*\*\s*1024\s*\*\s*1024/);
+  assert.match(script, /image\/png/);
   assert.match(script, /function validateReferenceFile\s*\(/);
-  assert.match(script, /function createDemoResults\s*\(/);
-  assert.match(script, /startSimulatedGeneration/);
+  assert.match(script, /function loadImageModels\s*\(/);
+  assert.match(script, /submitImageGeneration/);
   assert.match(script, /downloadResult/);
-  assert.match(script, /sendResultToCanvas/);
+  assert.doesNotMatch(script, /sendResultToCanvas|createCanvasController|validateCanvasFile|canvas-stage|canvas-export/);
+  assert.match(script, /new AbortController\s*\(/);
+  assert.match(script, /new FormData\s*\(/);
   assert.match(script, /URL\.createObjectURL/);
   assert.match(script, /URL\.revokeObjectURL/);
-  assert.match(script, /演示结果/);
   assert.match(script, /1000/);
-  assert.doesNotMatch(script, /\bfetch\s*\(|XMLHttpRequest|WebSocket|api[_-]?key|openai\.com/i);
-
-  for (const asset of ['demo-square.svg', 'demo-landscape.svg', 'demo-portrait.svg']) {
-    const path = join('assets', 'image-generation', asset);
-    assert.match(readFileSync(path, 'utf8'), /<svg[\s>]/);
-  }
+  assert.doesNotMatch(script, /createDemoResults|startSimulatedGeneration|演示结果|api[_-]?key|openai\.com/i);
 });
 
-test('AI image studio canvas decodes, edits, deletes, and exports local images', () => {
+test('AI image studio has no canvas editing mode or result action', () => {
+  const html = readFileSync('image-generation.html', 'utf8');
   const script = readFileSync('image-generation.js', 'utf8');
-  assert.match(script, /function createCanvasController\s*\(/);
-  assert.match(script, /addImage\s*\(/);
-  assert.match(script, /image\.decode\s*\(/);
-  assert.match(script, /setPointerCapture\s*\(/);
-  assert.match(script, /pointermove/);
-  assert.match(script, /removeSelected\s*\(/);
-  assert.match(script, /setScale\s*\(/);
-  assert.match(script, /setRatio\s*\(/);
-  assert.match(script, /Math\.min\([^\n]+Math\.max/);
-  assert.match(script, /toBlob\s*\([\s\S]*?,\s*['"]image\/png['"]\s*\)/);
-  assert.match(script, /canvas-export/);
-  assert.match(script, /Math\.min\(canvas\.width\s*\*\s*\.72\s*\/\s*image\.naturalWidth,\s*canvas\.height\s*\*\s*\.72\s*\/\s*image\.naturalHeight\)/);
+  assert.doesNotMatch(html, /canvas-panel|canvas-stage|canvas-upload|studio-mode-canvas|送入画布/);
+  assert.doesNotMatch(script, /createCanvasController|sendResultToCanvas|validateCanvasFile|canvas-stage|canvas-export/);
 });

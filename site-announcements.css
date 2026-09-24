@@ -1,0 +1,32 @@
+.site-announcement-dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(82vh, 760px);
+  padding: 0;
+  overflow: auto;
+  color: #242235;
+  border: 1px solid rgba(104, 81, 238, .2);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 28px 90px rgba(29, 24, 63, .28);
+}
+.site-announcement-dialog::backdrop { background: rgba(22, 19, 40, .58); backdrop-filter: blur(5px); }
+.site-announcement-card { margin: 0; }
+.site-announcement-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #efedf7; }
+.site-announcement-kicker { color: #6754e8; font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.site-announcement-close { width: 38px; height: 38px; border: 1px solid #e8e5f2; border-radius: 12px; background: #fff; color: #69667b; font-size: 26px; line-height: 1; cursor: pointer; }
+.site-announcement-content { padding: 28px 28px 18px; }
+.site-announcement-content h2 { margin: 0; color: #211d33; font-size: clamp(23px, 5vw, 30px); line-height: 1.3; }
+.site-announcement-summary { margin: 12px 0 0; color: #66627a; font-size: 16px; line-height: 1.7; }
+.site-announcement-body { margin-top: 20px; color: #49465b; font-size: 15px; line-height: 1.9; overflow-wrap: anywhere; }
+.site-announcement-body p { margin: 0 0 14px; white-space: pre-wrap; }
+.site-announcement-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 24px 24px; border-top: 1px solid #efedf7; }
+.site-announcement-later, .site-announcement-action { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: 0 18px; border: 1px solid #e6e2f2; border-radius: 13px; background: #fff; color: #5a566e; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+.site-announcement-action { border-color: transparent; background: linear-gradient(135deg, #6552ed, #8b5cf6); color: #fff; box-shadow: 0 8px 22px rgba(104, 81, 238, .22); }
+@media (max-width: 520px) {
+  .site-announcement-dialog { border-radius: 20px; }
+  .site-announcement-content { padding: 22px 20px 12px; }
+  .site-announcement-header { padding: 16px 20px; }
+  .site-announcement-footer { padding: 16px 20px 20px; }
+  .site-announcement-later, .site-announcement-action { flex: 1; padding: 0 12px; }
+}

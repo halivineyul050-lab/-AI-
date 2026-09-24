@@ -9,9 +9,9 @@
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260916-2">
   <link rel="stylesheet" href="/design-system.css?v=20260915-2">
-  <link rel="stylesheet" href="admin.css?v=20260915-purple-2">
-  <script defer src="admin-icons.js?v=20260713-1"></script>
-  <script defer src="admin.js?v=20260805-1"></script>
+  <link rel="stylesheet" href="admin.css?v=20260923-vvvox-1">
+  <script defer src="admin-icons.js?v=20260920-image-models-1"></script>
+  <script defer src="admin.js?v=20260924-reference-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -38,6 +38,9 @@
         </a>
         <a class="side-nav-item" href="#cms">
           <i data-lucide="panels-top-left" aria-hidden="true"></i><span>内容管理</span>
+        </a>
+        <a class="side-nav-item" href="#image-models">
+          <i data-lucide="sparkles" aria-hidden="true"></i><span>图片模型</span>
         </a>
         <a class="side-nav-item" id="users-nav" href="#users" hidden>
           <i data-lucide="users-round" aria-hidden="true"></i><span>账号权限</span>
@@ -69,6 +72,7 @@
           <h1>运营与内容中心</h1>
         </div>
         <div class="topbar-actions">
+          <button class="secondary-button compact-button" id="announcement-settings-shortcut" type="button"><i data-lucide="bell-ring" aria-hidden="true"></i>公告设置</button>
           <div class="live-chip" id="live-chip" role="status" aria-live="polite">
             <span class="live-pulse" aria-hidden="true"></span>
             <span id="live-label">实时更新</span>
@@ -286,6 +290,7 @@
             <button class="cms-tab" id="cms-tab-categories" type="button" role="tab" aria-selected="false" aria-controls="cms-workspace" data-cms-entity="categories"><i data-lucide="folder-tree" aria-hidden="true"></i>分类</button>
             <button class="cms-tab" id="cms-tab-articles" type="button" role="tab" aria-selected="false" aria-controls="cms-workspace" data-cms-entity="articles"><i data-lucide="newspaper" aria-hidden="true"></i>文章</button>
             <button class="cms-tab" id="cms-tab-collections" type="button" role="tab" aria-selected="false" aria-controls="cms-workspace" data-cms-entity="collections"><i data-lucide="layout-list" aria-hidden="true"></i>首页专题</button>
+            <button class="cms-tab" id="cms-tab-announcements" type="button" role="tab" aria-selected="false" aria-controls="cms-workspace" data-cms-entity="announcements"><i data-lucide="bell-ring" aria-hidden="true"></i>上线公告</button>
           </div>
 
           <div class="panel cms-panel">
@@ -353,6 +358,59 @@
                   <button class="secondary-button" id="cms-page-next" type="button">下一页<i data-lucide="chevron-right" aria-hidden="true"></i></button>
                   <button class="secondary-button" id="cms-lock-button" type="button"><i data-lucide="lock" aria-hidden="true"></i>锁定</button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section image-model-section" id="image-models" aria-labelledby="image-models-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">IMAGE GENERATION</p>
+              <h2 id="image-models-title">图片平台与模型</h2>
+            </div>
+            <p class="section-note">密钥只在保存时发送到服务器，浏览器不会留存。</p>
+          </div>
+
+          <div class="image-workspace-toolbar">
+            <div>
+              <strong>平台连接</strong>
+              <span id="image-workspace-status" role="status" aria-live="polite">正在同步配置</span>
+            </div>
+            <div class="toolbar-actions">
+              <button class="secondary-button" id="image-workspace-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新</button>
+              <button class="primary-button" id="image-provider-add" type="button"><i data-lucide="plus" aria-hidden="true"></i>新增平台</button>
+            </div>
+          </div>
+
+          <div class="image-workspace-lock" id="image-workspace-lock" hidden>
+            <span class="lock-icon"><i data-lucide="lock-keyhole" aria-hidden="true"></i></span>
+            <div><strong>使用管理令牌解锁图片平台设置</strong><p>令牌只保存在当前页面内存中，并直接通过图片管理接口验证。</p></div>
+            <form id="image-token-form">
+              <label class="sr-only" for="image-admin-token">图片平台管理令牌</label>
+              <input id="image-admin-token" type="password" autocomplete="off" required placeholder="输入 NIKE_ADMIN_TOKEN">
+              <button class="primary-button" id="image-token-submit" type="submit"><i data-lucide="unlock-keyhole" aria-hidden="true"></i>解锁</button>
+            </form>
+          </div>
+
+          <div class="image-provider-grid" id="image-provider-list" aria-live="polite" aria-busy="true"></div>
+          <div class="table-empty image-provider-empty" id="image-provider-empty" hidden>
+            <i data-lucide="server" aria-hidden="true"></i><strong>还没有图片平台</strong><span>新增一个兼容平台后，再添加可供用户选择的模型。</span>
+          </div>
+
+          <div class="panel image-model-panel">
+            <div class="panel-head image-model-panel-head">
+              <div><p class="eyebrow">MODEL CATALOG</p><h3>可用模型</h3></div>
+              <button class="primary-button" id="image-model-add" type="button"><i data-lucide="plus" aria-hidden="true"></i>新增模型</button>
+            </div>
+            <div class="image-model-table-wrap">
+              <table class="image-model-table">
+                <caption class="sr-only">图片生成模型配置</caption>
+                <thead><tr><th>模型</th><th>所属平台</th><th>能力</th><th>状态</th><th>默认</th><th>排序</th><th>操作</th></tr></thead>
+                <tbody id="image-model-list"></tbody>
+              </table>
+              <div class="table-empty" id="image-model-empty" hidden>
+                <i data-lucide="image-off" aria-hidden="true"></i><strong>还没有模型</strong><span>模型会继承平台连接，并限定支持的画幅和生成数量。</span>
               </div>
             </div>
           </div>
@@ -472,6 +530,94 @@
       <div class="dialog-actions cms-dialog-actions">
         <button class="secondary-button" id="cms-dialog-cancel" type="button">取消</button>
         <button class="primary-button" id="cms-save" type="submit"><i data-lucide="save" aria-hidden="true"></i>保存内容</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="image-dialog" id="image-provider-dialog" aria-labelledby="image-provider-dialog-title">
+    <form id="image-provider-form">
+      <div class="dialog-head">
+        <div><p class="eyebrow">PROVIDER</p><h2 id="image-provider-dialog-title">新增图片平台</h2></div>
+        <button class="icon-button" id="image-provider-dialog-close" type="button" aria-label="关闭平台编辑器"><i data-lucide="x" aria-hidden="true"></i></button>
+      </div>
+      <input id="image-provider-id" type="hidden">
+      <input id="image-provider-revision" type="hidden">
+      <div class="image-dialog-body">
+        <div class="image-dialog-grid">
+          <label class="image-form-field"><span>平台名称</span><input id="image-provider-name" name="name" required maxlength="80" autocomplete="off" placeholder="例如 OpenAI"></label>
+          <label class="image-form-field"><span>接口地址</span><input id="image-provider-base-url" name="baseUrl" type="url" required maxlength="500" autocomplete="url" placeholder="https://api.example.com"></label>
+          <label class="image-form-field"><span>生成路径</span><input id="image-provider-generation-path" name="generationPath" maxlength="200" autocomplete="off" value="/v1/images/generations" placeholder="/v1/images/generations"></label>
+          <label class="image-form-field"><span>参考图编辑路径</span><input id="image-provider-edit-path" name="editPath" maxlength="200" autocomplete="off" value="/v1/images/edits" placeholder="/v1/images/edits"><small>OpenAI 兼容平台通常使用此路径；留空可关闭该平台的参考图功能。</small></label>
+          <label class="image-form-field"><span>超时（毫秒）</span><input id="image-provider-timeout" name="timeoutMs" type="number" min="10000" max="180000" step="1000" value="180000"></label>
+        </div>
+        <div class="image-key-panel">
+          <div><span>API 密钥</span><output id="image-provider-key-hint">尚未保存密钥</output></div>
+          <label class="image-check-field" id="image-provider-replace-key-wrap" hidden><input id="image-provider-replace-key" type="checkbox">替换已保存的密钥</label>
+          <div id="image-provider-key-field"></div>
+          <p>编辑平台时，只有主动选择替换密钥才会显示密码输入框。</p>
+        </div>
+        <label class="image-switch-field"><input id="image-provider-enabled" name="enabled" type="checkbox" checked><span>允许该平台提供图片生成服务</span></label>
+        <section class="image-model-discovery" aria-labelledby="image-provider-discovery-title">
+          <div class="image-model-discovery-head">
+            <div><strong id="image-provider-discovery-title">同步平台模型</strong><span>从平台的 /v1/models 读取真实模型，选择后导入。</span></div>
+            <button class="secondary-button" id="image-provider-discover-models" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>读取模型</button>
+          </div>
+          <div class="image-model-discovery-list" id="image-provider-discovery-list" hidden></div>
+          <div class="image-model-discovery-foot">
+            <p id="image-provider-discovery-status" role="status" aria-live="polite">请先保存平台，再读取模型列表。</p>
+            <button class="secondary-button" id="image-provider-import-models" type="button" hidden><i data-lucide="download" aria-hidden="true"></i>导入所选模型</button>
+          </div>
+        </section>
+        <div class="image-connection-test">
+          <div>
+            <label for="image-provider-test-model">连接测试模型</label>
+            <select id="image-provider-test-model"></select>
+          </div>
+          <button class="secondary-button" id="image-provider-test" type="button"><i data-lucide="plug-zap" aria-hidden="true"></i>测试连接</button>
+          <p id="image-provider-test-status" role="status" aria-live="polite">保存平台并添加模型后可测试连接。</p>
+        </div>
+        <p class="form-error" id="image-provider-form-error" role="alert" hidden></p>
+      </div>
+      <div class="dialog-actions image-dialog-actions">
+        <button class="secondary-button" id="image-provider-dialog-cancel" type="button">取消</button>
+        <button class="primary-button" id="image-provider-save" type="submit"><i data-lucide="save" aria-hidden="true"></i>保存平台</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="image-dialog" id="image-model-dialog" aria-labelledby="image-model-dialog-title">
+    <form id="image-model-form">
+      <div class="dialog-head">
+        <div><p class="eyebrow">MODEL</p><h2 id="image-model-dialog-title">新增图片模型</h2></div>
+        <button class="icon-button" id="image-model-dialog-close" type="button" aria-label="关闭模型编辑器"><i data-lucide="x" aria-hidden="true"></i></button>
+      </div>
+      <input id="image-model-id" type="hidden">
+      <input id="image-model-revision" type="hidden">
+      <div class="image-dialog-body">
+        <div class="image-dialog-grid">
+          <label class="image-form-field"><span>所属平台</span><select id="image-model-provider" name="providerId" required></select></label>
+          <label class="image-form-field"><span>平台模型 ID</span><input id="image-model-upstream-id" name="modelId" required maxlength="200" autocomplete="off" placeholder="例如 gpt-image-1"></label>
+          <label class="image-form-field"><span>展示名称</span><input id="image-model-display-name" name="displayName" required maxlength="100" autocomplete="off" placeholder="例如 高清图片模型"></label>
+          <label class="image-form-field"><span>最多生成张数</span><input id="model-max-images" name="maxImages" type="number" min="1" max="4" value="1" required></label>
+          <label class="image-form-field"><span>排序</span><input id="image-model-sort-order" name="sortOrder" type="number" min="-100000" max="100000" value="0" required></label>
+        </div>
+        <fieldset class="image-capability-field" id="model-supported-ratios">
+          <legend>支持画幅</legend>
+          <label><input type="checkbox" name="supportedRatios" value="1:1" checked>1:1</label>
+          <label><input type="checkbox" name="supportedRatios" value="16:9">16:9</label>
+          <label><input type="checkbox" name="supportedRatios" value="9:16">9:16</label>
+          <label><input type="checkbox" name="supportedRatios" value="4:3">4:3</label>
+          <label><input type="checkbox" name="supportedRatios" value="3:4">3:4</label>
+        </fieldset>
+        <div class="image-dialog-flags">
+          <label class="image-switch-field"><input id="image-model-enabled" name="enabled" type="checkbox" checked><span>向普通用户开放</span></label>
+          <label class="image-switch-field"><input id="image-model-default" name="isDefault" type="checkbox"><span>设为默认模型</span></label>
+        </div>
+        <p class="form-error" id="image-model-form-error" role="alert" hidden></p>
+      </div>
+      <div class="dialog-actions image-dialog-actions">
+        <button class="secondary-button" id="image-model-dialog-cancel" type="button">取消</button>
+        <button class="primary-button" id="image-model-save" type="submit"><i data-lucide="save" aria-hidden="true"></i>保存模型</button>
       </div>
     </form>
   </dialog>

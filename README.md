@@ -7,33 +7,20 @@
 <p align="center">
   面向中文用户的 AI 工具发现、筛选、比较与内容阅读平台。
   <br>
-  内置用户端、SQLite API、投稿审核、行为分析和实时运营监控后台。
+  内置工具发现、AI 生图、公告、内容运营、投稿审核与实时监控。
 </p>
 
 <p align="center">
   <img alt="Node.js 22.5+" src="https://img.shields.io/badge/Node.js-22.5%2B-339933?logo=nodedotjs&logoColor=white">
-  <img alt="SQLite" src="https://img.shields.io/badge/SQLite-内置-003B57?logo=sqlite&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-71%20passing-0f766e">
-  <img alt="Dependencies" src="https://img.shields.io/badge/npm_dependencies-0-f97316">
+  <img alt="Database" src="https://img.shields.io/badge/database-SQLite%20%2F%20MariaDB-003B57?logo=sqlite&logoColor=white">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-Node%20Test%20Runner-0f766e">
 </p>
 
 ## 项目简介
 
 泥壳AI工具站是一个可以直接运行的全栈原型，不只是静态网址导航。项目围绕“发现工具 → 查看详情 → 访问官网”构建完整链路，并通过教程、资讯、专题、投稿和实时数据监控支持内容运营与商业化验证。
 
-当前种子数据包含：
-
-- 28 个 AI 工具（27 个普通工具、1 个推广工具）
-- 17 个主分类（新增“AI 漫剧”，同时保留智能体、设计、学习、模型等目录）
-- 12 篇教程与资讯内容
-- 3 个工具专题
-- 资讯来源名称与官方原始链接
-
-内容资料更新日期：`2026-07-15`。
-
-当前本地数据库已完成官方来源扩充：`139` 条工具记录，其中 `138` 条已发布（`137` 条普通工具 + `1` 条推广工具），另有 `110` 条官方来源追踪记录。“AI 漫剧”分类现有 `10` 个工具，橙星梦工厂以清晰的推广标识固定在分类首位。
-
-全站 `138/138` 个已发布工具已配置本站本地 Logo 资产：`136` 个来自官网或官方静态资源，`2` 个因官网限制使用域名 favicon 兜底；Logo 清单、来源、哈希和核验日期保存在 `backend/catalog/tool-logo-manifest-2026-07-15.json`。
+生产内容保存在 MariaDB；仓库里的种子文件和历史统计只代表各自生成时的本地快照，不作为线上实时数量。功能与运维现状以本 README、`backend/README.md` 和 `docs/production-release.md` 为准。
 
 ## 核心功能
 
@@ -87,6 +74,7 @@ npm start
 - 工具详情抽屉（含「快速判断」决策模块：适合场景 / 使用前注意 / 关键信息）
 - 工具收藏与多工具对比
 - 教程、资讯、专题和相关推荐
+- AI 生图工作台：模型切换、参考图、画幅与生成历史页面
 - 工具官网安全跳转与点击统计
 - 工具投稿、投稿状态查询和周报订阅
 - 桌面端、平板端和手机端响应式布局
@@ -103,12 +91,14 @@ npm start
 - 小时趋势、热门工具和热门搜索词
 - 实时事件流、广告曝光与点击数据
 - 投稿状态统计、联系方式查看和审核操作
+- 上线公告管理；公告可在任意公开页面自动展示，每条公告在同一浏览器关闭后只弹一次
+- 图片生成平台与模型管理，可配置兼容平台 API 地址、密钥、模型与可用状态
 - 服务健康、响应耗时、内存与数据库状态
 - 5 秒自动刷新、暂停和统计时间窗口切换
 
 ### 后端与安全
 
-- Node.js 内置 HTTP 服务与 SQLite 数据库
+- Node.js 内置 HTTP 服务；本地开发默认 SQLite，生产使用 MariaDB
 - 版本化数据库迁移和自动种子数据同步
 - 授权 CSV、JSON、NDJSON 工具目录的幂等导入、来源追踪与重复合并
 - REST API、统一错误响应和请求 ID
@@ -124,13 +114,13 @@ npm start
 flowchart LR
     U["用户端 index.html"] --> API["Node.js HTTP / REST API"]
     A["运营后台 admin.html"] --> ADMIN["监控与管理 API"]
-    API --> DB[("SQLite")]
+    API --> DB[("SQLite local / MariaDB production")]
     ADMIN --> DB
     API --> EVENT["事件采集与官网跳转"]
     EVENT --> DB
 ```
 
-项目不依赖前端框架、Web 框架或第三方 npm 包，页面与 API 由同一个 Node.js 进程提供。用户端当前通过 unpkg 加载 Lucide 图标脚本，生产部署时可改为固定版本并本地托管。
+项目不依赖前端框架或 Web 框架，页面与 API 由同一个 Node.js 进程提供。后端使用 `mysql2` 连接生产 MariaDB；项目还保留 SQLite 本地开发与测试后端。用户端通过 unpkg 加载 Lucide 图标脚本。
 
 ## 技术栈
 
@@ -139,7 +129,7 @@ flowchart LR
 | 用户端 | 原生 HTML、CSS、JavaScript |
 | 运营后台 | 原生 HTML、CSS、JavaScript、Canvas 趋势图 |
 | HTTP 与 API | Node.js `node:http` |
-| 数据库 | Node.js `node:sqlite`、SQLite WAL |
+| 数据库 | 本地/测试：Node.js `node:sqlite`；生产：MariaDB 10.5、`mysql2` |
 | 测试 | Node.js 内置 Test Runner |
 | 图标 | 品牌图标本地托管、Lucide CDN |
 
@@ -188,8 +178,12 @@ npm run dev
 | `PORT` | 服务端口 | `4173` |
 | `NODE_ENV` | 运行环境 | `development` |
 | `NIKE_DB_PATH` | SQLite 文件地址 | `./data/nike-ai.db` |
+| `NIKAI_DB_ENGINE` | 数据库后端：`sqlite` 或 `mariadb` | `sqlite` |
+| `NIKAI_DB_NAME` / `NIKAI_DB_USER` / `NIKAI_DB_PASSWORD` | MariaDB 数据库连接 | 本地无需配置 |
+| `NIKAI_DB_SOCKET` | MariaDB 本机 Unix socket | `/var/lib/mysql/mysql.sock` |
 | `NIKE_ADMIN_TOKEN` | 后台 Bearer 管理令牌 | 空 |
 | `NIKE_ANALYTICS_SALT` | 访客与 IP 哈希盐值 | 空 |
+| `NIKE_IMAGE_CONFIG_KEY` | 图片平台 API Key 加密主密钥（32 字节转 64 位 hex） | 空 |
 | `NIKE_ENABLE_TOKEN_ADMIN` | 生产环境是否允许共享令牌管理 | `false` |
 | `NIKE_AUTO_SEED` | 是否同步种子内容 | `true` |
 | `NIKE_ALLOWED_ORIGINS` | 允许的跨域来源 | 本机地址 |
@@ -207,7 +201,7 @@ Authorization: Bearer <token>
 
 令牌只保存在当前页面内存中，刷新或锁定页面后会被清除。生产环境必须配置稳定的数据库路径和高强度分析盐值；共享令牌管理默认关闭，建议使用账号体系、短会话、MFA、RBAC 和 CSRF 防护替代。
 
-后台保存的内容直接写入 SQLite，前端刷新后读取最新数据。种子文件只负责首次安装和未被后台接管的内容；带有 `cms_managed_at` 标记的人工内容不会在服务重启时被覆盖。编辑请求携带 `revision`，当其他操作已经更新同一条内容时，接口返回 `409 revision_conflict`，避免静默覆盖。
+后台保存的内容直接写入当前数据库后端，前端刷新即可读取。种子文件只负责首次安装和未被后台接管的内容；带有 `cms_managed_at` 标记的人工内容不会在服务重启时被覆盖。编辑请求携带 `revision`，当其他操作已经更新同一条内容时，接口返回 `409 revision_conflict`，避免静默覆盖。
 
 ## 批量导入工具目录
 
@@ -252,6 +246,8 @@ npm run logos:verify
 | `GET` | `/api/v1/tools` | 普通工具的搜索、筛选、排序和分页（默认24条） |
 | `GET` | `/api/v1/tools/:slug` | 工具详情 |
 | `GET` | `/api/v1/articles` | 教程与资讯列表 |
+| `GET` | `/api/v1/site-announcements` | 当前应显示的上线公告 |
+| `GET` | `/api/v1/image-models` | 对用户开放的图片模型 |
 | `GET` | `/api/v1/content/version` | 获取前端内容修订号 |
 | `POST` | `/api/v1/tool-submissions` | 提交工具审核 |
 | `GET` | `/api/v1/tool-submissions/:code/status` | 查询投稿审核状态 |
@@ -270,6 +266,8 @@ npm run logos:verify
 | `GET/POST` | `/api/admin/v1/content/:type` | 查询或新增工具、分类、文章和专题 |
 | `GET/PATCH/DELETE` | `/api/admin/v1/content/:type/:id` | 查看、更新或归档单条内容 |
 | `POST` | `/api/admin/v1/content/media/logos` | 校验并上传本地工具 Logo |
+| `GET/POST/PATCH/DELETE` | `/api/admin/v1/site-announcements` | 管理上线公告 |
+| `GET/POST/PATCH/DELETE` | `/api/admin/v1/image-providers`、`/api/admin/v1/image-models` | 管理图片平台和模型 |
 
 ### AI 资讯自动发布
 
@@ -285,7 +283,7 @@ AI 资讯支持按计划自动收集和发布。服务会读取配置的官方 R
 npm test
 ```
 
-当前共 `43` 项自动化测试，覆盖：
+每次提交前和正式发布时运行完整自动化测试；测试数量随功能变化，不在 README 固定计数。覆盖范围包括：
 
 - 健康检查、静态品牌资源与内容初始化
 - 工具组合筛选与详情读取
@@ -315,6 +313,9 @@ npm test
 ├── assets/tool-logos/                     # 本地托管的工具 Logo 资产
 ├── backend/
 │   ├── database.mjs                       # 数据访问、迁移与内容同步
+│   ├── mariadb/                           # MariaDB 数据访问适配
+│   ├── image-generation-gateway.mjs       # 上游生图代理和结果校验
+│   ├── site-announcements.mjs             # 上线公告接口
 │   ├── content-admin.mjs                  # CMS 校验、事务、审计与媒体上传
 │   ├── tool-import.mjs                    # 授权目录规范化、去重与入库
 │   ├── monitoring.mjs                     # 监控指标聚合
@@ -330,14 +331,10 @@ npm test
 
 ## 生产部署建议
 
-1. 使用稳定的 Node.js 22 LTS 运行环境和持久化磁盘。
-2. 设置 `NODE_ENV=production`、稳定的 `NIKE_DB_PATH`、强随机管理令牌和分析盐值。
-3. 通过 Nginx、Caddy 或云负载均衡提供 HTTPS 与反向代理。
-4. 将 `NIKE_ALLOWED_ORIGINS` 配置为生产域名（同源 CSRF 校验依赖该白名单；cookie 会话登录后台的写操作会校验 Origin/Referer，非白名单来源返回 403）。
-5. 生产建议关闭共享令牌管理（`NIKE_ENABLE_TOKEN_ADMIN=false`），改用账号会话（HttpOnly Cookie + SameSite=Lax + 同源校验）管理后台，并规划 MFA、RBAC 与登录限流。
-6. 后台管理令牌仅保存在页面内存中（原型方案）；生产账号体系下不要将凭据写入浏览器可读存储。
-7. 定期备份 SQLite 主数据库，并监控磁盘、WAL 和失效外链。
-8. 根据访问量再引入 Redis、PostgreSQL、全文搜索和对象存储，无需在 MVP 阶段过度拆分服务。
+1. 生产当前为单机 Node.js + MariaDB 10.5 + Nginx；MariaDB 仅绑定本机 socket/回环地址。凭据只存服务器受限权限的环境文件，不进仓库。
+2. 发布通过 GitHub Actions `main` 流水线或受控 SSH 调用 `/opt/nikai-ai/scripts/release-production.sh`；发布前先按已配置数据库后端备份，再生成代码快照、跑测试、重启和健康检查。完整步骤见 [生产发布流程](docs/production-release.md)。
+3. 管理后台有账号会话和管理令牌两层入口；用户账号与高权限账号由后台配置。不要把任何凭据保存到浏览器可读存储或提交到仓库。
+4. 定期验证 MariaDB 备份恢复、磁盘空间、服务健康和线上页面；回滚代码不等同于回滚数据库数据。
 
 `data/` 可能包含投稿邮箱、订阅记录、行为事件、审核日志和访问统计。该目录中的数据库、WAL 与日志已被 Git 忽略，但生产备份仍应按敏感数据管理，并设置访问控制、加密与保留期限。
 
@@ -345,7 +342,7 @@ npm test
 
 - 主站已于 2026-07 下线「登录 / 注册」入口；账号与评分相关后端 API 仍保留（供后续账号体系复用），auth.html 仍可访问但主站不再链接。
 - 共享管理令牌是原型鉴权方案，不等同于生产级管理员账户体系。
-- SQLite 适合当前单机 MVP；高并发、多实例部署需要迁移到服务端数据库。
+- 当前生产部署为单机架构；扩展到多实例前需复核会话、文件资源和任务队列的共享方式。
 - 周报已实现订阅和退订入库，尚未接入正式邮件发送服务。
 - 用户端仍依赖 Unsplash 和 unpkg 等外部素材或脚本服务（工具 Logo 已全部本地托管，不再依赖 Google favicon）。
 - 当前页面为同源静态渲染应用，不是完整的 SSR SEO 生产方案。
