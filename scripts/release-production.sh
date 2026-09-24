@@ -36,6 +36,7 @@ tar -xzf "$archive" -C "$app_dir"
 chown root:nikai "$app_dir/scripts/release-production.sh" "$app_dir/scripts/rollback-production.sh"
 chmod 0750 "$app_dir/scripts/release-production.sh" "$app_dir/scripts/rollback-production.sh"
 cd "$app_dir"
+npm ci
 node --check server.mjs
 npm test
 systemctl restart nikai-ai.service

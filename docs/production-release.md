@@ -35,7 +35,7 @@ The release script:
 
 1. Extract the backup selector from the incoming archive to a temporary directory, then back up the active database backend before changing code (`scripts/active-database-backup.mjs` selects MariaDB or SQLite from `NIKAI_DB_ENGINE`). This supports the first release that introduces the selector.
 2. Save a code snapshot while excluding `.env`, database data, dependencies, and imports.
-3. Extract the release, run a syntax check and the full tests, restart `nikai-ai.service`, and poll the local ready check.
+3. Extract the release, install the exact locked dependencies with `npm ci`, run a syntax check and the full tests, restart `nikai-ai.service`, and poll the local ready check.
 4. Restore the code snapshot and restart the service if a step fails.
 
 The database backup helper and the updated release/rollback scripts are part of the local audit changes. They are not live until included in a successful release. The currently installed server release script was verified as SQLite-only, so this code must be deployed before relying on automatic MariaDB pre-release backups.
