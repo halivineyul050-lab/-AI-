@@ -47,13 +47,18 @@ test("production releases retain SQLite backup behavior for SQLite configuration
   }
 });
 
-test("first release can run the backup selector from its archive before installing it", () => {
+test("release tests a clean staged tree and backs up before switching the live directory", () => {
   const releaseScript = readFileSync(new URL("../scripts/release-production.sh", import.meta.url), "utf8");
-  const extractHelper = releaseScript.indexOf("tar -xzf \"$archive\" -C \"$backup_helper_dir\" ./scripts/active-database-backup.mjs");
-  const runHelper = releaseScript.indexOf("node \"${backup_helper_dir}/scripts/active-database-backup.mjs\" \"$app_dir\"");
-  const installRelease = releaseScript.indexOf("tar -xzf \"$archive\" -C \"$app_dir\"");
+  const extractStage = releaseScript.indexOf('tar -xzf "$archive" -C "$stage"');
+  const runTests = releaseScript.indexOf('npm test');
+  const runBackup = releaseScript.indexOf('node "$stage/scripts/active-database-backup.mjs" "$app_dir"');
+  const runMigrations = releaseScript.indexOf('node --env-file="$app_dir/.env" "$stage/scripts/apply-production-migrations.mjs" "$stage" "$app_dir"');
+  const switchLive = releaseScript.indexOf('mv "$stage" "$app_dir"');
 
-  assert.ok(extractHelper >= 0, "release archive provides its backup selector");
-  assert.ok(runHelper > extractHelper, "selector runs after extraction");
-  assert.ok(installRelease > runHelper, "selector runs before live application files are changed");
+  assert.ok(extractStage >= 0, "archive is extracted into a fresh stage");
+  assert.ok(runTests > extractStage, "tests run against the clean stage");
+  assert.ok(runBackup > runTests, "database backup runs after tests and before deployment");
+  assert.ok(runMigrations > runBackup, "owner migration runs only after backup");
+  assert.ok(switchLive > runMigrations, "live directory changes only after migration succeeds");
+  assert.ok(!releaseScript.includes('tar -xzf "$archive" -C "$app_dir"'), "release never overlays live files");
 });

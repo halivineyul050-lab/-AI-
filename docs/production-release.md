@@ -25,20 +25,19 @@ The supported automated path is GitHub Actions workflow **Deploy production**, t
 - `PRODUCTION_SSH_PRIVATE_KEY`
 - optionally `PRODUCTION_SSH_HOST` (the workflow currently has a default host)
 
-The workflow runs `npm test`, archives the checked-out project, uploads the archive over SSH, and invokes `/opt/nikai-ai/scripts/release-production.sh` on the server. Never copy SSH credentials into chat, shell history, repository files, or an archive.
+The workflow runs `npm test`, archives the checked-out project, uploads the archive and its matching `scripts/release-production.sh` over SSH, and invokes that reviewed script on the server. Using the script from the same commit also works when the installed script is an older version after a rollback. The workflow cannot deploy until both required secrets are configured. Never copy SSH credentials into chat, shell history, repository files, or an archive.
 
-For a controlled manual run, use the same reviewed archive and server release script through an approved SSH account. Do not edit the live site directly or upload a developer working directory wholesale.
+For a controlled manual run, use the same reviewed archive and matching release script through an approved SSH account. Run the script with `sudo env PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin bash <uploaded-script> <uploaded-archive> <release-id>`. Do not edit the live site directly or upload a developer working directory wholesale.
 
 ## 4. What the server release script does
 
 The release script:
 
-1. Extract the backup selector from the incoming archive to a temporary directory, then back up the active database backend before changing code (`scripts/active-database-backup.mjs` selects MariaDB or SQLite from `NIKAI_DB_ENGINE`). This supports the first release that introduces the selector.
-2. Save a code snapshot while excluding `.env`, database data, dependencies, and imports.
-3. Extract the release, install the exact locked dependencies with `npm ci`, run a syntax check and the full tests, restart `nikai-ai.service`, and poll the local ready check.
-4. Restore the code snapshot and restart the service if a step fails.
-
-The database backup helper and the updated release/rollback scripts are part of the local audit changes. They are not live until included in a successful release. The currently installed server release script was verified as SQLite-only, so this code must be deployed before relying on automatic MariaDB pre-release backups.
+1. Takes an exclusive release lock, extracts the archive into a fresh directory, installs locked dependencies, and runs syntax and full tests there. Files left by previous releases cannot affect this test run.
+2. Backs up the active database and saves a code archive before changing the schema. The code archive excludes `.env*`, `.mariadb.cnf*`, data, imports and dependencies.
+3. For MariaDB, checks each packaged migration version and applies pending SQL using the server-only owner configuration (`/opt/nikai-ai/.mariadb.cnf`), recording a version only after the SQL succeeds. The application account does not need DDL privileges. Migrations must remain additive and compatible with the previous app version so a code rollback remains possible.
+4. Stops the service, copies server-only configuration and mutable directories into the tested tree, renames the current directory to `previous-*`, switches the complete tested directory to `/opt/nikai-ai`, starts the service and checks the local ready endpoint.
+5. If switching or startup fails, swaps the previous complete directory back and checks readiness. A successful release retains `previous-*` for immediate manual rollback and records it in `release-history.log`. Do not remove it until another healthy release and backup have been verified.
 
 Code rollback does not roll back MariaDB migrations or user content. Restore a database dump only as a separate, deliberate recovery operation after checking its timestamp and checksum.
 
@@ -61,5 +60,5 @@ Check `/opt/nikai-ai-backups/releases/release-history.log` and the MariaDB backu
 
 - Database backups contain encrypted provider API keys; `NIKE_IMAGE_CONFIG_KEY` is required to decrypt them.
 - A missing image master key means provider API keys must be entered again after restoring the database.
-- Keep code snapshots and database backups as separate recovery artifacts.
+- Keep complete previous release directories, code snapshots and database backups as separate recovery artifacts. Run `sudo /opt/nikai-ai/scripts/rollback-production.sh` to restore the latest `previous-*` directory, or pass its exact path. Legacy `.tgz` snapshots require a reviewed restore and are deliberately not accepted by the new automatic rollback script.
 - The live site uses database content; do not seed or overwrite production content with a local database snapshot.

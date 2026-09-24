@@ -45,4 +45,5 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
         run: |
           scp /tmp/nikai-release.tgz "$SSH_USER@$SSH_HOST:/tmp/nikai-release-$RELEASE_SHA.tgz"
-          ssh "$SSH_USER@$SSH_HOST" "sudo /opt/nikai-ai/scripts/release-production.sh /tmp/nikai-release-$RELEASE_SHA.tgz $RELEASE_SHA"
+          scp scripts/release-production.sh "$SSH_USER@$SSH_HOST:/tmp/nikai-release-$RELEASE_SHA.sh"
+          ssh "$SSH_USER@$SSH_HOST" "sudo env PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin bash /tmp/nikai-release-$RELEASE_SHA.sh /tmp/nikai-release-$RELEASE_SHA.tgz $RELEASE_SHA"
