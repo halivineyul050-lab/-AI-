@@ -5,6 +5,7 @@ import { test } from 'node:test';
 const authHtml = readFileSync('auth.html', 'utf8');
 const authCss = readFileSync('auth.css', 'utf8');
 const adminCss = readFileSync('admin.css', 'utf8');
+const sharedCss = readFileSync('design-system.css', 'utf8');
 
 test('management token screen remains inside the responsive auth panel', () => {
   assert.match(authHtml, /<main class="auth-main">[\s\S]*<section class="auth-panel"/);
@@ -27,8 +28,8 @@ test('operations workspace defines spacious cards and responsive navigation', ()
   assert.match(adminCss, /@media\s*\(max-width:\s*760px\)[\s\S]*\.admin-shell\s*\{[^}]*display:\s*block/s);
   assert.match(adminCss, /@media\s*\(max-width:\s*760px\)[\s\S]*\.sidebar\s*\{[^}]*position:\s*sticky[^}]*height:\s*auto/s);
   assert.match(adminCss, /\.cms-table-wrap[^}]*overflow-x:\s*auto/s);
-  assert.match(adminCss, /:focus-visible/);
-  assert.match(adminCss, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(sharedCss, /:focus-visible/);
+  assert.match(sharedCss, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
 });
 
 test('dynamic admin content keeps logos and analytics metrics inside their cards', () => {

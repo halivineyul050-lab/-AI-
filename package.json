@@ -5,6 +5,7 @@
   "type": "module",
   "description": "泥壳AI工具站全栈应用，Node.js、SQLite 本地开发与 MariaDB 生产运行。",
   "scripts": {
+    "frontend:navigation": "node scripts/build-site-navigation.mjs",
     "start": "node --env-file-if-exists=.env --no-warnings server.mjs",
     "dev": "node --env-file-if-exists=.env --no-warnings --watch server.mjs",
     "test": "node --no-warnings --test --test-concurrency=1 tests/*.test.mjs",
