@@ -22,11 +22,11 @@
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="canonical" href="https://ontimo.cn/">
   <link rel="stylesheet" href="/design-system.css?v=20260915-2">
-<link rel="stylesheet" href="/styles.css?v=20260915-nav-1">
+<link rel="stylesheet" href="/styles.css?v=20260929-aihot-1">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"泥壳AI工具站","url":"https://ontimo.cn/","description":"按任务发现、筛选和比较实用的AI工具","potentialAction":{"@type":"SearchAction","target":"https://ontimo.cn/?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
   <script id="tool-list-schema" type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"AI工具目录","numberOfItems":138,"itemListElement":[]}</script>
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="/app.js?v=20260825-1"></script>
+  <script defer src="/app.js?v=20260929-aihot-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -426,7 +426,17 @@
           <div class="date-chip"><i data-lucide="calendar"></i><span id="news-updated-date">最近更新</span></div>
         </div>
         <div class="news-layout">
-          <div class="article-list" id="news-list"></div>
+          <div class="news-main-column">
+            <section class="news-hot-section" aria-labelledby="news-hot-title">
+              <div class="news-hot-heading">
+                <div><p class="eyebrow">MULTI-SOURCE SIGNAL</p><h2 id="news-hot-title">近 48 小时热点</h2></div>
+                <span class="news-hot-window">按来源站点与时间更新</span>
+              </div>
+              <div class="news-hot-list" id="news-hot-list" role="list" aria-live="polite" aria-busy="true"></div>
+              <p class="news-hot-empty" id="news-hot-empty" aria-live="polite">正在整理多站点热点…</p>
+            </section>
+            <div class="article-list" id="news-list"></div>
+          </div>
           <aside class="news-sidebar">
             <div class="section-heading"><div><p class="eyebrow">TOPICS</p><h2>热门主题</h2></div></div>
             <div class="topic-cloud" id="topic-cloud"></div>

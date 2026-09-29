@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { HttpError, normalizePublicUrl } from "./validation.mjs";
+import { findArticleSourceLink, insertArticleSourceLinks } from "./article-source-links.mjs";
 
 const toolStatuses = new Set(["draft", "review", "published", "archived"]);
 const simpleStatuses = new Set(["draft", "published", "archived"]);
@@ -487,14 +488,25 @@ const validators = {
   collections: validateCollection
 };
 
-export function createAdminContent(db, type, body, context) {
+export function createAdminContent(db, type, body, context, { articleSourceItems = [] } = {}) {
   if (!contentTypes.has(type)) throw new HttpError(404, "content_type_not_found", "内容类型不存在");
+  if (!Array.isArray(articleSourceItems)) throw new HttpError(422, "invalid_article_sources", "文章来源列表无效");
   if (Object.hasOwn(body, "revision")) {
     throw new HttpError(422, "invalid_revision", "新增内容不能指定 revision", { field: "revision" });
   }
   const entity = validators[type](db, body);
+  if (articleSourceItems.length && (type !== "articles" || entity.kind !== "news" || entity.status !== "published")) {
+    throw new HttpError(422, "invalid_article_sources", "只有已发布的新闻文章可以关联来源");
+  }
   try {
     return transaction(db, () => {
+      if (type === "articles" && articleSourceItems.length) {
+        for (const source of articleSourceItems) {
+          if (findArticleSourceLink(db, source?.link ?? source?.sourceUrl)) {
+            throw new HttpError(409, "article_source_already_linked", "该来源已关联到另一篇资讯");
+          }
+        }
+      }
       if (type === "tools") {
         db.prepare(`
           INSERT INTO tools (
@@ -525,6 +537,7 @@ export function createAdminContent(db, type, body, context) {
           entity.id, entity.slug, entity.kind, entity.topic, entity.title, entity.excerpt, entity.cover, entity.body,
           entity.date, entity.readTime, entity.source, entity.sourceUrl, entity.status
         );
+        if (articleSourceItems.length) insertArticleSourceLinks(db, entity.id, articleSourceItems);
       } else {
         db.prepare(`
           INSERT INTO collections (id, title, description, icon, accent, sort_order, status, cms_managed_at)
@@ -540,6 +553,19 @@ export function createAdminContent(db, type, body, context) {
   } catch (error) {
     mapConstraint(error, singularNames[type]);
   }
+}
+
+export function attachArticleSources(db, articleId, sourceItems) {
+  if (!Array.isArray(sourceItems) || !sourceItems.length) {
+    throw new HttpError(422, "invalid_article_sources", "至少需要一个文章来源");
+  }
+  return transaction(db, () => {
+    const target = db.prepare(`
+      SELECT id FROM articles WHERE id = ? AND kind = 'news' AND status = 'published'
+    `).get(articleId);
+    if (!target) throw new HttpError(409, "news_event_changed", "目标资讯已不可关联，请重新采集");
+    return { articleId: target.id, ...insertArticleSourceLinks(db, target.id, sourceItems) };
+  });
 }
 
 export function updateAdminContent(db, type, id, body, context) {

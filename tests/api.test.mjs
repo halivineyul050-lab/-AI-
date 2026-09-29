@@ -7,6 +7,7 @@ import { after, before, test } from "node:test";
 
 import { buildApplication } from "../server.mjs";
 import { normalizePublicUrl } from "../backend/validation.mjs";
+import { sourceUrlHash } from "../backend/article-source-links.mjs";
 
 let app;
 let baseUrl;
@@ -141,8 +142,60 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 17);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 17);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 18);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 18);
+});
+
+test("news hot endpoint returns a bounded event ranking and rejects invalid limits", async () => {
+  const response = await request("/api/v1/news/hot?limit=10");
+  assert.equal(response.response.status, 200);
+  assert.equal(response.body.data.windowHours, 48);
+  assert.equal(response.body.data.halfLifeHours, 24);
+  assert.ok(Array.isArray(response.body.data.items));
+  const invalid = await request("/api/v1/news/hot?limit=11");
+  assert.equal(invalid.response.status, 422);
+});
+
+test("news page renders multi-source hot items and article source details", async () => {
+  const page = await request("/");
+  assert.equal(page.response.status, 200);
+  assert.match(page.body, /id="news-hot-list"/);
+  assert.match(page.body, /近 48 小时热点/);
+  const script = await request("/app.js");
+  assert.equal(script.response.status, 200);
+  assert.match(script.body, /\/api\/v1\/news\/hot\?limit=10/);
+  assert.match(script.body, /article-source-list/);
+});
+
+test("hot ranking counts distinct reporting sites and article detail omits internal feed URLs", async () => {
+  const article = app.db.prepare("SELECT id, source_url FROM articles WHERE kind = 'news' AND status = 'published' ORDER BY id LIMIT 1").get();
+  const now = Date.now();
+  const sources = [
+    { url: article.source_url, name: "OpenAI", title: "New model", feed: "https://feeds.example.net/private?token=secret" },
+    { url: "https://techcrunch.com/2026/09/29/new-model", name: "TechCrunch", title: "Coverage", feed: "https://feeds.example.org/private?token=other" }
+  ];
+  const insert = app.db.prepare(`
+    INSERT INTO article_source_links (
+      source_url_hash, article_id, source_url, source_name, feed_url, source_title, source_published_at, discovered_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  for (const source of sources) {
+    const timestamp = new Date(now - 60 * 60_000).toISOString();
+    insert.run(sourceUrlHash(source.url), article.id, source.url, source.name, source.feed, source.title, timestamp, timestamp);
+  }
+
+  const ranking = await request("/api/v1/news/hot");
+  assert.equal(ranking.response.status, 200);
+  const ranked = ranking.body.data.items.find((item) => item.id === article.id);
+  assert.ok(ranked);
+  assert.equal(ranked.sourceCount, 2);
+  assert.equal(Object.hasOwn(ranked, "heat"), false);
+
+  const detail = await request(`/api/v1/articles/${article.id}`);
+  assert.equal(detail.response.status, 200);
+  assert.equal(detail.body.data.sources.length, 2);
+  assert.equal(Object.hasOwn(detail.body.data.sources[0], "feedUrl"), false);
+  assert.equal(JSON.stringify(detail.body.data.sources).includes("token=secret"), false);
 });
 
 test("admin short route and unauthenticated flow lead to management-token login", async () => {

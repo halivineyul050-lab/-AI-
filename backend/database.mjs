@@ -3,6 +3,8 @@ import { applyMariaMigrations, openMariaDatabase } from './mariadb-compat.mjs';
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
+import { listArticleSourceLinks } from "./article-source-links.mjs";
+import { calculateNewsHotRanking } from "./news-hot-ranking.mjs";
 
 const schemaPath = resolve(import.meta.dirname, "schema.sql");
 const migrations = [
@@ -23,6 +25,7 @@ const migrations = [
   ,{ version: 15, name: "image_provider_timeout", sql: readFileSync(resolve(import.meta.dirname, "migrations", "015_image_provider_timeout.sql"), "utf8") }
   ,{ version: 16, name: "site_announcements", sql: readFileSync(resolve(import.meta.dirname, "migrations", "016_site_announcements.sql"), "utf8") }
   ,{ version: 17, name: "image_provider_edit_path", sql: readFileSync(resolve(import.meta.dirname, "migrations", "017_image_provider_edit_path.sql"), "utf8") }
+  ,{ version: 18, name: "article_source_links", sql: readFileSync(resolve(import.meta.dirname, "migrations", "018_article_source_links.sql"), "utf8") }
 ];
 
 function hashToken(value) {
@@ -511,11 +514,117 @@ export function listArticles(db, kind) {
 }
 
 export function getArticle(db, idOrSlug) {
-  return hydrateArticle(db.prepare(`
+  const row = db.prepare(`
     SELECT * FROM articles
     WHERE (id = ? OR slug = ?) AND status = 'published'
     LIMIT 1
-  `).get(idOrSlug, idOrSlug));
+  `).get(idOrSlug, idOrSlug);
+  if (!row) return null;
+  return {
+    ...hydrateArticle(row),
+    sources: listArticleSourceLinks(db, row.id, row).map((source) => ({
+      sourceUrl: source.sourceUrl,
+      sourceName: source.sourceName,
+      sourceTitle: source.sourceTitle,
+      sourcePublishedAt: source.sourcePublishedAt,
+      discoveredAt: source.discoveredAt
+    }))
+  };
+}
+
+function articleEvidenceTimestamp(source) {
+  const timestamp = Date.parse(source?.sourcePublishedAt || source?.discoveredAt || "");
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function getRecentNewsEventAnchors(db, now = Date.now()) {
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  const cutoff = new Date(nowMs - 48 * 60 * 60_000).toISOString();
+  const rows = db.prepare(`
+    SELECT a.id, a.title, a.excerpt, a.source_url, a.source_name, a.published_date, a.created_at,
+      COALESCE(
+        (SELECT MAX(COALESCE(l.source_published_at, l.discovered_at))
+         FROM article_source_links l WHERE l.article_id = a.id),
+        a.created_at,
+        a.published_date
+      ) AS latest_source_at
+    FROM articles a
+    WHERE a.kind = 'news' AND a.status = 'published'
+    ORDER BY latest_source_at DESC, a.id ASC
+    LIMIT 100
+  `).all();
+  if (!rows.length) return [];
+  const ids = rows.map((row) => row.id);
+  const placeholders = ids.map(() => "?").join(", ");
+  const relationRows = db.prepare(`
+    SELECT article_id, source_url, source_name, source_title, source_published_at, discovered_at, feed_url
+    FROM article_source_links
+    WHERE article_id IN (${placeholders})
+    ORDER BY article_id ASC, COALESCE(source_published_at, discovered_at) DESC, source_url_hash ASC
+  `).all(...ids);
+  const linksByArticle = new Map(ids.map((id) => [id, []]));
+  relationRows.forEach((row) => linksByArticle.get(row.article_id)?.push(row));
+  const anchors = [];
+  for (const row of rows) {
+    const sources = listArticleSourceLinks(db, row.id, row, linksByArticle.get(row.id));
+    const latest = sources.reduce((value, source) => {
+      const sourceAt = articleEvidenceTimestamp(source);
+      return sourceAt === null ? value : value === null ? sourceAt : Math.max(value, sourceAt);
+    }, null);
+    if (latest === null || latest < Date.parse(cutoff) || latest > nowMs) continue;
+    anchors.push({ id: row.id, title: row.title, excerpt: row.excerpt, latestSourceAt: new Date(latest).toISOString() });
+    if (anchors.length === 10) break;
+  }
+  return anchors;
+}
+
+export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  const cutoff = new Date(nowMs - 48 * 60 * 60_000).toISOString();
+  const nowIso = new Date(nowMs).toISOString();
+  const rows = db.prepare(`
+    SELECT a.*,
+      COALESCE(
+        (SELECT MAX(COALESCE(all_links.source_published_at, all_links.discovered_at))
+         FROM article_source_links all_links WHERE all_links.article_id = a.id),
+        a.created_at,
+        a.published_date
+      ) AS latest_source_at
+    FROM articles a
+    WHERE a.kind = 'news' AND a.status = 'published'
+      AND (
+        EXISTS (
+          SELECT 1 FROM article_source_links recent
+          WHERE recent.article_id = a.id
+            AND COALESCE(recent.source_published_at, recent.discovered_at) >= ?
+            AND COALESCE(recent.source_published_at, recent.discovered_at) <= ?
+        )
+        OR (a.source_url <> '' AND COALESCE(a.created_at, a.published_date) >= ? AND COALESCE(a.created_at, a.published_date) <= ?)
+      )
+    ORDER BY latest_source_at DESC, a.id ASC
+    LIMIT 200
+  `).all(cutoff, nowIso, cutoff, nowIso);
+  if (!rows.length) return [];
+
+  const ids = rows.map((row) => row.id);
+  const placeholders = ids.map(() => "?").join(", ");
+  const relationRows = db.prepare(`
+    SELECT article_id, source_url, source_name, source_title, source_published_at, discovered_at, feed_url
+    FROM article_source_links
+    WHERE article_id IN (${placeholders})
+    ORDER BY article_id ASC, COALESCE(source_published_at, discovered_at) DESC, source_url_hash ASC
+  `).all(...ids);
+  const linksByArticle = new Map(ids.map((id) => [id, []]));
+  relationRows.forEach((row) => linksByArticle.get(row.article_id)?.push(row));
+  const rankingInput = rows.map((row) => {
+    const sources = listArticleSourceLinks(db, row.id, row, linksByArticle.get(row.id));
+    const firstSourceAt = sources.reduce((value, source) => {
+      const sourceAt = articleEvidenceTimestamp(source);
+      return sourceAt === null ? value : value === null ? sourceAt : Math.min(value, sourceAt);
+    }, null);
+    return { ...hydrateArticle(row), firstSourceAt: firstSourceAt === null ? null : new Date(firstSourceAt).toISOString(), sources };
+  });
+  return calculateNewsHotRanking(rankingInput, nowMs, limit);
 }
 
 export function getCollections(db) {

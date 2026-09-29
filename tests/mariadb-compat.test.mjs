@@ -31,7 +31,7 @@ test('MariaDB dialect translates provider default-model transactions', () => {
   assert.match(translateMariaSql("UPDATE image_models SET updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE is_default = 1"), /UTC_TIMESTAMP/);
 });
 
-test('MariaDB applies the image-provider and announcement migrations once', () => {
+test('MariaDB applies the image-provider, announcement and article-source migrations once', () => {
   const calls = [];
   const applied = new Set();
   const db = {
@@ -45,7 +45,7 @@ test('MariaDB applies the image-provider and announcement migrations once', () =
   applyMariaMigrations(db);
   applyMariaMigrations(db);
 
-  assert.equal(calls.filter((call) => call.type === 'exec').length, 4);
+  assert.equal(calls.filter((call) => call.type === 'exec').length, 5);
   assert.match(calls[0].sql, /CREATE TABLE(?: IF NOT EXISTS)? image_providers/);
   assert.match(calls[0].sql, /CREATE TABLE(?: IF NOT EXISTS)? image_models/);
   assert.doesNotMatch(calls[0].sql, /PRAGMA/i);
@@ -57,6 +57,7 @@ test('MariaDB applies the image-provider and announcement migrations once', () =
   assert.match(calls[0].sql, /CHECK \(max_images BETWEEN 1 AND 4\)/);
   assert.match(calls.filter((call) => call.type === 'exec')[2].sql, /CREATE TABLE IF NOT EXISTS site_announcements/);
   assert.match(calls.filter((call) => call.type === 'exec')[3].sql, /ADD COLUMN IF NOT EXISTS edit_path VARCHAR\(1024\) NOT NULL DEFAULT '\/v1\/images\/edits'/);
+  assert.match(calls.filter((call) => call.type === 'exec')[4].sql, /CREATE TABLE IF NOT EXISTS article_source_links/);
   assert.match(calls.find((call) => call.type === 'exec' && /SELECT 1/.test(call.sql)).sql, /SELECT 1/);
-  assert.deepEqual(calls.at(-1).params, [17, 'image_provider_edit_path']);
+  assert.deepEqual(calls.at(-1).params, [18, 'article_source_links']);
 });

@@ -22,6 +22,11 @@ const mariaMigrations = [
     version: 17,
     name: 'image_provider_edit_path',
     sql: readFileSync(new URL('./mariadb/migrations/017_image_provider_edit_path.sql', import.meta.url), 'utf8')
+  },
+  {
+    version: 18,
+    name: 'article_source_links',
+    sql: readFileSync(new URL('./mariadb/migrations/018_article_source_links.sql', import.meta.url), 'utf8')
   }
 ];
 

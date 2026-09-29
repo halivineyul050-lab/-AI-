@@ -48,6 +48,7 @@ import {
   getArticle,
   getBootstrap,
   getGrowthSnapshot,
+  getNewsHotRanking,
   getCategories,
   getSubmissionStatus,
   getTool,
@@ -1727,6 +1728,22 @@ export function buildApplication(options = {}) {
         const kind = url.searchParams.get("kind");
         if (kind && !["tutorial", "news"].includes(kind)) throw new HttpError(422, "invalid_kind", "内容类型无效");
         sendData(response, listArticles(db, kind));
+        return;
+      }
+
+      if (method === "GET" && pathname === "/api/v1/news/hot") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        const rawLimit = url.searchParams.get("limit");
+        const limit = rawLimit === null ? 10 : Number(rawLimit);
+        if (!Number.isInteger(limit) || limit < 1 || limit > 10) {
+          throw new HttpError(422, "invalid_limit", "limit 必须是 1 到 10 之间的整数", { field: "limit" });
+        }
+        sendData(response, {
+          windowHours: 48,
+          halfLifeHours: 24,
+          generatedAt: new Date().toISOString(),
+          items: getNewsHotRanking(db, Date.now(), limit)
+        });
         return;
       }
 

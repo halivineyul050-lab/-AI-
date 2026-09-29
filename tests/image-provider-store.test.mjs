@@ -69,7 +69,7 @@ test("provider store prevents referenced provider deletion and audits mutations"
 });
 
 test("image-provider migrations create tables and expand the timeout", () => {
-  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 17);
+  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 18);
   assert.ok(db.prepare("SELECT 1 FROM schema_migrations WHERE version = 14").get());
   assert.ok(db.prepare("SELECT 1 FROM schema_migrations WHERE version = 15").get());
   assert.ok(db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'image_providers'").get());

@@ -70,7 +70,7 @@ test("announcement store rejects unsafe text, dates, versions and button destina
 test("site announcement and image edit migrations are registered in order", () => {
   const f = fixture();
   try {
-    assert.equal(f.db.prepare("PRAGMA user_version").get().user_version, 17);
+    assert.equal(f.db.prepare("PRAGMA user_version").get().user_version, 18);
     assert.ok(f.db.prepare("SELECT 1 FROM schema_migrations WHERE version = 16 AND name = 'site_announcements'").get());
     assert.ok(f.db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'site_announcements'").get());
   } finally { f.close(); }

@@ -27,6 +27,7 @@
 - `GET /api/v1/tools/:idOrSlug`
 - `GET /api/v1/articles?kind=tutorial|news`
 - `GET /api/v1/articles/:idOrSlug`
+- `GET /api/v1/news/hot?limit=10`
 
 `bootstrap` 只返回分类计数、文章、专题和单个推广工具，不再内嵌全量普通工具。工具首屏、搜索和筛选统一通过 `/api/v1/tools` 获取；该接口默认返回24条普通工具并使用 `limit` / `offset` 分页。
 
@@ -40,7 +41,7 @@
 
 Logo 维护命令为 `npm run logos:sync`，校验命令为 `npm run logos:verify`。Logo 文件只从安全的 `/assets/tool-logos/<slug>.<ext>` 路由提供，Manifest 记录官方来源地址、来源类型、文件哈希、MIME 和核验日期；官网不可访问时会明确标记为域名 favicon 兜底。
 
-资讯记录额外返回 `source` 与 `sourceUrl`，前端详情页提供官方原始发布入口。当前内容同步会更新本轮策划工具和资讯，同时归档被替换的旧推广位与占位资讯。
+资讯记录额外返回 `source` 与 `sourceUrl`，文章详情还会返回 `sources` 交叉来源列表；内部 RSS 地址不会公开。`/api/v1/news/hot` 只统计近 48 小时至少有两个不同来源站点报道的事件，最多返回 10 条；热度按来源时间衰减，不公开内部热度值，并标记新出现、升温和来源突增的事件。自动采编会参考近期事件锚点，将同一事件的新报道关联到已有文章，无法确认时才发布新文章。当前内容同步会更新本轮策划工具和资讯，同时归档被替换的旧推广位与占位资讯。
 
 ### 投稿
 

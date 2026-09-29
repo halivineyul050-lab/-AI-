@@ -743,6 +743,7 @@ const newsItems = [
 ];
 
 const articleMap = Object.fromEntries([...tutorials, ...newsItems].map((article) => [article.id, article]));
+let newsHotItems = [];
 
 const collections = [
   {
@@ -2096,7 +2097,7 @@ function renderArticleDrawer(article) {
         : ["明确受众、任务和最终交付形态", "为关键步骤选择不同工具而非只用一个", "用人工复核保障事实和表达质量"];
 
   const coverUrl = escapeHTML(safeMediaUrl(article.image, articleCoverFallback));
-  const sourceUrl = article.sourceUrl ? escapeHTML(safeMediaUrl(article.sourceUrl, "")) : "";
+  const sources = articleSourcesForDisplay(article);
   document.getElementById("drawer-content").innerHTML = `
     <div class="article-detail-cover"><img data-fallback data-fallback-src="${escapeHTML(articleCoverFallback)}" src="${coverUrl}" alt="${escapeHTML(article.title)}" width="720" height="405"></div>
     <div class="article-detail-heading">
@@ -2105,7 +2106,11 @@ function renderArticleDrawer(article) {
       <p>${escapeHTML(article.excerpt)}</p>
     </div>
     ${article.body && article.body !== article.excerpt ? `<section class="detail-section"><h3>正文</h3><p>${escapeHTML(article.body)}</p></section>` : ""}
-    ${sourceUrl ? `<section class="detail-section"><h3>官方来源</h3><a class="article-source-link" href="${sourceUrl}" target="_blank" rel="noopener noreferrer nofollow">查看${escapeHTML(article.source || "原始发布")}<i data-lucide="external-link" aria-hidden="true"></i></a></section>` : ""}
+    ${sources.length ? `<section class="detail-section"><h3>来源报道 <span class="article-source-count">${sources.length} 条来源</span></h3><ul class="article-source-list">${sources.map((source) => {
+      const publishedAt = source.sourcePublishedAt ? new Date(source.sourcePublishedAt) : null;
+      const validPublishedAt = publishedAt && !Number.isNaN(publishedAt.getTime());
+      return `<li><a class="article-source-link" href="${escapeHTML(source.url)}" target="_blank" rel="noopener noreferrer nofollow"><span class="article-source-copy"><strong>${escapeHTML(source.sourceName)}</strong>${source.sourceTitle ? `<span>${escapeHTML(source.sourceTitle)}</span>` : ""}${validPublishedAt ? `<time datetime="${escapeHTML(publishedAt.toISOString())}">${escapeHTML(new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(publishedAt))}</time>` : ""}</span><i data-lucide="external-link" aria-hidden="true"></i></a></li>`;
+    }).join("")}</ul></section>` : ""}
     <section class="detail-section">
       <h3>核心要点</h3>
       <ul class="article-key-points">${keyPoints.map((point) => `<li>${escapeHTML(point)}</li>`).join("")}</ul>
@@ -2122,6 +2127,43 @@ function renderArticleDrawer(article) {
   bindImageFallbacks(document.getElementById("drawer-content"));
 }
 
+function safeArticleSourceUrl(value) {
+  try {
+    const url = new URL(String(value || ""));
+    return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? url.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
+function articleSourcesForDisplay(article) {
+  const linked = Array.isArray(article.sources) ? article.sources : [];
+  const candidates = linked.length ? linked : article.sourceUrl ? [{ sourceUrl: article.sourceUrl, sourceName: article.source }] : [];
+  const sources = candidates.map((source) => ({
+    url: safeArticleSourceUrl(source.sourceUrl ?? source.url),
+    sourceName: String(source.sourceName || article.source || "原始来源"),
+    sourceTitle: String(source.sourceTitle || ""),
+    sourcePublishedAt: source.sourcePublishedAt || null
+  })).filter((source) => source.url);
+  if (sources.length || !linked.length || !article.sourceUrl) return sources;
+  const fallbackUrl = safeArticleSourceUrl(article.sourceUrl);
+  return fallbackUrl ? [{ url: fallbackUrl, sourceName: article.source || "原始来源", sourceTitle: "", sourcePublishedAt: null }] : [];
+}
+
+async function refreshArticleDetail(articleId, slug) {
+  try {
+    const payload = await apiRequest(`/api/v1/articles/${encodeURIComponent(slug || articleId)}`, {}, 5000);
+    if (!payload.data || !Array.isArray(payload.data.sources)) return;
+    const article = articleMap[articleId];
+    if (!article) return;
+    Object.assign(article, payload.data);
+    const drawer = document.getElementById("tool-drawer");
+    if (drawer.dataset.articleId === articleId && drawer.classList.contains("is-open")) renderArticleDrawer(article);
+  } catch {
+    // The cached article and its primary source remain available when detail loading fails.
+  }
+}
+
 function openArticle(articleId) {
   const article = articleMap[articleId];
   if (!article) return;
@@ -2130,6 +2172,7 @@ function openArticle(articleId) {
   const drawer = document.getElementById("tool-drawer");
   drawer.setAttribute("aria-label", "文章详情");
   drawer.dataset.toolId = "";
+  drawer.dataset.articleId = articleId;
   drawer.classList.add("is-open");
   drawer.setAttribute("aria-hidden", "false");
   drawer.inert = false;
@@ -2138,6 +2181,7 @@ function openArticle(articleId) {
   document.body.classList.add("is-locked");
   window.setTimeout(() => document.getElementById("drawer-close").focus(), 200);
   track("article_click", { article_id: articleId, content_type: article.type });
+  void refreshArticleDetail(articleId, article.slug);
 }
 
 function closeDrawer() {
@@ -2205,6 +2249,48 @@ function renderArticles(targetId, items) {
     </article>`).join("");
 }
 
+function renderNewsHotItems(items) {
+  const list = document.getElementById("news-hot-list");
+  const empty = document.getElementById("news-hot-empty");
+  if (!list || !empty) return;
+  list.setAttribute("aria-busy", "false");
+  if (!items.length) {
+    list.innerHTML = "";
+    empty.hidden = false;
+    empty.textContent = "暂时还没有至少两个来源站点共同报道的热点，下面仍可浏览全部资讯。";
+    return;
+  }
+  empty.hidden = true;
+  const badgeLabels = new Map([["new", "新"], ["rising", "升温"], ["surge", "突增"]]);
+  list.innerHTML = items.map((item) => {
+    const badges = (Array.isArray(item.badges) ? item.badges : []).map((badge) => {
+      const label = badgeLabels.get(badge);
+      return label ? `<span class="news-hot-badge news-hot-badge-${badge}">${label}</span>` : "";
+    }).join("");
+    const sourceTime = new Date(item.latestSourceAt || "");
+    const latest = Number.isNaN(sourceTime.getTime()) ? "最近更新" : new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(sourceTime);
+    articleMap[item.id] = { ...(articleMap[item.id] || {}), ...item, type: item.type || "AI 行业" };
+    return `<div role="listitem"><button class="news-hot-card" type="button" data-article-id="${escapeHTML(item.id)}" aria-label="打开热点文章：${escapeHTML(item.title)}"><span class="news-hot-rank">${String(item.rank).padStart(2, "0")}</span><span class="news-hot-copy"><strong>${escapeHTML(item.title)}</strong><span class="news-hot-meta">${Number(item.sourceCount) || 0} 个来源站点 · ${escapeHTML(latest)}</span></span><span class="news-hot-badges">${badges}</span></button></div>`;
+  }).join("");
+  refreshIcons();
+}
+
+async function loadNewsHotItems() {
+  const empty = document.getElementById("news-hot-empty");
+  const list = document.getElementById("news-hot-list");
+  if (!empty || !list) return;
+  try {
+    const payload = await apiRequest("/api/v1/news/hot?limit=10", {}, 5000);
+    newsHotItems = Array.isArray(payload.data?.items) ? payload.data.items : [];
+    renderNewsHotItems(newsHotItems);
+  } catch {
+    list.setAttribute("aria-busy", "false");
+    list.innerHTML = "";
+    empty.hidden = false;
+    empty.textContent = "热点暂时无法加载，仍可浏览下方资讯。";
+  }
+}
+
 function filterTutorials(label) {
   const filtered = label === "全部"
     ? tutorials
@@ -2218,6 +2304,7 @@ function filterTutorials(label) {
 function renderContentViews() {
   renderArticles("tutorial-list", tutorials);
   renderArticles("news-list", newsItems);
+  void loadNewsHotItems();
   const latestNewsDate = newsItems
     .map((item) => new Date(`${item.date}T00:00:00`))
     .filter((date) => !Number.isNaN(date.getTime()))
