@@ -130,8 +130,9 @@ export function hydrateArticleSourceLinks(legacyArticle, relationRows = []) {
       if (!links.has(hash) && !representedUrls.has(comparableUrl)) {
         const host = normalizeNewsSourceHost(fallbackUrl);
         const publishedDate = legacyArticle.published_date ?? legacyArticle.date ?? "";
-        const discoveredAt = legacyArticle.created_at ?? legacyArticle.createdAt
-          ?? (publishedDate ? `${String(publishedDate).slice(0, 10)}T00:00:00.000Z` : null);
+        const discoveredAt = publishedDate
+          ? `${String(publishedDate).slice(0, 10)}T00:00:00.000Z`
+          : legacyArticle.created_at ?? legacyArticle.createdAt ?? null;
         links.set(hash, {
           sourceUrl: fallbackUrl,
           sourceName: String(legacyArticle.source_name ?? legacyArticle.source ?? "").trim() || host || "来源站点",

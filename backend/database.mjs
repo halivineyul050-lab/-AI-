@@ -545,8 +545,8 @@ export function getRecentNewsEventAnchors(db, now = Date.now()) {
       COALESCE(
         (SELECT MAX(COALESCE(l.source_published_at, l.discovered_at))
          FROM article_source_links l WHERE l.article_id = a.id),
-        a.created_at,
-        a.published_date
+        NULLIF(a.published_date, ''),
+        a.created_at
       ) AS latest_source_at
     FROM articles a
     WHERE a.kind = 'news' AND a.status = 'published'
@@ -587,8 +587,8 @@ export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
       COALESCE(
         (SELECT MAX(COALESCE(all_links.source_published_at, all_links.discovered_at))
          FROM article_source_links all_links WHERE all_links.article_id = a.id),
-        a.created_at,
-        a.published_date
+        NULLIF(a.published_date, ''),
+        a.created_at
       ) AS latest_source_at
     FROM articles a
     WHERE a.kind = 'news' AND a.status = 'published'
@@ -599,7 +599,7 @@ export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
             AND COALESCE(recent.source_published_at, recent.discovered_at) >= ?
             AND COALESCE(recent.source_published_at, recent.discovered_at) <= ?
         )
-        OR (a.source_url <> '' AND COALESCE(a.created_at, a.published_date) >= ? AND COALESCE(a.created_at, a.published_date) <= ?)
+        OR (a.source_url <> '' AND COALESCE(NULLIF(a.published_date, ''), a.created_at) >= ? AND COALESCE(NULLIF(a.published_date, ''), a.created_at) <= ?)
       )
     ORDER BY latest_source_at DESC, a.id ASC
     LIMIT 200

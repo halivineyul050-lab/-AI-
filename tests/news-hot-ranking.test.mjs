@@ -1,7 +1,15 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
 
+import { getNewsHotRanking, getRecentNewsEventAnchors } from "../backend/database.mjs";
+import { sourceUrlHash } from "../backend/article-source-links.mjs";
 import { calculateNewsHotRanking } from "../backend/news-hot-ranking.mjs";
+
+const schemaSql = readFileSync(new URL("../backend/schema.sql", import.meta.url), "utf8");
+const articleSourcesMigration = readFileSync(new URL("../backend/migrations/003_article_sources.sql", import.meta.url), "utf8");
+const eventSourcesMigration = readFileSync(new URL("../backend/migrations/018_article_source_links.sql", import.meta.url), "utf8");
 
 const now = Date.parse("2026-09-29T12:00:00.000Z");
 const at = (hoursAgo) => new Date(now - hoursAgo * 60 * 60_000).toISOString();
@@ -68,4 +76,44 @@ test("hot ranking marks recently discovered and rapidly rising events", () => {
   assert.ok(newEvent.badges.includes("new"));
   assert.ok(newEvent.badges.includes("surge"));
   assert.ok(risingEvent.badges.includes("rising"));
+});
+
+function createNewsDatabase() {
+  const db = new DatabaseSync(":memory:");
+  db.exec(schemaSql);
+  db.exec(articleSourcesMigration);
+  db.exec(eventSourcesMigration);
+  return db;
+}
+
+function insertLegacyNews(db, { id, createdAt, publishedDate = "2020-01-01", sourceUrl = "https://legacy.example/old-story" }) {
+  db.prepare(`
+    INSERT INTO articles (
+      id, slug, kind, topic, title, excerpt, cover_url, body_text, published_date,
+      read_time, source_name, source_url, created_at, updated_at
+    ) VALUES (?, ?, 'news', 'AI 行业', ?, '', '', '', ?, '3分钟', 'Legacy', ?, ?, ?)
+  `).run(id, id, `Legacy event ${id}`, publishedDate, sourceUrl, createdAt, createdAt);
+}
+
+test("old legacy news is not a recent publisher anchor just because it was imported recently", () => {
+  const db = createNewsDatabase();
+  insertLegacyNews(db, { id: "legacy-anchor", createdAt: at(2) });
+
+  assert.deepEqual(getRecentNewsEventAnchors(db, now), []);
+  db.close();
+});
+
+test("old legacy source is not counted as fresh coverage after a new source is attached", () => {
+  const db = createNewsDatabase();
+  insertLegacyNews(db, { id: "legacy-ranking", createdAt: at(2) });
+  const sourceUrl = "https://new-coverage.example/story";
+  db.prepare(`
+    INSERT INTO article_source_links (
+      source_url_hash, article_id, source_url, source_name, feed_url, source_title,
+      source_published_at, discovered_at
+    ) VALUES (?, ?, ?, 'New coverage', '', 'Recent report', ?, ?)
+  `).run(sourceUrlHash(sourceUrl), "legacy-ranking", sourceUrl, at(1), at(1));
+
+  assert.deepEqual(getNewsHotRanking(db, now), []);
+  db.close();
 });
