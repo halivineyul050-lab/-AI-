@@ -1,0 +1,10 @@
+/* Shared video frame interaction used by crop and mask tools. */
+.crop-stage{position:relative;width:100%;overflow:hidden;background:#10231f;border-radius:10px;touch-action:none;user-select:none}
+.crop-stage video{display:block;width:100%;height:auto;max-height:none;border-radius:0;pointer-events:none}
+.crop-box{position:absolute;min-width:2px;min-height:2px;border:2px solid #fff;box-shadow:0 0 0 3000px #061c18a6;cursor:move;touch-action:none;outline-offset:4px}
+.crop-box:focus-visible{outline:3px solid #6ee7b7}
+.crop-grid{position:absolute;inset:0;background:linear-gradient(to right,transparent 33%,#ffffff50 33%,#ffffff50 33.3%,transparent 33.3%,transparent 66.6%,#ffffff50 66.6%,#ffffff50 67%,transparent 67%),linear-gradient(to bottom,transparent 33%,#ffffff50 33%,#ffffff50 33.3%,transparent 33.3%,transparent 66.6%,#ffffff50 66.6%,#ffffff50 67%,transparent 67%);pointer-events:none}
+.handle{position:absolute;z-index:2;width:22px;height:22px;padding:0;border:0;background:transparent;touch-action:none}.handle:after{position:absolute;top:5px;left:5px;width:10px;height:10px;border:1px solid var(--brand);border-radius:2px;background:#fff;content:''}
+.handle.nw{top:-11px;left:-11px;cursor:nwse-resize}.handle.ne{top:-11px;right:-11px;cursor:nesw-resize}.handle.sw{bottom:-11px;left:-11px;cursor:nesw-resize}.handle.se{right:-11px;bottom:-11px;cursor:nwse-resize}
+#box-size{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);padding:3px 6px;border-radius:4px;background:#102c22b3;color:#fff;font-size:10px;white-space:nowrap;pointer-events:none}
+.playback{display:flex;align-items:center;gap:12px;margin-top:16px}.playback button{flex-shrink:0}.playback input{min-width:0;flex:1;accent-color:var(--brand)}#time-label{color:var(--text-muted);font-size:10px;white-space:nowrap}

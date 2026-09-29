@@ -3,85 +3,14 @@
    重写于 2026-08-05 · 与主站设计系统统一
    ============================================================ */
 
-:root {
-  --bg-page: #f6f5fb;
-  --bg-surface: #ffffff;
-  --bg-subtle: #efedf8;
-  --bg-strong: #1d1a2b;
-  --text-primary: #1d1a2b;
-  --text-secondary: #625d75;
-  --text-muted: #8b859e;
-  --border: #e5e1f0;
-  --border-strong: #d2cce3;
-  --brand: #6558f5;
-  --brand-hover: #5144e5;
-  --brand-soft: #eeebff;
-  --brand-gradient: linear-gradient(135deg, #6558f5 0%, #826cf8 100%);
-  --coral: #c2410c;
-  --coral-soft: #fff0e8;
-  --amber: #b45309;
-  --amber-soft: #fdf3e2;
-  --danger: #dc2626;
-  --danger-soft: #fdecec;
-  --success: #15803d;
-  --success-soft: #e9f7ef;
-  --focus: #6558f5;
-  --sidebar: 240px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --shadow-xs: 0 1px 2px rgba(16, 19, 28, 0.05);
-  --shadow-sm: 0 2px 8px rgba(16, 19, 28, 0.06);
-  --shadow-md: 0 6px 20px rgba(16, 19, 28, 0.08);
-  --shadow-lg: 0 16px 40px rgba(16, 19, 28, 0.12);
-  --shadow-brand: 0 8px 24px rgba(99, 102, 241, 0.35);
-  color-scheme: light;
-}
-
-[data-theme="dark"] {
-  --bg-page: #11101a;
-  --bg-surface: #1b1927;
-  --bg-subtle: #242134;
-  --bg-strong: #f3f0fa;
-  --text-primary: #f3f0fa;
-  --text-secondary: #b8b1ca;
-  --text-muted: #89829d;
-  --border: #332f45;
-  --border-strong: #48425e;
-  --brand: #9388ff;
-  --brand-hover: #aca4ff;
-  --brand-soft: #2d2852;
-  --coral-soft: #40251b;
-  --amber-soft: #3a2f16;
-  --danger-soft: #3a1c1c;
-  --success-soft: #16301f;
-  color-scheme: dark;
-}
-
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
 body {
-  margin: 0;
-  min-width: 320px;
-  background: var(--bg-page);
-  color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.6;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
 }
 
-button, input, textarea, select { font: inherit; }
-button, a { color: inherit; }
 button { cursor: pointer; }
-a { text-decoration: none; }
-h1, h2, h3, p { margin: 0; }
-ul, ol { margin: 0; padding: 0; list-style: none; }
-img { max-width: 100%; display: block; }
-[hidden] { display: none !important; }
-:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
 .sr-only {
   position: absolute;
@@ -1302,10 +1231,6 @@ body {
   --admin-control-height: 44px;
   --admin-gap: clamp(18px, 2vw, 28px);
   --sidebar: 264px;
-  --bg-page: #f5f3fb;
-  --bg-subtle: #f1eff9;
-  --border: #e2deef;
-  --shadow-sm: 0 12px 34px rgba(42, 32, 83, .065);
 }
 body { background: radial-gradient(900px 420px at 72% -120px, rgba(108,88,245,.14), transparent 70%), var(--bg-page); }
 .main { min-width: 0; }

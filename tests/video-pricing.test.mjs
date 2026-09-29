@@ -18,7 +18,7 @@ test('pricing page runs its supplied inline interactions with a page-scoped poli
     assert.match(html, /class="site-header"/);
     assert.match(html, /href="\/video-pricing\.html"[^>]+aria-current="page"/);
     assert.match(html, /class="pricing-back" href="\/"[^>]*>.*返回泥壳AI工具站/s);
-    assert.match(html, /href="\/utility-theme\.css\?v=20260915-nav-2"/);
+    assert.match(html, /href="\/utility-theme\.css\?v=20260929-foundation-1"/);
     assert.match(html, /src="\/utility-theme\.js\?v=20260915-nav-1"/);
     assert.match(page.headers.get('content-security-policy'), /script-src 'self' 'unsafe-inline'/);
     assert.match(page.headers.get('content-security-policy'), /connect-src 'self' https:\/\/ai\.fun\.tv/);

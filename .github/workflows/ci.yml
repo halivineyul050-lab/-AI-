@@ -16,6 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm ci
       - run: node --check server.mjs
       - run: node --check app.js
       - run: node --check auth.js

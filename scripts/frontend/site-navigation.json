@@ -1,0 +1,35 @@
+{
+  "items": [
+    { "id": "tools", "label": "工具库", "href": "/", "appView": "tools", "showOn": ["app", "utility", "pricing"] },
+    { "id": "discover", "label": "发现", "href": "/discover", "appView": "discover", "showOn": ["app", "utility", "pricing"] },
+    { "id": "rankings", "label": "榜单", "href": "/rankings", "appView": "rankings", "showOn": ["app", "utility", "pricing"] },
+    { "id": "tutorials", "label": "教程", "href": "/tutorials", "appView": "tutorials", "showOn": ["app", "utility", "pricing"] },
+    { "id": "news", "label": "资讯", "href": "/news", "appView": "news", "showOn": ["app", "utility", "pricing"] },
+    { "id": "video-pricing", "label": "视频模型价格", "href": "/video-pricing.html", "showOn": ["app", "pricing"] },
+    { "id": "image-generation", "label": "AI 生图", "href": "/image-generation", "showOn": ["app", "utility", "pricing"] },
+    { "id": "utilities", "label": "小工具", "href": "/utilities", "showOn": ["app", "utility", "pricing"] },
+    { "id": "games", "label": "休闲小游戏", "href": "/games", "showOn": ["app", "utility", "pricing"] }
+  ],
+  "pages": {
+    "index.html": { "shell": "app", "active": "tools" },
+    "image-generation.html": { "shell": "utility", "active": "image-generation" },
+    "image-edit.html": { "shell": "utility", "active": "utilities" },
+    "image-erase.html": { "shell": "utility", "active": "utilities" },
+    "image-background.html": { "shell": "utility", "active": "utilities" },
+    "image-enhance.html": { "shell": "utility", "active": "utilities" },
+    "utilities.html": { "shell": "utility", "active": "utilities" },
+    "link-extract.html": { "shell": "utility", "active": "utilities" },
+    "video-gif.html": { "shell": "utility", "active": "utilities" },
+    "video-crop.html": { "shell": "utility", "active": "utilities" },
+    "video-mask.html": { "shell": "utility", "active": "utilities" },
+    "video-pricing.html": { "shell": "pricing", "active": "video-pricing" },
+    "games.html": { "shell": "utility", "active": "games" },
+    "game-2048.html": { "shell": "utility", "active": "games" },
+    "memory-game.html": { "shell": "utility", "active": "games" },
+    "breakout.html": { "shell": "utility", "active": "games" },
+    "snake.html": { "shell": "utility", "active": "games" },
+    "gomoku.html": { "shell": "utility", "active": "games" },
+    "flight.html": { "shell": "utility", "active": "games" },
+    "never-retreat.html": { "shell": "utility", "active": "games" }
+  }
+}

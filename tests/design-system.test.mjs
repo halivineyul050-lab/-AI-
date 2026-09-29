@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { buildApplication } from '../server.mjs';
 import { test } from 'node:test';
 
 const entries = [
@@ -42,5 +45,31 @@ test('pages load one design-system link and games share one outer shell', () => 
   }
   for (const file of ['games.html', 'never-retreat.html', 'snake.html', 'gomoku.html', 'flight.html', 'game-2048.html', 'memory-game.html', 'breakout.html']) {
     assert.match(readFileSync(file, 'utf8'), /game-shell\.css/, `${file} should load the game shell`);
+  }
+});
+
+
+test('server serves each split stylesheet module and shared video-frame styles', async () => {
+  const directory = mkdtempSync(join(tmpdir(), 'nikai-foundation-assets-'));
+  const app = buildApplication({ dbPath: join(directory, 'test.db'), logger: false, analyticsSalt: 'frontend-foundation-test-salt' });
+  const assets = [
+    '/assets/css/site/site-shell.css',
+    '/assets/css/site/site-catalog.css',
+    '/assets/css/site/site-content.css',
+    '/assets/css/site/site-overlays.css',
+    '/assets/css/site/site-responsive.css',
+    '/video-frame.css'
+  ];
+  try {
+    const address = await app.listen(0, '127.0.0.1');
+    for (const asset of assets) {
+      const response = await fetch(`http://127.0.0.1:${address.port}${asset}`);
+      assert.equal(response.status, 200, asset);
+      assert.match(response.headers.get('content-type'), /text\/css/);
+      assert.ok((await response.text()).length > 0, asset);
+    }
+  } finally {
+    await app.close();
+    rmSync(directory, { recursive: true, force: true });
   }
 });
