@@ -91,6 +91,7 @@ export function openDatabase(dbPath) {
       applied_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
     )
   `);
+  const previousVersion = db.prepare("PRAGMA user_version").get().user_version;
   const hasMigration = db.prepare("SELECT 1 FROM schema_migrations WHERE version = ?");
   const recordMigration = db.prepare("INSERT INTO schema_migrations (version, name) VALUES (?, ?)");
   migrations.forEach((migration) => {
@@ -98,6 +99,9 @@ export function openDatabase(dbPath) {
     db.exec(migration.sql);
     recordMigration.run(migration.version, migration.name);
   });
+  // Filling an older gap must not lower the marker set by newer migrations.
+  const highestApplied = db.prepare("SELECT MAX(version) AS version FROM schema_migrations").get().version || 0;
+  db.exec(`PRAGMA user_version = ${Math.max(previousVersion, highestApplied)}`);
   return db;
 }
 
