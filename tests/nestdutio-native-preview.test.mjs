@@ -1,0 +1,33 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {nativeFixture} from './fixtures/nestdutio-native.mjs';
+import {startPreviewServer} from '../backend/nestdutio/preview.mjs';
+import {launchSandboxedBrowser} from '../backend/nestdutio/browser.mjs';
+import {readFileSync} from 'node:fs';
+
+test('previously generated mortgage native artifact performs real calculation and reset in simulator',{timeout:60000},async t=>{
+ const {createNativePreview}=await import('../backend/nestdutio/native-preview.mjs');const source=JSON.parse(readFileSync(new URL('./fixtures/nestdutio-native-mortgage.json',import.meta.url),'utf8'));const original=JSON.stringify(source);const preview=await startPreviewServer();t.after(()=>preview.close());const entry=preview.put(createNativePreview(source),{project:'mortgage-native-test'});assert.equal(JSON.stringify(source),original);
+ const executable=process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':await(await import('@sparticuz/chromium')).default.executablePath();const {browser,cleanup}=await launchSandboxedBrowser(executable,20000);t.after(async()=>{await browser.close();await cleanup()});const page=await browser.newPage({viewport:{width:390,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));const response=await page.goto(entry.url);assert.match(response.headers()['content-security-policy'],/connect-src 'none'/);assert.doesNotMatch(response.headers()['content-security-policy'],/unsafe-eval/);
+ const rate=0.049/12,n=360,p=120000,payment=p*rate/(1-Math.pow(1+rate,-n));const expected={'#monthly':payment.toFixed(2),'#totalInterest':(payment*n-p).toFixed(2)};
+ for(const step of source.acceptance){if(step.kind==='input')await page.locator(step.target).fill(step.input);else if(step.kind==='tap'){await page.locator(step.target).click();if(step.target==='#reset')expected['#monthly']='0.00';}else if(step.kind==='text')assert.equal((await page.locator(step.target).innerText()).trim(),expected[step.target]??step.value);}
+ assert.equal(await page.locator('#totalPay').innerText(),'');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.deepEqual(errors,[]);if(process.env.NIKAI_NATIVE_PREVIEW_SCREENSHOT)await page.screenshot({path:process.env.NIKAI_NATIVE_PREVIEW_SCREENSHOT,fullPage:true});
+});
+
+test('native simulator runs bindings, inputs, storage and navigation on isolated preview',{timeout:60000},async t=>{
+ const {createNativePreview}=await import('../backend/nestdutio/native-preview.mjs');
+ const source=nativeFixture();
+ source.files.find(f=>f.path==='pages/index/index.js').content=`Page({data:{count:0,name:'',items:['水','茶'],shown:true},onLoad(){this.setData({count:wx.getStorageSync('count')||0})},add(){this.setData({count:this.data.count+1});wx.setStorageSync('count',this.data.count)},input(e){this.setData({name:e.detail.value})},submit(e){this.setData({receipt:e.detail.value.email})},next(){wx.navigateTo({url:'/pages/next/index'})},unsupported(){wx.requestSubscribeMessage({})}})`;
+ // Unsupported APIs must be reported, never simulated as successful. Existing
+ // native validator rejects these on new generation; runtime must still fail safely.
+ source.files.find(f=>f.path==='pages/index/index.wxml').content='<view id="count">{{count}}</view><button id="add" bindtap="add">增加</button><input id="name" bindinput="input" value="{{name}}"/><input class="no-id" bindinput="input" value="{{name}}"/><view class="card"><text id="styled">样式</text></view><view wx:if="{{!shown}}" /><text id="sibling">独立内容</text><text id="name-result">{{name}}</text><view wx:if="{{shown}}" id="shown">显示</view><view wx:for="{{items}}" wx:key="*this" class="item">{{index}}:{{item}}</view><form bindsubmit="submit"><input name="email" id="email"/><button id="submit" form-type="submit">提交</button></form><text id="receipt">{{receipt}}</text><button id="next" bindtap="next">下一页</button>';
+ source.files.find(f=>f.path==='pages/index/index.wxss').content='.card text { color:rgb(255, 0, 0); } view > text { font-weight:700; }';
+ source.files.find(f=>f.path==='app.json').content='{"pages":["pages/index/index","pages/next/index"]}';
+ for(const [ext,content] of Object.entries({js:'Page({back(){wx.navigateBack()}})',json:'{}',wxml:'<button id="back" bindtap="back">返回</button>',wxss:''}))source.files.push({path:'pages/next/index.'+ext,content});
+ // Leave the unsupported API out of the source validation; test it through a
+ // computed lookup inside this isolated test frame instead.
+ source.files.find(f=>f.path==='pages/index/index.js').content=source.files.find(f=>f.path==='pages/index/index.js').content.replace(',unsupported(){wx.requestSubscribeMessage({})}','');
+ const artifact=createNativePreview(source);assert.equal(source.target,'wechat');assert.equal(artifact.target,undefined);
+ const preview=await startPreviewServer();t.after(()=>preview.close());const entry=preview.put(artifact,{project:'native-preview-test'});
+ const executable=process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':await(await import('@sparticuz/chromium')).default.executablePath();const {browser,cleanup}=await launchSandboxedBrowser(executable,20000);t.after(async()=>{await browser.close();await cleanup()});
+ const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(entry.url);await page.locator('#add').click();assert.equal(await page.locator('#count').innerText(),'1');await page.locator('#name').fill('喝水');assert.equal(await page.locator('#name-result').innerText(),'喝水');assert.equal(await page.locator('.item').count(),2);assert.equal(await page.locator('.item').nth(1).innerText(),'1:茶');await page.locator('.no-id').fill('');await page.locator('.no-id').pressSequentially('abc');assert.equal(await page.locator('#name-result').innerText(),'abc');assert.equal(await page.locator('#sibling').isVisible(),true);assert.equal(await page.locator('#styled').evaluate(e=>getComputedStyle(e).color),'rgb(255, 0, 0)');await page.locator('#email').fill('test@example.test');await page.locator('#submit').click();assert.equal(await page.locator('#receipt').innerText(),'test@example.test');await page.reload();assert.equal(await page.locator('#count').innerText(),'1');await page.locator('#next').click();await page.locator('#back').click();assert.equal(await page.locator('#count').innerText(),'1');await page.evaluate(()=>wx.requestSubscribeMessage({}));assert.match(await page.locator('#simulator-notice').innerText(),/不支持.*requestSubscribeMessage/);assert.deepEqual(errors,[]);
+});

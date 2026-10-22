@@ -1,0 +1,1 @@
+CREATE TABLE nestdutio_project_meta(project_id VARCHAR(64) PRIMARY KEY,archived TINYINT NOT NULL DEFAULT 0,custom_name TINYINT NOT NULL DEFAULT 0) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; CREATE INDEX nestdutio_task_history ON nestdutio_tasks(project_id,created_at,id);

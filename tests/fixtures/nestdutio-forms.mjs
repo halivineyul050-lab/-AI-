@@ -1,0 +1,2 @@
+export const schemas=[{id:'signup',title:'活动报名',fields:[{name:'name',label:'姓名',type:'text',required:true,maxLength:80},{name:'email',label:'邮箱',type:'email',required:true,maxLength:200}]}];
+export const artifact={schemaVersion:1,name:'报名',entry:'index.html',files:[{path:'index.html',content:'<h1>报名</h1>'}],capabilities:['forms'],forms:schemas,acceptance:[{kind:'visible',target:'h1'},{kind:'submitForm',formId:'signup',target:'#submit',output:'#status',value:'成功'}]};

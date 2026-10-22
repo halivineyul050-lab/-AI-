@@ -1,0 +1,1 @@
+ALTER TABLE nestdutio_tasks ADD COLUMN IF NOT EXISTS progress_json MEDIUMTEXT NULL;

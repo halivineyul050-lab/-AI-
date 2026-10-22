@@ -1,0 +1,58 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {buildApplication} from '../server.mjs';
+import {registerUser} from '../backend/auth.mjs';
+import {createSecretBox} from '../backend/image-provider-secrets.mjs';
+
+test('named profiles are super-admin private and reuse encrypted keys across chat modules',async t=>{
+ const dir=mkdtempSync(join(tmpdir(),'nikai-profiles-api-'));
+ const app=buildApplication({dbPath:join(dir,'app.db'),logger:false,autoSeed:false,environment:'test',adminToken:'test-profiles-only',imageConfigKey:'b'.repeat(64),assistantLookup:async()=>[{address:'93.184.216.34',family:4}],nestdutioLookup:async()=>[{address:'93.184.216.34',family:4}],modelDiscoveryLookup:async()=>[{address:'93.184.216.34',family:4}],modelDiscoveryFetch:async()=>Response.json({data:[{id:'model-a'}]})});
+ t.after(async()=>{await app.close();rmSync(dir,{recursive:true,force:true});});
+ const make=async(name)=>registerUser(app.db,{email:name+'@example.test',normalizedEmail:name+'@example.test',displayName:name,password:'test-profiles-password',consentVersion:'2026-10'});
+ const owner=await make('owner'),admin=await make('admin');
+ app.db.prepare("UPDATE users SET role='admin',is_super_admin=1 WHERE id=?").run(owner.user.id);
+ app.db.prepare("UPDATE users SET role='admin' WHERE id=?").run(admin.user.id);
+ const addr=await app.listen(0,'127.0.0.1'),base=`http://127.0.0.1:${addr.port}`;
+ const request=(path,method='GET',body,user=owner)=>fetch(base+path,{method,headers:{...(user?{Cookie:'nikai_auth='+user.token}:{}),...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
+ const path='/api/admin/v1/model-profiles';
+ assert.equal((await request(path,'GET',null,null)).status,401);
+ assert.equal((await request(path,'GET',null,admin)).status,403);
+ const secret='profile-unit-test-key';
+ const made=await request(path,'POST',{name:'日常模型',kind:'chat',endpoint:'https://example.com',model:'model-a',apiKey:secret});
+ assert.equal(made.status,201);
+ const profile=(await made.json()).data;
+ assert.ok(profile.id);assert.equal(profile.hasKey,true);assert.ok(!JSON.stringify(profile).includes(secret));
+ const listed=await request(path+'?kind=chat');assert.match(listed.headers.get('cache-control'),/no-store/);
+ assert.equal((await listed.json()).data.items.length,1);
+ assert.ok(!app.db.prepare('SELECT encrypted_key FROM model_profiles').get().encrypted_key.includes(secret));
+ const settings={enabled:false,endpoint:'https://example.com/v1/chat/completions',model:'model-a',profileId:profile.id,dailyLimit:10,welcome:'你好',mode:'independent',maxTokens:12000,requestTimeoutSeconds:120};
+ for(const [scope,table] of [['assistant','assistant_provider'],['explainer','explainer_provider'],['nestdutio','nestdutio_config']]){
+  const res=await request('/api/admin/v1/'+scope+'/provider','PUT',settings);
+  assert.equal(res.status,200,scope);assert.ok(!JSON.stringify(await res.json()).includes(secret));
+  const saved=JSON.parse(app.db.prepare('SELECT document FROM '+table+' WHERE id=1').get().document);
+  assert.equal(createSecretBox('b'.repeat(64)).decrypt(saved.encryptedKey),secret);
+ }
+ assert.equal((await request('/api/admin/v1/assistant/provider','PUT',{...settings,endpoint:'https://other.example/v1/chat/completions'})).status,422);
+ assert.equal((await request('/api/admin/v1/assistant/provider','PUT',settings,admin)).status,403);
+ assert.equal((await request(path,'POST',{name:'当前配置副本',kind:'chat',endpoint:settings.endpoint,model:'model-a',source:{scope:'assistant'}})).status,201);
+ assert.equal((await request(path,'POST',{name:'错误地址',kind:'chat',endpoint:'https://other.example',model:'model-a',source:{scope:'assistant'}})).status,422);
+ const discovery=await request('/api/admin/v1/model-discovery','POST',{scope:'assistant',endpoint:settings.endpoint,profileId:profile.id});
+ assert.equal(discovery.status,200);assert.equal((await discovery.json()).data.items[0].id,'model-a');
+ const imageMade=await request(path,'POST',{name:'图片平台',kind:'image',endpoint:'https://example.com',model:'',apiKey:secret});
+ assert.equal(imageMade.status,201);const imageProfile=(await imageMade.json()).data;
+ assert.equal((await request('/api/admin/v1/assistant/provider','PUT',{...settings,profileId:imageProfile.id})).status,422);
+ const imageProvider=await request('/api/admin/v1/image-providers','POST',{name:'图片测试平台',baseUrl:'https://example.com',apiKey:'',profileId:imageProfile.id,enabled:false});
+ assert.equal(imageProvider.status,201);const provider=(await imageProvider.json()).data;
+ const savedImage=app.db.prepare('SELECT encrypted_api_key FROM image_providers WHERE id=?').get(provider.id);
+ assert.equal(createSecretBox('b'.repeat(64)).decrypt(savedImage.encrypted_api_key),secret);
+ const imageCopy=await request(path,'POST',{name:'原平台密钥副本',kind:'image',endpoint:provider.baseUrl,model:'',apiKey:'',source:{scope:'image',providerId:provider.id}});
+ assert.equal(imageCopy.status,201);
+ const forged=await fetch(base+path,{method:'POST',headers:{Cookie:'nikai_auth='+owner.token,'Content-Type':'application/json',Origin:'https://attacker.example'},body:JSON.stringify({name:'forged'})});
+ assert.equal(forged.status,403);
+ assert.equal((await request(path+'/'+profile.id,'DELETE',{})).status,200);
+ assert.equal((await request('/api/admin/v1/assistant/provider','PUT',settings)).status,404);
+ assert.equal(createSecretBox('b'.repeat(64)).decrypt(JSON.parse(app.db.prepare('SELECT document FROM assistant_provider WHERE id=1').get().document).encryptedKey),secret);
+});

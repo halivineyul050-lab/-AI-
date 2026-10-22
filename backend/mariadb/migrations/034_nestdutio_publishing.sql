@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS nestdutio_publications(project_id VARCHAR(36) PRIMARY KEY,slug VARCHAR(41) NOT NULL UNIQUE,state VARCHAR(16) NOT NULL DEFAULT 'offline',live_version VARCHAR(36),previous_version VARCHAR(36),candidate_version VARCHAR(36),candidate_token VARCHAR(36) NOT NULL DEFAULT '',updated_at VARCHAR(32) NOT NULL);

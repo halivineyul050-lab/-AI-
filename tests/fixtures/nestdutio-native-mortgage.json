@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "target": "wechat",
+  "name": "等额本息房贷计算器",
+  "entry": "app.json",
+  "capabilities": [],
+  "acceptance": [
+    {
+      "kind": "input",
+      "target": "#principal",
+      "input": "120000"
+    },
+    {
+      "kind": "input",
+      "target": "#rate",
+      "input": "4.9"
+    },
+    {
+      "kind": "input",
+      "target": "#months",
+      "input": "360"
+    },
+    {
+      "kind": "tap",
+      "target": "#calc"
+    },
+    {
+      "kind": "text",
+      "target": "#monthly",
+      "value": "636.87"
+    },
+    {
+      "kind": "text",
+      "target": "#totalInterest",
+      "value": "109273.31"
+    },
+    {
+      "kind": "tap",
+      "target": "#reset"
+    },
+    {
+      "kind": "text",
+      "target": "#monthly",
+      "value": "0.00"
+    }
+  ],
+  "files": [
+    {
+      "path": "app.json",
+      "content": "{\n  \"pages\": [\n    \"pages/index/index\"\n  ],\n  \"window\": {\n    \"navigationBarBackgroundColor\": \"#1f6feb\",\n    \"navigationBarTitleText\": \"房贷计算器\",\n    \"navigationBarTextStyle\": \"white\",\n    \"backgroundColor\": \"#f4f6fa\"\n  }\n}"
+    },
+    {
+      "path": "app.js",
+      "content": "App({\n  onLaunch() {}\n})"
+    },
+    {
+      "path": "app.wxss",
+      "content": "page {\n  background-color: #f4f6fa;\n  font-family: -apple-system, BlinkMacSystemFont, \"Helvetica Neue\", Helvetica, \"PingFang SC\", \"Microsoft YaHei\", sans-serif;\n  color: #1f2933;\n  font-size: 28rpx;\n  box-sizing: border-box;\n}\n\nview,\ntext,\ninput,\nbutton {\n  box-sizing: border-box;\n}"
+    },
+    {
+      "path": "project.config.json",
+      "content": "{\n  \"compileType\": \"miniprogram\",\n  \"miniprogramRoot\": \"./\",\n  \"appid\": \"touristappid\"\n}"
+    },
+    {
+      "path": "pages/index/index.js",
+      "content": "Page({\n  data: {\n    principal: '',\n    rate: '',\n    months: '',\n    monthly: '0.00',\n    totalInterest: '0.00',\n    totalPayment: '0.00',\n    error: ''\n  },\n\n  onPrincipalInput(e) {\n    this.setData({ principal: e.detail.value, error: '' });\n  },\n\n  onRateInput(e) {\n    this.setData({ rate: e.detail.value, error: '' });\n  },\n\n  onMonthsInput(e) {\n    this.setData({ months: e.detail.value, error: '' });\n  },\n\n  onCalc() {\n    const principalRaw = (this.data.principal || '').trim();\n    const rateRaw = (this.data.rate || '').trim();\n    const monthsRaw = (this.data.months || '').trim();\n\n    if (principalRaw === '' || rateRaw === '' || monthsRaw === '') {\n      this.setData({ error: '请填写贷款金额、年利率和期限' });\n      return;\n    }\n\n    const principal = Number(principalRaw);\n    const rate = Number(rateRaw);\n    const months = Number(monthsRaw);\n\n    if (!isFinite(principal) || !isFinite(rate) || !isFinite(months)) {\n      this.setData({ error: '请输入有效数字' });\n      return;\n    }\n    if (principal <= 0) {\n      this.setData({ error: '贷款金额必须大于 0' });\n      return;\n    }\n    if (rate < 0) {\n      this.setData({ error: '年利率不能为负数' });\n      return;\n    }\n    if (months <= 0 || Math.floor(months) !== months) {\n      this.setData({ error: '期限必须为正整数（月）' });\n      return;\n    }\n\n    let monthly;\n    if (rate === 0) {\n      monthly = principal / months;\n    } else {\n      const r = rate / 100 / 12;\n      const pow = Math.pow(1 + r, months);\n      monthly = (principal * r * pow) / (pow - 1);\n    }\n\n    const totalPayment = monthly * months;\n    const totalInterest = totalPayment - principal;\n\n    this.setData({\n      monthly: this.format(monthly),\n      totalInterest: this.format(totalInterest),\n      totalPayment: this.format(totalPayment),\n      error: ''\n    });\n  },\n\n  onReset() {\n    this.setData({\n      principal: '',\n      rate: '',\n      months: '',\n      monthly: '0.00',\n      totalInterest: '0.00',\n      totalPayment: '0.00',\n      error: ''\n    });\n  },\n\n  format(num) {\n    if (!isFinite(num)) {\n      return '0.00';\n    }\n    const rounded = Math.round(num * 100) / 100;\n    return rounded.toFixed(2);\n  },\n\n  onShareAppMessage() {\n    return {\n      title: '等额本息房贷计算器',\n      path: 'pages/index/index'\n    };\n  }\n});"
+    },
+    {
+      "path": "pages/index/index.json",
+      "content": "{\n  \"navigationBarTitleText\": \"房贷计算器\",\n  \"navigationBarBackgroundColor\": \"#1f6feb\",\n  \"navigationBarTextStyle\": \"white\",\n  \"backgroundColor\": \"#f4f6fa\"\n}"
+    },
+    {
+      "path": "pages/index/index.wxml",
+      "content": "<view class=\"page\">\n  <view class=\"header\">\n    <text class=\"title\">等额本息房贷计算器</text>\n    <text class=\"subtitle\">金额单位：元 · 年利率单位：% · 期限单位：月</text>\n  </view>\n\n  <view class=\"card\">\n    <view class=\"field\">\n      <text class=\"label\">贷款金额（元）</text>\n      <input\n        class=\"input\"\n        id=\"principal\"\n        type=\"digit\"\n        placeholder=\"请输入贷款金额，如 120000\"\n        value=\"{{principal}}\"\n        bindinput=\"onPrincipalInput\"\n      />\n    </view>\n\n    <view class=\"field\">\n      <text class=\"label\">年利率（%）</text>\n      <input\n        class=\"input\"\n        id=\"rate\"\n        type=\"digit\"\n        placeholder=\"请输入年利率，如 4.9\"\n        value=\"{{rate}}\"\n        bindinput=\"onRateInput\"\n      />\n    </view>\n\n    <view class=\"field\">\n      <text class=\"label\">贷款期限（月）</text>\n      <input\n        class=\"input\"\n        id=\"months\"\n        type=\"number\"\n        placeholder=\"请输入期限月数，如 360\"\n        value=\"{{months}}\"\n        bindinput=\"onMonthsInput\"\n      />\n    </view>\n\n    <view class=\"error\" wx:if=\"{{errorMsg}}\">{{errorMsg}}</view>\n\n    <view class=\"actions\">\n      <button class=\"btn btn-primary\" id=\"calc\" type=\"primary\" bindtap=\"onCalc\">计算</button>\n      <button class=\"btn btn-secondary\" id=\"reset\" bindtap=\"onReset\">重置</button>\n    </view>\n  </view>\n\n  <view class=\"card result-card\">\n    <view class=\"result-row\">\n      <text class=\"result-label\">每月还款（元）</text>\n      <text class=\"result-value\" id=\"monthly\">{{monthly}}</text>\n    </view>\n    <view class=\"result-row\">\n      <text class=\"result-label\">总利息（元）</text>\n      <text class=\"result-value\" id=\"totalInterest\">{{totalInterest}}</text>\n    </view>\n    <view class=\"result-row\">\n      <text class=\"result-label\">还款总额（元）</text>\n      <text class=\"result-value\" id=\"totalPay\">{{totalPay}}</text>\n    </view>\n  </view>\n</view>"
+    },
+    {
+      "path": "pages/index/index.wxss",
+      "content": "page {\n  background-color: #f4f6fa;\n  min-height: 100vh;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Helvetica Neue\", Arial, sans-serif;\n  color: #2c3e50;\n}\n\n.container {\n  padding: 24rpx 28rpx 48rpx;\n  box-sizing: border-box;\n}\n\n.card {\n  background-color: #ffffff;\n  border-radius: 20rpx;\n  padding: 32rpx 30rpx;\n  margin-bottom: 24rpx;\n  box-shadow: 0 4rpx 20rpx rgba(31, 111, 235, 0.08);\n}\n\n.card-title {\n  font-size: 30rpx;\n  font-weight: 600;\n  color: #1f6feb;\n  margin-bottom: 24rpx;\n  padding-left: 16rpx;\n  border-left: 8rpx solid #1f6feb;\n  line-height: 1.2;\n}\n\n.field {\n  margin-bottom: 28rpx;\n}\n\n.field:last-child {\n  margin-bottom: 0;\n}\n\n.field-label {\n  display: block;\n  font-size: 26rpx;\n  color: #5b6b7c;\n  margin-bottom: 12rpx;\n}\n\n.field-input {\n  width: 100%;\n  height: 88rpx;\n  background-color: #f4f6fa;\n  border: 2rpx solid #e1e6ed;\n  border-radius: 12rpx;\n  padding: 0 20rpx;\n  font-size: 32rpx;\n  color: #2c3e50;\n  box-sizing: border-box;\n}\n\n.field-input:focus {\n  border-color: #1f6feb;\n}\n\n.field-hint {\n  font-size: 22rpx;\n  color: #97a3b0;\n  margin-top: 10rpx;\n}\n\n.button-row {\n  display: flex;\n  gap: 20rpx;\n  margin-bottom: 24rpx;\n}\n\n.btn {\n  flex: 1;\n  height: 92rpx;\n  line-height: 92rpx;\n  text-align: center;\n  font-size: 32rpx;\n  font-weight: 600;\n  border-radius: 12rpx;\n  box-sizing: border-box;\n}\n\n.btn-primary {\n  background-color: #1f6feb;\n  color: #ffffff;\n}\n\n.btn-primary:active {\n  background-color: #1857c4;\n}\n\n.btn-default {\n  background-color: #ffffff;\n  color: #1f6feb;\n  border: 2rpx solid #1f6feb;\n}\n\n.btn-default:active {\n  background-color: #eef4ff;\n}\n\n.error-tip {\n  background-color: #fff1f0;\n  border: 2rpx solid #ffccc7;\n  color: #d4380d;\n  border-radius: 12rpx;\n  padding: 20rpx 24rpx;\n  font-size: 26rpx;\n  margin-bottom: 24rpx;\n  line-height: 1.5;\n}\n\n.result-row {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 24rpx 0;\n  border-bottom: 2rpx solid #f0f3f7;\n}\n\n.result-row:last-child {\n  border-bottom: none;\n}\n\n.result-label {\n  font-size: 28rpx;\n  color: #5b6b7c;\n}\n\n.result-value {\n  font-size: 34rpx;\n  font-weight: 600;\n  color: #2c3e50;\n}\n\n.result-value-highlight {\n  font-size: 40rpx;\n  font-weight: 700;\n  color: #1f6feb;\n}\n\n.unit {\n  font-size: 24rpx;\n  color: #97a3b0;\n  margin-left: 6rpx;\n  font-weight: 400;\n}"
+    }
+  ],
+  "verification": {
+    "structure": "passed",
+    "compile": "pending",
+    "business": "pending"
+  }
+}

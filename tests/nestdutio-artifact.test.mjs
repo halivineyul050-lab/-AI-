@@ -1,0 +1,8 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {validateArtifact} from '../backend/nestdutio/artifact.mjs';
+const valid=()=>({schemaVersion:1,name:'计数器',entry:'index.html',files:[{path:'index.html',content:'<!doctype html><title>计数器</title><button id="add">增加</button><output id="count">0</output><script>add.onclick=()=>count.textContent=Number(count.textContent)+1</script>'}],capabilities:[],acceptance:[{kind:'clickText',target:'#add',output:'#count',value:'1'}]});
+test('accepts static files and fixed browser acceptance without executing model test code',()=>{const a=validateArtifact(valid());assert.equal(a.entry,'index.html');assert.deepEqual(a.acceptance[0],{kind:'clickText',target:'#add',output:'#count',value:'1'});assert.throws(()=>validateArtifact({...valid(),acceptance:[{kind:'eval',target:'process.exit()'}]}));});
+test('rejects paths, duplicates, executable files, external URLs and missing entries',()=>{for(const path of ['../server.mjs','/etc/passwd','C:/x.html','a\\b.js','%2e%2e/x','.env','node_modules/x.js','server.mjs','https://evil/x.js','a/../index.html'])assert.throws(()=>validateArtifact({...valid(),files:[{path,content:'x'}]}),undefined,path);assert.throws(()=>validateArtifact({...valid(),entry:'missing.html'}));assert.throws(()=>validateArtifact({...valid(),files:[...valid().files,...valid().files]}));});
+test('enforces byte limits and refuses fake cloud functionality',()=>{assert.throws(()=>validateArtifact({...valid(),files:[{path:'index.html',content:'中'.repeat(100000)}]}));assert.throws(()=>validateArtifact({...valid(),capabilities:['database']}));assert.equal(validateArtifact({...valid(),capabilities:['localStorage']}).capabilities[0],'localStorage');});
+export {valid};

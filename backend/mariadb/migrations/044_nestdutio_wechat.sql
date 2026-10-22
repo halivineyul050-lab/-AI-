@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS nestdutio_project_targets (
+ project_id VARCHAR(64) NOT NULL PRIMARY KEY,
+ target VARCHAR(16) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS nestdutio_wechat_settings (
+ project_id VARCHAR(64) NOT NULL PRIMARY KEY,
+ document MEDIUMTEXT NOT NULL,
+ updated_at VARCHAR(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

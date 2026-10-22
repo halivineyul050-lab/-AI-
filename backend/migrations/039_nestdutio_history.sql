@@ -1,0 +1,1 @@
+CREATE TABLE nestdutio_project_meta(project_id TEXT PRIMARY KEY,archived INTEGER NOT NULL DEFAULT 0,custom_name INTEGER NOT NULL DEFAULT 0); CREATE INDEX nestdutio_task_history ON nestdutio_tasks(project_id,created_at,id);
