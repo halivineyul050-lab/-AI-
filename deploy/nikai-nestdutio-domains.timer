@@ -1,0 +1,11 @@
+[Unit]
+Description=Check pending NeStdutio custom domains and renew certificates
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+RandomizedDelaySec=10
+Unit=nikai-nestdutio-domains.service
+
+[Install]
+WantedBy=timers.target

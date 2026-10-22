@@ -79,6 +79,9 @@ test -f "$stage/scripts/apply-production-migrations.mjs"
   cd "$stage"
   npm ci
   node --check server.mjs
+  if [[ -d public ]]; then
+    find public -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+  fi
   npm test
 )
 
@@ -99,9 +102,18 @@ for directory in data imports; do
     else cp -a "$app_dir/$directory/." "$stage/$directory/"; fi
   fi
 done
-if [[ -d "$app_dir/assets/tool-logos" ]]; then
-  mkdir -p "$stage/assets/tool-logos"
-  cp -an "$app_dir/assets/tool-logos/." "$stage/assets/tool-logos/"
+old_logo_dir="$app_dir/public/assets/tool-logos"
+if [[ ! -d "$old_logo_dir" ]]; then old_logo_dir="$app_dir/assets/tool-logos"; fi
+if [[ -d "$old_logo_dir" ]]; then
+  mkdir -p "$stage/public/assets/tool-logos"
+  cp -an "$old_logo_dir/." "$stage/public/assets/tool-logos/"
+fi
+# The production unit declares this path in ReadWritePaths. Keep it present
+# across the move, and make the public logo directory writable for uploads.
+mkdir -p "$stage/assets/tool-logos"
+if [[ -d "$stage/public/assets/tool-logos" ]]; then
+  chown nikai:nikai "$stage/public/assets/tool-logos"
+  chmod 0755 "$stage/public/assets/tool-logos"
 fi
 chown root:nikai "$stage/scripts/release-production.sh" "$stage/scripts/rollback-production.sh"
 chmod 0750 "$stage/scripts/release-production.sh" "$stage/scripts/rollback-production.sh"

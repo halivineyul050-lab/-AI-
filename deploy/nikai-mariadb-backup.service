@@ -1,0 +1,23 @@
+[Unit]
+Description=Nikai AI MariaDB backup
+After=mariadb.service
+ConditionPathExists=/opt/nikai-ai/.mariadb.cnf
+
+[Service]
+Type=oneshot
+User=nikai
+Group=nikai
+UMask=0077
+EnvironmentFile=-/opt/nikai-ai/.env
+Environment=NIKAI_MARIADB_BACKUP_DIR=/opt/nikai-ai-backups/mariadb
+Environment=NIKAI_BACKUP_RETENTION_DAYS=30
+ExecStart=/usr/bin/bash /opt/nikai-ai/scripts/backup-mariadb.sh
+Nice=10
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+ReadWritePaths=/opt/nikai-ai-backups/mariadb

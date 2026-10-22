@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { applyProductionOperations } from './production-operations.mjs';
 
 function runMaria(args, options, runCommand) {
   const result = runCommand('mariadb', args, { encoding: 'utf8', ...options });
@@ -33,5 +34,6 @@ export function applyProductionMigrations({ stageDir, appDir = '/opt/nikai-ai', 
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const result = applyProductionMigrations({ stageDir: process.argv[2], appDir: process.argv[3] || '/opt/nikai-ai' });
+  applyProductionOperations({ stageDir: process.argv[2] });
   console.log(`MariaDB migrations applied: ${result.applied.join(', ') || 'none'}`);
 }

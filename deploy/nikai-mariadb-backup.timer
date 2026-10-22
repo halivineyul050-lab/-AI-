@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Nikai AI MariaDB backup every day
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 Asia/Shanghai
+Persistent=true
+RandomizedDelaySec=10m
+Unit=nikai-mariadb-backup.service
+
+[Install]
+WantedBy=timers.target
