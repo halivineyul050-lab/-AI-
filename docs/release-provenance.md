@@ -40,4 +40,6 @@ GitHub Actions 的 `mariadb` job 使用临时 MariaDB 10.5.29 服务，绑定 `1
 
 成功结果作为 `mariadb-verification` artifact 保存 7 天，包含版本、验证项和计时，不含连接密码。失败以 job 日志为准，不能把纯单元测试当作真实 MariaDB 验证。
 
-运行机制参考 [GitHub 服务容器说明](https://docs.github.com/en/actions/tutorials/use-containerized-services/use-docker-service-containers) 和 [MariaDB 官方镜像](https://hub.docker.com/_/mariadb)。
+Node 回归在一次性 Ubuntu runner 上为 `/tmp/chromium` 配置 AppArmor userns 许可，保留 Chromium 沙箱；预先解压项目锁定的 Chromium，并通过 `NIKAI_CHROME_PATH` 让验证器使用同一构建。此配置不触及生产主机，也不关闭系统范围的安全限制。Node job 最长 15 分钟。Python CI 通过 `requirements-ci.txt` 固定现有依赖并计算 pip 缓存键。
+
+运行机制参考 [GitHub 服务容器说明](https://docs.github.com/en/actions/tutorials/use-containerized-services/use-docker-service-containers)、[MariaDB 官方镜像](https://hub.docker.com/_/mariadb) 和 [Chromium AppArmor 配置说明](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md)。

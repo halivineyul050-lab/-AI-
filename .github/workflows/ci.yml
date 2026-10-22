@@ -28,9 +28,13 @@ jobs:
           }
           PROFILE
           sudo apparmor_parser -r /etc/apparmor.d/nikai-ci-chromium
+      - name: Prepare the application Chromium build
+        run: node --input-type=module -e "import chromium from '@sparticuz/chromium'; await chromium.executablePath();"
       - run: node --check server.mjs
       - run: find public -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
       - run: npm test
+        env:
+          NIKAI_CHROME_PATH: /tmp/chromium
 
   python:
     runs-on: ubuntu-latest

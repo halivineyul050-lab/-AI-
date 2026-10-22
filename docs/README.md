@@ -42,7 +42,7 @@
 
 ## 保留的本地开发
 
-- [资讯事件聚合与热榜设计](superpowers/specs/2026-09-29-ai-news-event-hot-ranking-design.md)：本地含迁移19、多信源关系、采编关联和热榜API；核验生产快照不包含这些实现。
+- [资讯事件聚合与热榜设计](superpowers/specs/2026-09-29-ai-news-event-hot-ranking-design.md)：迁移19、多信源关系、采编关联和热榜API已随 news-persistence-20261022-1 发布；页面热榜继续隐藏。
 - [主站布局设计](superpowers/specs/2026-09-29-main-site-editorial-redesign-design.md)：本地部分CSS与生产不同；不能用历史设计文档直接覆盖当前线上页面。
 
 ## 历史与生成产物
