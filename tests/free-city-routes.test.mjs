@@ -15,6 +15,11 @@ test('published free-city game serves its actual dependencies and canonical GET/
   assert.equal(page.status, 200);
   const html = await page.text();
   assert.match(html, /<base href="\/games\/free-city-3d\/">/);
+  const directory = await (await fetch(base + '/games')).text();
+  assert.match(directory, /href="\/games\/free-city-3d"/);
+  const cards = [...directory.matchAll(/class="[^"]*\bgame-card\b[^"]*"/g)];
+  assert.equal(cards.length, 11);
+  assert.match(directory, /11 款小游戏/);
   const sitemap = await (await fetch(base + '/sitemap.xml')).text();
   assert.match(sitemap, /<loc>[^<]*\/games\/free-city-3d<\/loc>/);
   const gameBase = new URL('/games/free-city-3d/', base);

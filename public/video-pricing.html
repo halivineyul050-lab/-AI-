@@ -335,59 +335,7 @@ function collectExportSelection(){return Array.from(document.querySelectorAll('#
 function modelTypes(m){var a=m.apps||[],t=[];if(a[0])t.push('文生');if(a[1])t.push('图生');if(a[2])t.push('多图');return t.join('·')}
 function buildExportTable(idxs,qualities,includeRmb,title){var cols=3+qualities.length+(includeRmb?1:0),head='<tr><th>模型</th><th>类型</th><th>秒数</th>'+qualities.map(function(q){return'<th>'+CLARITY_LABELS[q]+'</th>'}).join('')+(includeRmb?'<th>参考¥/条</th>':'')+'</tr>',rows='',grouped={};idxs.forEach(function(i){var s=getSeriesLabel(MODELS[i].name);if(!grouped[s])grouped[s]=[];grouped[s].push(i)});exportSeriesOrder().forEach(function(s){if(!grouped[s])return;rows+='<tr class="exp-series"><td colspan="'+cols+'">'+s+'</td></tr>';grouped[s].forEach(function(i){var m=MODELS[i];Object.keys(m.prices).map(Number).sort(function(a,b){return a-b}).forEach(function(sec){var pd=m.prices[sec];var tds=qualities.map(function(q){if(pd[q]===undefined)return'<td style="color:#ccc">—</td>';var op=(m.origin[sec]||{})[q];return'<td>'+pd[q]+(op?' <s style="color:#bbb;font-size:11px">'+op+'</s>':'')+'</td>'}).join('');var firstQ=null;for(var k=0;k<qualities.length;k++){if(pd[qualities[k]]!==undefined){firstQ=qualities[k];break}}var rmb=includeRmb?('<td>'+(firstQ?('¥'+(pd[firstQ]*RATE).toFixed(2)):'—')+'</td>'):'';rows+='<tr><td class="exp-model">'+m.name+'</td><td>'+modelTypes(m)+'</td><td class="exp-sec">'+sec+'秒</td>'+tds+rmb+'</tr>'})})});return rows?'<div class="exp-sub" style="font-weight:700;color:#555;margin-top:12px">'+title+'</div><table class="exp-table"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table>':''}
 function buildExportHTML(idxs,includeRmb){var date=new Date().toLocaleDateString('zh-CN'),Q=['480p','720p','768p','1080p','4k'];return'<div class="exp-wrap"><div class="exp-title">橙星梦工厂 · 视频模型价格明细</div><div class="exp-sub">导出 '+idxs.length+' 个模型 · 单位：梦想值/条（灰色删除线为折扣前原价）· 1 梦想值 = ¥0.12 · “—”表示该模型不支持此画质 · 生成日期 '+date+'</div>'+buildExportTable(idxs,Q,includeRmb,'全部视频模型价格明细（按画质分列）')+'</div>'}
-function generateAndPrint(){var idxs=collectExportSelection();if(!idxs.length){alert('请至少选择一个模型再导出');return}var body=buildExportHTML(idxs,document.getElementById('expRmb').checked),area=document.getElementById('export-area');area.innerHTML=body;closeExportModal();var styles='@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Microsoft YaHei",Arial,sans-serif;color:#333;margin:0}.exp-wrap{max-width:1150px;margin:auto;padding:24px 16px}.exp-title{font-size:22px;font-weight:800;margin-bottom:4px}.exp-sub{font-size:12px;color:#777;margin-bottom:12px}.exp-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px}.exp-table th{background:#667eea;color:#fff;padding:7px 5px;text-align:center}.exp-table td{padding:5px;text-align:center;border-bottom:1px solid #eee}.exp-table td.exp-model{text-align:left;font-weight:600}.exp-series td{background:#eef0fb;font-weight:700;text-align:left;padding:8px 12px}';var doc='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>橙星梦工厂·视频模型价格明细</title><style>'+styles+'</style><style>
-.video-pricing-page .container{max-width:1440px;padding:24px clamp(16px,3vw,36px)}
-.video-pricing-page .header{padding:24px 0 20px;margin:0 0 20px;border-bottom:1px solid var(--border);border-radius:0;background:transparent;color:var(--text-primary);box-shadow:none}
-.video-pricing-page .header h1{font-size:clamp(24px,3vw,34px);letter-spacing:-.04em}
-.video-pricing-page .header p{color:var(--text-secondary);opacity:1}
-.video-pricing-page .header .meta{color:var(--text-muted);opacity:1;line-height:1.7}
-.video-pricing-page .pricing-back{border-color:var(--border);background:var(--bg-surface);color:var(--brand);box-shadow:var(--shadow-xs)}
-.video-pricing-page .controls{gap:10px;margin:0 0 12px}
-.video-pricing-page .tabs{border-radius:12px;box-shadow:none}
-.video-pricing-page .tab{color:var(--text-secondary)}
-.video-pricing-page .tab.active{background:var(--brand);color:#fff}
-.video-pricing-page .toggle-group{color:var(--text-secondary)}
-.video-pricing-page .toggle.on{background:var(--brand)}
-.video-pricing-page .btn-compare,.video-pricing-page .btn-export{min-height:38px;padding:8px 14px;border-radius:10px;background:var(--brand);color:#fff}
-.video-pricing-page .btn-compare:hover,.video-pricing-page .btn-export:hover{background:var(--brand-hover)}
-.video-pricing-page .btn-compare.active{background:var(--brand-hover)}
-.video-pricing-page .table-wrapper,.video-pricing-page .compare-panel{border:1px solid var(--border);border-radius:16px;background:var(--bg-surface);box-shadow:var(--shadow-xs)}
-.video-pricing-page table{font-variant-numeric:tabular-nums}
-.video-pricing-page th,.video-pricing-page .compare-table th{background:var(--bg-subtle);color:var(--text-primary);border-color:var(--border)}
-.video-pricing-page td{border-color:var(--border);color:var(--text-secondary)}
-.video-pricing-page td.model-cell{color:var(--text-primary)}
-.video-pricing-page td.tag-cell{color:var(--text-muted)}
-.video-pricing-page tr.series-row td{background:color-mix(in srgb,var(--brand-soft) 60%,var(--bg-surface))!important;border-color:var(--border)}
-.video-pricing-page tr.series-row .series-badge{background:var(--brand-soft);color:var(--brand)}
-.video-pricing-page tr:hover td{background:color-mix(in srgb,var(--brand-soft) 36%,var(--bg-surface))}
-.video-pricing-page .p1{color:var(--success);background:color-mix(in srgb,var(--success-soft) 75%,var(--bg-surface))}
-.video-pricing-page .p2{color:var(--info);background:color-mix(in srgb,var(--info-soft) 75%,var(--bg-surface))}
-.video-pricing-page .p3{color:var(--warning);background:color-mix(in srgb,var(--warning-soft) 78%,var(--bg-surface))}
-.video-pricing-page .p4{color:var(--danger);background:color-mix(in srgb,var(--danger-soft) 78%,var(--bg-surface))}
-.video-pricing-page .p5{color:var(--brand);background:color-mix(in srgb,var(--brand-soft) 78%,var(--bg-surface))}
-.video-pricing-page .compare-header{background:var(--bg-subtle);color:var(--text-primary)}
-.video-pricing-page .compare-header .close-btn{border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);color:var(--text-secondary)}
-.video-pricing-page .compare-controls,.video-pricing-page .model-selector{border-color:var(--border)}
-.video-pricing-page .model-selector-title{color:var(--text-muted)}
-.video-pricing-page .model-check.selected{background:var(--brand-soft)}
-.video-pricing-page .compare-table td{border-color:var(--border)}
-.video-pricing-page .notes{border:1px solid var(--border);border-left:3px solid var(--warning);border-radius:12px;background:var(--bg-surface);color:var(--text-secondary)}
-.video-pricing-page .summary{border-radius:16px;box-shadow:var(--shadow-xs)}
-.video-pricing-page .summary h2,.video-pricing-page .summary-item h3{color:var(--text-primary)}
-.video-pricing-page .summary-item{border:1px solid var(--border);border-radius:10px;background:var(--bg-subtle)}
-.video-pricing-page .summary-item p{color:var(--text-secondary)}
-.video-pricing-page .modal{border:1px solid var(--border);background:var(--bg-surface);color:var(--text-primary)}
-.video-pricing-page .modal-header,.video-pricing-page .modal-footer{border-color:var(--border)}
-.video-pricing-page .modal-header h3{color:var(--text-primary)}
-.video-pricing-page .modal-tip,.video-pricing-page .exp-model-item{color:var(--text-secondary)}
-.video-pricing-page .series-group,.video-pricing-page .series-group-title{border-color:var(--border);background:var(--bg-subtle);color:var(--text-primary)}
-.video-pricing-page .quick-btn{border-color:var(--border);background:var(--bg-surface);color:var(--text-secondary)}
-.video-pricing-page .btn-gen{border-radius:8px;background:var(--brand)}
-.video-pricing-page .btn-cancel{border-color:var(--border);border-radius:8px;background:var(--bg-surface);color:var(--text-secondary)}
-.video-pricing-page .theme-switch{right:22px;bottom:22px;width:42px;height:42px;box-shadow:var(--shadow-sm)}
-@media(max-width:760px){.video-pricing-page .container{padding:18px 14px}.video-pricing-page .header-top{align-items:flex-start;flex-direction:column}.video-pricing-page .pricing-back{margin-top:6px}.video-pricing-page .controls{align-items:stretch}.video-pricing-page .tabs{max-width:100%;overflow-x:auto}.video-pricing-page .btn-compare,.video-pricing-page .btn-export{flex:1}.video-pricing-page .table-wrapper{border-radius:12px}.video-pricing-page .notes{padding:14px}.video-pricing-page .summary{padding:18px}}
-@media(prefers-reduced-motion:reduce){.video-pricing-page *, .video-pricing-page *::before, .video-pricing-page *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-</style></head><body class="video-pricing-page">'+body+'</body></html>',w=null;try{w=window.open('','_blank')}catch(e){}if(w){w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(function(){try{w.print()}catch(e){}},300)}else{setTimeout(function(){window.print()},120)}}
+function generateAndPrint(){var idxs=collectExportSelection();if(!idxs.length){alert('请至少选择一个模型再导出');return}var body=buildExportHTML(idxs,document.getElementById('expRmb').checked),area=document.getElementById('export-area');area.innerHTML=body;closeExportModal();var styles='@page{size:A4 landscape;margin:10mm}*{box-sizing:border-box}body{font-family:"Microsoft YaHei",Arial,sans-serif;color:#333;margin:0}.exp-wrap{max-width:1150px;margin:auto;padding:24px 16px}.exp-title{font-size:22px;font-weight:800;margin-bottom:4px}.exp-sub{font-size:12px;color:#777;margin-bottom:12px}.exp-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:18px}.exp-table th{background:#667eea;color:#fff;padding:7px 5px;text-align:center}.exp-table td{padding:5px;text-align:center;border-bottom:1px solid #eee}.exp-table td.exp-model{text-align:left;font-weight:600}.exp-series td{background:#eef0fb;font-weight:700;text-align:left;padding:8px 12px}';var doc='<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>橙星梦工厂·视频模型价格明细</title><style>'+styles+'</style></head><body>'+body+'</body></html>',w=null;try{w=window.open('','_blank')}catch(e){}if(w){w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(function(){try{w.print()}catch(e){}},300)}else{setTimeout(function(){window.print()},120)}}
 var tabBtns=document.querySelectorAll('.tab');for(var i=0;i<tabBtns.length;i++)tabBtns[i].addEventListener('click',function(){for(var j=0;j<tabBtns.length;j++)tabBtns[j].classList.remove('active');this.classList.add('active');currentClarity=this.getAttribute('data-clarity');renderTable()});document.getElementById('rmbToggle').addEventListener('click',function(){showRmb=!showRmb;this.classList.toggle('on',showRmb);renderTable()});renderTable();renderSummary();
 
 

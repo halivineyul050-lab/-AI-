@@ -31,7 +31,8 @@ test("production game roots and representative assets are served", async () => {
   const cases = [
     ["/games/ironfront", "一人不撤2", "/games/ironfront/assets/main.js", /javascript/],
     ["/games/yiren-buche", "一人不撤", "/games/yiren-buche/style.css", /text\/css/],
-    ["/games/tank-air-war", "坦克飞机大战", "/games/tank-air-war/js/main.js", /javascript/]
+    ["/games/tank-air-war", "坦克飞机大战", "/games/tank-air-war/js/main.js", /javascript/],
+    ["/games/free-city-3d", "自由都市", "/games/free-city-3d/main.js", /javascript/]
   ];
 
   for (const [route, title, assetPath, contentType] of cases) {
@@ -53,7 +54,8 @@ test("production game asset routes reject traversal", async () => {
   for (const path of [
     "/games/ironfront/%2e%2e/%2e%2e/server.mjs",
     "/games/yiren-buche/%2e%2e/%2e%2e/package.json",
-    "/games/tank-air-war/%2e%2e/%2e%2e/server.mjs"
+    "/games/tank-air-war/%2e%2e/%2e%2e/server.mjs",
+    "/games/free-city-3d/%2e%2e/%2e%2e/server.mjs"
   ]) {
     const response = await fetch(`${baseUrl}${path}`);
     assert.equal(response.status, 404, path);
@@ -62,24 +64,27 @@ test("production game asset routes reject traversal", async () => {
 
 test("games index and sitemap list all production games", async () => {
   const games = await (await fetch(`${baseUrl}/games`)).text();
-  assert.equal((games.match(/class="[^"]*\bgame-card\b[^"]*"/g) || []).length, 10);
+  assert.equal((games.match(/class="[^"]*\bgame-card\b[^"]*"/g) || []).length, 11);
   assert.equal((games.match(/\bgame-card--hero\b/g) || []).length, 1);
   assert.equal((games.match(/\bgame-card--wide\b/g) || []).length, 2);
-  assert.equal((games.match(/\bgame-card--compact\b/g) || []).length, 7);
+  assert.equal((games.match(/\bgame-card--compact\b/g) || []).length, 8);
   assert.match(games, /href="\/games\/ironfront"/);
   assert.match(games, /href="\/games\/yiren-buche"/);
   assert.match(games, /href="\/games\/tank-air-war"/);
-  assert.match(games, /10 款小游戏/);
+  assert.match(games, /href="\/games\/free-city-3d"/);
+  assert.match(games, /自由都市 3D/);
+  assert.match(games, /11 款小游戏/);
   assert.match(games, /class="card-art tank-air-war"/);
 
   const sitemap = await (await fetch(`${baseUrl}/sitemap.xml`)).text();
   assert.match(sitemap, /\/games\/ironfront<\/loc>/);
   assert.match(sitemap, /\/games\/yiren-buche<\/loc>/);
   assert.match(sitemap, /\/games\/tank-air-war<\/loc>/);
+  assert.match(sitemap, /\/games\/free-city-3d<\/loc>/);
 });
 
 test("production game documents expose a return link and reachable local dependencies", async () => {
-  for (const route of ["/games/ironfront", "/games/yiren-buche", "/games/tank-air-war"]) {
+  for (const route of ["/games/ironfront", "/games/yiren-buche", "/games/tank-air-war", "/games/free-city-3d"]) {
     const pageUrl = new URL(route, baseUrl);
     const html = await (await fetch(pageUrl)).text();
     assert.match(html, /class="site-return" href="\/games"/);
@@ -101,9 +106,24 @@ test("return controls resist narrow-screen wrapping", async () => {
   for (const path of [
     "/games/ironfront/assets/style.css",
     "/games/yiren-buche/style.css",
-    "/games/tank-air-war/style.css"
+    "/games/tank-air-war/style.css",
+    "/games/free-city-3d/style.css"
   ]) {
     const css = await (await fetch(`${baseUrl}${path}`)).text();
     assert.match(css, /\.site-return\{[^}]*white-space:nowrap/);
   }
+});
+
+test("free city defers Three.js until the player starts the game", async () => {
+  const html = await (await fetch(`${baseUrl}/games/free-city-3d`)).text();
+  assert.match(html, /id="start"/);
+  assert.match(html, /data-engine-src="\/games\/yiren-buche\/three\.min\.js"/);
+  assert.doesNotMatch(html, /<script[^>]+src=["']\/games\/yiren-buche\/three\.min\.js/);
+  const main = await (await fetch(`${baseUrl}/games/free-city-3d/main.js`)).text();
+  assert.match(main, /startButton\.dataset\.engineSrc/);
+  assert.match(main, /createElement\(["']script["']\)/);
+  assert.doesNotMatch(main, /https?:\/\//);
+  const engine = await fetch(`${baseUrl}/games/yiren-buche/three.min.js`);
+  assert.equal(engine.status, 200);
+  assert.match(engine.headers.get("content-type") || "", /javascript/);
 });
