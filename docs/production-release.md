@@ -35,6 +35,8 @@ npm run logos:verify
 
 ### 3. 制作并核验完整发布包
 
+使用 [发布凭证工具](release-provenance.md) 固定生产基底、完整 Git commit 与覆盖白名单，生成 inventory；完整包制作后使用 seal 校验实际归档并保存 receipt。上传后重算的包哈希必须与 receipt 相同。真实上线核验后用 record 保存备份路径与健康结果。工具不执行上传或切换，以下 SSH 通道保持唯一。
+
 发布包必须是可独立运行的完整应用树，至少包含 `package.json`、`package-lock.json`、`server.mjs`、`public/`、`backend/`、`scripts/`、`tests/` 和 `scripts/active-database-backup.mjs`、`scripts/apply-production-migrations.mjs`。排除 `.git/`、`node_modules/`、`data/`、`imports/`、`.env` 和 `.mariadb.cnf`；确认 `.env.example` 仍在包中，确认包内没有密钥、数据库、备份或用户数据。
 
 计算发布包 SHA-256；上传后在服务器重算，两个值必须一致。发布包不匹配、缺少测试/迁移文件或包含敏感文件时停止。

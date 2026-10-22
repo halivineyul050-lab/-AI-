@@ -31,3 +31,44 @@ jobs:
           cache: pip
       - run: python -m pip install numpy==1.26.4 Pillow==11.3.0
       - run: python -m unittest discover -s tests -p 'image*_test.py'
+
+  mariadb:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      mariadb:
+        image: mariadb:10.5.29
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only-isolated
+          MYSQL_ROOT_HOST: '%'
+        ports:
+          - 127.0.0.1:33307:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.18.0
+          cache: npm
+      - run: npm ci
+      - name: Verify real isolated MariaDB persistence
+        env:
+          NIKAI_MARIADB_CI: '1'
+          MARIADB_CI_HOST: 127.0.0.1
+          MARIADB_CI_PORT: '33307'
+          MARIADB_CI_USER: root
+          MARIADB_CI_PASSWORD: ci-only-isolated
+        run: |
+          mkdir -p output
+          node --no-warnings scripts/verify-mariadb-ci.mjs output/mariadb-ci-result.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mariadb-verification
+          path: output/mariadb-ci-result.json
+          if-no-files-found: warn
+          retention-days: 7
