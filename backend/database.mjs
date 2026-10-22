@@ -635,13 +635,8 @@ export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
   const cutoff = new Date(nowMs - 48 * 60 * 60_000).toISOString();
   const nowIso = new Date(nowMs).toISOString();
   const rows = db.prepare(`
-    SELECT a.*,
-      COALESCE(
-        (SELECT MAX(COALESCE(all_links.source_published_at, all_links.discovered_at))
-         FROM article_source_links all_links WHERE all_links.article_id = a.id),
-        a.created_at,
-        a.published_date
-      ) AS latest_source_at
+    SELECT a.id, a.slug, a.topic, a.title, a.excerpt, a.cover_url,
+      a.published_date, a.read_time, a.source_name, a.source_url, a.created_at
     FROM articles a
     WHERE a.kind = 'news' AND a.status = 'published'
       AND (
@@ -653,7 +648,6 @@ export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
         )
         OR (a.source_url <> '' AND COALESCE(a.created_at, a.published_date) >= ? AND COALESCE(a.created_at, a.published_date) <= ?)
       )
-    ORDER BY latest_source_at DESC, a.id ASC
   `).all(cutoff, nowIso, cutoff, nowIso);
   if (!rows.length) return [];
 
@@ -661,14 +655,13 @@ export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
   const linksByArticle = new Map(ids.map((id) => [id, []]));
   // Rank every event in the time window; recency alone cannot identify the
   // hottest events. Bound each relation query instead of truncating candidates.
-  for (let offset = 0; offset < ids.length; offset += 200) {
-    const batch = ids.slice(offset, offset + 200);
+  for (let offset = 0; offset < ids.length; offset += 1000) {
+    const batch = ids.slice(offset, offset + 1000);
     const placeholders = batch.map(() => "?").join(", ");
     const relationRows = db.prepare(`
       SELECT article_id, source_url, source_name, source_title, source_published_at, discovered_at, feed_url
       FROM article_source_links
       WHERE article_id IN (${placeholders})
-      ORDER BY article_id ASC, COALESCE(source_published_at, discovered_at) DESC, source_url_hash ASC
     `).all(...batch);
     relationRows.forEach((row) => linksByArticle.get(row.article_id)?.push(row));
   }

@@ -1,0 +1,1099 @@
+{
+  "verifiedAt": "2026-10-22T03:24:07.379Z",
+  "sourceHead": "944845951bee7ec92dcf12512d9a54be0e3dbe53",
+  "dirtyItems": 212,
+  "verifiedSourceFiles": 662,
+  "archiveSha256": "abe11d3336226cd2a320143b2d5f62337ee09c88d78a1d2bacffb1a0eb275e35",
+  "sourceZip": "output/workspace-backups/closeout-20261022/catalog-mobile-optimization.zip",
+  "historyArchive": "docs/archive/worktree-catalog-mobile-20261022",
+  "historyFiles": 11,
+  "cleanup": {
+    "removedAt": "2026-10-22T03:26:14.359Z",
+    "userConfirmedAfterPreview": true,
+    "root": "C:/Users/zhanglian2/.codex/worktrees/catalog-mobile-optimization/泥壳AI工具站",
+    "removed": true,
+    "branchPreserved": true,
+    "head": "944845951bee7ec92dcf12512d9a54be0e3dbe53",
+    "sourceZipPreserved": true,
+    "archiveSha256": "abe11d3336226cd2a320143b2d5f62337ee09c88d78a1d2bacffb1a0eb275e35",
+    "verifiedSourceFiles": 662,
+    "archivedHistoricalFiles": 11
+  },
+  "files": [
+    {
+      "path": ".env.example",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": ".github/workflows/deploy.yml",
+      "status": "deleted",
+      "decision": "retired-deployment-file-remains-absent"
+    },
+    {
+      "path": ".gitignore",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "README.md",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "backend/README.md",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "backend/auth.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "backend/content-admin.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/database.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "backend/image-generation-gateway.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "backend/image-provider-store.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/mariadb-compat.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "backend/mariadb-worker.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/news-publisher.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/safe-upstream.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/validation.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "docs/design-system.md",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "docs/production-release.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-25-favorites-discovery.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-ai-news-event-hot-ranking-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-main-site-editorial-redesign-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/上线前检查清单.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/项目冗余文件检查-2026-09-15.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/项目问题解决方案-2026-09-28.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "package.json",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/admin.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/admin.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/admin.js",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/app.js",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/auth.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/auth.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/auth.js",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/breakout.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/design-system.css",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "public/flight.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/game-2048.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/game-shell.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/games.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/games.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/games/ironfront/assets/style.css",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/games/tank-air-war/style.css",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/games/yiren-buche/style.css",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/gomoku.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/image-ai.css",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "public/image-background.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/image-edit.css",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "public/image-edit.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/image-enhance.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/image-erase.css",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "public/image-erase.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/image-generation.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/image-generation.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/image-generation.js",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/index.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/link-extract.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/link-extract.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/memory-game.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/never-retreat.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/snake.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/styles.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/utilities.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/utility-theme.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/video-crop.css",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "public/video-crop.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/video-gif.css",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "public/video-gif.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/video-mask-worker.js",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/video-mask.css",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "public/video-mask.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/video-mask.js",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/video-pricing.html",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "scripts/apply-production-migrations.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "scripts/backup-mariadb.sh",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "scripts/export-seed.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "scripts/release-production.sh",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "scripts/rollback-production.sh",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "scripts/sync-tool-logos.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "server.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/admin-image-models.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/admin-image-workspace-behavior.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/admin-layout.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/admin-session-bootstrap.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/api.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/auth.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/breakout.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/design-system.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/favorites-ui.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/flight.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/game-2048.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/gomoku.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-edit.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-generation-api.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/image-generation-gateway.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/image-generation-history.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-generation-placeholder.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/image-generation-ui.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/image-input.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-provider-api.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-provider-operations.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-provider-security.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-provider-store.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/import.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/logo-assets.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/mariadb-compat.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/mariadb-operations.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/memory-game.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/never-retreat.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/news-publisher.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/production-games.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/production-release-flow.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/production-rollback.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/site-announcements-client.test.mjs",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "tests/site-announcements.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/snake.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/utility-navigation.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/video-crop.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/video-gif.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/video-input-limits.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/video-mask.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "AGENTS.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/article-source-links.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/image-cloud-history.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/image-provider-balance.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/like-pattern.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/mariadb/migrations/018_image_provider_balance.sql",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/mariadb/migrations/019_article_source_links.sql",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/mariadb/migrations/020_image_cloud_history.sql",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/migrations/018_image_provider_balance.sql",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/migrations/019_article_source_links.sql",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/migrations/020_image_cloud_history.sql",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/news-hot-ranking.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "backend/rate-limiter.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "deploy/nikai-db-backup.override.conf",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "deploy/nikai-mariadb-backup.service",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "deploy/nikai-mariadb-backup.timer",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/audit-interface-evidence-2026-10-08.json",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/README.md",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/admin-desktop.png",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/home-desktop.png",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/home-mobile-emulated.png",
+      "status": "absent-main",
+      "decision": "unique-history-archived"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/home-mobile.png",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/database-schema-audit-2026-10-08.json",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-capacity-20261008.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-catalog-n1-20261008.md",
+      "status": "absent-main",
+      "decision": "unique-history-archived"
+    },
+    {
+      "path": "docs/deployment-free-city-3d-20261008.md",
+      "status": "absent-main",
+      "decision": "unique-history-archived"
+    },
+    {
+      "path": "docs/deployment-frontend-foundation-20260929.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-frontend-unified-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-cloud-history-20261008.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-ipv4-20261008.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-no-local-save-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-preview-20260929.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-prompt-templates-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-prompt-usage-hint-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-cache-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-globalfix-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-wrap-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-wrap-fix-20260930.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/deployment-ops-hardening-20261008.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/frontend-structure.md",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "docs/full-audit-2026-10-08.md",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "docs/openapi-audit-2026-10-08.yaml",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/project-audit-2026-10-08.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-28-image-provider-balance.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-account-pages-redesign.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-admin-operations-workspace-redesign.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-ai-news-event-hot-ranking.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-creative-tools-workbench-redesign.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-frontend-foundation.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-game-directory-shell-redesign.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-main-site-editorial-redesign.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-30-image-cloud-history.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-30-image-prompt-templates.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-08-free-city-3d.md",
+      "status": "absent-main",
+      "decision": "unique-history-archived"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-08-project-remediation.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-28-image-provider-balance-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-account-pages-redesign-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-admin-operations-workspace-redesign-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-creative-tools-workbench-redesign-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-game-directory-shell-redesign-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-30-image-cloud-history-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-30-image-prompt-templates-design.md",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/assets/css/site/site-catalog.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/assets/css/site/site-content.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/assets/css/site/site-overlays.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/assets/css/site/site-responsive.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/assets/css/site/site-shell.css",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "public/auth-redirect.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/games/free-city-3d/index.html",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/games/free-city-3d/main.js",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/games/free-city-3d/simulation.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/games/free-city-3d/style.css",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/games/free-city-3d/world.js",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/safe-storage.js",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/theme-init.js",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "public/video-frame.css",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "scripts/build-site-navigation.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "scripts/frontend/app-navigation-template.html",
+      "status": "newline-only",
+      "decision": "equivalent-no-merge"
+    },
+    {
+      "path": "scripts/frontend/site-navigation.json",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "scripts/frontend/utility-navigation-template.html",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "scripts/production-operations.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/accessibility-regressions.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/auth-redirect.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/free-city-3d-simulation.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-cloud-history-store.test.mjs",
+      "status": "different",
+      "decision": "reviewed-superseded-or-history-archived"
+    },
+    {
+      "path": "tests/image-prompt-templates.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/image-provider-balance.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/like-pattern.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/list-tools-batch-hydration.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/mariadb-backup-unit.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/production-operations.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/rate-limiter.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    },
+    {
+      "path": "tests/safe-storage.test.mjs",
+      "status": "identical",
+      "decision": "already-present"
+    }
+  ],
+  "dependencyIncident": {
+    "cause": "Old worktree dependency link removal affected the current node_modules target",
+    "sourceAffected": false,
+    "repair": "npm ci from existing lockfile",
+    "installationExitCode": 0,
+    "auditVulnerabilities": 0,
+    "fullTestRerun": {
+      "tests": 931,
+      "pass": 928,
+      "fail": 0,
+      "skipped": 3,
+      "exitCode": 0,
+      "durationMs": 318666.258
+    }
+  }
+}
