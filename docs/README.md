@@ -8,6 +8,7 @@
 - [后端接口与数据库](../backend/README.md)：资讯多信源与热榜API已发布，页面热榜保持隐藏。
 - [唯一正式发布流程](production-release.md)：完整包、已授权SSH、服务器现有发布脚本；CI不部署。
 - [发布凭证与 MariaDB CI](release-provenance.md)：基底、Git commit、白名单、归档哈希与独立数据库验证。
+- [发布与 CI 优化验收](release-ci-optimization-2026-10-22.md)：本轮工具、CI 修复和验证依据；没有生产部署。
 - [前端页面与资源地图](frontend-structure.md)
 - [设计系统](design-system.md)
 - [最终收尾与正式发布](final-closeout-2026-10-22.md)
