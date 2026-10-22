@@ -1,9 +1,57 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#4f46e5"><title>视频马赛克与模糊 · 泥壳AI小工具</title><meta name="description" content="为视频局部添加马赛克或模糊，调整区域、强度和生效时间，在浏览器本地导出保留音频的 MP4。"><link rel="canonical" href="https://ontimo.cn/utilities/video-mask"><link rel="icon" href="/brand-icon-192.png?v=20260916-2"><link rel="stylesheet" href="/design-system.css?v=20260915-2">
-<link rel="stylesheet" href="/video-gif.css"><link rel="stylesheet" href="/video-crop.css"><link rel="stylesheet" href="/video-mask.css?v=20260908-2"><script type="module" src="/video-mask.js?v=20260915-limit-1"></script><link rel="stylesheet" href="/styles.css?v=20260915-nav-1"><link rel="stylesheet" href="/utility-theme.css?v=20260915-nav-1"><script defer src="/utility-theme.js?v=20260915-nav-1"></script></head>
-<body><a class="skip" href="#main">跳到遮挡工具</a>
-<header class="site-header"><div class="site-header-inner"><a class="site-brand" href="/" aria-label="泥壳AI工具站首页"><span class="brand-mark"><img src="/brand-icon-192.png?v=20260916-2" alt=""></span><span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span></a><nav class="site-nav" aria-label="主导航"><a class="nav-item" href="/">工具库</a><a class="nav-item" href="/discover">发现</a><a class="nav-item" href="/rankings">榜单</a><a class="nav-item" href="/tutorials">教程</a><a class="nav-item" href="/news">资讯</a><a class="nav-item" href="/image-generation">AI 生图</a><a class="nav-item is-active" href="/utilities" aria-current="page">小工具</a><a class="nav-item" href="/games">休闲小游戏</a></nav><div class="erase-header-actions"><a class="nav-item" href="/favorites">我的收藏</a><button class="icon-button" id="utility-theme" type="button" aria-label="切换明暗主题" title="切换明暗主题">◐</button></div></div></header>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#4f46e5"><title>视频马赛克与模糊 · 泥壳AI小工具</title>
+
+<meta name="description" content="为视频局部添加马赛克或模糊，调整区域、强度和生效时间，在浏览器本地导出保留音频的 MP4。"><link rel="canonical" href="https://ontimo.cn/utilities/video-mask">
+  <link rel="stylesheet" href="/design-system.css?v=20260929-foundation-1">
+  <link rel="stylesheet" href="/styles.css?v=20260915-nav-1">
+  <link rel="stylesheet" href="/utility-theme.css?v=20261010-nav-group-1">
+  <link rel="stylesheet" href="/video-frame.css">
+  <link rel="stylesheet" href="/video-mask.css?v=20260908-2"><link rel="icon" href="/brand-icon-192.png?v=20260916-2">
+<script type="module" src="/video-mask.js?v=20260928-mask-1"></script><script defer src="/utility-theme.js?v=20261012-mobile-nav-1"></script><script defer src="/site-header.js?v=20261010-nav-group-1"></script><script defer src="/header-account.js?v=20261012-mobile-nav-1"></script><link rel="stylesheet" href="/site-header.css?v=20261012-mobile-nav-1"></head>
+<body class="utility-tool-page"><a class="skip" href="#main">跳到遮挡工具</a>
+<header class="site-header site-header-shared" id="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/" aria-label="泥壳AI工具站首页">
+          <span class="brand-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260916-2" alt=""></span>
+          <span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span>
+        </a>
+
+        <nav class="site-nav" aria-label="主导航" data-site-shell="utility" data-page="utilities"><!-- site-navigation:start -->
+<details class="nav-more nav-group"><summary class="nav-item">AI 工具<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/">工具库</a><a href="/discover">发现</a><a href="/rankings">工具榜单</a><a href="/video-pricing">视频模型价格</a></div></details>
+<details class="nav-more nav-group"><summary class="nav-item is-active">创作与效率<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/image-generation">AI 生图</a><a href="/nestdutio">NeStudio</a><a href="/explain">交互讲解</a><a href="/utilities" aria-current="page">实用小工具</a><a href="/skills">Skills</a><a href="/games">小游戏</a></div></details><a class="nav-item" href="/news">资讯与教程</a><a class="nav-item" href="/creator">关于我</a>
+<!-- site-navigation:end --></nav>
+
+        <div class="site-header-actions erase-header-actions">
+          <form class="global-search" id="search-form" role="search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <label class="sr-only" for="global-search-input">搜索AI工具</label>
+            <input id="global-search-input" type="search" autocomplete="off" placeholder="搜索工具、任务或能力">
+            <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索" title="清空搜索" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </form>
+          <button class="submit-tool-button" id="submit-tool-open" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg><span>提交工具</span>
+          </button>
+          <div class="topbar-actions">
+            <button class="icon-button" id="utility-theme" type="button" aria-label="切换深色模式" title="切换深色模式">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.464.402.807a6.25 6.25 0 0 0 8.268 8.268c.344-.215.83-.004.803.397"/></svg>
+            </button>
+            
+            <button class="icon-button action-with-count" id="compare-open" type="button" aria-label="打开工具对比" title="工具对比">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg><span id="compare-count">0</span>
+            </button>
+            <button class="icon-button mobile-menu-button utility-menu-button" id="utility-menu-open" type="button" aria-label="打开导航" title="打开导航">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+          </div>
+          <details class="header-account-menu"><summary><a class="header-login" href="/auth">登录</a></summary><div class="nav-more-menu"><a href="/auth">账号中心</a><button class="icon-button action-with-count favorites-entry" id="favorite-toggle" type="button" aria-label="我的收藏" aria-pressed="false" title="我的收藏">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="favorites-entry-label">我的收藏</span><span id="favorite-count">0</span>
+            </button></div></details>
+        </div>
+      </div>
+    </header>
 <main id="main"><div class="breadcrumb"><a href="/">首页</a><span>/</span><a href="/utilities">小工具</a><span>/</span>视频马赛克与模糊</div>
 <section class="intro"><div><p class="eyebrow">泥壳AI · 实用小工具</p><h1>该留的精彩，<span>该藏的细节。</span></h1><p class="lead">为画面局部添加马赛克或模糊。选好区域和时间，保留声音与完整视频。</p></div><span class="privacy">◉ 本地处理 · 无需上传</span></section>
 <div class="workspace crop-workspace"><section class="panel" aria-labelledby="source-heading"><div class="panel-heading"><h2 id="source-heading"><span class="step">01</span>选择遮挡区域</h2><span class="muted">固定区域 · 手动调整</span></div>

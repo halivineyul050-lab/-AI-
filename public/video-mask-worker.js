@@ -1,5 +1,5 @@
 import createFFmpegCore from './assets/vendor/ffmpeg/ffmpeg-core.js';
-import { createMaskCommand } from './video-mask-core.js?v=20260908-2';
+import { createMaskCommand } from './video-mask-core.js?v=20260928-mask-1';
 
 self.onmessage=async({data})=>{
   try {

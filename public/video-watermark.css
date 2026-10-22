@@ -1,0 +1,62 @@
+/* Scoped editor layout: shared utility styles must not resize the workbench. */
+body.watermark-page main:not(.image-generation-main){width:calc(100% - 80px);max-width:1680px;margin:0 auto;padding:28px 0 0}
+body.watermark-page .breadcrumb{font-size:12px;color:var(--text-muted)}
+body.watermark-page .intro{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 0 28px}
+body.watermark-page .intro .eyebrow{display:none}
+body.watermark-page .intro h1{margin:0 0 10px;font-size:32px;line-height:1.25;letter-spacing:-.035em}
+body.watermark-page .intro .lead{max-width:none;font-size:14px;line-height:1.7}
+body.watermark-page .privacy{flex:none;white-space:nowrap;font-size:12px;padding:9px 13px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+body.watermark-page .watermark-workspace{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:24px;align-items:start}
+body.watermark-page .panel{min-width:0;padding:24px;border-radius:18px;background:var(--bg-surface);box-shadow:0 3px 16px #211b4a04}
+body.watermark-page .panel-heading{margin-bottom:20px}
+body.watermark-page .panel-heading h2{font-size:16px;gap:9px}
+body.watermark-page .panel-heading h2::before{display:none}
+body.watermark-page .panel-heading>.muted{font-size:12px}
+body.watermark-page .watermark-workspace>section+section{position:sticky;top:88px}
+.watermark-uploads{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+body.watermark-page .watermark-uploads .dropzone{display:grid;grid-template-columns:40px minmax(0,1fr);grid-template-rows:auto auto;align-content:center;align-items:center;justify-items:start;column-gap:14px;row-gap:4px;min-height:104px;padding:18px;text-align:left;border-radius:12px;background:var(--bg-subtle)}
+body.watermark-page .watermark-uploads .upload-icon{grid-row:1/3;display:grid;place-items:center;width:40px;height:40px;margin:0;border-radius:11px;font-size:23px;line-height:1;color:var(--brand)}
+body.watermark-page .watermark-uploads strong{max-width:100%;font-size:14px;line-height:1.5}
+body.watermark-page .watermark-uploads small{max-width:100%;font-size:11px;line-height:1.6;overflow-wrap:anywhere}
+body.watermark-page .watermark-uploads input{margin:0;max-width:100%}
+.watermark-preview{position:relative;display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:16/9;max-height:680px;min-height:260px;margin-top:20px;overflow:hidden;border:1px solid #282635;border-radius:12px;background:#14131b}
+.watermark-preview canvas{display:block;width:100%;height:100%;max-width:100%;max-height:680px;object-fit:contain}
+.watermark-preview canvas[hidden]{display:none}
+.watermark-preview p{margin:0;padding:32px;text-align:center;font-size:14px;line-height:2;color:#b7b3c9}
+#watermark-source{display:none}
+#watermark-fields{min-width:0;margin:0;padding:0;border:0}
+body.watermark-page .setting-label{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px;font-size:13px;font-weight:600}
+body.watermark-page .setting-label:first-of-type{margin-top:4px}
+body.watermark-page select{width:100%;min-height:44px;padding:10px 12px;font-size:13px;border-radius:9px}
+body.watermark-page input[type=range]{width:100%;height:20px;margin:0;accent-color:var(--brand);cursor:pointer}
+body.watermark-page output{min-width:44px;padding:3px 8px;text-align:center;border-radius:6px;background:var(--brand-soft);color:var(--brand);font-size:12px;font-variant-numeric:tabular-nums}
+.watermark-note{margin:14px 0 0;font-size:12px;line-height:1.8;color:var(--text-muted)}
+.watermark-workspace .range-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:var(--text-muted)}
+body.watermark-page .playback{display:flex;align-items:center;gap:14px;margin-top:16px;padding:12px 0;border-bottom:1px solid var(--border)}
+body.watermark-page .playback button{min-height:34px;padding:6px 12px;border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--brand);background:var(--brand-soft)}
+body.watermark-page .playback input{flex:1;min-width:40px;width:auto}
+#watermark-time{font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+body.watermark-page .estimate{margin:24px 0 0;padding:12px;font-size:12px;line-height:1.7;border-radius:9px;background:var(--bg-subtle)}
+#watermark-status{margin:12px 0;font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+#watermark-status:empty{display:none}
+#watermark-status.error{color:#b42318}
+#watermark-progress-area{margin-top:20px;font-size:12px;line-height:1.8}
+#watermark-progress{width:100%;height:6px;accent-color:var(--brand)}
+body.watermark-page .actions{display:flex;gap:8px;margin-top:22px}
+body.watermark-page #watermark-export{flex:1;min-height:46px;padding:12px;font-size:13px;border-radius:9px}
+body.watermark-page #watermark-cancel{flex:none;padding:10px;font-size:12px;border-radius:9px}
+.watermark-workspace button:disabled{opacity:.5;cursor:not-allowed}
+body.watermark-page #watermark-result{margin-top:24px}
+#watermark-result video{display:block;width:100%;max-height:620px;margin:auto;border-radius:12px;background:#14131b}
+.watermark-result-actions{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:20px}
+.watermark-result-actions p{margin:0;font-size:12px;line-height:1.8}
+#watermark-download{flex:none;border-radius:9px}
+.watermark-tip{display:flex;align-items:baseline;gap:24px;margin-top:24px;padding:18px 4px;border-top:1px solid var(--border)}
+.watermark-tip strong{flex:none;font-size:13px;font-weight:600}
+.watermark-tip .watermark-note{margin:0}
+body.watermark-page footer{margin-top:32px;padding:20px;font-size:11px}
+@media(min-width:1900px){body.watermark-page .watermark-workspace{grid-template-columns:minmax(0,1fr) 400px;gap:28px}body.watermark-page .panel{padding:28px}}
+@media(max-width:1100px){body.watermark-page main:not(.image-generation-main){width:calc(100% - 48px)}body.watermark-page .watermark-workspace{grid-template-columns:minmax(0,1fr) 320px;gap:18px}body.watermark-page .panel{padding:20px}body.watermark-page .watermark-uploads .dropzone{grid-template-columns:30px minmax(0,1fr);column-gap:10px;padding:14px}body.watermark-page .watermark-uploads .upload-icon{width:30px;height:34px;font-size:20px}.watermark-tip{display:block}.watermark-tip .watermark-note{margin-top:8px}}
+@media(max-width:900px){body.watermark-page .watermark-workspace{grid-template-columns:minmax(0,1fr)}body.watermark-page .watermark-workspace>section+section{position:static}.watermark-preview{max-height:520px}.watermark-preview canvas{max-height:520px}}
+@media(max-width:600px){body.watermark-page main:not(.image-generation-main){width:calc(100% - 32px);padding-top:20px}body.watermark-page .intro{align-items:flex-start;gap:14px;padding:22px 0}body.watermark-page .intro h1{font-size:28px}body.watermark-page .intro .lead{font-size:13px}body.watermark-page .privacy{align-self:flex-start;padding:6px 10px;font-size:11px}body.watermark-page .panel{padding:16px;border-radius:14px}body.watermark-page .panel-heading>.muted{display:none}.watermark-uploads{grid-template-columns:1fr;gap:10px}body.watermark-page .watermark-uploads .dropzone{grid-template-columns:36px minmax(0,1fr);min-height:82px;padding:14px}.watermark-preview{min-height:180px;margin-top:14px}.watermark-preview p{padding:20px;font-size:12px}body.watermark-page .playback{flex-wrap:wrap;gap:10px}#watermark-time{flex-basis:100%;text-align:right}.watermark-result-actions{align-items:stretch;flex-direction:column;gap:14px}#watermark-download{text-align:center}.watermark-tip{padding-inline:0}.watermark-tip strong{font-size:12px}}
+@media(prefers-reduced-motion:reduce){body.watermark-page *{scroll-behavior:auto}}

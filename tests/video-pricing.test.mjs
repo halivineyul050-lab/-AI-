@@ -11,15 +11,15 @@ test('pricing page runs its supplied inline interactions with a page-scoped poli
   try {
     const address = await app.listen(0, '127.0.0.1');
     const base = `http://127.0.0.1:${address.port}`;
-    const page = await fetch(`${base}/video-pricing.html`);
+    const page = await fetch(`${base}/video-pricing`);
     assert.equal(page.status, 200);
     const html = await page.text();
     assert.match(html, /视频生成模型完整价格表/);
-    assert.match(html, /class="site-header"/);
-    assert.match(html, /href="\/video-pricing\.html"[^>]+aria-current="page"/);
+    assert.match(html, /class="site-header site-header-shared"/);
+    assert.match(html, /href="\/video-pricing"[^>]+aria-current="page"/);
     assert.match(html, /class="pricing-back" href="\/"[^>]*>.*返回泥壳AI工具站/s);
-    assert.match(html, /href="\/utility-theme\.css\?v=20260915-nav-2"/);
-    assert.match(html, /src="\/utility-theme\.js\?v=20260915-nav-1"/);
+    assert.match(html, /href="\/utility-theme\.css\?v=20261010-nav-group-1"/);
+    assert.match(html, /src="\/utility-theme\.js\?v=20261012-mobile-nav-1"/);
     assert.match(page.headers.get('content-security-policy'), /script-src 'self' 'unsafe-inline'/);
     assert.match(page.headers.get('content-security-policy'), /connect-src 'self' https:\/\/ai\.fun\.tv/);
     for (const path of ['/', '/admin.html']) {

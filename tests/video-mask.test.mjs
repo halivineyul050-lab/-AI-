@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { validateMask, effectParameters, createMaskCommand } from '../video-mask-core.js';
+import { validateMask, effectParameters, createMaskCommand } from '../public/video-mask-core.js';
 
 const settings={width:320,height:180,duration:3,region:{x:40,y:20,width:160,height:100},mode:'mosaic',strength:5,start:1,end:2};
 test('mask validation rejects invalid timing and regions before processing',()=>{

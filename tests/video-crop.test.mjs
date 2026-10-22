@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize, createCropCommand } from '../video-crop-core.js';
+import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize, createCropCommand } from '../public/video-crop-core.js';
 
 test('crop presets fit landscape and portrait video without leaving the picture', () => {
   assert.deepEqual(fitCrop(1920,1080,1), {x:420,y:0,width:1080,height:1080});

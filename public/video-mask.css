@@ -5,3 +5,12 @@
 #mask-preview{display:none;max-width:100%;max-height:100%;object-fit:contain;width:auto;height:auto}#active-label.active{color:var(--accent)}.mask-stage .crop-box{box-shadow:0 0 0 3000px #061c183d;background:#ffffff08}
 #mask-fields .select-row{margin-top:12px}#mask-fields .preview-button{margin-bottom:24px}
 @media(max-width:480px){.effect-preview .panel-heading{align-items:flex-start;gap:8px}.mask-preview-stage{height:190px}}
+#mask-status{color:var(--brand)}
+#mask-status.error{color:var(--danger)}
+.mask-preview-stage{height:240px;border:1px solid var(--border);border-radius:12px;background:var(--bg-subtle)}
+#mask-fields select,#mask-fields input[type=number]{min-height:40px;border-color:var(--border);border-radius:9px;background:var(--bg-surface)}
+.crop-workspace>.panel{border-radius:20px;box-shadow:var(--shadow-xs)}
+.effect-preview{border-color:var(--border)}
+@media(max-width:600px){.mask-preview-stage{height:190px}}
+.mask-preview-stage{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mask-preview-stage #preview-placeholder{color:var(--text-muted);font-size:12px;text-align:center}

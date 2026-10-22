@@ -1,5 +1,5 @@
-import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize } from './video-crop-core.js?v=20260915-limit-1';
-import { validateMask, effectParameters } from './video-mask-core.js?v=20260915-limit-1';
+import { fitCrop, moveCrop, resizeCrop, resizeCropByKey, setCropSize } from './video-crop-core.js?v=20260928-mask-1';
+import { validateMask, effectParameters } from './video-mask-core.js?v=20260928-mask-1';
 import { VIDEO_EXPORT_TIMEOUT_MS, validateFullVideoMetadata, validateVideoFile } from './video-input-limits.js';
 
 const $=id=>document.getElementById(id);
@@ -193,7 +193,7 @@ function lock(value){
 function encode(buffer,selected,signal){
   return new Promise((resolve,reject)=>{
     if(signal.aborted){reject(cancelled());return;}
-    worker=new Worker('/video-mask-worker.js?v=20260908-2',{type:'module'});
+    worker=new Worker('/video-mask-worker.js?v=20260928-mask-1',{type:'module'});
     const clean=()=>{clearTimeout(timeout);signal.removeEventListener('abort',abort);};
     const fail=error=>{clean();reject(error);};
     const abort=()=>fail(cancelled());

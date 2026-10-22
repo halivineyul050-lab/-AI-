@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildFramePlan, createGifSession } from '../video-gif-core.js';
-import { validateVideoFile } from '../video-input-limits.js';
+import { buildFramePlan, createGifSession } from '../public/video-gif-core.js';
+import { validateVideoFile } from '../public/video-input-limits.js';
 
 const input = { duration: 20, width: 1920, height: 1080, start: 2, end: 7, fps: 10, speed: 1, maxEdge: 480 };
 test('GIF source validation accepts 500MB while frame planning retains its work guard', () => {

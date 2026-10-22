@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#4f46e5"><title>视频加水印 · 泥壳AI小工具</title><meta name="description" content="上传视频和图片水印，选择固定、斜向、四周巡游或内部平滑移动，本地导出保留声音的 MP4。"><link rel="canonical" href="https://ontimo.cn/utilities/video-watermark"><link rel="icon" href="/brand-icon-192.png?v=20260916-2"><link rel="stylesheet" href="/design-system.css?v=20260929-foundation-1"><link rel="stylesheet" href="/video-frame.css?v=20260930-frontend-unified-1"><link rel="stylesheet" href="/styles.css?v=20261008-ai-zine-1"><link rel="stylesheet" href="/utility-theme.css?v=20261010-nav-group-1"><link rel="stylesheet" href="/site-header.css?v=20261012-mobile-nav-1"><link rel="stylesheet" href="/video-watermark.css?v=20261021-style-1"><script defer src="/utility-theme.js?v=20261012-mobile-nav-1"></script><script defer src="/site-header.js?v=20261010-nav-group-1"></script><script defer src="/header-account.js?v=20261012-mobile-nav-1"></script><script type="module" src="/video-watermark.js?v=20261021-3"></script></head>
+<body class="utility-tool-page watermark-page"><a class="skip" href="#main">跳到视频水印工具</a><header class="site-header site-header-shared" id="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/" aria-label="泥壳AI工具站首页">
+          <span class="brand-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260916-2" alt=""></span>
+          <span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span>
+        </a>
+
+        <nav class="site-nav" aria-label="主导航" data-site-shell="utility" data-page="utilities"><!-- site-navigation:start -->
+<details class="nav-more nav-group"><summary class="nav-item">AI 工具<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/">工具库</a><a href="/discover">发现</a><a href="/rankings">工具榜单</a><a href="/video-pricing">视频模型价格</a></div></details>
+<details class="nav-more nav-group"><summary class="nav-item is-active">创作与效率<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/image-generation">AI 生图</a><a href="/nestdutio">NeStudio</a><a href="/explain">交互讲解</a><a href="/utilities" aria-current="page">实用小工具</a><a href="/skills">Skills</a><a href="/games">小游戏</a></div></details><a class="nav-item" href="/news">资讯与教程</a><a class="nav-item" href="/creator">关于我</a>
+<!-- site-navigation:end --></nav>
+
+        <div class="site-header-actions erase-header-actions">
+          <form class="global-search" id="search-form" role="search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <label class="sr-only" for="global-search-input">搜索AI工具</label>
+            <input id="global-search-input" type="search" autocomplete="off" placeholder="搜索工具、任务或能力">
+            <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索" title="清空搜索" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </form>
+          <button class="submit-tool-button" id="submit-tool-open" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg><span>提交工具</span>
+          </button>
+          <div class="topbar-actions">
+            <button class="icon-button" id="utility-theme" type="button" aria-label="切换深色模式" title="切换深色模式">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.464.402.807a6.25 6.25 0 0 0 8.268 8.268c.344-.215.83-.004.803.397"/></svg>
+            </button>
+            
+            <button class="icon-button action-with-count" id="compare-open" type="button" aria-label="打开工具对比" title="工具对比">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg><span id="compare-count">0</span>
+            </button>
+            <button class="icon-button mobile-menu-button utility-menu-button" id="utility-menu-open" type="button" aria-label="打开导航" title="打开导航">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+          </div>
+          <details class="header-account-menu"><summary><a class="header-login" href="/auth">登录</a></summary><div class="nav-more-menu"><a href="/auth">账号中心</a><button class="icon-button action-with-count favorites-entry" id="favorite-toggle" type="button" aria-label="我的收藏" aria-pressed="false" title="我的收藏">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="favorites-entry-label">我的收藏</span><span id="favorite-count">0</span>
+            </button></div></details>
+        </div>
+      </div>
+    </header>
+<main id="main"><div class="breadcrumb"><a href="/">首页</a><span>/</span><a href="/utilities">小工具</a><span>/</span>视频加水印</div>
+<section class="intro"><div><p class="eyebrow">视频创作工具</p><h1>视频加水印</h1><p class="lead">上传视频和图片，预览运动轨迹，导出你的专属水印视频。</p></div><span class="privacy">◉ 本地处理 · 无需上传</span></section>
+<div class="workspace watermark-workspace"><section class="panel" aria-labelledby="watermark-source-heading"><div class="panel-heading"><h2 id="watermark-source-heading"><span class="step">01</span>素材与预览</h2><span class="muted">选择素材，立即预览</span></div>
+<div class="watermark-uploads"><label class="dropzone" id="watermark-video-drop"><span class="upload-icon" aria-hidden="true">▷</span><strong>选择或拖入视频</strong><small id="watermark-video-label">最多 500MB · 30 分钟 · 最长边 3840px</small><input id="watermark-video-file" type="file" accept="video/*,.mp4,.mov,.mkv,.webm" aria-label="上传视频"></label><label class="dropzone" id="watermark-logo-drop"><span class="upload-icon" aria-hidden="true">◈</span><strong>选择或拖入水印图片</strong><small id="watermark-logo-label">PNG / JPG / WebP · 最多 10MB</small><input id="watermark-logo-file" type="file" accept="image/png,image/jpeg,image/webp" aria-label="上传水印图片"></label></div>
+<video id="watermark-source" playsinline preload="auto"></video><div class="watermark-preview"><canvas id="watermark-preview" width="640" height="360" aria-label="图片水印实时预览" hidden></canvas><p id="watermark-placeholder">先选视频，再加上你的图片水印。<br>推荐透明 PNG，画面融合更自然。</p></div>
+<div class="playback"><button id="watermark-play" class="text-button" type="button" disabled>播放预览</button><input id="watermark-scrub" type="range" min="0" max="1" value="0" step="0.01" aria-label="视频预览时间" disabled><span id="watermark-time" class="muted">0.0 / 0.0 秒</span></div>
+<p class="watermark-note">图片原有透明区域会保留。播放或拖动进度，检查水印经过的位置；白色水印建议搭配深色画面查看。</p></section>
+<section class="panel" aria-labelledby="watermark-settings-heading"><div class="panel-heading"><h2 id="watermark-settings-heading"><span class="step">02</span>水印设置</h2><button id="watermark-reset" class="text-button" type="button">恢复默认</button></div><form id="watermark-form"><fieldset id="watermark-fields"><legend class="sr-only">水印参数</legend>
+<label class="setting-label" for="watermark-mode">运动路径</label><select id="watermark-mode"><option value="internal">内部不规则平滑移动</option><option value="static">固定角落 · 左上角</option><option value="diagonal">斜向移动 · 左上到右下</option><option value="patrol">四周圆角巡游</option></select><p class="watermark-note">轨迹贯穿整个视频，按路径长度均匀移动。内部移动会穿过画面，请预览确认主体遮挡。</p>
+<label class="setting-label" for="watermark-size">水印宽度 <output id="watermark-size-value" for="watermark-size">12%</output></label><input id="watermark-size" type="range" min="2" max="40" value="12" step="1"><div class="range-labels"><span>画面宽度 2%</span><span>40%</span></div>
+<label class="setting-label" for="watermark-opacity">不透明度 <output id="watermark-opacity-value" for="watermark-opacity">40%</output></label><input id="watermark-opacity" type="range" min="1" max="100" step="1" value="40"><div class="range-labels"><span>轻盈</span><span>清晰</span></div></fieldset>
+<p id="watermark-estimate" class="estimate">MP4 视频 · 完整时长 · 保留原音频（如有）</p><p class="watermark-note">水印整张图片保留至少 5% 画面边距。不兼容的视频编码会先在本地转换。首次处理需加载约 31MB 资源，处理时请保持页面打开。</p><div id="watermark-progress-area" hidden><label id="watermark-progress-label" for="watermark-progress">准备导出</label><progress id="watermark-progress" max="100" value="0"></progress></div><p id="watermark-status" role="status" aria-live="polite"></p><div class="actions"><button id="watermark-export" class="primary" type="submit" disabled>导出水印视频 →</button><button id="watermark-cancel" class="secondary" type="button" hidden>取消导出</button></div></form></section></div>
+<section class="panel result" id="watermark-result" hidden><div class="panel-heading"><h2><span class="step">03</span>水印视频已就绪</h2></div><video id="watermark-output" controls playsinline preload="metadata"></video><div class="watermark-result-actions"><p class="muted" id="watermark-result-meta"></p><a id="watermark-download" class="primary" download="watermark.mp4">下载 MP4 ↓</a></div></section>
+<aside class="watermark-tip"><strong>给作品留下标记，也给画面留出呼吸。</strong><p class="watermark-note">默认宽度 12%、不透明度 40%。四周巡游适合避开中部，内部移动覆盖更多区域。图片水印无法保证不被裁剪或去除，导出前请检查观看体验。</p></aside></main><footer>泥壳AI工具站 · 实用工具，触手可及。</footer></body></html>
