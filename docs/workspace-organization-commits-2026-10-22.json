@@ -1,0 +1,122 @@
+{
+  "verifiedAt": "2026-10-22T02:03:27.860Z",
+  "branch": "cursor/restructure-public-docs-examples",
+  "base": "7b86ddd",
+  "archiveHead": "9d80b1e5c52f548f1f80fa45ed01cf73aaecc4f1",
+  "commits": [
+    {
+      "group": "release-governance",
+      "files": 5,
+      "commit": "93a82ed8efc956047a855966565fdcad768b03e6"
+    },
+    {
+      "group": "governance-operations",
+      "files": 16,
+      "commit": "fd82ce1f720b2ce50c7c52db2f67780920ca9588"
+    },
+    {
+      "group": "accounts-credits",
+      "files": 45,
+      "commit": "232be39a434084070966b4fae6a0ad6d17ad1924"
+    },
+    {
+      "group": "assistant",
+      "files": 12,
+      "commit": "d67e6959d9e76984c68b639d07bfea349cb3b35e"
+    },
+    {
+      "group": "creator",
+      "files": 9,
+      "commit": "3fc61fc1dcd2a167a08f574f21c933be002cee5f"
+    },
+    {
+      "group": "explainer",
+      "files": 27,
+      "commit": "523744d6251da15079019f3da30d0f6e8cad04aa"
+    },
+    {
+      "group": "image-tools",
+      "files": 43,
+      "commit": "8a8272563f1321f8c35263172590c0807b121089"
+    },
+    {
+      "group": "nestdutio-models",
+      "files": 113,
+      "commit": "f954d16fa19d9f452789fd2f66aa40d105891d3e"
+    },
+    {
+      "group": "news-delivery",
+      "files": 27,
+      "commit": "a3e4cc5c0bb4e58204831c33fc32156636776a46"
+    },
+    {
+      "group": "news-hot-local",
+      "files": 4,
+      "commit": "4af690a84465284bb9bacbd143dd2bf6a237f1da"
+    },
+    {
+      "group": "skills",
+      "files": 8,
+      "commit": "f6a9e9f46a5b3f19eb5a96df4bf5f6b4894e1b28"
+    },
+    {
+      "group": "video-tools",
+      "files": 22,
+      "commit": "50370bda0e0584ca6c645ae07c4145bc6e0943f8"
+    },
+    {
+      "group": "shared-or-manual-review",
+      "files": 161,
+      "commit": "03fe425289ee4e55a04c64a78d5c136ea5559089"
+    },
+    {
+      "group": "documentation-evidence",
+      "files": 514,
+      "commit": "9d80b1e5c52f548f1f80fa45ed01cf73aaecc4f1"
+    }
+  ],
+  "businessContentUnchanged": true,
+  "tests": {
+    "node": {
+      "tests": 883,
+      "pass": 880,
+      "fail": 0,
+      "skipped": 3
+    },
+    "python": {
+      "tests": 8,
+      "pass": 8
+    },
+    "jsSyntax": {
+      "files": 225,
+      "fail": 0
+    },
+    "logos": {
+      "records": 138,
+      "assets": 138,
+      "uniqueHashes": 138
+    },
+    "releaseRules": {
+      "tests": 3,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 2
+    }
+  },
+  "state": {
+    "currentWorktree": "clean after 14 archive commits",
+    "otherWorktrees": "preserved; catalog-mobile-optimization still has 212 pending files",
+    "pushed": false,
+    "deployed": false,
+    "deleted": false
+  },
+  "production": "watermark-style-20261021-1",
+  "gitConnectivity": {
+    "exit": 0,
+    "danglingObjects": {
+      "blob": 823,
+      "tree": 145
+    },
+    "pruned": false
+  }
+}
