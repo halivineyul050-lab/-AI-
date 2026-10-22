@@ -654,20 +654,24 @@ export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
         OR (a.source_url <> '' AND COALESCE(a.created_at, a.published_date) >= ? AND COALESCE(a.created_at, a.published_date) <= ?)
       )
     ORDER BY latest_source_at DESC, a.id ASC
-    LIMIT 200
   `).all(cutoff, nowIso, cutoff, nowIso);
   if (!rows.length) return [];
 
   const ids = rows.map((row) => row.id);
-  const placeholders = ids.map(() => "?").join(", ");
-  const relationRows = db.prepare(`
-    SELECT article_id, source_url, source_name, source_title, source_published_at, discovered_at, feed_url
-    FROM article_source_links
-    WHERE article_id IN (${placeholders})
-    ORDER BY article_id ASC, COALESCE(source_published_at, discovered_at) DESC, source_url_hash ASC
-  `).all(...ids);
   const linksByArticle = new Map(ids.map((id) => [id, []]));
-  relationRows.forEach((row) => linksByArticle.get(row.article_id)?.push(row));
+  // Rank every event in the time window; recency alone cannot identify the
+  // hottest events. Bound each relation query instead of truncating candidates.
+  for (let offset = 0; offset < ids.length; offset += 200) {
+    const batch = ids.slice(offset, offset + 200);
+    const placeholders = batch.map(() => "?").join(", ");
+    const relationRows = db.prepare(`
+      SELECT article_id, source_url, source_name, source_title, source_published_at, discovered_at, feed_url
+      FROM article_source_links
+      WHERE article_id IN (${placeholders})
+      ORDER BY article_id ASC, COALESCE(source_published_at, discovered_at) DESC, source_url_hash ASC
+    `).all(...batch);
+    relationRows.forEach((row) => linksByArticle.get(row.article_id)?.push(row));
+  }
   const rankingInput = rows.map((row) => {
     const sources = listArticleSourceLinks(db, row.id, row, linksByArticle.get(row.id));
     const firstSourceAt = sources.reduce((value, source) => {
