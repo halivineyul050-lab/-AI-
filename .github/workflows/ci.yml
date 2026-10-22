@@ -10,6 +10,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,6 +18,16 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Allow sandboxed CI Chromium user namespaces
+        run: |
+          sudo tee /etc/apparmor.d/nikai-ci-chromium > /dev/null <<'PROFILE'
+          abi <abi/4.0>,
+          include <tunables/global>
+          profile nikai-ci-chromium /tmp/chromium flags=(unconfined) {
+            userns,
+          }
+          PROFILE
+          sudo apparmor_parser -r /etc/apparmor.d/nikai-ci-chromium
       - run: node --check server.mjs
       - run: find public -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
       - run: npm test
