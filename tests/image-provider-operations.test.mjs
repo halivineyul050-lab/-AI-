@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { buildApplication } from "../server.mjs";
+import { registerUser } from "../backend/auth.mjs";
 
 const rootFor = () => join(tmpdir(), `image-provider-operations-${randomUUID()}`);
 
@@ -75,11 +76,19 @@ test("public readiness never advertises image capability while protected monitor
 });
 
 test("missing image master key fails closed for provider secrets", async (t) => {
-  const { baseUrl } = await startApplication(t, { imageConfigKey: "" });
+  const { app, baseUrl } = await startApplication(t, { imageConfigKey: "", tokenAdminEnabled: false });
+  const session = await registerUser(app.db, {
+    email: "secret-admin@example.com",
+    normalizedEmail: "secret-admin@example.com",
+    displayName: "Secret Admin",
+    password: "correct-horse-battery",
+    consentVersion: "test-v1"
+  });
+  app.db.prepare("UPDATE users SET role = 'admin', is_super_admin = 1 WHERE id = ?").run(session.user.id);
   const response = await fetch(`${baseUrl}/api/admin/v1/image-providers`, {
     method: "POST",
     headers: {
-      Authorization: "Bearer image-operations-admin",
+      Cookie: `nikai_auth=${session.token}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ name: "Provider", baseUrl: "https://93.184.216.34", apiKey: "sk-never-stored" })
@@ -89,6 +98,30 @@ test("missing image master key fails closed for provider secrets", async (t) => 
   const body = await response.json();
   assert.equal(body.code, "image_service_unconfigured");
   assert.doesNotMatch(JSON.stringify(body), /sk-never-stored/);
+});
+
+test("administrator sessions can manage image models while API key writes require a super-admin", async (t) => {
+  const { app, baseUrl } = await startApplication(t, { imageConfigKey: "7".repeat(64), tokenAdminEnabled: false });
+  const session = await registerUser(app.db, {
+    email: "model-admin@example.com",
+    normalizedEmail: "model-admin@example.com",
+    displayName: "Model Admin",
+    password: "correct-horse-battery",
+    consentVersion: "test-v1"
+  });
+  app.db.prepare("UPDATE users SET role = 'admin' WHERE id = ?").run(session.user.id);
+  const headers = { Cookie: `nikai_auth=${session.token}`, "Content-Type": "application/json" };
+
+  const models = await fetch(`${baseUrl}/api/admin/v1/image-models`, { headers });
+  assert.equal(models.status, 200);
+
+  const secretWrite = await fetch(`${baseUrl}/api/admin/v1/image-providers`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ name: "Provider", baseUrl: "https://93.184.216.34", apiKey: "sk-must-require-super-admin" })
+  });
+  assert.equal(secretWrite.status, 403);
+  assert.equal((await secretWrite.json()).code, "super_admin_required");
 });
 
 test("application shutdown removes expired image result directories", async (t) => {
@@ -139,7 +172,9 @@ test("MariaDB backup and restore retain whole-database checksum verification aft
 
   assert.match(backup, /mariadb-dump[^\n]*--single-transaction[^\n]*"\$database"/);
   assert.doesNotMatch(backup, /--ignore-table|--no-data/);
-  assert.match(backup, /sha256sum "\$target"[^\n]*\|[^\n]*(?:awk|cut)/);
+  assert.match(backup, /sha256sum "\$partial"[^\n]*\|[^\n]*awk/);
+  assert.match(backup, /\.partial/);
+  assert.match(backup, /mv -- "\$partial" "\$target"/);
   assert.doesNotMatch(backup, /sha256sum "\$target" > "\$target\.sha256"/);
   assert.match(restore, /(?:! )?\[\[ "\$expected_checksum" =~ \^\[\[:xdigit:\]\]\{64\}\$ \]\]/);
   assert.match(restore, /sha256sum "\$dump"/);

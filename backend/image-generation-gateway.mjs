@@ -19,6 +19,13 @@ const ERRORS = {
   image_provider_timeout: [504, "生图请求超时，请稍后重试。"],
   image_provider_rate_limited: [429, "生图平台请求过于频繁，请稍后重试。"],
   image_provider_incompatible: [502, "生图平台或请求格式不兼容，请调整参数或更换模型。"],
+  image_balance_unconfigured: [409, "尚未配置余额查询接口。"],
+  image_balance_invalid_config: [422, "余额接口配置无效，请检查查询路径和 JSON 字段。"],
+  image_balance_auth_failed: [502, "余额接口鉴权失败，请检查平台 API Key 和查询权限。"],
+  image_balance_timeout: [504, "余额查询超时，请稍后重试。"],
+  image_balance_unavailable: [502, "暂时无法连接生图平台的余额接口。"],
+  image_balance_upstream_failed: [502, "生图平台余额接口暂时不可用。"],
+  image_balance_invalid_response: [502, "平台余额响应格式不正确，请检查字段配置。"],
   image_reference_unsupported: [422, "图片平台未提供参考图编辑接口，请核对后台编辑路径或改选支持的模型。"],
   invalid_reference_image: [422, "参考图无效。请使用不超过 10MB 的 PNG、JPEG 或 WebP 图片。"],
   image_generation_failed: [502, "图片生成失败，请稍后重试。"]
@@ -45,7 +52,7 @@ function abortable(operation, signal) {
   });
 }
 
-async function readLimited(response, limit, signal) {
+async function readLimited(response, limit, signal, onProgress = () => {}) {
   if (Number(response.headers.get("content-length")) > limit) {
     cancel(response.body);
     throw incompatible();
@@ -58,6 +65,7 @@ async function readLimited(response, limit, signal) {
     for (;;) {
       const { value, done } = await abortable(reader.read(), signal);
       if (done) break;
+      if (value.byteLength) onProgress();
       length += value.byteLength;
       if (length > limit) throw incompatible();
       chunks.push(Buffer.from(value));
@@ -71,7 +79,7 @@ async function readLimited(response, limit, signal) {
   }
 }
 
-function inspectImage(bytes) {
+export function inspectImage(bytes) {
   if (!bytes.length || bytes.length > MAX_IMAGE_BYTES) throw incompatible();
   if (bytes.length >= 45 && bytes.subarray(0, 8).equals(Buffer.from("89504e470d0a1a0a", "hex")) && bytes.readUInt32BE(8) === 13 && bytes.toString("ascii", 12, 16) === "IHDR") {
     const width = bytes.readUInt32BE(16), height = bytes.readUInt32BE(20);
@@ -125,7 +133,7 @@ async function checkStatus(response, signal, isReferenceEdit = false) {
   throw fail(code);
 }
 
-export function createImageGenerationGateway({ store, secretBox, fetchImpl, retryDelay = (ms) => new Promise((resolvePromise) => setTimeout(resolvePromise, ms)), tempRoot = join(tmpdir(), "nikai-image-generations"), now = Date.now }) {
+export function createImageGenerationGateway({ store, secretBox, fetchImpl, tempRoot = join(tmpdir(), "nikai-image-generations"), now = Date.now }) {
   const root = resolve(tempRoot);
   let cleanupPending;
 
@@ -165,6 +173,7 @@ export function createImageGenerationGateway({ store, secretBox, fetchImpl, retr
     if (typeof key !== "string" || !key.trim()) throw fail("image_service_unconfigured");
     const controller = new AbortController();
     const deadline = setTimeout(() => controller.abort(), Math.min(Math.max(Number(provider.timeoutMs) || 180000, 1), 180000));
+    let transferDeadline;
     try {
       const hasReference = !testing && Boolean(input.referenceImage);
       if (hasReference && !provider.editPath) throw fail("image_reference_unsupported");
@@ -186,33 +195,39 @@ export function createImageGenerationGateway({ store, secretBox, fetchImpl, retr
         body = Buffer.concat(chunks);
         contentType = `multipart/form-data; boundary=${boundary}`;
       } else {
-        body = JSON.stringify({ model: model.modelId, prompt: effectivePrompt, size: SIZES.get(ratio), n: count, response_format: "b64_json" });
+        body = JSON.stringify({ model: model.modelId, prompt: effectivePrompt, size: SIZES.get(ratio), n: count, response_format: "url" });
         contentType = "application/json";
       }
       const requestOptions = { fetchImpl, signal: controller.signal, method: "POST", headers: { "Content-Type": contentType, Authorization: `Bearer ${key}` }, body };
-      let response;
-      for (let attempt = 0; attempt < 4; attempt += 1) {
-        try {
-          response = await abortable(safeFetch(url, requestOptions), controller.signal);
-          break;
-        } catch (error) {
-          const transientTransportFailure = error?.message === "Upstream request failed";
-          if (!transientTransportFailure || attempt === 3 || controller.signal.aborted) throw error;
-          await abortable(retryDelay(250 * (2 ** attempt)), controller.signal);
-        }
-      }
+      // A rejected POST may have reached the provider and been billed even if
+      // its response was lost. Never replay it automatically without an
+      // upstream idempotency contract.
+      const response = await abortable(safeFetch(url, requestOptions), controller.signal);
       await checkStatus(response, controller.signal, hasReference);
-      const bytes = await readLimited(response, MAX_JSON_BYTES, controller.signal);
+      // Provider response latency and a progressing image transfer are different
+      // phases. Bound inactivity and total transfer time independently.
+      deadline.refresh();
+      transferDeadline = setTimeout(() => controller.abort(), 600000);
+      const progress = () => deadline.refresh();
+      const bytes = await readLimited(response, MAX_JSON_BYTES, controller.signal, progress);
       let payload;
       try { payload = JSON.parse(bytes.toString("utf8")); } catch { throw incompatible(); }
-      if (!Array.isArray(payload?.data) || payload.data.length !== count) throw incompatible();
+      if (!Array.isArray(payload?.data) || payload.data.length < 1 || payload.data.length > count) throw incompatible();
       const images = [];
       for (const item of payload.data) {
         if (typeof item?.b64_json === "string") images.push(decodeImage(item.b64_json));
         else if (typeof item?.url === "string" && item.url.length <= 8192) {
-          const imageResponse = await abortable(safeFetch(item.url, { fetchImpl, signal: controller.signal }), controller.signal);
+          const imageUrl = new URL(item.url);
+          // Some compatible providers emit HTTP links for HTTPS-capable image
+          // hosts. Never download in plaintext; safeFetch still validates DNS,
+          // credentials, ports and redirects before making the HTTPS request.
+          if (imageUrl.protocol === "http:" && (!imageUrl.port || imageUrl.port === "80")) {
+            imageUrl.protocol = "https:";
+            imageUrl.port = "";
+          }
+          const imageResponse = await abortable(safeFetch(imageUrl, { fetchImpl, signal: controller.signal }), controller.signal);
           await checkStatus(imageResponse, controller.signal);
-          images.push(inspectImage(await readLimited(imageResponse, MAX_IMAGE_BYTES, controller.signal)));
+          images.push(inspectImage(await readLimited(imageResponse, MAX_IMAGE_BYTES, controller.signal, progress)));
         } else throw incompatible();
       }
       return images;
@@ -222,6 +237,7 @@ export function createImageGenerationGateway({ store, secretBox, fetchImpl, retr
       throw fail("image_generation_failed");
     } finally {
       clearTimeout(deadline);
+      clearTimeout(transferDeadline);
     }
   }
 

@@ -6,16 +6,26 @@ import { test } from "node:test";
 import { buildApplication } from "../server.mjs";
 import { createImageProviderStore } from "../backend/image-provider-store.mjs";
 import { createSecretBox } from "../backend/image-provider-secrets.mjs";
+import { registerUser } from "../backend/auth.mjs";
 
 const token = "image-admin-test";
 const secret = "sk-provider-secret-1234";
 async function setup(t, options = {}) {
   const root = mkdtempSync(join(tmpdir(), "image-api-"));
   const app = buildApplication({ dbPath: join(root, "test.db"), staticDir: root, autoSeed: false, environment: "test", logger: false, adminToken: token, imageConfigKey: Buffer.alloc(32, 7), imageTempRoot: join(root, "images"), ...options });
+  const email = `image-admin-${Date.now()}-${Math.random()}@example.com`;
+  const session = await registerUser(app.db, {
+    email,
+    normalizedEmail: email,
+    displayName: "Image Admin",
+    password: "correct-horse-battery",
+    consentVersion: "test-v1"
+  });
+  app.db.prepare("UPDATE users SET role = 'admin', is_super_admin = 1 WHERE id = ?").run(session.user.id);
   const address = await app.listen(0, "127.0.0.1");
   t.after(async () => { await app.close(); rmSync(root, { recursive: true, force: true }); });
   const request = async (path, method = "GET", body, authenticated = true) => {
-    const response = await fetch(`http://127.0.0.1:${address.port}${path}`, { method, headers: { "Content-Type": "application/json", ...(authenticated ? { Authorization: `Bearer ${token}` } : {}) }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+    const response = await fetch(`http://127.0.0.1:${address.port}${path}`, { method, headers: { "Content-Type": "application/json", ...(authenticated ? { Cookie: `nikai_auth=${session.token}` } : {}) }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     return { status: response.status, body: await response.json() };
   };
   return { app, request };
@@ -54,7 +64,7 @@ test("provider/model CRUD masks secrets, audits writes, enforces revisions and f
   let provider = created.body.data;
   assert.equal(provider.hasApiKey, true);
   assert.equal(provider.apiKeyHint, "****1234");
-  assert.deepEqual(Object.keys(provider).sort(), ["apiKeyHint", "baseUrl", "createdAt", "editPath", "enabled", "generationPath", "hasApiKey", "id", "lastTestMessage", "lastTestStatus", "lastTestedAt", "name", "revision", "timeoutMs", "updatedAt"]);
+  assert.deepEqual(Object.keys(provider).sort(), ["apiKeyHint", "balanceCurrencyField", "balancePath", "balanceValueField", "baseUrl", "createdAt", "editPath", "enabled", "generationPath", "hasApiKey", "id", "lastTestMessage", "lastTestStatus", "lastTestedAt", "name", "revision", "timeoutMs", "updatedAt"]);
   assert.doesNotMatch(JSON.stringify(created.body), /encrypted|sk-provider-secret/);
   assert.equal((await request(providers)).body.data.items.length, 1);
   const encryptedBefore = app.db.prepare("SELECT encrypted_api_key FROM image_providers WHERE id = ?").get(provider.id).encrypted_api_key;
@@ -97,7 +107,7 @@ test("provider/model CRUD masks secrets, audits writes, enforces revisions and f
 
 test("admin validation rejects unknown fields, unsafe URLs, invalid model ranges and missing revisions", async (t) => {
   const { request } = await setup(t);
-  for (const input of [{ ...providerInput, encryptedApiKey: "injected" }, { ...providerInput, baseUrl: "http://example.com" }, { ...providerInput, baseUrl: "https://127.0.0.1" }, { ...providerInput, generationPath: "//evil.example/path" }, { ...providerInput, editPath: "https://evil.example" }, { ...providerInput, timeoutMs: 9999 }, { ...providerInput, enabled: "true" }]) {
+  for (const input of [{ ...providerInput, encryptedApiKey: "injected" }, { ...providerInput, baseUrl: "http://example.com" }, { ...providerInput, baseUrl: "https://127.0.0.1" }, { ...providerInput, generationPath: "//evil.example/path" }, { ...providerInput, editPath: "https://evil.example" }, { ...providerInput, balancePath: "//evil.example/balance" }, { ...providerInput, balanceValueField: "data.__proto__.value" }, { ...providerInput, timeoutMs: 9999 }, { ...providerInput, enabled: "true" }]) {
     assert.equal((await request(providers, "POST", input)).status, 422);
   }
   const provider = (await request(providers, "POST", providerInput)).body.data;
@@ -106,6 +116,36 @@ test("admin validation rejects unknown fields, unsafe URLs, invalid model ranges
   for (const input of [modelInput(provider.id, { maxImages: 5 }), modelInput(provider.id, { supportedRatios: ["8:8"] }), modelInput(provider.id, { providerId: "missing" }), modelInput(provider.id, { isDefault: 1 })]) {
     assert.equal((await request(models, "POST", input)).status, 422);
   }
+});
+
+test("balance query is management-only, calls the configured provider path, and never returns its key", async (t) => {
+  const calls = [];
+  const { request } = await setup(t, {
+    imageFetch: async (url, options) => {
+      calls.push({ url: new URL(url), authorization: options.headers.get("authorization") });
+      return new Response(JSON.stringify({ account: { remaining: "23.50", unit: "credits" } }), {
+        headers: { "content-type": "application/json" }
+      });
+    }
+  });
+  const configured = await request(providers, "POST", {
+    ...providerInput,
+    balancePath: "/v1/account/balance",
+    balanceValueField: "account.remaining",
+    balanceCurrencyField: "account.unit"
+  });
+  assert.equal(configured.status, 201);
+  const provider = configured.body.data;
+  assert.equal((await request(`${providers}/${provider.id}/balance`, "POST", {}, false)).status, 401);
+  const result = await request(`${providers}/${provider.id}/balance`, "POST", {});
+  assert.equal(result.status, 200);
+  assert.deepEqual(result.body.data, { balance: 23.5, currency: "CREDITS", checkedAt: result.body.data.checkedAt });
+  assert.ok(Number.isFinite(Date.parse(result.body.data.checkedAt)));
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url.origin, new URL(provider.baseUrl).origin);
+  assert.equal(calls[0].url.pathname, "/v1/account/balance");
+  assert.equal(calls[0].authorization, `Bearer ${secret}`);
+  assert.doesNotMatch(JSON.stringify(result.body), /sk-provider-secret|encryptedApiKey|balancePath/);
 });
 
 test("missing master key permits redacted reads but fails key writes, connection tests and generation closed", async (t) => {

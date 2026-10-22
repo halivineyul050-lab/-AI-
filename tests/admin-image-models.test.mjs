@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-const adminHtml = readFileSync('admin.html', 'utf8');
-const adminJs = readFileSync('admin.js', 'utf8');
+const adminHtml = readFileSync('public/admin.html', 'utf8');
+const adminJs = readFileSync('public/admin.js', 'utf8');
 
 test('image model workspace exposes provider, model, key rotation, and test controls', () => {
   for (const id of [
@@ -21,6 +21,9 @@ test('image model workspace exposes provider, model, key rotation, and test cont
     'image-provider-replace-key',
     'image-provider-test',
     'image-provider-test-status',
+    'image-provider-balance-path',
+    'image-provider-balance-value-field',
+    'image-provider-balance-currency-field',
     'model-supported-ratios',
     'model-max-images'
   ]) {
@@ -28,6 +31,8 @@ test('image model workspace exposes provider, model, key rotation, and test cont
   }
 
   assert.match(adminHtml, /id="image-provider-test-status"[^>]*(?:role="status"|aria-live="polite")/);
+  assert.match(adminHtml, /余额查询路径/);
+  assert.match(adminHtml, /JSON 余额字段/);
   assert.match(adminHtml, /id="image-provider-replace-key"[^>]*type="checkbox"/);
   assert.doesNotMatch(adminHtml, /id="image-provider-api-key"[^>]*type="password"/);
 });

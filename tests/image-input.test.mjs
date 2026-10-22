@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseImageDimensions } from '../image-input.mjs';
+import { parseImageDimensions } from '../public/image-input.mjs';
 function png(w,h){const b=new Uint8Array(33),v=new DataView(b.buffer);b.set([137,80,78,71,13,10,26,10]);v.setUint32(8,13);b.set([73,72,68,82],12);v.setUint32(16,w);v.setUint32(20,h);return b;}
 test('reads PNG header and rejects source pixel bombs before decoding',()=>{assert.deepEqual(parseImageDimensions(png(1200,800)),{width:1200,height:800});assert.throws(()=>parseImageDimensions(png(12000,12000)),/1600/);assert.throws(()=>parseImageDimensions(png(17000,1)));assert.throws(()=>parseImageDimensions(png(0,1)));});
 test('reads JPEG SOF after a variable length segment',()=>{const b=Uint8Array.from([255,216,255,224,0,4,0,0,255,192,0,11,8,1,44,2,88,1,1,17,0]);assert.deepEqual(parseImageDimensions(b),{width:600,height:300});assert.throws(()=>parseImageDimensions(b.slice(0,14)));});

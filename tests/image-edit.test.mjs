@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boundedSize, cropRect, resizeSize, sniffImage, fitCrop } from '../image-edit-core.mjs';
+import { boundedSize, cropRect, resizeSize, sniffImage, fitCrop } from '../public/image-edit-core.mjs';
 test('large inputs fit allocation limits while preserving proportion', () => {
   assert.deepEqual(boundedSize(12000,6000), {width:4096,height:2048});
   assert.deepEqual(boundedSize(300,600), {width:300,height:600});

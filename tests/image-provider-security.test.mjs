@@ -137,6 +137,32 @@ test("default transport pins validated DNS while preserving HTTPS hostname and s
   assert.equal(lookups, 1);
 });
 
+test("default transport prefers validated IPv4 when DNS also returns IPv6", async (t) => {
+  t.mock.method(https, "request", (url, options, onResponse) => {
+    options.lookup("public.example", { all: true }, (error, addresses) => {
+      assert.equal(error, null);
+      assert.deepEqual(addresses, [{ address: "93.184.216.34", family: 4 }]);
+    });
+    const request = new EventEmitter();
+    request.end = () => queueMicrotask(() => {
+      const upstream = new PassThrough();
+      upstream.statusCode = 200;
+      upstream.headers = {};
+      onResponse(upstream);
+      upstream.end();
+    });
+    return request;
+  });
+  const response = await safeFetch("https://public.example", {
+    lookup: async () => [
+      { address: "93.184.216.34", family: 4 },
+      { address: "2606:4700:4700::1111", family: 6 }
+    ]
+  });
+  assert.equal(response.status, 200);
+  await response.body?.cancel();
+});
+
 test("default transport rejects invalid response metadata without throwing out of its callback", async (t) => {
   for (const metadata of [{ statusCode: 600, headers: {} }, { statusCode: 200, headers: { "x-test": "private-value\ninvalid" } }]) {
     let onResponse;

@@ -62,7 +62,7 @@ function hasCode(code) {
 test("gateway sends the exact OpenAI body and authorization and saves randomized private PNG files", async (t) => {
   const f = await setup(t);
   const result = await f.generate();
-  assert.deepEqual(f.requests[0].body, { model: "image-a", prompt: "a cat", size: "1024x1024", n: 1, response_format: "b64_json" });
+  assert.deepEqual(f.requests[0].body, { model: "image-a", prompt: "a cat", size: "1024x1024", n: 1, response_format: "url" });
   assert.equal(f.requests[0].path, "/v1/images/generations");
   assert.equal(f.requests[0].headers.authorization, "Bearer sk-private-fixture");
   assert.equal(result.images.length, 1);
@@ -122,18 +122,17 @@ test("gateway downloads URL images without forwarding provider credentials or si
   assert.doesNotMatch(JSON.stringify(result), /secret=|private-upstream/);
 });
 
-test("gateway retries transient generation transport failures but does not retry HTTP responses", async (t) => {
+test("gateway does not replay an ambiguous generation POST after a transport failure", async (t) => {
   let attempts = 0;
-  const f = await setup(t, success, { retryDelay: async () => {}, fetchImpl: async () => {
+  const f = await setup(t, success, { fetchImpl: async () => {
     attempts += 1;
-    if (attempts < 3) throw new Error("temporary reset");
-    return new Response(JSON.stringify({ data: [{ b64_json: png.toString("base64") }] }), { status: 200, headers: { "content-type": "application/json" } });
+    throw new Error("temporary reset");
   } });
-  await f.generate();
-  assert.equal(attempts, 3);
+  await assert.rejects(f.generate(), hasCode("image_generation_failed"));
+  assert.equal(attempts, 1);
 
   attempts = 0;
-  const rejected = await setup(t, success, { retryDelay: async () => {}, fetchImpl: async () => {
+  const rejected = await setup(t, success, { fetchImpl: async () => {
     attempts += 1;
     return new Response(JSON.stringify({ error: "bad request" }), { status: 400, headers: { "content-type": "application/json" } });
   } });
@@ -171,6 +170,35 @@ test("gateway reports an explicit upstream insufficient-balance response as a pa
     assert.doesNotMatch(JSON.stringify(error), /private upstream account detail/);
     return true;
   });
+});
+
+test('gateway requests a compact URL response and downloads HTTP public image links over HTTPS', async (t) => {
+  const f = await setup(t, (request, response) => {
+    if (request.method === 'GET') { response.writeHead(200, { 'content-type': 'image/png' }); response.end(png); }
+    else json(response, { data: [{ url: 'http://93.184.216.34/file' }] });
+  });
+  const result = await f.generate();
+  assert.equal(f.requests[0].body.response_format, 'url');
+  assert.deepEqual(await readFile(result.images[0].localPath), png);
+});
+
+test('gateway allows a progressing image body to outlast the initial response deadline', async (t) => {
+  const payload = JSON.stringify({ data: [{ b64_json: png.toString('base64') }] });
+  const f = await setup(t, (request, response) => {
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.write(payload.slice(0, 10));
+    let offset = 10;
+    const timer = setInterval(() => {
+      if (offset >= payload.length) { clearInterval(timer); response.end(); return; }
+      response.write(payload.slice(offset, offset + 10)); offset += 10;
+    }, 15);
+    response.on('close', () => clearInterval(timer));
+  });
+  const getProvider = f.store.getProvider.bind(f.store);
+  t.mock.method(f.store, 'getProvider', id => ({ ...getProvider(id), timeoutMs: 60 }));
+  const result = await f.generate();
+  assert.equal(result.images.length, 1);
+  assert.deepEqual(await readFile(result.images[0].localPath), png);
 });
 
 test("gateway enforces deadline while waiting for headers and while reading body", async (t) => {
@@ -294,9 +322,9 @@ test("gateway blocks generation paths that would disclose credentials to another
 
 test("gateway preserves JPEG and WebP bytes and derives their MIME from the signature", async (t) => {
   for (const [bytes, mime] of [
-    [await readFile(new URL("../assets/tool-logos/gamma.jpg", import.meta.url)), "image/jpeg"],
-    [await readFile(new URL("../assets/tool-logos/stability-stable-image.webp", import.meta.url)), "image/webp"],
-    [await readFile(new URL("../assets/tool-logos/dashtoon-studio.webp", import.meta.url)), "image/webp"],
+    [await readFile(new URL("../public/assets/tool-logos/gamma.jpg", import.meta.url)), "image/jpeg"],
+    [await readFile(new URL("../public/assets/tool-logos/stability-stable-image.webp", import.meta.url)), "image/webp"],
+    [await readFile(new URL("../public/assets/tool-logos/dashtoon-studio.webp", import.meta.url)), "image/webp"],
     [lossyWebp, "image/webp"], [progressiveJpeg, "image/jpeg"]
   ]) {
     const f = await setup(t, (request, response) => json(response, { data: [{ b64_json: bytes.toString("base64") }] }));
@@ -317,7 +345,7 @@ test("generation and connection tests reject fabricated or oversized JPEG and We
   fakeWebp.writeUInt32LE(10, 16);
   fakeWebp.writeUIntLE(16383, 24, 3);
   fakeWebp.writeUIntLE(16383, 27, 3);
-  const jpeg = await readFile(new URL("../assets/tool-logos/gamma.jpg", import.meta.url));
+  const jpeg = await readFile(new URL("../public/assets/tool-logos/gamma.jpg", import.meta.url));
   const oversizedJpeg = Buffer.from(jpeg);
   const frame = oversizedJpeg.indexOf(Buffer.from([0xff, 0xc0]));
   assert.ok(frame > 0, "fixture must contain a baseline frame");
@@ -327,7 +355,7 @@ test("generation and connection tests reject fabricated or oversized JPEG and We
   const scan = jpeg.indexOf(Buffer.from([0xff, 0xda]));
   assert.ok(scan > 0);
   const brokenJpeg = Buffer.concat([jpeg.subarray(0, scan + 2 + jpeg.readUInt16BE(scan + 2)), Buffer.from([0xff, 0xd9])]);
-  const webp = await readFile(new URL("../assets/tool-logos/stability-stable-image.webp", import.meta.url));
+  const webp = await readFile(new URL("../public/assets/tool-logos/stability-stable-image.webp", import.meta.url));
   const brokenWebp = Buffer.from(webp);
   brokenWebp.fill(0, 30);
   const oversizedWebp = Buffer.from(webp);
@@ -340,7 +368,7 @@ test("generation and connection tests reject fabricated or oversized JPEG and We
   const oversizedLossy = Buffer.from(lossyWebp);
   oversizedLossy.writeUInt16LE(8192, 26);
   oversizedLossy.writeUInt16LE(8192, 28);
-  const oversizedLossless = Buffer.from(await readFile(new URL("../assets/tool-logos/dashtoon-studio.webp", import.meta.url)));
+  const oversizedLossless = Buffer.from(await readFile(new URL("../public/assets/tool-logos/dashtoon-studio.webp", import.meta.url)));
   oversizedLossless.writeUInt32LE((16383 | (16383 << 14)) >>> 0, 21);
   const brokenChunk = Buffer.from(lossyWebp);
   brokenChunk.writeUInt32LE(1000, 16);

@@ -5,24 +5,65 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#6558f5">
   <title>AI 生图 · 泥壳AI</title>
-  <meta name="description" content="泥壳AI生图创作台，支持多平台模型切换、提示词创作与本地生图历史。">
+  <meta name="description" content="泥壳AI生图创作台，支持多平台模型切换、提示词创作与图片预览下载。">
   <link rel="canonical" href="https://ontimo.cn/image-generation">
-  <link rel="icon" href="/brand-icon-192.png?v=20260916-2">
-  <link rel="stylesheet" href="/design-system.css?v=20260915-2">
+  <link rel="stylesheet" href="/design-system.css?v=20260929-foundation-1">
   <link rel="stylesheet" href="/styles.css?v=20260915-nav-1">
-  <link rel="stylesheet" href="/utility-theme.css?v=20260915-nav-1">
-  <link rel="stylesheet" href="/image-generation.css?v=20260924-studio-1">
-  <script defer src="/utility-theme.js?v=20260915-nav-1"></script>
-  <script type="module" src="/image-generation.js?v=20260924-reference-1"></script>
-</head>
-<body>
-  <header class="site-header"><div class="site-header-inner"><a class="site-brand" href="/" aria-label="泥壳AI工具站首页"><span class="brand-mark"><img src="/brand-icon-192.png?v=20260916-2" alt=""></span><span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span></a><nav class="site-nav" aria-label="主导航"><a class="nav-item" href="/">工具库</a><a class="nav-item" href="/discover">发现</a><a class="nav-item" href="/rankings">榜单</a><a class="nav-item" href="/tutorials">教程</a><a class="nav-item" href="/news">资讯</a><a class="nav-item is-active" href="/image-generation" aria-current="page">AI 生图</a><a class="nav-item" href="/utilities">小工具</a><a class="nav-item" href="/games">休闲小游戏</a></nav><div class="erase-header-actions"><a class="nav-item" href="/favorites">我的收藏</a><button class="icon-button" id="utility-theme" type="button" aria-label="切换明暗主题" title="切换明暗主题">◐</button></div></div></header>
+  <link rel="stylesheet" href="/utility-theme.css?v=20261010-nav-group-1">
+  <link rel="stylesheet" href="/image-generation.css?v=20261014-first-1">
+  <link rel="icon" href="/brand-icon-192.png?v=20260916-2">
+
+  <script defer src="/utility-theme.js?v=20261012-mobile-nav-1"></script>
+  <script type="module" src="/image-generation.js?v=20261019-wait-1"></script><link rel="stylesheet" href="/credits.css?v=20261012-1"><script defer src="/site-header.js?v=20261010-nav-group-1"></script><script defer src="/header-account.js?v=20261012-mobile-nav-1"></script><link rel="stylesheet" href="/site-header.css?v=20261012-mobile-nav-1"></head>
+<body class="utility-tool-page">
+  <header class="site-header site-header-shared" id="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="/" aria-label="泥壳AI工具站首页">
+          <span class="brand-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260916-2" alt=""></span>
+          <span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span>
+        </a>
+
+        <nav class="site-nav" aria-label="主导航" data-site-shell="utility" data-page="image-generation"><!-- site-navigation:start -->
+<details class="nav-more nav-group"><summary class="nav-item">AI 工具<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/">工具库</a><a href="/discover">发现</a><a href="/rankings">工具榜单</a><a href="/video-pricing">视频模型价格</a></div></details>
+<details class="nav-more nav-group"><summary class="nav-item is-active">创作与效率<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/image-generation" aria-current="page">AI 生图</a><a href="/nestdutio">NeStudio</a><a href="/explain">交互讲解</a><a href="/utilities">实用小工具</a><a href="/skills">Skills</a><a href="/games">小游戏</a></div></details><a class="nav-item" href="/news">资讯与教程</a><a class="nav-item" href="/creator">关于我</a>
+<!-- site-navigation:end --></nav>
+
+        <div class="site-header-actions erase-header-actions">
+          <form class="global-search" id="search-form" role="search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <label class="sr-only" for="global-search-input">搜索AI工具</label>
+            <input id="global-search-input" type="search" autocomplete="off" placeholder="搜索工具、任务或能力">
+            <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索" title="清空搜索" hidden>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </form>
+          <button class="submit-tool-button" id="submit-tool-open" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg><span>提交工具</span>
+          </button>
+          <div class="topbar-actions">
+            <button class="icon-button" id="utility-theme" type="button" aria-label="切换深色模式" title="切换深色模式">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.464.402.807a6.25 6.25 0 0 0 8.268 8.268c.344-.215.83-.004.803.397"/></svg>
+            </button>
+            
+            <button class="icon-button action-with-count" id="compare-open" type="button" aria-label="打开工具对比" title="工具对比">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg><span id="compare-count">0</span>
+            </button>
+            <button class="icon-button mobile-menu-button utility-menu-button" id="utility-menu-open" type="button" aria-label="打开导航" title="打开导航">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+          </div>
+          <details class="header-account-menu"><summary><a class="header-login" href="/auth">登录</a></summary><div class="nav-more-menu"><a href="/auth">账号中心</a><button class="icon-button action-with-count favorites-entry" id="favorite-toggle" type="button" aria-label="我的收藏" aria-pressed="false" title="我的收藏">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="favorites-entry-label">我的收藏</span><span id="favorite-count">0</span>
+            </button></div></details>
+        </div>
+      </div>
+    </header>
 
   <main class="image-generation-main">
     <section class="studio-intro" aria-labelledby="image-generation-title">
       <p class="studio-kicker">泥壳AI · IMAGE STUDIO</p>
-      <h1 id="image-generation-title">你好，今天想要创作什么？</h1>
-      <p>选择站内可用模型，描述灵感，生成并管理你的图片作品。</p>
+      <h1 id="image-generation-title">把灵感，变成第一张图。</h1>
+      <p>从一个案例开始，或写下自己的想法。创作之前，费用与设置都清清楚楚。</p>
     </section>
 
     <div class="studio-mode-switch" role="tablist" aria-label="创作模式">
@@ -31,13 +72,15 @@
     </div>
 
     <section id="generate-panel" class="studio-panel" role="tabpanel" aria-labelledby="studio-mode-generate">
-      <form id="generation-form" class="generation-composer" novalidate>
+      <div id="creation-selected" class="creation-selected" role="status" hidden><div><strong></strong><span></span></div><button id="creation-change" type="button">更换案例</button><button id="creation-reset" type="button">自由创作</button></div>
+      <div class="studio-account-notice"><span id="studio-account-text">正在确认登录状态…</span><a id="studio-account-login" href="/auth?next=%2Fimage-generation" hidden>登录账号</a><button id="studio-account-retry" type="button" hidden>重试</button></div>
+      <div class="credits-estimate" id="studio-credits" aria-live="polite"><span id="studio-credit-estimate">正在读取积分价格…</span> <span id="studio-credit-balance"></span> <span class="studio-credit-actions"><a href="/recharge" class="studio-recharge-link" aria-label="充值积分">充值 <span aria-hidden="true">+</span></a><a href="/auth#account-credits" class="studio-account-link">积分账户</a></span></div><form id="generation-form" class="generation-composer" novalidate>
         <div class="composer-main">
           <div class="reference-control">
             <input id="reference-input" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="reference-help reference-error" hidden>
-            <button id="reference-trigger" class="reference-tile" type="button" aria-describedby="reference-help reference-error"><span class="reference-plus" aria-hidden="true">＋</span><span id="reference-label">添加参考图</span></button>
+            <button id="reference-trigger" class="reference-tile" type="button" aria-describedby="reference-help reference-error"><span class="reference-plus" aria-hidden="true">＋</span><span id="reference-label">添加参考图</span><small>Ctrl+V 粘贴</small></button>
             <div id="reference-preview" class="reference-preview" hidden></div>
-            <p id="reference-help" class="sr-only">上传 PNG、JPEG 或 WebP 图片作为参考，最大 10MB；仅支持参考图编辑的平台模型可用</p>
+            <p id="reference-help" class="sr-only">选择文件或在描述框中按 Ctrl+V 粘贴 PNG、JPEG 或 WebP 图片作为参考，最大 10MB；仅支持参考图编辑的平台模型可用</p>
           </div>
           <div class="prompt-field">
             <label class="sr-only" for="prompt-input">画面描述</label>
@@ -56,28 +99,52 @@
         </div>
         <p id="reference-error" class="studio-message" data-tone="error" role="alert" hidden></p>
       </form>
+      <div class="creation-expectations"><div><p id="creation-cost-note">正在读取积分，生成前会展示本次费用。</p><p id="creation-timing">耗时取决于模型与当前负载，生成后可查看任务状态。</p><p id="creation-case-tip"></p></div><button id="creation-price-retry" type="button" class="creation-text-button">刷新积分</button></div>
 
+      <details id="first-creation" class="first-creation" open>
+        <summary><span><small>从一个案例开始</small><strong>选一个方向，剩下的帮你填好。</strong></span><span class="creation-fold">案例模板 <span aria-hidden="true">⌄</span></span></summary>
+        <div class="creation-start-header"><div class="creation-audiences" role="group" aria-label="选择创作场景"><button type="button" data-audience="content" aria-pressed="true">内容创作</button><button type="button" data-audience="personal" aria-pressed="false">头像与插画</button><button type="button" data-audience="commerce" aria-pressed="false">商品展示</button></div><button id="creation-custom" type="button" class="creation-text-button">我想自己写 ↗</button></div>
+        <div id="creation-case-grid" class="creation-case-grid" aria-label="可尝试的创作案例"></div>
+        <p class="creation-example-note">AI 生成示例，实际效果因模型与描述而异；点击案例只填写设置，不会自动扣费。</p>
+      </details>
+
+      <p class="inspiration-hint"><strong>一键套用完整提示词</strong><span>点击下方模板，内容会填入上方描述框，可继续编辑后生成。</span></p>
       <div class="inspiration-row" aria-label="快捷灵感">
-        <button type="button" class="inspiration-chip" data-prompt="电影感产品海报，戏剧光影，精致构图，高级质感">电影感海报</button>
-        <button type="button" class="inspiration-chip" data-prompt="公众号头图，主题突出，留出标题空间，紫色科技感">公众号封面</button>
-        <button type="button" class="inspiration-chip" data-prompt="可爱的3D萌宠角色，柔和灯光，细腻材质，纯净背景">3D 萌宠</button>
-        <button type="button" class="inspiration-chip" data-prompt="国风插画，东方留白，细腻笔触，雅致配色">国风插画</button>
-        <button type="button" class="inspiration-chip" data-prompt="电商产品主图，干净背景，商业摄影，细节清晰">电商产品图</button>
+        <button type="button" class="inspiration-chip" data-prompt="原创科幻电影主视觉海报：一位孤身宇航员站在荒凉月面，远方巨大的蓝色行星正从地平线升起，脚边一盏微弱的琥珀色信标灯。竖幅海报构图，人物置于下方三分之一，低机位广角，前景岩石、中景人物与远景行星层次分明，顶部留出干净标题区。深蓝与琥珀金冷暖对照，侧逆光穿过薄雾，细腻胶片颗粒与真实电影摄影质感，氛围孤独而充满希望。除标题区留白外，不生成文字、标志或水印。">电影感海报</button>
+        <button type="button" class="inspiration-chip" data-prompt="公众号文章封面底图，主题为 AI 创作与灵感记录：整洁桌面上摆放打开的笔记本电脑、手写便签和几张色彩明快的插画草图。采用横向编辑式构图，主视觉集中在左侧，右侧保留大面积干净留白供后期添加标题；缩小成手机预览时仍一眼看懂主题。柔和窗边侧光，紫蓝与暖白配色，现代插画结合轻写实材质，画面清爽、层次克制。不要生成文字、Logo、边框或水印。">公众号封面</button>
+        <button type="button" class="inspiration-chip" data-prompt="原创 3D 萌宠角色：一只奶油色柯基幼犬穿着橘色小雨衣，坐在雨后街角的水洼边，抬头露出好奇又开心的表情，旁边放着一把迷你透明雨伞。全身居中展示，圆润可辨的轮廓、柔软绒毛与细腻树脂玩具材质兼具；柔和棚拍主光配轻微轮廓光，浅景深，淡青和暖橙低饱和配色，干净纯色背景，温暖治愈的动画电影级 3D 渲染。不要文字、标志、水印或多余肢体。">3D 萌宠</button>
+        <button type="button" class="inspiration-chip" data-prompt="国风插画：春日江南水乡，一位撑纸伞的旅人沿青石桥缓步前行，薄雾河面上有一叶乌篷船，近处垂柳作为前景。桥与人物形成清晰视觉焦点，远近层次舒展，画面上方留有东方留白。青绿山水淡彩、工笔人物与水墨晕染相结合，带宣纸纤维纹理，以石青、黛青为主并用少量朱砂点色，气韵安静雅致。细节精致但不堆砌传统符号，不出现文字、假印章、Logo或水印。">国风插画</button>
+        <button type="button" class="inspiration-chip" data-prompt="电商产品主图：一只无品牌的磨砂雾白保温杯，金属杯口、杯盖与硅胶底托材质清楚，置于浅暖灰无缝背景中央，正面略偏 30 度展示完整轮廓。棚拍柔光从左上方照亮，右侧轻柔补光，底部保留自然接触阴影；真实商业摄影质感，颜色准确、细节清晰、留白充足，缩成列表缩略图仍易识别。若已上传参考图，保持原产品造型、比例与标识不变。不要增加配件或编造包装文字、品牌和水印。">电商产品图</button>
       </div>
 
       <div id="generation-status" class="generation-status" aria-live="polite" hidden></div>
+      <p id="creation-elapsed" class="creation-elapsed" role="status" hidden></p>
+      <div id="creation-job-actions" class="creation-job-actions" hidden><button id="creation-resume" type="button" hidden>查询原任务</button><button id="creation-retry" type="button" hidden>保留描述，调整后重试</button><button id="creation-stop" type="button" hidden>停止等待</button><a href="/auth#account-credits">核对积分</a><button id="creation-open-history" type="button">查看云历史</button><button id="creation-confirm-checked" type="button" hidden>已核对结果，继续创作</button></div>
+      <div id="creation-outcome" class="creation-outcome" hidden><span aria-hidden="true">✓</span><div><h2></h2><p></p></div></div>
       <section id="generation-results" class="generation-results" aria-label="生成结果" hidden></section>
     </section>
 
     <section id="history-panel" class="studio-panel history-panel" role="tabpanel" aria-labelledby="studio-mode-history" hidden>
       <header class="history-header">
-        <div><p class="studio-kicker">LOCAL GALLERY</p><h2>生图历史</h2><p>最近 50 张图片保存在当前浏览器中，清理浏览器数据后无法恢复。</p></div>
-        <button id="history-clear" class="studio-secondary" type="button">清空历史</button>
+        <div><p class="studio-kicker">SAVED HISTORY</p><h2>账号云历史</h2><p>新生成的图片自动保存到账号，跨设备可见，保留至你手动删除。</p></div>
+        <button id="cloud-history-clear" class="studio-secondary" type="button">清空云历史</button>
       </header>
+      <p id="cloud-history-status" class="studio-message" aria-live="polite"></p>
+      <a id="cloud-history-login" href="/auth?next=%2Fimage-generation" hidden>登录后查看云历史</a>
+      <p id="cloud-history-total"></p>
+      <div id="cloud-history-empty" class="history-empty" hidden><strong>账号里还没有图片</strong><p>生成后会自动出现在这里。</p></div>
+      <div id="cloud-history-grid" class="history-grid" aria-label="账号云历史"></div>
+      <button id="cloud-history-more" class="studio-secondary" type="button" hidden>加载更多</button>
+      <div class="legacy-history-heading"><h3>本机旧历史</h3><p>仅此浏览器可见。之前保存的图片会保留，不会自动上传。</p><button id="history-clear" class="studio-secondary" type="button">清空本机旧历史</button></div>
       <p id="history-status" class="studio-message" aria-live="polite"></p>
-      <div id="history-empty" class="history-empty"><strong>还没有历史作品</strong><p>完成一次生图后，图片会自动保存在这里。</p></div>
+      <div id="history-empty" class="history-empty"><strong>本机没有旧历史</strong></div>
       <div id="history-grid" class="history-grid" aria-label="本地生图历史"></div>
     </section>
   </main>
+  <dialog id="image-preview-dialog" class="image-preview-dialog" aria-label="图片预览">
+    <button class="image-preview-close" type="button" aria-label="关闭图片预览" autofocus>×</button>
+    <img id="image-preview-image" alt="">
+    <p>按 Esc 或点击背景关闭</p>
+  </dialog>
 </body>
 </html>

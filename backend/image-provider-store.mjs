@@ -20,6 +20,9 @@ function providerFromRow(row) {
     baseUrl: row.base_url,
     generationPath: row.generation_path,
     editPath: row.edit_path,
+    balancePath: row.balance_path,
+    balanceValueField: row.balance_value_field,
+    balanceCurrencyField: row.balance_currency_field,
     encryptedApiKey: row.encrypted_api_key,
     timeoutMs: Number(row.timeout_ms),
     enabled: Boolean(row.enabled),
@@ -133,14 +136,18 @@ export function createImageProviderStore(db) {
         const id = randomUUID();
         db.prepare(`
           INSERT INTO image_providers (
-            id, name, base_url, generation_path, edit_path, encrypted_api_key, timeout_ms, enabled
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            id, name, base_url, generation_path, edit_path, balance_path, balance_value_field,
+            balance_currency_field, encrypted_api_key, timeout_ms, enabled
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           id,
           input.name,
           input.baseUrl,
           input.generationPath ?? "/v1/images/generations",
           input.editPath ?? "/v1/images/edits",
+          input.balancePath ?? "",
+          input.balanceValueField ?? "balance",
+          input.balanceCurrencyField ?? "",
           input.encryptedApiKey,
           input.timeoutMs ?? 60000,
           input.enabled === false ? 0 : 1
@@ -159,6 +166,9 @@ export function createImageProviderStore(db) {
           ["baseUrl", "base_url"],
           ["generationPath", "generation_path"],
           ["editPath", "edit_path"],
+          ["balancePath", "balance_path"],
+          ["balanceValueField", "balance_value_field"],
+          ["balanceCurrencyField", "balance_currency_field"],
           ["encryptedApiKey", "encrypted_api_key"],
           ["timeoutMs", "timeout_ms"],
           ["enabled", "enabled", (value) => value ? 1 : 0]

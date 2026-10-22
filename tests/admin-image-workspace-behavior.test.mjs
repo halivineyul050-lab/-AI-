@@ -21,6 +21,7 @@ function element() {
     className: '', textContent: '', children: [], options: [], dataset: {}, style: {},
     classList: { add() {}, remove() {}, toggle() {} },
     addEventListener(type, handler) { listeners.set(type, handler); },
+    click() { return listeners.get('click')?.({ currentTarget: this }); },
     setAttribute(name, value) { this[name] = String(value); },
     removeAttribute(name) { delete this[name]; },
     append(...items) {
@@ -50,6 +51,10 @@ function element() {
 
 function createHarness(fetchImpl = async () => response()) {
   const elements = new Map();
+  const documentListeners = new Map();
+  const intervals = new Map();
+  const clearedIntervals = [];
+  let nextIntervalId = 0;
   const document = {
     readyState: 'loading', hidden: false,
     querySelector(selector) {
@@ -59,28 +64,32 @@ function createHarness(fetchImpl = async () => response()) {
     querySelectorAll() { return []; },
     createElement() { return element(); },
     createTextNode(text) { return { textContent: text }; },
-    addEventListener() {}
+    addEventListener(type, handler) { documentListeners.set(type, handler); }
   };
   const window = {
+    nikaiModelPicker:({model})=>({select:model,setConfig(){},changed(){}}),
     addEventListener() {}, clearTimeout() {}, setTimeout() { return 1; },
-    clearInterval() {}, setInterval() { return 1; }, confirm() { return true; }
+    clearInterval(id) { clearedIntervals.push(id); intervals.delete(id); },
+    setInterval(handler, delay) { const id = ++nextIntervalId; intervals.set(id, { id, handler, delay }); return id; },
+    confirm() { return true; }
   };
+  const memorySession = { getItem() { return ''; }, setItem() {}, removeItem() {} };
+  window.nikaiStorage = { session: memorySession, local: memorySession };
   const context = {
     document, window, fetch: (...args) => fetchImpl(...args), navigator: { onLine: true },
-    sessionStorage: { getItem() { return ''; }, setItem() {}, removeItem() {} },
     location: { replace() {} }, console, FormData: class { get() { return ''; } },
     AbortController, URL, URLSearchParams, Intl, Date, Math, Number, String, Set, Map,
     encodeURIComponent, decodeURIComponent
   };
   context.globalThis = context;
-  let source = readFileSync('admin.js', 'utf8');
+  let source = readFileSync('public/admin.js', 'utf8');
   const marker = '\n})();';
   const index = source.lastIndexOf(marker);
-  source = `${source.slice(0, index)}\n  globalThis.__imageAdminTest = { state, dom, lockReviews, refreshImageWorkspace, unlockImageWorkspace, openImageProviderDialog, closeImageProviderDialog, saveImageProvider, testImageProvider, discoverImageProviderModels, importDiscoveredImageModels, openImageModelDialog, closeImageModelDialog, saveImageModel };${source.slice(index)}`;
+  source = `${source.slice(0, index)}\n  globalThis.__imageAdminTest = { state, dom, lockReviews, refreshImageWorkspace, unlockImageWorkspace, bindEvents, openImageProviderDialog, closeImageProviderDialog, saveImageProvider, testImageProvider, discoverImageProviderModels, importDiscoveredImageModels, openImageModelDialog, closeImageModelDialog, saveImageModel, renderImageProviders };${source.slice(index)}`;
   vm.runInNewContext(source, context, { filename: 'admin.js' });
   const hooks = context.__imageAdminTest;
   hooks.dom.imageModelRatios._querySelectorAll = ['1:1', '16:9'].map((value) => ({ value, checked: value === '1:1' }));
-  return { ...hooks, context };
+  return { ...hooks, context, document, documentListeners, intervals, clearedIntervals };
 }
 
 test('locking admin clears image auth and invalidates a pending image unlock', async () => {
@@ -128,11 +137,11 @@ test('provider test preserves the submitted revision after a conflict', async ()
   const testRequest = deferred();
   const harness = createHarness((path, options = {}) => {
     if (options.method === 'POST') return testRequest.promise;
-    if (path.includes('image-providers')) return Promise.resolve(response({ items: [{ id: 'p1', name: 'Provider', revision: 8 }] }));
+    if (path.includes('image-providers')) return Promise.resolve(response({ items: [{ id: 'p1', hasApiKey:true, name: 'Provider', revision: 8 }] }));
     return Promise.resolve(response({ items: [{ id: 'm1', providerId: 'p1', modelId: 'upstream', displayName: 'Model', supportedRatios: ['1:1'], maxImages: 1 }] }));
   });
   const { state, dom, openImageProviderDialog, testImageProvider } = harness;
-  const provider = { id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 7 };
+  const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 7 };
   state.imageProviders = [provider];
   state.imageModels = [{ id: 'm1', providerId: 'p1', modelId: 'upstream', displayName: 'Model' }];
   state.imageAdminToken = 'token';
@@ -151,7 +160,7 @@ test('provider connection test explains that a model must be added instead of si
   let requests = 0;
   const harness = createHarness(async () => { requests += 1; return response(); });
   const { state, dom, openImageProviderDialog, testImageProvider } = harness;
-  const provider = { id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
+  const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
   state.imageProviders = [provider];
   state.imageModels = [];
   state.imageAdminToken = 'token';
@@ -168,11 +177,11 @@ test('provider connection test explains that a model must be added instead of si
 
 test('provider discovery exposes real upstream models without fabricating fallbacks', async () => {
   const harness = createHarness(async (path, options = {}) => {
-    if (path.includes('discover-models')) return response({ items: [{ modelId: 'flux-image', displayName: 'Flux Image', imageLikely: true }] });
+    if (path.includes('model-discovery')) return response({ items: [{ id: 'flux-image' }] });
     return response({ items: [] });
   });
   const { state, dom, openImageProviderDialog, discoverImageProviderModels } = harness;
-  const provider = { id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images/generations', timeoutMs: 60000, revision: 1 };
+  const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images/generations', timeoutMs: 60000, revision: 1 };
   state.imageProviders = [provider];
   state.imageAdminToken = 'token';
   openImageProviderDialog(provider);
@@ -186,12 +195,143 @@ test('provider discovery exposes real upstream models without fabricating fallba
 test('provider discovery keeps an empty upstream list empty', async () => {
   const harness = createHarness(async () => response({ items: [] }));
   const { state, dom, openImageProviderDialog, discoverImageProviderModels } = harness;
-  const provider = { id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images/generations', timeoutMs: 60000, revision: 1 };
+  const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images/generations', timeoutMs: 60000, revision: 1 };
   state.imageProviders = [provider]; state.imageAdminToken = 'token';
   openImageProviderDialog(provider);
   await discoverImageProviderModels();
   assert.equal(state.imageDiscoveredModels.length, 0);
   assert.match(dom.imageProviderDiscoveryStatus.textContent, /空模型列表/);
+});
+
+test('provider discovery queues changed address while a previous request is pending', async () => {
+  const first=deferred();const requests=[];
+  const harness=createHarness(async (path,options={})=>{
+    requests.push(JSON.parse(options.body));
+    if(requests.length===1)return first.promise;
+    return response({items:[{id:'new-image-model'}]});
+  });
+  const {state,dom,openImageProviderDialog,discoverImageProviderModels}=harness;
+  state.imageAdminToken='token';
+  openImageProviderDialog({id:'p1',name:'Platform',baseUrl:'https://one.example',hasApiKey:true});
+  const old=discoverImageProviderModels();
+  dom.imageProviderBaseUrl.value='https://two.example';
+  await discoverImageProviderModels();
+  first.resolve(response({items:[{id:'old-image-model'}]}));await old;
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(requests.length,2);assert.equal(requests[1].endpoint,'https://two.example');
+  assert.equal(state.imageDiscoveredModels[0].modelId,'new-image-model');
+});
+
+test('provider cards query configured live balance and show an explicit unconfigured state', async () => {
+  const requests = [];
+  const harness = createHarness(async (path, options = {}) => {
+    requests.push({ path, options });
+    return response({ balance: 5.5, currency: 'USD', checkedAt: '2026-09-28T01:02:03.000Z' });
+  });
+  const { state, dom, renderImageProviders } = harness;
+  state.imageAdminToken = 'token';
+  state.imageProviders = [
+    { id: 'configured', name: 'Configured', baseUrl: 'https://one.example', balancePath: '/account/balance' },
+    { id: 'unconfigured', name: 'No balance endpoint', baseUrl: 'https://two.example', balancePath: '' }
+  ];
+
+  renderImageProviders();
+  const textIn = (node) => [node?.textContent || '', ...(node?.children || []).map(textIn)].join(' ');
+  const configuredCard = dom.imageProviderList.children.find((card) => textIn(card).includes('Configured'));
+  const unconfiguredCard = dom.imageProviderList.children.find((card) => textIn(card).includes('No balance endpoint'));
+  assert.match(textIn(unconfiguredCard), /未配置余额接口/);
+  const balanceButton = configuredCard.children.flatMap((child) => child.children || []).find((button) => textIn(button).includes('查询余额'));
+  assert.ok(balanceButton);
+  await balanceButton.click();
+  assert.equal(requests[0].path, '/api/admin/v1/image-providers/configured/balance');
+  assert.equal(requests[0].options.method, 'POST');
+  assert.match(textIn(dom.imageProviderList), /5.5/);
+  assert.match(textIn(dom.imageProviderList), /USD/);
+  assert.match(textIn(dom.imageProviderList), /09\/28/);
+});
+
+test('configured provider balances refresh automatically every minute while the admin page is visible', async () => {
+  let balance = 4.25;
+  const requests = [];
+  const harness = createHarness(async (path, options = {}) => {
+    requests.push({ path, options });
+    if (path === '/api/admin/v1/image-providers') {
+      return response({ items: [{ id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', balancePath: '/account/balance' }] });
+    }
+    if (path === '/api/admin/v1/image-models') return response({ items: [] });
+    if (path.endsWith('/balance')) return response({ balance, currency: 'USD', checkedAt: '2026-09-28T01:02:03.000Z' });
+    return response({ items: [] });
+  });
+  const { state, dom, document, documentListeners, bindEvents, refreshImageWorkspace, intervals, clearedIntervals, lockReviews } = harness;
+  state.imageAdminToken = 'token';
+  await refreshImageWorkspace({ quiet: true });
+  await new Promise((resolve) => setImmediate(resolve));
+
+  const balanceRequests = () => requests.filter(({ path }) => path.endsWith('/balance'));
+  assert.equal(balanceRequests().length, 1, 'loading providers queries configured balances once');
+  const timer = [...intervals.values()].find(({ delay }) => delay === 60_000);
+  assert.ok(timer, 'unlocked image settings schedule a one-minute balance refresh');
+  bindEvents();
+
+  balance = 9.75;
+  await timer.handler();
+  assert.equal(balanceRequests().length, 2);
+  const textIn = (node) => [node?.textContent || '', ...(node?.children || []).map(textIn)].join(' ');
+  assert.match(textIn(dom.imageProviderList), /9\.75/);
+
+  document.hidden = true;
+  await timer.handler();
+  assert.equal(balanceRequests().length, 2, 'hidden pages do not poll providers');
+  document.hidden = false;
+  await documentListeners.get('visibilitychange')();
+  assert.equal(balanceRequests().length, 3, 'returning to the visible page refreshes immediately');
+
+  lockReviews(false);
+  assert.ok(clearedIntervals.includes(timer.id), 'locking the admin clears the balance polling timer');
+  assert.equal(Object.keys(state.imageBalances).length, 0, 'locking the admin clears the in-memory balance values');
+});
+
+test('provider balance controls block duplicate upstream lookups while one is pending', async () => {
+  const balanceRequest = deferred();
+  let requests = 0;
+  const harness = createHarness(async (_path, options = {}) => {
+    if (options.method === 'POST') { requests += 1; return balanceRequest.promise; }
+    return response({ items: [] });
+  });
+  const { state, dom, renderImageProviders } = harness;
+  state.imageAdminToken = 'token';
+  state.imageProviders = [{ id: 'p1', hasApiKey:true, name: 'Provider', balancePath: '/account/balance' }];
+  renderImageProviders();
+  const textIn = (node) => [node?.textContent || '', ...(node?.children || []).map(textIn)].join(' ');
+  const getButton = () => dom.imageProviderList.children[0].children.flatMap((child) => child.children || []).find((button) => textIn(button).includes('查询余额'));
+
+  const firstQuery = getButton().click();
+  const pendingButton = getButton();
+  assert.equal(pendingButton.disabled, true);
+  await pendingButton.click();
+  assert.equal(requests, 1);
+  balanceRequest.resolve(response({ balance: 1, currency: 'USD', checkedAt: '2026-09-28T01:02:03.000Z' }));
+  await firstQuery;
+});
+
+test('saving provider configuration sends optional balance endpoint and JSON field selectors', async () => {
+  let submitted;
+  const harness = createHarness(async (path, options = {}) => {
+    if (options.method === 'PATCH') submitted = JSON.parse(options.body);
+    return path.endsWith('image-models') ? response({ items: [] }) : response({ items: [] });
+  });
+  const { state, dom, openImageProviderDialog, saveImageProvider } = harness;
+  state.imageAdminToken = 'token';
+  const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', revision: 2 };
+  openImageProviderDialog(provider);
+  dom.imageProviderBalancePath.value = '/account/credits';
+  dom.imageProviderBalanceValueField.value = 'data.credits.remaining';
+  dom.imageProviderBalanceCurrencyField.value = 'data.credits.unit';
+  await saveImageProvider({ preventDefault() {} });
+
+  assert.equal(submitted.balancePath, '/account/credits');
+  assert.equal(submitted.balanceValueField, 'data.credits.remaining');
+  assert.equal(submitted.balanceCurrencyField, 'data.credits.unit');
 });
 
 test('admin connection tests display safe configuration, authentication and timeout explanations', async () => {
@@ -204,7 +344,7 @@ test('admin connection tests display safe configuration, authentication and time
     const harness = createHarness(async (_path, options = {}) => options.method === 'POST'
       ? response({ code, title }, status) : response({ items: [] }));
     const { state, dom, openImageProviderDialog, testImageProvider } = harness;
-    const provider = { id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
+    const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
     state.imageProviders = [provider];
     state.imageModels = [{ id: 'm1', providerId: 'p1', modelId: 'upstream', displayName: 'Model' }];
     state.imageAdminToken = 'token';
@@ -227,7 +367,7 @@ test('recorded upstream failure adopts its newer revision when editor config is 
     return Promise.resolve(response({ items: [{ id: 'm1', providerId: 'p1', modelId: 'upstream', displayName: 'Model', supportedRatios: ['1:1'], maxImages: 1 }] }));
   });
   const { state, dom, openImageProviderDialog, testImageProvider } = harness;
-  const provider = { id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, enabled: true, revision: 7 };
+  const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, enabled: true, revision: 7 };
   state.imageProviders = [provider];
   state.imageModels = [{ id: 'm1', providerId: 'p1', modelId: 'upstream', displayName: 'Model' }];
   state.imageAdminToken = 'token';
@@ -247,11 +387,11 @@ test('provider test advances revision only when the same editor session and conf
   let request = firstTest;
   const harness = createHarness((path, options = {}) => {
     if (options.method === 'POST') return request.promise;
-    if (path.includes('image-providers')) return Promise.resolve(response({ items: [{ id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 8 }] }));
+    if (path.includes('image-providers')) return Promise.resolve(response({ items: [{ id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 8 }] }));
     return Promise.resolve(response({ items: [{ id: 'm1', providerId: 'p1', modelId: 'upstream', displayName: 'Model', supportedRatios: ['1:1'], maxImages: 1 }] }));
   });
   const { state, dom, openImageProviderDialog, testImageProvider } = harness;
-  const provider = { id: 'p1', name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 7 };
+  const provider = { id: 'p1', hasApiKey:true, name: 'Provider', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 7 };
   state.imageProviders = [provider];
   state.imageModels = [{ id: 'm1', providerId: 'p1', modelId: 'upstream', displayName: 'Model' }];
   state.imageAdminToken = 'token';
@@ -278,7 +418,7 @@ test('provider save completion and error cannot close or mutate a replacement ed
   const harness = createHarness((path, options = {}) => options.method ? saveRequest.promise : Promise.resolve(response([])));
   const { state, dom, openImageProviderDialog, closeImageProviderDialog, saveImageProvider } = harness;
   state.imageAdminToken = 'token';
-  const first = { id: 'p1', name: 'First', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
+  const first = { id: 'p1', hasApiKey:true, name: 'First', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
   const replacement = { id: 'p2', name: 'Second', baseUrl: 'https://two.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
   openImageProviderDialog(first);
   const saving = saveImageProvider({ preventDefault() {} });
@@ -301,7 +441,7 @@ test('successful provider save cannot close or re-enable a replacement editor', 
     : Promise.resolve(response({ items: [] })));
   const { state, dom, openImageProviderDialog, closeImageProviderDialog, saveImageProvider } = harness;
   state.imageAdminToken = 'token';
-  const first = { id: 'p1', name: 'First', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
+  const first = { id: 'p1', hasApiKey:true, name: 'First', baseUrl: 'https://one.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
   const replacement = { id: 'p2', name: 'Second', baseUrl: 'https://two.example', generationPath: '/v1/images', timeoutMs: 60000, revision: 1 };
   openImageProviderDialog(first);
   const saving = saveImageProvider({ preventDefault() {} });
@@ -321,7 +461,7 @@ test('model save completion and error cannot close or mutate a replacement edito
   const harness = createHarness((path, options = {}) => options.method ? saveRequest.promise : Promise.resolve(response([])));
   const { state, dom, openImageModelDialog, closeImageModelDialog, saveImageModel } = harness;
   state.imageAdminToken = 'token';
-  state.imageProviders = [{ id: 'p1', name: 'Provider' }];
+  state.imageProviders = [{ id: 'p1', hasApiKey:true, name: 'Provider' }];
   const first = { id: 'm1', providerId: 'p1', modelId: 'one', displayName: 'First', supportedRatios: ['1:1'], maxImages: 1, revision: 1 };
   const replacement = { id: 'm2', providerId: 'p1', modelId: 'two', displayName: 'Second', supportedRatios: ['1:1'], maxImages: 1, revision: 1 };
   openImageModelDialog(first);
@@ -345,7 +485,7 @@ test('successful model save cannot close or re-enable a replacement editor', asy
     : Promise.resolve(response({ items: [] })));
   const { state, dom, openImageModelDialog, closeImageModelDialog, saveImageModel } = harness;
   state.imageAdminToken = 'token';
-  state.imageProviders = [{ id: 'p1', name: 'Provider' }];
+  state.imageProviders = [{ id: 'p1', hasApiKey:true, name: 'Provider' }];
   const first = { id: 'm1', providerId: 'p1', modelId: 'one', displayName: 'First', supportedRatios: ['1:1'], maxImages: 1, revision: 1 };
   const replacement = { id: 'm2', providerId: 'p1', modelId: 'two', displayName: 'Second', supportedRatios: ['1:1'], maxImages: 1, revision: 1 };
   openImageModelDialog(first);

@@ -29,6 +29,7 @@ test('AI image studio is routed, crawlable, and exposes the complete creation wo
     assert.match(html, /id="generation-form"/);
     assert.match(html, /id="model-select"[^>]+name="modelRecordId"/);
     assert.match(html, /id="prompt-input"[^>]+maxlength="1000"/);
+    assert.match(html, /class="inspiration-hint"[^>]*><strong>一键套用完整提示词<\/strong><span>点击下方模板，内容会填入上方描述框，可继续编辑后生成。<\/span><\/p>/);
     assert.match(html, /id="reference-input"[^>]+accept="image\/png,image\/jpeg,image\/webp"[^>]+aria-describedby="reference-help reference-error"/);
     assert.match(html, /id="reference-trigger"[^>]+aria-describedby="reference-help reference-error"/);
     assert.match(html, /id="reference-error"[^>]+role="alert"/);
@@ -37,18 +38,21 @@ test('AI image studio is routed, crawlable, and exposes the complete creation wo
     assert.match(html, /name="count"/);
     assert.match(html, /id="generation-status"[^>]+aria-live="polite"/);
     assert.match(html, /id="generation-results"/);
+    assert.match(html, /<dialog id="image-preview-dialog"/);
+    assert.match(html, /id="image-preview-image"/);
     assert.match(html, /id="history-panel"[^>]+role="tabpanel"/);
     for (const id of ['history-status', 'history-grid', 'history-empty', 'history-clear']) assert.match(html, new RegExp(`id="${id}"`));
     assert.match(html, /<script type="module" src="\/image-generation\.js\?v=/);
-    assert.match(html, /\/image-generation\.css\?v=20260924-studio-1/);
-    assert.match(html, /\/image-generation\.js\?v=20260924-reference-1/);
+    assert.match(html, /\/image-generation\.css\?v=20261014-first-1/);
+    assert.match(html, /\/image-generation\.js\?v=20261019-wait-1/);
     assert.doesNotMatch(html, /api[_-]?key|sk-[a-z0-9]|openai\.com/i);
 
     const scriptResponse = await fetch(`${base}/image-generation.js`);
     assert.equal(scriptResponse.status, 200);
     const script = await scriptResponse.text();
     assert.match(script, /fetch\(['"]\/api\/v1\/image-models['"]/);
-    assert.match(script, /fetch\(['"]\/api\/v1\/image-generations['"]/);
+    assert.match(script, /fetchImageJob\(['"]\/api\/v1\/image-generations['"]/);
+    assert.equal((await fetch(`${base}/image-job-request.mjs`)).status, 200);
 
     const historyScriptResponse = await fetch(`${base}/image-generation-history.js`);
     assert.equal(historyScriptResponse.status, 200);
@@ -64,27 +68,28 @@ test('AI image studio is routed, crawlable, and exposes the complete creation wo
 });
 
 test('every static site header links to AI image generation exactly once before utilities', () => {
-  const pages = readdirSync('.', { withFileTypes: true })
+  const pages = readdirSync('public', { withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith('.html'))
     .map((entry) => entry.name)
-    .filter((name) => readFileSync(name, 'utf8').includes('<nav class="site-nav"'));
+    .filter((name) => readFileSync(`public/${name}`, 'utf8').includes('<nav class="site-nav"'));
 
   assert.ok(pages.length >= 19);
   for (const page of pages) {
-    const html = readFileSync(page, 'utf8');
+    const html = readFileSync(`public/${page}`, 'utf8');
     const siteNav = html.match(/<nav class="site-nav"[\s\S]*?<\/nav>/)?.[0] || '';
     assert.equal((siteNav.match(/href="\/image-generation"/g) || []).length, 1, page);
     assert.ok(siteNav.indexOf('href="/image-generation"') < siteNav.indexOf('href="/utilities"'), page);
   }
-  const home = readFileSync('index.html', 'utf8');
+  const home = readFileSync('public/index.html', 'utf8');
   assert.match(home, /class="primary-nav"[\s\S]*href="\/image-generation"[\s\S]*href="\/utilities"/);
 });
 
 test('AI image studio stylesheet defines responsive creation and history states without canvas styles', () => {
-  const css = readFileSync('image-generation.css', 'utf8');
+  const css = readFileSync('public/image-generation.css', 'utf8');
   for (const selector of [
     '.generation-composer', '.generation-results', '.result-card', '.is-active',
-    '.is-busy', '.has-reference', '.has-results', '.studio-message[data-tone="error"]'
+    '.is-busy', '.has-reference', '.has-results', '.studio-message[data-tone="error"]',
+    '.image-preview-dialog', '.result-preview-button', '.history-preview-button'
   ]) assert.ok(css.includes(selector), selector);
   assert.match(css, /:focus-visible/);
   assert.match(css, /@media\s*\(max-width:\s*900px\)/);
@@ -99,8 +104,23 @@ test('AI image studio stylesheet defines responsive creation and history states 
   assert.doesNotMatch(css, /\.canvas-|#canvas-/);
 });
 
+test('AI image selector labels stay horizontal at every viewport width', () => {
+  const css = readFileSync('public/image-generation.css', 'utf8');
+  const globalRulesStart = css.lastIndexOf('/* Keep selector labels horizontal at every viewport width. */');
+  assert.ok(globalRulesStart >= 0, 'global selector layout rules must remain present');
+  const globalRules = css.slice(globalRulesStart, css.indexOf('/* First creation:', globalRulesStart));
+  assert.match(globalRules, /\.image-generation-main \.composer-toolbar\{flex-wrap:wrap/);
+  assert.match(globalRules, /\.image-generation-main \.compact-select\{flex-shrink:0/);
+  assert.match(globalRules, /\.image-generation-main \.compact-select>span\{white-space:nowrap/);
+});
+
+test('AI image studio versions its stylesheet so layout fixes bypass cached CSS', () => {
+  const html = readFileSync('public/image-generation.html', 'utf8');
+  assert.match(html, /href="\/image-generation\.css\?v=20261014-first-1"/);
+});
+
 test('AI image studio script validates local input and connects generation to configured models', () => {
-  const script = readFileSync('image-generation.js', 'utf8');
+  const script = readFileSync('public/image-generation.js', 'utf8');
   assert.match(script, /10\s*\*\s*1024\s*\*\s*1024/);
   assert.match(script, /image\/png/);
   assert.match(script, /function validateReferenceFile\s*\(/);
@@ -117,8 +137,8 @@ test('AI image studio script validates local input and connects generation to co
 });
 
 test('AI image studio has no canvas editing mode or result action', () => {
-  const html = readFileSync('image-generation.html', 'utf8');
-  const script = readFileSync('image-generation.js', 'utf8');
+  const html = readFileSync('public/image-generation.html', 'utf8');
+  const script = readFileSync('public/image-generation.js', 'utf8');
   assert.doesNotMatch(html, /canvas-panel|canvas-stage|canvas-upload|studio-mode-canvas|送入画布/);
   assert.doesNotMatch(script, /createCanvasController|sendResultToCanvas|validateCanvasFile|canvas-stage|canvas-export/);
 });

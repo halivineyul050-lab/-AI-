@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createImageHistory } from '../image-generation-history.js';
+import { createImageHistory } from '../public/image-generation-history.js';
 
 function memoryIndexedDb() {
   const rows = new Map();

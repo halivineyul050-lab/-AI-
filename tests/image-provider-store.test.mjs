@@ -69,9 +69,35 @@ test("provider store prevents referenced provider deletion and audits mutations"
 });
 
 test("image-provider migrations create tables and expand the timeout", () => {
-  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 17);
+  assert.equal(db.prepare("PRAGMA user_version").get().user_version, 44);
   assert.ok(db.prepare("SELECT 1 FROM schema_migrations WHERE version = 14").get());
   assert.ok(db.prepare("SELECT 1 FROM schema_migrations WHERE version = 15").get());
   assert.ok(db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'image_providers'").get());
   assert.ok(db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'image_models'").get());
+});
+
+test("provider store persists optional live-balance endpoint and response fields", () => {
+  const store = createImageProviderStore(db);
+  const provider = store.createProvider({
+    name: "Balance Example",
+    baseUrl: "https://balance.example.com/v1",
+    encryptedApiKey: "v1.secret",
+    balancePath: "/account/balance",
+    balanceValueField: "data.balance.remaining",
+    balanceCurrencyField: "data.currency"
+  }, audit);
+
+  assert.equal(provider.balancePath, "/account/balance");
+  assert.equal(provider.balanceValueField, "data.balance.remaining");
+  assert.equal(provider.balanceCurrencyField, "data.currency");
+
+  const updated = store.updateProvider(provider.id, {
+    revision: provider.revision,
+    balancePath: "/v1/dashboard/billing/remaining",
+    balanceValueField: "data.total_available"
+  }, audit);
+  assert.equal(updated.balancePath, "/v1/dashboard/billing/remaining");
+  assert.equal(updated.balanceValueField, "data.total_available");
+  assert.equal(updated.balanceCurrencyField, "data.currency");
+  assert.equal(store.listProviders().find(({ id }) => id === provider.id).balancePath, updated.balancePath);
 });
