@@ -11,7 +11,8 @@
 - [设计系统](design-system.md)
 - [当前工作区整理与待集成项](workspace-closeout-2026-10-22.md)
 - [本地/生产业务差异审阅与修复](business-difference-review-2026-10-22.md)：价格脚本、游戏入口和热榜排名已在本地修复，未发布。
-- [关联worktree与资讯验证续查](worktree-followup-2026-10-22.md)：独有知识已归档，采编/API隔离验证通过，真实MariaDB仍待验收。
+- [MariaDB最终验收与清理结果](mariadb-final-verification-2026-10-22.md)：真实数据库验证通过，三棵旧worktree已移除；临时运行时删除被自动审批阻止。
+- [关联worktree与资讯验证续查](worktree-followup-2026-10-22.md)：历史阶段清单和独有知识归档依据。
 
 ## 当前功能依据
 

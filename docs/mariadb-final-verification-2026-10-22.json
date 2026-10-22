@@ -1,0 +1,116 @@
+{
+  "verifiedAt": "2026-10-22T03:16:55.237Z",
+  "database": {
+    "pass": true,
+    "version": "10.5.29-MariaDB",
+    "checks": [
+      "missing-019-migration-after-044-and-idempotent-rerun",
+      "real-mariadb-publish-attach-detail-hot-and-idempotent-collection",
+      "dry-run-and-unknown-source-do-not-mutate",
+      "partial-source-write-rolls-back-on-ownership-conflict",
+      "trigger-injected-source-failure-rolls-back-new-article",
+      "real-concurrent-source-ownership-lock-wait-and-single-winner",
+      "mariadb-1001-and-10001-event-ranking-correctness-and-timing"
+    ],
+    "timings": [
+      {
+        "articles": 1001,
+        "sourceRows": 2005,
+        "medianMs": 78.72,
+        "maxMs": 92.46,
+        "samplesMs": [
+          92.46,
+          91,
+          78.72,
+          75.28,
+          66.98
+        ]
+      },
+      {
+        "articles": 10001,
+        "sourceRows": 20005,
+        "medianMs": 1287.4,
+        "maxMs": 1465.2,
+        "samplesMs": [
+          1465.2,
+          1309.64,
+          1276.86,
+          1287.4,
+          1255.93
+        ]
+      }
+    ],
+    "runtimeChecksum": "a6b11c7ed51a204d33f0a9d0344b680d1067534153ec3c9432dbcaf789b01cab",
+    "loopbackOnly": true,
+    "productionDataUsed": false,
+    "measuredAt": "2026-10-22T03:08:29.552Z"
+  },
+  "worktreeCleanup": {
+    "authorization": "User explicitly requested continuing and completing all remaining options after cleanup preview was reported",
+    "performedAt": "2026-10-22T02:55:32.371Z",
+    "removed": [
+      {
+        "name": "aihot-production-release",
+        "path": "C:\\Users\\zhanglian2\\.codex\\worktrees\\aihot-production-release\\泥壳AI工具站",
+        "head": "4b9405c266c1b7cc994cfe19621e6fd53fb58a13",
+        "branch": "refs/heads/codex/aihot-production-release",
+        "removed": true,
+        "branchPreserved": true,
+        "logicalBytes": 61838322
+      },
+      {
+        "name": "ci-main-check",
+        "path": "C:\\Users\\zhanglian2\\.codex\\worktrees\\ci-main-check\\泥壳AI工具站",
+        "head": "a71c22e19c694a0895329b89a7a19ad04350fadf",
+        "branch": "refs/heads/codex/ci-main-trigger-20261008",
+        "removed": true,
+        "branchPreserved": true,
+        "logicalBytes": 61838968
+      },
+      {
+        "name": "frontend-release",
+        "path": "C:\\Users\\zhanglian2\\.codex\\worktrees\\frontend-release\\泥壳AI工具站",
+        "head": "11b79538fd2f4910c9ac482e57e96cc6dda60a86",
+        "branch": "refs/heads/codex/frontend-foundation-current-main",
+        "removed": true,
+        "branchPreserved": true,
+        "logicalBytes": 61838996
+      }
+    ],
+    "logicalBytesRemoved": 185516286,
+    "catalogPreserved": true,
+    "remainingWorktrees": "D:/资料收集/泥壳AI工具站                                                            c92ca33 [cursor/restructure-public-docs-examples]\nC:/Users/zhanglian2/.codex/worktrees/catalog-mobile-optimization/泥壳AI工具站       9448459 [codex/catalog-mobile-optimization]\n"
+  },
+  "temporaryRuntimeCleanup": {
+    "runtimePath": "C:\\Users\\zhanglian2\\AppData\\Local\\Temp\\nikai-mariadb-20261022-HlP62A",
+    "serverStopped": true,
+    "serverExitCode": 0,
+    "directoryRemoved": false,
+    "cleanupBlockedByAutomaticReview": true,
+    "reason": "blocked by policy",
+    "noAlternativeDeletionAttempted": true,
+    "logicalBytes": 826250599,
+    "files": 877,
+    "fixtureSchemaDirectoriesRemaining": 0,
+    "fixtureDataDirectories": 3
+  },
+  "tests": {
+    "targeted": {
+      "tests": 18,
+      "pass": 18,
+      "fail": 0
+    },
+    "full": {
+      "tests": 930,
+      "pass": 927,
+      "fail": 0,
+      "skipped": 3,
+      "cancelled": 0,
+      "exitCode": 0,
+      "durationMs": 372733.3692
+    }
+  },
+  "productionReleaseUnchanged": true,
+  "pushed": false,
+  "deployed": false
+}
