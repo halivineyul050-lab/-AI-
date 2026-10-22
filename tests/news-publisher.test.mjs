@@ -7,6 +7,17 @@ import {
   scheduleNewsPublisher,
 } from "../backend/news-publisher.mjs";
 
+function editorialResponse(options, article) {
+  const request = JSON.parse(options.body);
+  const input = JSON.parse(request.input.find((item) => item.role === "user").content[0].text);
+  return JSON.stringify({
+    action: "publish_new",
+    targetArticleId: null,
+    sourceIds: input.sources.slice(0, 1).map((source) => source.id),
+    article
+  });
+}
+
 test("parseFeed extracts recent RSS items", () => {
   const xml = `<?xml version="1.0"?>
     <rss><channel><item>
@@ -59,13 +70,13 @@ test("publisher sends a Responses API request with the configured provider optio
       });
     }
     return new Response(JSON.stringify({
-      output_text: JSON.stringify({ topic: "AI", title: "New AI release", excerpt: "Summary", body: "Body", readTime: "3 minutes" })
+      output_text: editorialResponse(options, { topic: "AI", title: "New AI release", excerpt: "Summary", body: "Detailed article body.", readTime: "3 minutes" })
     }), { status: 200, headers: { "content-type": "application/json" } });
   };
 
   try {
     const result = await runNewsPublisherOnce({
-      db: { prepare: () => ({ get: () => undefined }) },
+      db: { prepare: () => ({ get: () => undefined, all: () => [] }) },
       apiKey: "test-key",
       baseUrl: "https://lucen.cc",
       feeds: ["https://example.com/rss.xml"],
@@ -96,11 +107,11 @@ test("publisher falls back when the provider returns reasoning without content",
     const body = JSON.parse(options.body);
     bodies.push(body);
     if (body.text) return new Response(JSON.stringify({ output: [{ type: "reasoning", content: [] }] }), { status: 200 });
-    return new Response(JSON.stringify({ output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ topic: "AI", title: "Fallback", excerpt: "Summary", body: "Body", readTime: "1 minute" }) }] }] }), { status: 200 });
+    return new Response(JSON.stringify({ output: [{ type: "message", content: [{ type: "output_text", text: editorialResponse(options, { topic: "AI", title: "Fallback", excerpt: "Summary", body: "Detailed fallback article body.", readTime: "1 minute" }) }] }] }), { status: 200 });
   };
   try {
     const result = await runNewsPublisherOnce({
-      db: { prepare: () => ({ get: () => undefined }) },
+      db: { prepare: () => ({ get: () => undefined, all: () => [] }) },
       apiKey: "test-key",
       feeds: ["https://example.com/rss.xml"],
       dryRun: true

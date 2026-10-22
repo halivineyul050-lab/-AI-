@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS news_sync_config (id INT PRIMARY KEY, document MEDIUMTEXT NOT NULL, revision BIGINT NOT NULL DEFAULT 1) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS news_sync_sources (id VARCHAR(64) PRIMARY KEY, document MEDIUMTEXT NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS news_sync_items (id VARCHAR(64) PRIMARY KEY, source_id VARCHAR(64) NOT NULL, identity_key VARCHAR(64) NOT NULL UNIQUE, url_key VARCHAR(64) NOT NULL, article_id VARCHAR(100), published_at VARCHAR(32), status VARCHAR(20) NOT NULL, document MEDIUMTEXT NOT NULL, INDEX idx_news_sync_items_url(url_key), INDEX idx_news_sync_items_status(status), INDEX idx_news_sync_items_article(article_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE IF NOT EXISTS news_sync_runs (id VARCHAR(64) PRIMARY KEY, started_at VARCHAR(32) NOT NULL, document MEDIUMTEXT NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

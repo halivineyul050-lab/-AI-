@@ -1,0 +1,1 @@
+.news-pagination{display:flex;justify-content:center;margin-top:24px}.news-pagination button:disabled{opacity:.6;cursor:wait}#news-sync-time,#home-news-sync-time{margin:0 0 12px;color:var(--text-muted,#85829a);font-size:13px;line-height:1.6}
