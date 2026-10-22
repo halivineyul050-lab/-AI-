@@ -1,7 +1,10 @@
 data/*.db
 data/*.db-shm
 data/*.db-wal
+data/*.sqlite*
 data/*.log
+/data/backups/
+.mariadb.cnf*
 .env
 node_modules/
 .agents/
@@ -13,3 +16,18 @@ imports/*
 !imports/tool-catalog.template.csv
 .workbuddy/
 .superpowers/
+
+# Generated build, test, Python and runtime artifacts
+/dist/
+/build/
+/coverage/
+/.cache/
+/.pytest_cache/
+__pycache__/
+*.py[cod]
+*.log
+.env.*
+!.env.example
+
+# Local generated reports, previews and screenshot captures (keep source/assets in Git)
+/output/

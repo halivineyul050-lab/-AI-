@@ -3,7 +3,6 @@ name: CI
 on:
   pull_request:
   push:
-    branches-ignore: [main]
 
 permissions:
   contents: read
@@ -16,8 +15,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - run: npm ci
       - run: node --check server.mjs
-      - run: node --check app.js
-      - run: node --check auth.js
-      - run: node --check admin.js
+      - run: find public -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
       - run: npm test
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install numpy==1.26.4 Pillow==11.3.0
+      - run: python -m unittest discover -s tests -p 'image*_test.py'
