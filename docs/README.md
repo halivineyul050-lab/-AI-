@@ -10,6 +10,7 @@
 - [前端页面与资源地图](frontend-structure.md)
 - [设计系统](design-system.md)
 - [当前工作区整理与待集成项](workspace-closeout-2026-10-22.md)
+- [本地/生产业务差异审阅与修复](business-difference-review-2026-10-22.md)：价格脚本、游戏入口和热榜排名已在本地修复，未发布。
 
 ## 当前功能依据
 
