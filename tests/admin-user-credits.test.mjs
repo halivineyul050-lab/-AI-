@@ -1,0 +1,32 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {buildApplication} from '../server.mjs';
+import {registerUser} from '../backend/auth.mjs';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+
+test('super admin account list reports current available and frozen credits without changing wallets',async t=>{
+ const dir=mkdtempSync(join(tmpdir(),'admin-user-credits-'));
+ const app=buildApplication({dbPath:join(dir,'test.db'),autoSeed:false,logger:false,environment:'test',adminToken:'test-user-credits-only'});
+ t.after(async()=>{await app.close();rmSync(dir,{recursive:true,force:true})});
+ const makeUser=async(name)=>registerUser(app.db,{email:`${name}@example.test`,normalizedEmail:`${name}@example.test`,displayName:name,password:'test-account-credits-password',consentVersion:'2026-10'});
+ const superAdmin=await makeUser('super'),member=await makeUser('member'),admin=await makeUser('admin'),empty=await makeUser('empty');
+ app.db.prepare("UPDATE users SET role='admin',is_super_admin=1 WHERE id=?").run(superAdmin.user.id);
+ app.db.prepare("UPDATE users SET role='admin' WHERE id=?").run(admin.user.id);
+ app.db.prepare('INSERT INTO credit_wallets(user_id,balance,frozen) VALUES(?,?,?)').run(member.user.id,660,40);
+ const address=await app.listen(0,'127.0.0.1');const base=`http://127.0.0.1:${address.port}`;
+ const request=(user)=>fetch(base+'/api/admin/v1/users',{headers:user?{Cookie:`nikai_auth=${user.token}`}:{}});
+ assert.equal((await request()).status,401);
+ assert.equal((await request(member)).status,401);
+ assert.equal((await request(admin)).status,403);
+ const before=app.db.prepare('SELECT * FROM credit_wallets ORDER BY user_id').all();
+ const response=await request(superAdmin);assert.equal(response.status,200);
+ const rows=(await response.json()).data;
+ assert.deepEqual(rows.find(row=>row.id===member.user.id).credits,{balance:660,frozen:40,available:620});
+ assert.deepEqual(rows.find(row=>row.id===empty.user.id).credits,{balance:0,frozen:0,available:0});
+ assert.deepEqual(app.db.prepare('SELECT * FROM credit_wallets ORDER BY user_id').all(),before);
+ app.db.prepare('UPDATE credit_wallets SET balance=?,frozen=? WHERE user_id=?').run(500,0,member.user.id);
+ const refreshed=(await (await request(superAdmin)).json()).data;
+ assert.deepEqual(refreshed.find(row=>row.id===member.user.id).credits,{balance:500,frozen:0,available:500});
+});

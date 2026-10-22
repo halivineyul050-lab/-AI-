@@ -1,0 +1,18 @@
+#recharge-admin .recharge-admin-config{display:grid;gap:20px}#recharge-admin .recharge-admin-channels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}#recharge-admin fieldset{border:1px solid #e8e5f2;border-radius:12px;padding:18px;min-width:0}#recharge-admin legend{font-weight:700}#recharge-admin label{display:grid;gap:6px;margin:12px 0;font-size:13px}#recharge-admin input:not([type=checkbox]),#recharge-admin textarea{width:100%;border:1px solid #dedbea;padding:10px;border-radius:8px;font:inherit}#recharge-admin .recharge-admin-check{display:flex;align-items:center;gap:8px}#recharge-admin .recharge-admin-qr{display:block;width:160px;height:160px;object-fit:contain;margin:12px 0;border:1px solid #e8e5f2;border-radius:8px}#recharge-admin .recharge-admin-actions,#recharge-admin .recharge-admin-tabs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0}#recharge-admin button{padding:10px 16px;border-radius:8px;border:1px solid #dedbea;background:#f5f3ff;color:#6558f5;cursor:pointer;font:inherit}#recharge-admin button[type=submit],#recharge-admin button[aria-selected=true]{background:#6558f5;color:white;border-color:#6558f5}#recharge-admin button:disabled{opacity:.5;cursor:not-allowed}#recharge-admin .recharge-admin-order{border-top:1px solid #e8e5f2;padding:20px 0}#recharge-admin .recharge-admin-order h3{font-size:15px;margin:0}#recharge-admin .recharge-admin-order p{font-size:13px;color:#77738c;margin:7px 0;overflow-wrap:anywhere}#recharge-admin .recharge-admin-proof{max-width:100%;max-height:500px;object-fit:contain;border:1px solid #e8e5f2;border-radius:10px}#recharge-admin .recharge-admin-note{background:#f5f3ff;color:#63558c;border-radius:8px;padding:13px;font-size:13px}#recharge-admin .recharge-admin-reject{display:flex;gap:10px;align-items:center;flex-wrap:wrap}#recharge-admin .recharge-admin-reject input{flex:1;min-width:180px}#recharge-admin [role=status]:not(:empty){margin:15px 0;color:#735c15;background:#fff6de;padding:10px;border-radius:8px}#recharge-admin [hidden]{display:none!important}@media(max-width:760px){#recharge-admin .recharge-admin-channels{grid-template-columns:1fr}}
+#recharge-admin{padding:clamp(20px,2.5vw,36px);box-sizing:border-box;scroll-margin-top:120px}
+#recharge-admin *,#recharge-admin *::before,#recharge-admin *::after{box-sizing:border-box}
+#recharge-admin .section-heading{margin-bottom:22px;gap:18px}
+#recharge-admin .section-heading h2{margin:0 0 7px;font-size:28px}
+#recharge-admin .section-heading p{margin:0;font-size:13px;color:#858199}
+#recharge-admin .recharge-admin-note{line-height:1.7;margin:12px 0 20px}
+#recharge-admin .recharge-admin-config{margin:24px 0 32px}
+#recharge-admin .recharge-admin-config>button{justify-self:start;width:auto;min-height:44px}
+#recharge-admin input[name=reviewHours]{max-width:170px}
+#recharge-admin .recharge-admin-tabs{padding-top:24px;border-top:1px solid #e8e5f2}
+#recharge-admin button:focus-visible,#recharge-admin input:focus-visible,#recharge-admin textarea:focus-visible{outline:3px solid #b5a9ff;outline-offset:3px}
+@media(max-width:700px){#recharge-admin{padding:20px 16px}#recharge-admin .section-heading{align-items:flex-start}#recharge-admin .section-heading h2{font-size:23px}}
+
+#recharge-admin .recharge-admin-qr{width:200px;height:200px;max-width:100%;background:#fff;padding:8px}
+#recharge-admin .recharge-qr-caption{font-size:12px;color:#7864dc;line-height:1.6;margin:0 0 16px}
+#recharge-admin [role=status][data-state=success]{color:#16684a;background:#eaf8f0;border:1px solid #b9e3cb;font-weight:650;padding:14px 18px}
+#recharge-admin [role=status][data-state=error]{color:#ad3434;background:#fff0f0;border:1px solid #edc4c4;padding:14px 18px}

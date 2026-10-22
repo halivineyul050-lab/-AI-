@@ -1,9 +1,14 @@
+import { resolveAuthNextPath } from "./auth-redirect.mjs";
+const safeSessionStorage = window.nikaiStorage.session;
+
 (() => {
   "use strict";
 
   const tabs = document.getElementById("auth-tabs");
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
+  const resetForm = document.getElementById("reset-form");
+  const verifyEmailForm = document.getElementById("verify-email-form");
   const message = document.getElementById("auth-message");
   const accountPanel = document.getElementById("account-panel");
   const accountName = document.getElementById("account-name");
@@ -25,12 +30,113 @@
   const adminAccountForm = document.getElementById("admin-account-form");
   const adminAuthForm = document.getElementById("admin-auth-form");
   const nextPath = (() => {
-    const value = new URLSearchParams(location.search).get("next") || "/";
-    return value.startsWith("/") && !value.startsWith("//") ? value : "/";
+    return resolveAuthNextPath(new URLSearchParams(location.search).get("next"), location.origin);
   })();
   const adminMode = new URLSearchParams(location.search).get("mode") === "admin";
   let accountActivity = null;
   let activeAccountSection = "favorites";
+  let accountImages = null;
+  let imageHistoryLoading = false;
+  let imageHistoryError = "";
+  let imageHistoryVersion = 0;
+  const accountAvatar = document.getElementById("account-avatar");
+  const avatarForm = document.getElementById("avatar-form");
+  const avatarFile = document.getElementById("avatar-file");
+  const avatarSave = document.getElementById("avatar-save");
+  const avatarCancel = document.getElementById("avatar-cancel");
+  const avatarReset = document.getElementById("avatar-reset");
+  const avatarMessage = document.getElementById("avatar-message");
+  let accountUser = null;
+  let avatarPreview = "";
+  let selectedAvatar = null;
+  let avatarVersion = 0;
+
+  function avatarStatus(text) {
+    avatarMessage.textContent = text;
+    avatarMessage.hidden = !text;
+  }
+
+  function renderAvatar(user, preview = "") {
+    const initial = Array.from(user?.displayName?.trim() || "用户")[0].toLocaleUpperCase();
+    accountAvatar.textContent = initial;
+    const url = preview || (/^\/api\/v1\/account\/avatar\?v=[a-f0-9-]{36}$/.test(user?.avatarUrl || "") ? user.avatarUrl : "");
+    if (url) {
+      const image = document.createElement("img");
+      image.alt = "我的头像";
+      image.addEventListener("error", () => {
+        if (accountAvatar.children[0] === image) {
+          accountAvatar.textContent = initial;
+          if (preview) { selectedAvatar = null; avatarSave.hidden = true; avatarStatus("图片无法预览，请重新选择"); }
+        }
+      }, { once: true });
+      image.src = url;
+      accountAvatar.replaceChildren(image);
+    }
+    avatarReset.hidden = !user?.avatarUrl || Boolean(preview);
+  }
+
+  function clearAvatarSelection() {
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    avatarPreview = "";
+    selectedAvatar = null;
+    avatarFile.value = "";
+    avatarSave.hidden = true;
+    avatarCancel.hidden = true;
+  }
+
+  function setAvatarBusy(busy) {
+    for (const control of [avatarFile, avatarSave, avatarCancel, avatarReset]) control.disabled = busy;
+  }
+
+  avatarFile.addEventListener("change", () => {
+    const file = avatarFile.files?.[0];
+    clearAvatarSelection();
+    renderAvatar(accountUser);
+    avatarStatus("");
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) { avatarStatus("请选择 JPG、PNG 或 WebP 图片"); return; }
+    if (!file.size || file.size > 2 * 1024 * 1024) { avatarStatus("头像图片不能超过 2MB，请选择较小的图片"); return; }
+    selectedAvatar = file;
+    avatarPreview = URL.createObjectURL(file);
+    renderAvatar(accountUser, avatarPreview);
+    avatarSave.hidden = false;
+    avatarCancel.hidden = false;
+    avatarStatus("这是预览，点击“保存头像”后生效");
+  });
+
+  avatarCancel.addEventListener("click", () => {
+    clearAvatarSelection(); renderAvatar(accountUser); avatarStatus("");
+  });
+
+  async function saveAvatar(reset = false) {
+    if (!accountUser || (!reset && !selectedAvatar) || avatarSave.disabled) return;
+    const version = ++avatarVersion;
+    const userId = accountUser.id;
+    setAvatarBusy(true);
+    avatarStatus(reset ? "正在恢复默认头像…" : "正在保存头像…");
+    try {
+      const result = await api("/api/v1/account/avatar", reset
+        ? { method: "DELETE" }
+        : { method: "PUT", headers: { "Content-Type": selectedAvatar.type }, body: selectedAvatar });
+      if (version !== avatarVersion || accountUser?.id !== userId) return;
+      accountUser = result.user;
+      clearAvatarSelection(); renderAvatar(accountUser);
+      avatarStatus(reset ? "已恢复默认头像" : "头像已保存，首页会同步显示");
+    } catch (error) {
+      if (version !== avatarVersion || accountUser?.id !== userId) return;
+      if (error.status === 401) { clearAvatarSelection(); accountUser = null; accountAvatar.replaceChildren(); }
+      avatarStatus(error.message || "头像保存失败，请重试");
+    } finally {
+      if (version === avatarVersion) setAvatarBusy(false);
+    }
+  }
+
+  avatarForm.addEventListener("submit", (event) => { event.preventDefault(); void saveAvatar(); });
+  avatarReset.addEventListener("click", () => { void saveAvatar(true); });
+  window.addEventListener("pagehide", () => {
+    clearAvatarSelection();
+    if (accountUser) renderAvatar(accountUser);
+  });
 
   function refreshIcons() {
     window.lucide?.createIcons({ attrs: { "aria-hidden": "true" } });
@@ -44,20 +150,22 @@
 
   function setMode(mode) {
     const register = mode === "register";
-    loginForm.hidden = register;
+    loginForm.hidden = mode !== "login";
     registerForm.hidden = !register;
+    resetForm.hidden = mode !== "reset";
     tabs.querySelectorAll("button").forEach((button) => {
       const active = button.dataset.authMode === mode;
       button.classList.toggle("is-active", active);
       button.setAttribute("aria-selected", String(active));
     });
     showMessage("");
-    history.replaceState(null, "", register ? "#register" : "#login");
+    history.replaceState(null, "", mode === "reset" ? "#reset" : register ? "#register" : "#login");
   }
 
   async function api(path, options = {}) {
     const response = await fetch(path, {
       credentials: "same-origin",
+      signal: AbortSignal.timeout(20000),
       ...options,
       headers: { Accept: "application/json", "Content-Type": "application/json", ...(options.headers || {}) }
     });
@@ -72,6 +180,13 @@
   }
 
   function showAccount(user) {
+    accountUser = user;
+    resetForm.hidden = true;
+    const exemptFromEmailVerification = user.isSuperAdmin === true;
+    document.getElementById("account-email-security").hidden = exemptFromEmailVerification || Boolean(user.emailVerified);
+    verifyEmailForm.hidden = exemptFromEmailVerification || Boolean(user.emailVerified);
+    document.getElementById("email-security-status").textContent = user.emailVerified ? "邮箱已验证，可用于找回密码。" : "邮箱尚未验证，完成验证后可用邮箱找回密码。";
+    renderAvatar(user);
     tabs.hidden = true;
     loginForm.hidden = true;
     registerForm.hidden = true;
@@ -79,6 +194,7 @@
     accountName.textContent = user.displayName;
     accountEmail.textContent = user.email;
     adminEntry.hidden = user.role !== "admin";
+    if (user.role !== "admin") adminEntry.remove();
     accountPanel.hidden = false;
     document.body.classList.add("is-account");
   }
@@ -130,6 +246,10 @@
   }
 
   function renderAccountActivity() {
+    if (activeAccountSection === "images") {
+      renderImageHistory();
+      return;
+    }
     if (!accountActivity) return;
     accountActivityList.replaceChildren();
     const items = accountActivity[activeAccountSection];
@@ -215,6 +335,96 @@
     accountActivityList.append(item);
   }
 
+  function imageHistoryButton(label, action) {
+    const button = document.createElement("button");
+    button.className = "account-text-button";
+    button.type = "button";
+    button.dataset.accountAction = action;
+    button.textContent = label;
+    button.disabled = imageHistoryLoading;
+    return button;
+  }
+
+  function renderImageHistory() {
+    accountActivityList.replaceChildren();
+    const items = accountImages?.items || [];
+    if (imageHistoryError) {
+      emptyState(imageHistoryError);
+      accountActivityList.append(imageHistoryButton("重新加载", "retry-images"));
+    } else if (!accountImages) {
+      emptyState("正在加载生图记录…");
+    } else if (!items.length) {
+      emptyState("还没有生图记录，登录后生成并保存的图片会显示在这里。");
+    }
+    if (items.length) {
+      const total = document.createElement("p");
+      total.className = "account-image-history-total";
+      total.textContent = `共 ${accountImages.total} 张 · 已显示 ${items.length} 张`;
+      const grid = document.createElement("div");
+      grid.className = "account-image-history-grid";
+      items.forEach((record) => {
+        const url = `/api/v1/image-history/${record.id}/image`;
+        const card = document.createElement("article");
+        card.className = "account-image-card";
+        const preview = document.createElement("a");
+        preview.href = url;
+        preview.target = "_blank";
+        preview.rel = "noopener";
+        preview.setAttribute("aria-label", `查看原图：${record.prompt || "未命名作品"}`);
+        const image = document.createElement("img");
+        image.src = url;
+        image.alt = record.prompt || "生成的图片";
+        image.loading = "lazy";
+        preview.append(image);
+        const title = document.createElement("strong");
+        title.textContent = record.prompt || "未命名作品";
+        const meta = document.createElement("small");
+        meta.textContent = `${record.modelName} · ${record.ratio} · ${new Date(record.createdAt).toLocaleString("zh-CN")}`;
+        const download = document.createElement("a");
+        download.className = "account-text-button";
+        download.href = url;
+        const extension = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" }[record.mimeType] || "png";
+        download.download = `nikai-${record.id}.${extension}`;
+        download.textContent = "下载图片";
+        card.append(preview, title, meta, download);
+        grid.append(card);
+      });
+      accountActivityList.append(total, grid);
+      if (accountImages.nextCursor && !imageHistoryError) {
+        accountActivityList.append(imageHistoryButton(imageHistoryLoading ? "正在加载…" : "加载更多", "more-images"));
+      }
+    }
+    const studio = document.createElement("a");
+    studio.className = "account-studio-link";
+    studio.href = "/image-generation";
+    studio.textContent = "前往生图工作台";
+    accountActivityList.append(studio);
+  }
+
+  async function loadImageHistory(more = false) {
+    if (imageHistoryLoading) return;
+    const version = imageHistoryVersion;
+    const cursor = more ? accountImages?.nextCursor : null;
+    imageHistoryLoading = true;
+    imageHistoryError = "";
+    if (activeAccountSection === "images") renderImageHistory();
+    try {
+      const data = await api(`/api/v1/image-history?limit=12${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { cache: "no-store" });
+      if (version !== imageHistoryVersion) return;
+      if (!Array.isArray(data.items) || data.items.some((item) => !/^[0-9a-f-]{36}$/.test(item.id))) throw new Error("生图记录格式异常，请重新加载。");
+      accountImages = { ...data, items: cursor ? [...accountImages.items, ...data.items] : data.items };
+    } catch (error) {
+      if (version !== imageHistoryVersion) return;
+      if (error.status === 401) accountImages = null;
+      imageHistoryError = errorMessage(error);
+    } finally {
+      if (version === imageHistoryVersion) {
+        imageHistoryLoading = false;
+        if (activeAccountSection === "images") renderImageHistory();
+      }
+    }
+  }
+
   async function loadAccountActivity() {
     accountLoading.hidden = false;
     try {
@@ -288,6 +498,7 @@
       return;
     }
     void submitForm(registerForm, "/api/v1/auth/register", {
+      code: String(data.get("code") || ""),
       displayName: String(data.get("displayName") || ""),
       email: String(data.get("email") || ""),
       password,
@@ -297,10 +508,51 @@
     });
   });
 
+  document.getElementById("forgot-password").addEventListener("click",()=>{resetForm.elements.email.value=loginForm.elements.email.value;setMode("reset");});
+  document.getElementById("reset-back").addEventListener("click",()=>setMode("login"));
+  for(const button of document.querySelectorAll("[data-email-code]")){
+    button.addEventListener("click",async()=>{
+      const purpose=button.dataset.emailCode;
+      const form=purpose==="verify"?verifyEmailForm:purpose==="reset"?resetForm:registerForm;
+      const field=purpose==="verify"?form.elements.password:form.elements.email;
+      if(!field.reportValidity())return;
+      button.disabled=true;button.textContent="发送中…";showMessage("");
+      try{
+        const data=await api(purpose==="verify"?"/api/v1/account/verify-email/send":"/api/v1/auth/email-code",{method:"POST",body:JSON.stringify(purpose==="verify"?{password:field.value}:{email:field.value,purpose})});
+        showMessage(data.message,true);
+        const until=Date.now()+60000;
+        const tick=()=>{const seconds=Math.max(0,Math.ceil((until-Date.now())/1000));button.textContent=seconds?`${seconds}秒后重发`:"重新获取";button.disabled=seconds>0;return seconds;};
+        tick();const timer=setInterval(()=>{if(!tick())clearInterval(timer);},1000);
+      }catch(error){showMessage(error.name==="TimeoutError"?"发送超时，请稍后重试。":errorMessage(error));button.disabled=false;button.textContent="重新获取";}
+    });
+  }
+  resetForm.addEventListener("submit",async(event)=>{
+    event.preventDefault();const data=new FormData(resetForm);
+    if(data.get("password")!==data.get("confirmPassword")){showMessage("两次输入的密码不一致。");return;}
+    const button=resetForm.querySelector('[type="submit"]');button.disabled=true;
+    try{await api("/api/v1/auth/reset-password",{method:"POST",body:JSON.stringify({email:data.get("email"),code:data.get("code"),password:data.get("password")})});resetForm.reset();loginForm.elements.email.value=data.get("email");loginForm.elements.password.value="";setMode("login");showMessage("密码已重设，旧登录已退出，请使用新密码登录。",true);}
+    catch(error){showMessage(errorMessage(error));}finally{button.disabled=false;}
+  });
+  verifyEmailForm.addEventListener("submit",async(event)=>{
+    event.preventDefault();const data=new FormData(verifyEmailForm);const button=verifyEmailForm.querySelector('[type="submit"]');button.disabled=true;
+    try{const result=await api("/api/v1/account/verify-email",{method:"POST",body:JSON.stringify({password:data.get("password"),code:data.get("code")})});verifyEmailForm.reset();showAccount(result.user);showMessage("邮箱验证成功。",true);}
+    catch(error){showMessage(errorMessage(error));}finally{button.disabled=false;}
+  });
   logoutButton.addEventListener("click", async () => {
     logoutButton.disabled = true;
     try {
       await api("/api/v1/auth/logout", { method: "POST", body: "{}" });
+      imageHistoryVersion += 1;
+      avatarVersion += 1;
+      accountUser = null;
+      clearAvatarSelection();
+      accountAvatar.replaceChildren();
+      avatarStatus("");
+      setAvatarBusy(false);
+      accountImages = null;
+      imageHistoryLoading = false;
+      imageHistoryError = "";
+      accountActivityList.replaceChildren();
       accountPanel.hidden = true;
       document.body.classList.remove("is-account");
       tabs.hidden = false;
@@ -319,12 +571,17 @@
     activeAccountSection = button.dataset.accountSection;
     accountSectionTabs.querySelectorAll("button").forEach((candidate) => candidate.classList.toggle("is-active", candidate === button));
     renderAccountActivity();
+    if (activeAccountSection === "images") void loadImageHistory();
   });
 
   accountActivityList.addEventListener("click", async (event) => {
     const action = event.target.closest("button[data-account-action]")?.dataset.accountAction;
     if (!action) return;
     event.preventDefault();
+    if (action === "more-images" || action === "retry-images") {
+      void loadImageHistory(Boolean(accountImages?.nextCursor));
+      return;
+    }
     try {
       if (action === "clear-history") await api("/api/v1/account/history", { method: "DELETE", body: "{}" });
       if (action === "unsubscribe") await api("/api/v1/account/newsletter", { method: "DELETE", body: "{}" });
@@ -349,18 +606,19 @@
   deleteAccountForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const confirmation = document.getElementById("delete-account-confirmation").value;
+    const password = document.getElementById("delete-account-password").value;
     const button = deleteAccountForm.querySelector('button[type="submit"]');
     button.disabled = true;
     try {
-      await api("/api/v1/account", { method: "DELETE", body: JSON.stringify({ confirmation }) });
-      location.href = "/auth.html#register";
+      await api("/api/v1/account", { method: "DELETE", body: JSON.stringify({ confirmation, password }) });
+      location.href = "/auth#register";
     } catch (error) {
       showMessage(errorMessage(error));
       button.disabled = false;
     }
   });
 
-  adminAccountForm.addEventListener("submit", async (event) => {
+  adminAccountForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const button = adminAccountForm.querySelector('button[type="submit"]');
     const data = new FormData(adminAccountForm);
@@ -394,7 +652,7 @@
     try {
       const response = await fetch("/api/admin/v1/summary", { headers: { Accept: "application/json", Authorization: `Bearer ${token}` } });
       if (!response.ok) throw new Error("管理员令牌不正确");
-      sessionStorage.setItem("nike-admin-token", token);
+      safeSessionStorage.setItem("nike-admin-token", token);
       location.href = nextPath;
     } catch (error) {
       showMessage(error.message || "管理员认证失败");
@@ -414,7 +672,7 @@
       showAccount(data.user);
       void Promise.all([loadAccountSummary(), loadAccountActivity()]);
     } catch {
-      setMode(location.hash === "#register" ? "register" : "login");
+      setMode(location.hash === "#reset" ? "reset" : location.hash === "#register" ? "register" : "login");
     }
   }
 

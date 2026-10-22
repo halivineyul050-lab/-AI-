@@ -4,15 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#6558f5">
+  <link rel="canonical" href="https://ontimo.cn/auth">
   <meta name="description" content="泥壳AI工具站账号登录与注册">
   <title>账号登录 - 泥壳AI工具站</title>
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="stylesheet" href="/design-system.css?v=20260915-2">
-  <link rel="stylesheet" href="/auth.css?v=20260915-purple-2">
-  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="/utility-theme.js?v=20260915-nav-1"></script>
-  <script defer src="/auth.js?v=20260717-1"></script>
-</head>
+  <link rel="stylesheet" href="/auth.css?v=20261012-admin-email-exempt-1">
+  <script defer src="/lucide.min.js?v=0.468.0"></script>
+  <script defer src="/utility-theme.js?v=20261012-mobile-nav-1"></script>
+  <script defer src="/safe-storage.js?v=20260928-1"></script>
+  <script type="module" src="/auth.js?v=20261015-hide-verified-email-1"></script>
+<link rel="stylesheet" href="/credits.css?v=20261013-first-purchase-1"><script defer src="/credits-account.js?v=20261016-grants-1"></script></head>
 <body>
   <header class="auth-header">
     <a class="auth-brand" href="/">
@@ -53,6 +55,7 @@
         <label for="login-password">密码</label>
         <div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="login-password" name="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required placeholder="输入密码"></div>
         <button class="auth-primary" type="submit"><i data-lucide="log-in"></i><span>登录账号</span></button>
+        <button class="auth-text-button" id="forgot-password" type="button">忘记密码？</button>
       </form>
 
       <form class="auth-form" id="register-form" data-auth-form="register" hidden>
@@ -64,15 +67,55 @@
         <div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="至少 10 个字符"></div>
         <label for="register-confirm">确认密码</label>
         <div class="auth-input"><i data-lucide="shield-check"></i><input id="register-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="再次输入密码"></div>
+        <label for="register-code">邮箱验证码</label>
+        <div class="email-code-row"><div class="auth-input"><i data-lucide="shield-check"></i><input id="register-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="6位验证码"></div><button type="button" class="auth-code-send" data-email-code="register">获取验证码</button></div>
+        <p class="email-code-hint">验证码10分钟有效，请检查收件箱和垃圾邮件。</p>
         <label class="consent-row"><input name="consentAccepted" type="checkbox" required><span>我已阅读并同意<a href="/terms">服务条款</a>和<a href="/privacy">隐私政策</a></span></label>
         <button class="auth-primary" type="submit"><i data-lucide="user-plus"></i><span>创建账号</span></button>
       </form>
 
+      <form class="auth-form" id="reset-form" data-auth-form="reset" hidden>
+        <h2>找回密码</h2><p class="email-code-hint">通过已验证的邮箱重设密码。旧账号请先登录账号中心验证邮箱。</p>
+        <label for="reset-email">邮箱</label><div class="auth-input"><i data-lucide="mail"></i><input id="reset-email" name="email" type="email" autocomplete="email" required placeholder="name@example.com"></div>
+        <label for="reset-code">邮箱验证码</label><div class="email-code-row"><div class="auth-input"><i data-lucide="shield-check"></i><input id="reset-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="6位验证码"></div><button type="button" class="auth-code-send" data-email-code="reset">获取验证码</button></div>
+        <label for="reset-password">新密码</label><div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="reset-password" name="password" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="至少10个字符"></div>
+        <label for="reset-confirm">确认新密码</label><div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="reset-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" required placeholder="再次输入新密码"></div>
+        <button class="auth-primary" type="submit">重设密码</button><button type="button" class="auth-text-button" id="reset-back">返回登录</button>
+      </form>
       <section class="account-panel" id="account-panel" hidden>
-        <span class="account-avatar"><i data-lucide="user-round-check"></i></span>
+        <span class="account-avatar" id="account-avatar" aria-label="账号头像"></span>
         <h2 id="account-name">已登录</h2>
         <p id="account-email"></p>
-        <div class="account-stats" aria-label="账号概览">
+        <section id="account-email-security" class="account-email-security" aria-labelledby="email-security-title"><h3 id="email-security-title">邮箱验证</h3><p id="email-security-status" role="status"></p>
+          <form class="auth-form" id="verify-email-form" hidden>
+            <label for="verify-password">当前密码</label><div class="auth-input"><i data-lucide="lock-keyhole"></i><input id="verify-password" name="password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required placeholder="验证当前账号身份"></div>
+            <label for="verify-code">邮箱验证码</label><div class="email-code-row"><div class="auth-input"><i data-lucide="shield-check"></i><input id="verify-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required placeholder="6位验证码"></div><button type="button" class="auth-code-send" data-email-code="verify">获取验证码</button></div>
+            <button class="auth-primary" type="submit">验证邮箱</button>
+          </form>
+        </section>
+          <form class="account-avatar-form" id="avatar-form" aria-label="更换头像">
+            <div class="avatar-controls">
+              <label class="avatar-select" for="avatar-file">更换头像<input id="avatar-file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="选择头像图片"></label>
+              <button type="submit" id="avatar-save" hidden>保存头像</button>
+              <button type="button" id="avatar-cancel" hidden>取消</button>
+              <button type="button" id="avatar-reset" hidden>恢复默认</button>
+            </div>
+            <p class="avatar-hint">支持 JPG、PNG、WebP，最大 2MB</p>
+            <p id="avatar-message" role="status" aria-live="polite" hidden></p>
+          </form>
+        <section id="account-credits" class="credits-card">
+          <header class="credit-section-head"><div><span class="credit-eyebrow">MY CREDITS</span><h2>我的积分</h2><p>管理你的创作余额与充值记录</p></div><button type="button" data-refresh class="credit-refresh"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新余额</button></header>
+          <div class="credit-overview">
+            <div class="credit-wallet"><span class="credit-wallet-label">可用积分</span><strong class="credits-balance">—</strong><div class="credit-wallet-bottom"><span data-frozen>正在读取积分</span><span class="credit-wallet-tag">生图账户</span></div></div>
+            <div class="credit-redeem"><div class="credit-block-heading"><span class="credit-symbol" aria-hidden="true"><i data-lucide="ticket"></i></span><div><h3>兑换码充值</h3><p>输入兑换码，积分即时到账</p></div></div><form><label for="credit-redeem-code" class="credit-sr-only">兑换码</label><div class="credit-redeem-input"><input id="credit-redeem-code" name="code" required maxlength="160" autocomplete="off" placeholder="输入你的兑换码"><button type="submit">兑换积分<i data-lucide="arrow-right" aria-hidden="true"></i></button></div></form><p class="credit-gift-note" data-gift></p></div>
+          </div>
+          <p role="status" aria-live="polite" class="credit-status"></p>
+          <div class="credit-subsection-head"><h3>充值套餐</h3><span>选择适合你的创作额度</span></div>
+          <div class="credits-grid credit-pack-grid" data-packs></div>
+          <div class="credit-payment-notice"><i data-lucide="info" aria-hidden="true"></i><p>支付宝 / 微信扫码付款后提交凭证，由管理员核实收款；审核通过后直接到账或领取单次兑换码。 <a href="/recharge">进入充值中心 →</a></p></div>
+          <div class="credit-subsection-head credit-ledger-head"><h3>积分明细</h3><span>每一笔积分变动，都有记录</span></div>
+          <div class="credit-ledger" data-ledger></div>
+        </section><div class="account-stats" aria-label="账号概览">
           <div><strong id="account-favorites">0</strong><span>我的收藏</span></div>
           <div><strong id="account-ratings">0</strong><span>我的评分</span></div>
           <div><strong id="account-submissions">0</strong><span>我的投稿</span></div>
@@ -86,7 +129,8 @@
           <button type="button" data-account-section="ratings">评分</button>
           <button type="button" data-account-section="submissions">投稿</button>
           <button type="button" data-account-section="feedback">反馈</button>
-          <button type="button" data-account-section="history">历史</button>
+          <button type="button" data-account-section="images">生图历史</button>
+          <button type="button" data-account-section="history">浏览历史</button>
           <button type="button" data-account-section="newsletter">订阅</button>
         </div>
         <div class="account-activity" id="account-activity" aria-live="polite">
@@ -95,7 +139,7 @@
         </div>
         <div class="account-actions">
           <a class="auth-primary" href="/"><i data-lucide="layout-grid"></i><span>进入工具库</span></a>
-          <a class="auth-secondary" id="admin-entry" href="/admin.html" hidden><i data-lucide="shield-check"></i><span>进入运营中心</span></a>
+          <a class="auth-secondary" id="admin-entry" href="/admin" hidden><i data-lucide="shield-check"></i><span>进入运营中心</span></a>
           <button class="auth-secondary" id="logout-button" type="button"><i data-lucide="log-out"></i><span>退出登录</span></button>
         </div>
         <section class="account-danger">
@@ -104,6 +148,8 @@
             <p>注销后收藏、评分和浏览历史将永久删除且无法恢复。</p>
             <label for="delete-account-confirmation">输入 DELETE 确认</label>
             <input id="delete-account-confirmation" autocomplete="off" required pattern="DELETE">
+            <label for="delete-account-password">当前密码</label>
+            <input id="delete-account-password" type="password" autocomplete="current-password" minlength="10" maxlength="128" required>
             <button class="danger-button" type="submit">永久注销账号</button>
           </form>
         </section>
@@ -112,3 +158,4 @@
   </main>
 </body>
 </html>
+

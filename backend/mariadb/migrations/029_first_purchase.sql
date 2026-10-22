@@ -1,0 +1,9 @@
+ALTER TABLE manual_recharge_orders ADD COLUMN IF NOT EXISTS package_id VARCHAR(191);
+ALTER TABLE manual_recharge_orders ADD COLUMN IF NOT EXISTS first_purchase INT NOT NULL DEFAULT 0;
+ALTER TABLE manual_recharge_orders ADD COLUMN IF NOT EXISTS original_price_cents BIGINT;
+CREATE TABLE IF NOT EXISTS credit_purchase_claims(user_id VARCHAR(191) COLLATE utf8mb4_bin PRIMARY KEY,order_id VARCHAR(36) NOT NULL,created_at VARCHAR(32) NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT IGNORE INTO credit_purchase_claims(user_id,order_id,created_at)
+SELECT user_id,MIN(id),MIN(COALESCE(reviewed_at,created_at)) FROM manual_recharge_orders WHERE status='approved' GROUP BY user_id;
+UPDATE manual_recharge_orders SET package_id='starter',first_purchase=1,original_price_cents=600 WHERE price_cents=1 AND credits=600;
+UPDATE credit_config SET config_json=json_set(config_json,'$.firstPurchase',json_object('enabled',1,'packageId','starter','priceCents',1,'originalPriceCents',600)) WHERE json_extract(config_json,'$.firstPurchase') IS NULL;
+
