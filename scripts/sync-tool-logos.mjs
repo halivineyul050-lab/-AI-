@@ -13,8 +13,8 @@ import { resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const catalogDir = resolve(root, "backend", "catalog");
 const seedPath = resolve(root, "backend", "seed-data.json");
-const appPath = resolve(root, "app.js");
-const assetDir = resolve(root, "assets", "tool-logos");
+const appPath = resolve(root, "public", "app.js");
+const assetDir = resolve(root, "public", "assets", "tool-logos");
 const manifestPath = resolve(catalogDir, "tool-logo-manifest-2026-07-15.json");
 const verifyOnly = process.argv.includes("--verify");
 const refreshAssets = process.argv.includes("--refresh");
@@ -241,7 +241,7 @@ function generatedMonogram(record) {
 }
 
 async function downloadRecord(record, previous) {
-  if (!refreshAssets && previous?.localPath && existsSync(resolve(root, previous.localPath.slice(1)))) {
+  if (!refreshAssets && previous?.localPath && existsSync(resolve(root, "public", previous.localPath.slice(1)))) {
     return previous;
   }
   const override = logoSourceOverrides[record.recordId];
@@ -371,7 +371,7 @@ function verify(records, manifest) {
     if (!entry) throw new Error(`Manifest 缺少 ${record.name}`);
     if (!localLogoPattern.test(record.logoUrl || "")) throw new Error(`${record.name} 未使用本地 Logo`);
     if (record.logoUrl !== entry.localPath) throw new Error(`${record.name} 的数据路径与 Manifest 不一致`);
-    const absolutePath = resolve(root, entry.localPath.slice(1));
+    const absolutePath = resolve(root, "public", entry.localPath.slice(1));
     if (!existsSync(absolutePath) || !statSync(absolutePath).isFile()) throw new Error(`${record.name} Logo 文件不存在`);
     const buffer = readFileSync(absolutePath);
     const detected = detectImage(buffer, entry.contentType);

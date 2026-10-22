@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f766e">
+  <meta name="theme-color" content="#7044ff">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="泥壳AI工具站">
   <meta property="og:title" content="泥壳AI工具站 - 发现真正能用的 AI 工具">
@@ -21,66 +21,58 @@
   <link rel="preconnect" href="https://www.google.com">
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="canonical" href="https://ontimo.cn/">
-  <link rel="stylesheet" href="/design-system.css?v=20260915-2">
-<link rel="stylesheet" href="/styles.css?v=20260915-nav-1">
+  <link rel="stylesheet" href="/design-system.css?v=20260929-foundation-1">
+<link rel="stylesheet" href="/styles.css?v=20261020-engage-layout-1">
+  <link rel="stylesheet" href="/assets/css/site/site-homepage.css?v=20261020-hero-reference-2">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"泥壳AI工具站","url":"https://ontimo.cn/","description":"按任务发现、筛选和比较实用的AI工具","potentialAction":{"@type":"SearchAction","target":"https://ontimo.cn/?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
   <script id="tool-list-schema" type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"AI工具目录","numberOfItems":138,"itemListElement":[]}</script>
-  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="/app.js?v=20260825-1"></script>
-</head>
-<body>
+  <script defer src="/header-account.js?v=20261012-mobile-nav-1"></script>
+  <script defer src="/lucide.min.js?v=0.468.0"></script>
+  <script defer src="/safe-storage.js?v=20260928-1"></script>
+  <script defer src="/app.js?v=20261021-news8-1"></script><link rel="stylesheet" href="/news-sync.css?v=20261012-1"><link rel="stylesheet" href="/site-header.css?v=20261012-mobile-nav-1"></head>
+<body class="home-redesign">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
 
   <div class="app-shell">
-    <header class="site-header" id="site-header">
+    <header class="site-header site-header-shared" id="site-header">
       <div class="site-header-inner">
         <a class="site-brand" href="#tools" data-view-link="tools" aria-label="泥壳AI工具站首页">
           <span class="brand-mark" aria-hidden="true"><img src="/brand-icon-192.png?v=20260916-2" alt=""></span>
           <span class="site-brand-copy"><strong>泥壳AI</strong><small>工具站</small></span>
         </a>
 
-        <nav class="site-nav" aria-label="主导航">
-          <button class="nav-item is-active" type="button" data-view="tools">工具库</button>
-          <div class="nav-dropdown-wrap">
-            <button class="nav-item nav-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
-              分类<i data-lucide="chevron-down" class="dropdown-caret"></i>
-            </button>
-            <div class="nav-dropdown" id="nav-category-dropdown" hidden></div>
-          </div>
-          <button class="nav-item" type="button" data-view="discover">发现</button>
-          <button class="nav-item" type="button" data-view="rankings">榜单</button>
-          <button class="nav-item" type="button" data-view="tutorials">教程</button>
-          <button class="nav-item" type="button" data-view="news">资讯</button>
-          <a class="nav-item" href="/video-pricing.html">视频模型价格</a>
-          <a class="nav-item" href="/image-generation">AI 生图</a><a class="nav-item" href="/utilities">小工具</a><a class="nav-item" href="/games">休闲小游戏</a>
-        </nav>
+        <nav class="site-nav" aria-label="主导航" data-site-shell="app" data-page="tools"><!-- site-navigation:start -->
+<details class="nav-more nav-group"><summary class="nav-item is-active">AI 工具<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/" aria-current="page">工具库</a><a href="/discover">发现</a><a href="/rankings">工具榜单</a><a href="/video-pricing">视频模型价格</a></div></details>
+<details class="nav-more nav-group"><summary class="nav-item">创作与效率<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="dropdown-caret"><path d="m6 9 6 6 6-6"/></svg></summary><div class="nav-more-menu"><a href="/image-generation">AI 生图</a><a href="/nestdutio">NeStudio</a><a href="/explain">交互讲解</a><a href="/utilities">实用小工具</a><a href="/skills">Skills</a><a href="/games">小游戏</a></div></details><button class="nav-item" type="button" data-view="news">资讯与教程</button><a class="nav-item" href="/creator">关于我</a>
+<!-- site-navigation:end --></nav>
 
         <div class="site-header-actions">
           <form class="global-search" id="search-form" role="search">
-            <i data-lucide="search" aria-hidden="true"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <label class="sr-only" for="global-search-input">搜索AI工具</label>
             <input id="global-search-input" type="search" autocomplete="off" placeholder="搜索工具、任务或能力">
             <button class="search-clear" id="search-clear" type="button" aria-label="清空搜索" title="清空搜索" hidden>
-              <i data-lucide="x"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
           </form>
           <button class="submit-tool-button" id="submit-tool-open" type="button">
-            <i data-lucide="circle-plus"></i><span>提交工具</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg><span>提交工具</span>
           </button>
           <div class="topbar-actions">
             <button class="icon-button" id="theme-toggle" type="button" aria-label="切换深色模式" title="切换深色模式">
-              <i data-lucide="moon"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.464.402.807a6.25 6.25 0 0 0 8.268 8.268c.344-.215.83-.004.803.397"/></svg>
             </button>
-            <button class="icon-button action-with-count favorites-entry" id="favorite-toggle" type="button" aria-label="我的收藏" aria-pressed="false" title="我的收藏">
-              <i data-lucide="bookmark"></i><span class="favorites-entry-label">我的收藏</span><span id="favorite-count">0</span>
-            </button>
+            
             <button class="icon-button action-with-count" id="compare-open" type="button" aria-label="打开工具对比" title="工具对比">
-              <i data-lucide="columns-3"></i><span id="compare-count">0</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg><span id="compare-count">0</span>
             </button>
             <button class="icon-button mobile-menu-button" id="mobile-menu-open" type="button" aria-label="打开导航" title="打开导航">
-              <i data-lucide="menu"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
           </div>
+          <details class="header-account-menu"><summary><a class="header-login" href="/auth">登录</a></summary><div class="nav-more-menu"><a href="/auth">账号中心</a><button class="icon-button action-with-count favorites-entry" id="favorite-toggle" type="button" aria-label="我的收藏" aria-pressed="false" title="我的收藏">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span class="favorites-entry-label">我的收藏</span><span id="favorite-count">0</span>
+            </button></div></details>
         </div>
       </div>
     </header>
@@ -106,13 +98,10 @@
         <button class="nav-item" type="button" data-view="rankings">
           <i data-lucide="trophy"></i><span>榜单</span>
         </button>
-        <button class="nav-item" type="button" data-view="tutorials">
-          <i data-lucide="book-open"></i><span>教程</span>
-        </button>
         <button class="nav-item" type="button" data-view="news">
-          <i data-lucide="newspaper"></i><span>资讯</span>
+          <i data-lucide="newspaper"></i><span>资讯与教程</span>
         </button>
-        <a class="nav-item" href="/video-pricing.html"><i data-lucide="clapperboard"></i><span>视频模型价格</span></a>
+        <a class="nav-item" href="/video-pricing"><i data-lucide="clapperboard"></i><span>视频模型价格</span></a>
         <a class="nav-item" href="/image-generation"><i data-lucide="image"></i><span>AI 生图</span></a>
         <button class="nav-item" type="button" id="mobile-favorites-open">
           <i data-lucide="bookmark"></i><span>我的收藏</span><span class="nav-count" id="mobile-favorite-count">0</span>
@@ -140,35 +129,41 @@
     <main class="main-area" id="main-content">
 
       <section class="view is-visible" id="tools-view" data-view-section="tools">
-        <section class="hero-section" aria-labelledby="hero-title">
-          <p class="hero-eyebrow">泥壳AI & 专注AIGC内容和数据复盘</p>
-          <h1 id="hero-title">找到真正能用的 AI 工具</h1>
-          <p class="hero-sub">发现好用的 AI 工具，让每一个需求，都能找到合适的 AI</p>
-          <form class="hero-search" id="hero-search-form" role="search">
-            <i data-lucide="search" aria-hidden="true"></i>
-            <label class="sr-only" for="hero-search-input">搜索AI工具</label>
-            <input id="hero-search-input" type="search" autocomplete="off" placeholder="搜索工具、任务或能力，如：视频生成、写代码、做 PPT">
-            <button class="hero-search-submit" type="submit"><span>搜索</span><i data-lucide="arrow-right"></i></button>
-          </form>
-          <div class="hero-hotwords">
-            <span class="hero-hotwords-label">热门搜索：</span>
-            <div class="hero-hotwords-list" id="hero-hotwords"></div>
-          </div>
-          <div class="hero-stats" aria-label="工具库状态">
-            <span><strong id="directory-tool-total">137</strong><small>已收录工具</small></span>
-            <span><strong id="directory-category-total">17</strong><small>使用场景分类</small></span>
+        <section class="hero-section hero-reference" aria-labelledby="hero-title">
+          <div class="hero-main">
+            <p class="hero-eyebrow"><i data-lucide="sparkles" aria-hidden="true"></i><span>发现更好的 AI 工具</span></p>
+            <h1 id="hero-title">这周 AI 圈，<br>又冒出不少<span>新玩具。</span></h1>
+            <p class="hero-sub">聚合全球优质 AI 工具，精选最新资讯和实用教程，<br>帮你发现 AI 的更多可能。</p>
+            <form class="hero-search" id="hero-search-form" role="search">
+              <i data-lucide="search" aria-hidden="true"></i>
+              <label class="sr-only" for="hero-search-input">搜索 AI 工具、教程或你感兴趣的内容</label>
+              <input id="hero-search-input" type="search" autocomplete="off" placeholder="搜索 AI 工具、教程或你感兴趣的内容...">
+              <button class="hero-search-submit" type="submit"><span>搜索</span><i data-lucide="arrow-right" aria-hidden="true"></i></button>
+            </form>
           </div>
         </section>
+        <nav class="home-shortcuts" id="home-shortcut-grid" aria-label="快捷发现 AI 工具">
+          <a class="home-shortcut" href="/news"><span class="shortcut-icon shortcut-pink"><i data-lucide="flame" aria-hidden="true"></i></span><span><strong>热点速递</strong><small>了解最新 AI 动态</small></span></a>
+          <button class="home-shortcut" type="button" data-category="image"><span class="shortcut-icon shortcut-purple"><i data-lucide="image" aria-hidden="true"></i></span><span><strong>AI 绘画</strong><small>文字生成精美图片</small></span></button>
+          <button class="home-shortcut" type="button" data-category="writing"><span class="shortcut-icon shortcut-blue"><i data-lucide="file-text" aria-hidden="true"></i></span><span><strong>AI 写作</strong><small>激发创作灵感</small></span></button>
+          <button class="home-shortcut" type="button" data-category="video"><span class="shortcut-icon shortcut-orange"><i data-lucide="play" aria-hidden="true"></i></span><span><strong>视频生成</strong><small>让想法动起来</small></span></button>
+          <button class="home-shortcut" type="button" data-category="office"><span class="shortcut-icon shortcut-green"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i></span><span><strong>PPT 生成</strong><small>一键生成演示文稿</small></span></button>
+          <button class="home-shortcut" type="button" data-category="agent"><span class="shortcut-icon shortcut-purple"><i data-lucide="box" aria-hidden="true"></i></span><span><strong>AI 智能体</strong><small>打造专属助手</small></span></button>
+          <a class="home-shortcut" href="#directory"><span class="shortcut-icon shortcut-blue"><i data-lucide="layout-grid" aria-hidden="true"></i></span><span><strong>更多工具</strong><small>探索全部分类 →</small></span></a>
+        </nav>
 
-        <section class="trust-band" aria-label="为什么信任泥壳AI">
-          <div class="trust-band-item"><i data-lucide="badge-check"></i><span><strong>人工核验</strong><small>收录前逐条核对官网与公开资料</small></span></div>
-          <div class="trust-band-item"><i data-lucide="refresh-cw"></i><span><strong>持续更新</strong><small>价格、状态与链接定期复核</small></span></div>
-          <div class="trust-band-item"><i data-lucide="shield-check"></i><span><strong>透明标识</strong><small>推广内容单独标注，不混入推荐</small></span></div>
+        <section class="home-section home-hot-section" aria-labelledby="home-hot-title">
+          <div class="home-section-heading">
+            <div><h2 id="home-hot-title"><i data-lucide="sparkles" aria-hidden="true"></i>AI 圈新鲜事</h2><p class="home-section-deck">每天更新全球 AI 领域的最新动态、产品发布和深度解读</p></div>
+            <a class="text-button" href="/news"><span>查看更多资讯</span><i data-lucide="chevron-right" aria-hidden="true"></i></a>
+          </div>
+          <p id="home-news-sync-time" class="section-note" hidden></p><div class="home-hot-list" id="home-news-list" role="list" aria-live="polite" aria-busy="true"></div>
+          <p class="home-hot-empty" id="home-news-empty" aria-live="polite">正在翻看最近资讯…</p>
         </section>
 
         <section class="home-section featured-section" aria-labelledby="featured-title">
           <div class="home-section-heading">
-            <div><p class="eyebrow">TRENDING</p><h2 id="featured-title">热门 AI 产品 · 官网直达</h2></div>
+            <div><h2 id="featured-title"><i data-lucide="crown" aria-hidden="true"></i>热门 AI 产品 · 官方直达</h2><p class="home-section-deck">精选全球优秀的 AI 工具，让好工具触手可及</p></div>
             <button class="text-button" type="button" id="featured-view-all"><span>查看全部</span><i data-lucide="arrow-right"></i></button>
           </div>
           <div class="featured-tool-grid" id="featured-tool-grid"></div>
@@ -194,7 +189,7 @@
           </div>
         </section>
 
-        <div class="page-header directory-header">
+        <div class="page-header directory-header" id="directory">
           <div>
             <div class="title-row">
               <h2>全部工具</h2>
@@ -399,34 +394,28 @@
         </div></div>
       </section>
 
-      <section class="view" id="tutorials-view" data-view-section="tutorials" hidden>
-        <div class="page-header compact-header">
-          <div>
-            <p class="eyebrow">PRACTICAL GUIDES</p>
-            <h2>实用教程</h2>
-            <p class="page-summary">从具体任务出发，快速掌握工具组合与工作流。</p>
-          </div>
-          <div class="content-tabs" aria-label="教程分类">
-            <button class="is-active" type="button">全部</button>
-            <button type="button">办公</button>
-            <button type="button">创作</button>
-            <button type="button">开发</button>
-          </div>
-        </div>
-        <div class="article-list" id="tutorial-list"></div>
-      </section>
-
       <section class="view" id="news-view" data-view-section="news" hidden>
         <div class="page-header compact-header">
           <div>
             <p class="eyebrow">AI INDUSTRY BRIEF</p>
-            <h2>AI 资讯</h2>
-            <p class="page-summary">产品发布、模型更新与行业动态。</p>
+            <h2>资讯与教程</h2>
+            <p class="page-summary">了解 AI 最新动态，学习实用工具与工作流。</p>
           </div>
           <div class="date-chip"><i data-lucide="calendar"></i><span id="news-updated-date">最近更新</span></div>
         </div>
+        <div class="content-tabs" id="content-kind-tabs" aria-label="内容类型"><button class="is-active" type="button" data-content-kind="all" aria-pressed="true">全部</button><button type="button" data-content-kind="news" aria-pressed="false">资讯</button><button type="button" data-content-kind="tutorials" aria-pressed="false">教程</button></div>
         <div class="news-layout">
-          <div class="article-list" id="news-list"></div>
+          <div class="news-main-column">
+            <section class="news-hot-section" aria-labelledby="news-hot-title">
+              <div class="news-hot-heading">
+                <div><p class="eyebrow">MULTI-SOURCE SIGNAL</p><h2 id="news-hot-title">近 48 小时热点</h2></div>
+                <span class="news-hot-window">按来源站点与时间更新</span>
+              </div>
+              <div class="news-hot-list" id="news-hot-list" role="list" aria-live="polite" aria-busy="true"></div>
+              <p class="news-hot-empty" id="news-hot-empty" aria-live="polite">正在整理多站点热点…</p>
+            </section>
+            <p id="news-sync-time" class="section-note" hidden></p><div class="article-list" id="news-list"></div><div class="news-pagination"><button class="secondary-button" type="button" id="news-load-more" hidden>加载更多资讯</button></div>
+          </div>
           <aside class="news-sidebar">
             <div class="section-heading"><div><p class="eyebrow">TOPICS</p><h2>热门主题</h2></div></div>
             <div class="topic-cloud" id="topic-cloud"></div>
@@ -440,7 +429,7 @@
                 <label class="newsletter-consent"><input id="newsletter-consent" type="checkbox" required><span>同意接收周报并接受隐私政策</span></label>
                 <button class="primary-button" type="submit">订阅周报</button>
               </form>
-              <div class="newsletter-note"><i data-lucide="info"></i><span>目前为订阅登记。可随时通过问题反馈申请退订或删除订阅邮箱。</span></div>
+              <div class="newsletter-note"><i data-lucide="info"></i><span>订阅成功后，每周一发送周报，不会立即发送邮件。可通过邮件中的退订链接取消订阅。</span></div>
             </div>
           </aside>
         </div>
@@ -566,7 +555,7 @@
 
       <footer class="site-footer">
         <span>© 2026 泥壳AI工具站</span>
-        <nav aria-label="页脚导航">
+        <nav aria-label="页脚导航"><a href="/creator">关于我</a><a href="/games">小游戏</a>
           <a href="/advertise" data-view-link="advertise">广告合作</a>
           <a href="/about" data-view-link="about">关于我们</a>
           <a href="/standards" data-view-link="standards">收录标准</a>
@@ -641,6 +630,9 @@
     </form>
   </dialog>
 
+  <button class="back-to-top" id="back-to-top" type="button" aria-label="回到顶部" hidden>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 12 6-6 6 6M12 6v12"/></svg>
+  </button>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

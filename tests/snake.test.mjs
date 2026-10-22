@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createGame, placeFood, tick, turn } from '../snake-core.mjs';
+import { createGame, placeFood, tick, turn } from '../public/snake-core.mjs';
 test('food selects free cells and full boards have no food', () => {
   assert.deepEqual(placeFood([{x:0,y:0},{x:1,y:0},{x:0,y:1}], 2, () => 0), {x:1,y:1});
   assert.equal(placeFood([{x:0,y:0}], 1), null);

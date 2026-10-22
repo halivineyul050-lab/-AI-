@@ -4,8 +4,8 @@ import { resolve } from "node:path";
 import test from "node:test";
 
 const root = resolve(import.meta.dirname, "..");
-const html = readFileSync(resolve(root, "index.html"), "utf8");
-const app = readFileSync(resolve(root, "app.js"), "utf8");
+const html = readFileSync(resolve(root, "public", "index.html"), "utf8");
+const app = readFileSync(resolve(root, "public", "app.js"), "utf8");
 
 test("favorites are discoverable from labeled desktop and mobile entries", () => {
   assert.match(html, /id="favorite-toggle"[\s\S]{0,400}我的收藏/);

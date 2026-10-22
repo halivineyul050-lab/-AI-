@@ -8,6 +8,7 @@
     "start": "node --env-file-if-exists=.env --no-warnings server.mjs",
     "dev": "node --env-file-if-exists=.env --no-warnings --watch server.mjs",
     "test": "node --no-warnings --test --test-concurrency=1 tests/*.test.mjs",
+    "frontend:navigation": "node scripts/build-site-navigation.mjs",
     "seed:export": "node scripts/export-seed.mjs",
     "logos:sync": "node --no-warnings scripts/sync-tool-logos.mjs",
     "logos:verify": "node --no-warnings scripts/sync-tool-logos.mjs --verify",
@@ -19,6 +20,10 @@
     "node": ">=22.5.0"
   },
   "dependencies": {
-    "mysql2": "3.24.4"
+    "@sparticuz/chromium": "153.0.0",
+    "fast-xml-parser": "5.11.2",
+    "mysql2": "3.24.4",
+    "playwright-core": "1.58.2",
+    "fflate": "0.8.3"
   }
 }

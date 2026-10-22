@@ -25,7 +25,7 @@ test("all published catalog definitions use verified local logo assets", () => {
     assert.ok(entry, `Manifest 缺少 ${record.name}`);
     assert.match(entry.sourceLogoUrl, /^https:\/\//);
     assert.equal(entry.verifiedAt, "2026-07-15");
-    const path = resolve(root, record.logoUrl.slice(1));
+    const path = resolve(root, "public", record.logoUrl.slice(1));
     assert.ok(existsSync(path) && statSync(path).isFile(), `${record.name} Logo 文件不存在`);
     const buffer = readFileSync(path);
     assert.equal(buffer.length, entry.bytes);

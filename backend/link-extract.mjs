@@ -10,6 +10,7 @@ import { Transform } from 'node:stream';
 import { spawn } from 'node:child_process';
 import { parseShare, allowedMedia, publicAddress } from './link-extract-core.mjs';
 import { extractInBrowser } from './link-extract-browser.mjs';
+import { extractPublicDouyin } from './douyin-public.mjs';
 
 const MAX_BYTES=1024**3;
 export async function openMedia(value,{signal,range,redirects=0}={}) {
@@ -37,23 +38,32 @@ export async function convertAudio(input,output,{signal,ffmpeg=process.env.NIKE_
   child.on('close',code=>code===0&&!processError?resolve():reject(new Error(processError?'音频处理已停止或不可用，请检查本机 FFmpeg。':/matches no streams/.test(error)?'这个视频没有可提取的音轨。':'音频提取失败，请确认视频可正常播放后重试。')));
  });
 }
-export function createLinkExtractor({endpoint=process.env.NIKE_LINK_BROWSER_WS||'',portFile=process.env.NIKE_LINK_BROWSER_FILE||''}={}) {
- const tickets=new Map();let parsing=false,audioBusy=false;
- function ticket(id){const value=tickets.get(id);if(!value||value.expires<Date.now()){tickets.delete(id);throw new Error('下载链接已过期，请重新解析。');}return value;}
+export function createLinkExtractor({endpoint=process.env.NIKE_LINK_BROWSER_WS||'',portFile=process.env.NIKE_LINK_BROWSER_FILE||'',publicMode=false,extractPublic=extractPublicDouyin}={}) {
+ const tickets=new Map();let parsing=false,audioBusy=false,downloads=0;
+ function ticket(id,owner){const value=tickets.get(id);if(!value||value.expires<Date.now()||publicMode&&value.owner!==owner){if(value?.expires<Date.now())tickets.delete(id);throw new Error('下载链接已过期或不可用，请重新解析。');}return value;}
  return {
-  enabled:Boolean(endpoint||portFile),
-  async parse(text,signal){
-   if(!endpoint&&!portFile)throw new Error('本机解析尚未启用。请配置本机浏览器连接后使用。');
+  enabled:publicMode||Boolean(endpoint||portFile),publicMode,
+  async parse(text,signal,owner){
+   if(publicMode&&!owner)throw new Error('请先登录后解析。');
+   if(!publicMode&&!endpoint&&!portFile)throw new Error('本机解析尚未启用。请配置本机浏览器连接后使用。');
+   if(publicMode&&parseShare(text).platform!=='douyin')throw new Error('在线原型暂时只支持抖音单条公开视频。');
    const share=parseShare(text);if(parsing)throw new Error('已有一条链接正在解析，请稍后再试。');parsing=true;
-   try{let ws=endpoint;if(portFile){let info;try{info=(await readFile(portFile,'utf8')).trim().split(/\r?\n/);}catch{throw new Error('无法读取本机浏览器连接，请先打开解析浏览器并启用远程调试。');}if(!/^\d+$/.test(info[0])||!/^\/devtools\/browser\/[a-z\d-]+$/i.test(info[1]))throw new Error('本机浏览器连接文件无效。');ws=`ws://127.0.0.1:${info[0]}${info[1]}`;}
-    const result=await extractInBrowser(share,ws,signal);for(const [id,t] of tickets)if(t.expires<Date.now())tickets.delete(id);if(tickets.size>=30)tickets.delete(tickets.keys().next().value);
-    const id=randomBytes(24).toString('hex');tickets.set(id,{...result,expires:Date.now()+20*60*1000});
+   try{let ws=endpoint;if(!publicMode&&portFile){let info;try{info=(await readFile(portFile,'utf8')).trim().split(/\r?\n/);}catch{throw new Error('无法读取本机浏览器连接，请先打开解析浏览器并启用远程调试。');}if(!/^\d+$/.test(info[0])||!/^\/devtools\/browser\/[a-z\d-]+$/i.test(info[1]))throw new Error('本机浏览器连接文件无效。');ws=`ws://127.0.0.1:${info[0]}${info[1]}`;}
+    for(const [id,t] of tickets)if(t.expires<Date.now())tickets.delete(id);
+    if(publicMode&&tickets.size>=100)throw new Error('当前下载任务较多，请稍后再解析。');
+    const result=publicMode?await extractPublic(share,signal):await extractInBrowser(share,ws,signal);
+    if(publicMode&&!result.video)throw new Error('未获取到可下载的视频，请检查原作品。');
+    signal.throwIfAborted();for(const [id,t] of tickets)if(t.expires<Date.now())tickets.delete(id);if(!publicMode&&tickets.size>=30)tickets.delete(tickets.keys().next().value);
+    const id=randomBytes(24).toString('hex');tickets.set(id,{...result,owner,expires:Date.now()+20*60*1000});
     const {audioSource,...publicResult}=result;
-    return {...publicResult,video:result.video?`/api/utilities/link-extract/${id}/video`:null,cover:result.cover?`/api/utilities/link-extract/${id}/cover`:null,audio:result.video||audioSource?`/api/utilities/link-extract/${id}/audio`:null};
+    return {...publicResult,video:result.video?`/api/utilities/link-extract/${id}/video`:null,cover:result.cover?`/api/utilities/link-extract/${id}/cover`:null,audio:!publicMode&&(result.video||audioSource)?`/api/utilities/link-extract/${id}/audio`:null};
    }finally{parsing=false;}
   },
-  async download(id,kind,request,response,signal){
-   const item=ticket(id);if(!['video','audio','cover'].includes(kind))throw new Error('不支持的下载类型。');
+  async download(id,kind,request,response,signal,owner){
+   const item=ticket(id,owner);if(!['video','audio','cover'].includes(kind))throw new Error('不支持的下载类型。');
+   if(publicMode&&kind==='audio')throw new Error('在线原型暂未开放音频提取。');
+   if(downloads>=4)throw new Error('下载请求较多，请稍后重试。');downloads++;
+   try{
    const source=kind==='cover'?item.cover:kind==='audio'?(item.audioSource||item.video):item.video;if(!source)throw new Error('该作品没有此资源。');
    if(kind==='audio'){
     if(audioBusy)throw new Error('已有音频正在提取，请完成后重试。');audioBusy=true;let dir;
@@ -70,6 +80,7 @@ export function createLinkExtractor({endpoint=process.env.NIKE_LINK_BROWSER_WS||
     for(const key of ['content-length','content-range'])if(remote.headers[key])headers[key]=remote.headers[key];
     response.writeHead(remote.statusCode,headers);await pipeline(remote,byteLimit(),response,{signal});
    }
+   }finally{downloads--;}
   }
  };
 }

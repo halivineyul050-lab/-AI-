@@ -2,3 +2,9 @@
 /*$vite$:1*/
 .site-return{position:fixed;z-index:2147483647;top:max(12px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));display:inline-flex;align-items:center;width:max-content;max-width:calc(100vw - 24px);min-height:40px;white-space:nowrap;padding:0 15px;border:1px solid rgba(255,255,255,.25);border-radius:999px;background:rgba(15,18,24,.82);box-shadow:0 8px 28px rgba(0,0,0,.28);color:#fff;text-decoration:none;font:600 14px/1 system-ui,-apple-system,"Segoe UI",sans-serif;backdrop-filter:blur(12px)}.site-return:hover,.site-return:focus-visible{border-color:#ff7a1a;background:rgba(31,24,20,.94);outline:none}
 
+/* Keep the exit control consistent with the other full-screen game portals. */
+.site-return{min-height:40px;padding-inline:15px;border-color:rgba(255,255,255,.2);background:rgba(12,14,18,.78);transition:border-color .18s ease,background-color .18s ease,transform .18s ease}
+.site-return:hover{border-color:rgba(255,132,56,.72);background:rgba(24,20,18,.92);transform:translateY(-1px)}
+.site-return:focus-visible{outline:3px solid rgba(255,132,56,.72);outline-offset:3px}
+#root :is(button,a,[role="button"]):focus-visible{outline:3px solid rgba(255,132,56,.82);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.site-return{transition:none}.site-return:hover{transform:none}#root .kenburns,#root .ind-btn-primary,#root .animate-pulse,#root .glitching{animation:none!important}#root{scroll-behavior:auto!important}}

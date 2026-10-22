@@ -218,7 +218,13 @@ const eventNames = new Set([
   "newsletter_subscribe",
   "filter_apply",
   "tool_favorite",
-  "tool_compare_add"
+  "tool_compare_add",
+  "image_creation_view",
+  "image_case_select",
+  "image_generation_submit",
+  "image_generation_success",
+  "image_generation_failure",
+  "image_result_download"
 ]);
 
 const sensitiveKey = /^(?:authorization|proxy-authorization|api[_-]?key|encryptedApiKey|encrypted_api_key|ciphertext)$/i;
@@ -252,6 +258,7 @@ function validateProperties(properties) {
   }
   const clean = {};
   for (const [key, value] of Object.entries(properties)) {
+    if (/^(?:prompt|negative_?prompt|image|images|image_?url|reference_?images?|image_?data)$/i.test(key)) continue;
     if (!/^[a-zA-Z0-9_]{1,60}$/.test(key)) continue;
     if (sensitiveKey.test(key)) clean[key] = "[secret]";
     else if (typeof value === "string") clean[key] = redactSensitiveText(value).slice(0, 500);
@@ -316,7 +323,7 @@ export function validateImageRevision(body, additionalKeys = []) {
 }
 
 export function validateImageProvider(body, partial = false) {
-  const fields = ["name", "baseUrl", "generationPath", "editPath", "apiKey", "timeoutMs", "enabled"];
+  const fields = ["name", "baseUrl", "generationPath", "editPath", "balancePath", "balanceValueField", "balanceCurrencyField", "apiKey", "timeoutMs", "enabled"];
   assertAllowedKeys(body, partial ? [...fields, "revision"] : fields);
   const result = partial ? validateImageRevision(body, fields) : {};
   if (!partial || Object.hasOwn(body, "name")) result.name = readText(body.name, "name", 1, 80);
@@ -334,6 +341,20 @@ export function validateImageProvider(body, partial = false) {
     const path = readText(body.editPath, "editPath", 0, 200);
     if (path && !/^\/(?!\/)[A-Za-z0-9/_-]+$/.test(path)) throw new HttpError(422, "invalid_field", "参考图编辑路径必须是站内绝对路径");
     result.editPath = path;
+  }
+  if (Object.hasOwn(body, "balancePath")) {
+    const path = readText(body.balancePath, "balancePath", 0, 512);
+    if (path && !/^\/(?!\/)[A-Za-z0-9/_-]+$/.test(path)) throw new HttpError(422, "invalid_field", "余额查询路径必须是平台站内的绝对路径");
+    result.balancePath = path;
+  }
+  for (const [field, optional] of [["balanceValueField", false], ["balanceCurrencyField", true]]) {
+    if (!Object.hasOwn(body, field)) continue;
+    const value = readText(body[field], field, optional ? 0 : 1, 512);
+    const valid = optional && value === "" || /^[A-Za-z0-9_-]{1,64}(?:\.[A-Za-z0-9_-]{1,64})*$/.test(value);
+    if (!valid || value.split(".").some((part) => ["__proto__", "prototype", "constructor"].includes(part))) {
+      throw new HttpError(422, "invalid_field", `${field} 必须是点分隔的 JSON 字段路径`);
+    }
+    result[field] = value;
   }
   if (!partial || Object.hasOwn(body, "apiKey")) {
     if (partial && body.apiKey === "") { /* An empty edit preserves the stored key. */ }

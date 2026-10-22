@@ -22,6 +22,12 @@
   --danger-soft: #fff0f2;
   --info: #3767c7;
   --info-soft: #edf3ff;
+  --coral: #c2410c;
+  --coral-soft: #fff0e8;
+  --amber: #b45309;
+  --amber-soft: #fdf3e2;
+  --blue: #2563eb;
+  --blue-soft: #e9f2fe;
   --radius-xs: 8px;
   --radius-sm: 12px;
   --radius-md: 16px;
@@ -71,6 +77,9 @@
   --danger-soft: #43232c;
   --info: #7aa7ff;
   --info-soft: #202f52;
+  --coral-soft: #40251b;
+  --amber-soft: #3b2d18;
+  --blue-soft: #202f52;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, .32);
   --shadow-sm: 0 10px 28px rgba(0, 0, 0, .22);
   --shadow-md: 0 20px 52px rgba(0, 0, 0, .30);
@@ -93,20 +102,50 @@
     --brand: #9388ff;
     --brand-hover: #aca4ff;
     --brand-soft: #2d2852;
+    --brand-gradient: linear-gradient(135deg, #7568f4 0%, #9388ff 58%, #b279ee 100%);
+    --brand-glow: rgba(147, 136, 255, .25);
+    --success: #55c795;
+    --success-soft: #17392d;
+    --warning: #e6ad52;
+    --warning-soft: #3b2d18;
+    --danger: #f07889;
+    --danger-soft: #43232c;
+    --info: #7aa7ff;
+    --info-soft: #202f52;
+    --coral-soft: #40251b;
+    --amber-soft: #3b2d18;
+    --blue-soft: #202f52;
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, .32);
     --shadow-sm: 0 10px 28px rgba(0, 0, 0, .22);
     --shadow-md: 0 20px 52px rgba(0, 0, 0, .30);
     --shadow-lg: 0 30px 90px rgba(0, 0, 0, .40);
+    --shadow-brand: 0 16px 38px rgba(87, 72, 218, .30);
   }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { background: var(--bg-page); color: var(--text-primary); }
-body { margin: 0; background: var(--bg-page); color: var(--text-primary); font-family: inherit; }
+html { -webkit-text-size-adjust: 100%; background: var(--bg-page); color: var(--text-primary); scroll-behavior: smooth; }
+body {
+  min-width: 320px;
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.65;
+  letter-spacing: -.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 button, input, select, textarea { font: inherit; }
 button, a, input, select, textarea, [tabindex] { -webkit-tap-highlight-color: transparent; }
-a { color: var(--brand); }
+a { color: var(--brand); text-decoration: none; }
 img, canvas, video { max-width: 100%; }
+img { display: block; }
+[hidden] { display: none !important; }
+
+h1, h2, h3, h4, p, ul, ol, dl, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
 
 :focus-visible {
   outline: 3px solid color-mix(in srgb, var(--brand) 68%, white);

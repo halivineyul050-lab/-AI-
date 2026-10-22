@@ -30,7 +30,7 @@ test('utility navigation collapses into a labeled menu that opens and closes', (
     addEventListener(name, listener) { documentListeners[name] = listener; }
   };
 
-  vm.runInNewContext(readFileSync('utility-theme.js', 'utf8'), { document, localStorage: { getItem() {} } });
+  vm.runInNewContext(readFileSync('public/utility-theme.js', 'utf8'), { document, localStorage: { getItem() {} } });
 
   assert.equal(actions.children.length, 1);
   const button = actions.children[0];
@@ -47,7 +47,7 @@ test('utility navigation collapses into a labeled menu that opens and closes', (
 });
 
 test('navigation menu button covers the same responsive range that hides desktop navigation', () => {
-  const css = readFileSync(new URL('../utility-theme.css', import.meta.url), 'utf8');
-  assert.match(css, /@media\(min-width:1281px\)\{\.utility-menu-button\{display:none!important\}\}/);
-  assert.match(css, /@media\(max-width:1280px\).*\.site-nav\{display:none!important\}/s);
+  const css = readFileSync(new URL('../public/utility-theme.css', import.meta.url), 'utf8');
+  assert.match(css, /@media\(min-width:1101px\)\{\.utility-menu-button\{display:none!important\}\}/);
+  assert.match(css, /@media\(max-width:1100px\).*\.site-nav\{display:none!important\}/s);
 });

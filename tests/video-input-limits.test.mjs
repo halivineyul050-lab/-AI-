@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { validateFullVideoMetadata, validateVideoFile } from '../video-input-limits.js';
+import { validateFullVideoMetadata, validateVideoFile } from '../public/video-input-limits.js';
 
 test('video file validation accepts 500MB and rejects larger or empty files', () => {
   assert.doesNotThrow(() => validateVideoFile({ size: 500 * 1024 * 1024 }));

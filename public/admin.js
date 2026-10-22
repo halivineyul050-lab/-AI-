@@ -3,6 +3,7 @@
 
   const POLL_INTERVAL_MS = 5_000;
   const REVIEW_POLL_INTERVAL_MS = 15_000;
+  const IMAGE_BALANCE_POLL_INTERVAL_MS = 60_000;
   const SVG_NS = "http://www.w3.org/2000/svg";
   const WINDOW_HOURS = { "24h": 24, "7d": 168 };
   const DEFAULT_RANGE = "7d";
@@ -21,14 +22,14 @@
     chartResizeFrame: null,
     relativeTimer: null,
     pollTimer: null,
-    token: sessionStorage.getItem("nike-admin-token") || "",
+    token: window.nikaiStorage.session.getItem("nike-admin-token") || "",
     submissions: [],
     reviewLoading: false,
     lastReviewFetchAt: 0,
     cmsEntity: "tools",
     cmsItems: [],
     cmsTotal: 0,
-    cmsLimit: 20,
+    cmsLimit: 5,
     cmsOffset: 0,
     cmsQuery: "",
     cmsStatus: "",
@@ -44,6 +45,8 @@
     users: []
     ,feedback: [],
     imageProviders: [],
+    imageBalances: {},
+    imageBalanceTimer: null,
     imageModels: [],
     imageDiscoveredModels: [],
     imageAdminToken: "",
@@ -184,6 +187,9 @@
     imageProviderBaseUrl: document.querySelector("#image-provider-base-url"),
     imageProviderGenerationPath: document.querySelector("#image-provider-generation-path"),
     imageProviderEditPath: document.querySelector("#image-provider-edit-path"),
+    imageProviderBalancePath: document.querySelector("#image-provider-balance-path"),
+    imageProviderBalanceValueField: document.querySelector("#image-provider-balance-value-field"),
+    imageProviderBalanceCurrencyField: document.querySelector("#image-provider-balance-currency-field"),
     imageProviderTimeout: document.querySelector("#image-provider-timeout"),
     imageProviderEnabled: document.querySelector("#image-provider-enabled"),
     imageProviderKeyHint: document.querySelector("#image-provider-key-hint"),
@@ -217,6 +223,66 @@
     imageModelFormError: document.querySelector("#image-model-form-error"),
     imageModelSave: document.querySelector("#image-model-save")
   };
+
+  let newsletterOffset = 0, newsletterSequence = 0;
+  async function loadNewsletter(offset = newsletterOffset) {
+    const sequence = ++newsletterSequence;
+    const body = document.querySelector('#newsletter-table-body');
+    const message = document.querySelector('#newsletter-message');
+    const previous = document.querySelector('#newsletter-prev'), next = document.querySelector('#newsletter-next');
+    previous.disabled = next.disabled = true;
+    message.textContent = '正在加载订阅名单…';
+    const params = new URLSearchParams({ q: document.querySelector('#newsletter-query').value.trim(), status: document.querySelector('#newsletter-status').value, offset: String(offset) });
+    try {
+      const data = await fetchJson(`/api/admin/v1/newsletter?${params}`, { headers: { Authorization: `Bearer ${state.token}` } });
+      if (sequence !== newsletterSequence) return;
+      newsletterOffset = data.offset;
+      body.replaceChildren();
+      for (const item of data.items) {
+        const row = document.createElement('tr');
+        const source = ({ home_engage: '首页订阅', home_weekly_update: '首页周报', news_sidebar: '资讯页', footer: '页脚订阅' })[item.source] || '其他入口';
+        const values = [item.email, item.accountName || '未关联账号', ({ active: '已订阅', unsubscribed: '已退订', suppressed: '已停发' })[item.status] || '未知状态', item.subscribedAt, item.lastSentAt, source];
+        values.forEach((value, index) => {
+          const cell = document.createElement('td');
+          if (index === 2) {
+            const badge = document.createElement('span'); badge.className = 'newsletter-badge'; badge.dataset.status = item.status; badge.textContent = value; cell.append(badge);
+          } else if (index === 3 || index === 4) {
+            if (value) {
+              const date = new Date(value), dateText = document.createElement('span'), time = document.createElement('small');
+              dateText.className = 'newsletter-date';
+              if (Number.isNaN(date.getTime())) dateText.textContent = '时间未知';
+              else { dateText.textContent = date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }); time.textContent = date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }); dateText.append(time); }
+              cell.append(dateText);
+            } else { cell.className = 'newsletter-muted'; cell.textContent = '尚未发送'; }
+          } else {
+            cell.textContent = value;
+            if (index === 0) cell.className = 'newsletter-email';
+            if (index === 1 && !item.accountName) cell.className = 'newsletter-muted';
+          }
+          row.append(cell);
+        });
+        body.append(row);
+      }
+      if (!data.items.length) {
+        const row = document.createElement('tr'), cell = document.createElement('td');
+        cell.colSpan = 6; cell.className = 'newsletter-empty'; cell.textContent = '没有符合条件的订阅记录，请调整搜索或筛选条件。'; row.append(cell); body.append(row);
+      }
+      const counts = { ...data.counts, total: data.counts.active + data.counts.unsubscribed + data.counts.suppressed };
+      document.querySelectorAll('[data-newsletter-count]').forEach(node => { node.textContent = String(counts[node.dataset.newsletterCount] ?? 0); });
+      message.dataset.error = 'false';
+      document.querySelector('#newsletter-page').textContent = data.total ? `${data.offset + 1}–${Math.min(data.offset + data.items.length, data.total)} / ${data.total} 条` : '0 条';
+      message.textContent = data.items.length ? '名单已更新' : '没有符合条件的订阅记录';
+      previous.disabled = data.offset === 0;
+      next.disabled = data.offset + data.limit >= data.total;
+    } catch (error) {
+      if (sequence !== newsletterSequence) return;
+      body.replaceChildren();
+      document.querySelectorAll('[data-newsletter-count]').forEach(node => { node.textContent = '—'; });
+      message.dataset.error = 'true';
+      document.querySelector('#newsletter-page').textContent = '';
+      message.textContent = messageForError(error);
+    }
+  }
 
   async function loadFeedback() {
     try {
@@ -268,6 +334,12 @@
       account.innerHTML = `<strong></strong><br><small></small>`;
       account.querySelector("strong").textContent = user.displayName || user.email;
       account.querySelector("small").textContent = user.email;
+      const credits = document.createElement("td");
+      const available = document.createElement("strong");
+      available.textContent = Number.isFinite(user.credits?.available) ? `${formatNumber(user.credits.available)} 可用` : "—";
+      const frozen = document.createElement("small");
+      frozen.textContent = Number.isFinite(user.credits?.frozen) ? `${formatNumber(user.credits.frozen)} 冻结` : "积分暂不可用";
+      credits.append(available, document.createElement("br"), frozen);
       const roleCell = document.createElement("td");
       const role = document.createElement("select");
       role.innerHTML = '<option value="member">普通用户</option><option value="admin">管理员</option>';
@@ -306,7 +378,7 @@
         }
       });
       action.append(save);
-      row.append(account, roleCell, statusCell, login, action);
+      row.append(account, credits, roleCell, statusCell, login, action);
       dom.usersTableBody.append(row);
     });
   }
@@ -531,6 +603,9 @@
       dom.imageProviderBaseUrl.value.trim(),
       dom.imageProviderGenerationPath.value.trim(),
       dom.imageProviderEditPath.value.trim(),
+      dom.imageProviderBalancePath.value.trim(),
+      dom.imageProviderBalanceValueField.value.trim(),
+      dom.imageProviderBalanceCurrencyField.value.trim(),
       Number(dom.imageProviderTimeout.value),
       dom.imageProviderEnabled.checked
     ]);
@@ -542,6 +617,9 @@
       String(provider?.baseUrl || "").trim(),
       String(provider?.generationPath || "").trim(),
       String(provider?.editPath || "/v1/images/edits").trim(),
+      String(provider?.balancePath || "").trim(),
+      String(provider?.balanceValueField || "balance").trim(),
+      String(provider?.balanceCurrencyField || "").trim(),
       Number(provider?.timeoutMs),
       Boolean(provider?.enabled)
     ]);
@@ -590,6 +668,47 @@
     return { label: "尚未测试", className: "is-untested" };
   }
 
+  async function queryImageProviderBalance(provider, button) {
+    if (!provider.balancePath || !state.imageAdminToken || document.hidden) return;
+    const key = `provider-balance:${provider.id}`;
+    if (!startImageAction(key, [button])) return;
+    const authGeneration = state.imageAuthGeneration;
+    const authToken = state.imageAdminToken;
+    state.imageBalances[provider.id] = { status: "loading" };
+    renderImageProviders();
+    try {
+      const result = await imageRequest(`${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}/balance`, {
+        method: "POST",
+        body: "{}"
+      });
+      if (!isCurrentImageAuth(authGeneration, authToken)) return;
+      state.imageBalances[provider.id] = { status: "success", ...result };
+    } catch (error) {
+      if (!isCurrentImageAuth(authGeneration, authToken)) return;
+      state.imageBalances[provider.id] = { status: "error", message: messageForError(error) };
+    } finally {
+      setImageActionBusy(key, false);
+      if (isCurrentImageAuth(authGeneration, authToken)) renderImageProviders();
+    }
+  }
+
+  function refreshConfiguredImageBalances() {
+    if (!state.imageAdminToken || document.hidden) return Promise.resolve();
+    return Promise.all(state.imageProviders.filter((provider) => provider.balancePath)
+      .map((provider) => queryImageProviderBalance(provider, null)));
+  }
+
+  function startImageBalanceAutoRefresh() {
+    if (!state.imageAdminToken) return;
+    if (!state.imageBalanceTimer) {
+      state.imageBalanceTimer = window.setInterval(
+        () => refreshConfiguredImageBalances(),
+        IMAGE_BALANCE_POLL_INTERVAL_MS
+      );
+    }
+    void refreshConfiguredImageBalances();
+  }
+
   function populateProviderSelect(select, selectedId = "") {
     select.replaceChildren();
     state.imageProviders.forEach((provider) => {
@@ -636,6 +755,7 @@
           state.imageModels = asArray(modelPayload?.items);
           renderImageProviders();
           renderImageModels();
+          startImageBalanceAutoRefresh();
           dom.imageWorkspaceStatus.textContent = `${state.imageProviders.length} 个平台 · ${state.imageModels.length} 个模型`;
         } catch (error) {
           if (!isCurrentImageAuth(authGeneration, authToken)) break;
@@ -694,10 +814,13 @@
   }
 
   function resetImageWorkspace() {
+    if (state.imageBalanceTimer) window.clearInterval(state.imageBalanceTimer);
+    state.imageBalanceTimer = null;
     state.imageAdminToken = "";
     state.imageAuthGeneration += 1;
     state.imageRefreshQueued = false;
     state.imageProviders = [];
+    state.imageBalances = {};
     state.imageModels = [];
     state.imageActions.clear();
     dom.imageAdminToken.value = "";
@@ -748,6 +871,35 @@
         facts.append(fact);
       });
 
+      const balanceState = state.imageBalances[provider.id];
+      const balancePanel = document.createElement("div");
+      balancePanel.className = "image-provider-balance";
+      const balanceCopy = document.createElement("div");
+      balanceCopy.className = "image-provider-balance-copy";
+      balanceCopy.append(imageText("span", "账户余额"));
+      let balanceValue = "尚未查询";
+      let balanceDetail = "页面可见时每 60 秒自动刷新";
+      let balanceClass = "";
+      if (!provider.balancePath) {
+        balanceValue = "未配置余额接口";
+        balanceDetail = "在平台设置中填写接口路径和 JSON 字段";
+      } else if (balanceState?.status === "loading") {
+        balanceValue = "正在查询…";
+        balanceDetail = "正在安全连接平台账户接口";
+      } else if (balanceState?.status === "success") {
+        balanceValue = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 8 }).format(balanceState.balance);
+        balanceDetail = `自动刷新中 · ${balanceState.currency || "平台未提供币种"} · 查询于 ${formatDateTime(balanceState.checkedAt, true)}`;
+        balanceClass = "is-success";
+      } else if (balanceState?.status === "error") {
+        balanceValue = balanceState.message || "查询失败";
+        balanceDetail = "自动刷新将在下个周期重试，也可手动查询";
+        balanceClass = "is-error";
+      }
+      balanceCopy.append(imageText("strong", balanceValue, balanceClass), imageText("small", balanceDetail));
+      const balanceButton = imageButton("查询余额", "wallet", "secondary-button", (event) => queryImageProviderBalance(provider, event.currentTarget));
+      balanceButton.disabled = !provider.balancePath || state.imageActions.has(`provider-balance:${provider.id}`);
+      balancePanel.append(balanceCopy, balanceButton);
+
       const testCopy = imageText(
         "p",
         provider.lastTestMessage || (provider.lastTestStatus === "untested" ? "测试连接可验证密钥、模型和上游响应。" : health.label),
@@ -760,7 +912,7 @@
         imageButton(provider.enabled ? "停用" : "启用", "power", "secondary-button", (event) => void toggleImageProvider(provider, event.currentTarget)),
         imageButton("删除", "trash-2", "danger-button", (event) => void deleteImageProvider(provider, event.currentTarget))
       );
-      card.append(head, facts, testCopy, actions);
+      card.append(head, facts, balancePanel, testCopy, actions);
       dom.imageProviderList.append(card);
     });
     renderIcons();
@@ -820,6 +972,9 @@
     dom.imageProviderBaseUrl.value = provider?.baseUrl || "";
     dom.imageProviderGenerationPath.value = provider?.generationPath || "/v1/images/generations";
     dom.imageProviderEditPath.value = provider?.editPath || "/v1/images/edits";
+    dom.imageProviderBalancePath.value = provider?.balancePath || "";
+    dom.imageProviderBalanceValueField.value = provider?.balanceValueField || "balance";
+    dom.imageProviderBalanceCurrencyField.value = provider?.balanceCurrencyField || "";
     dom.imageProviderTimeout.value = provider?.timeoutMs ?? 180000;
     dom.imageProviderEnabled.checked = provider ? Boolean(provider.enabled) : true;
     dom.imageProviderDialogTitle.textContent = provider ? "编辑图片平台" : "新增图片平台";
@@ -829,13 +984,15 @@
     dom.imageProviderReplaceKeyWrap.hidden = !provider;
     dom.imageProviderReplaceKey.checked = false;
     renderImageProviderKeyField(!provider);
+    window.nikaiModelProfiles?.clear(dom.imageProviderForm);
+    window.nikaiModelProfiles?.attach({form:dom.imageProviderForm,scope:'image',endpoint:dom.imageProviderBaseUrl,providerId:()=>state.imageEditingProvider?.id,token:()=>state.imageAdminToken,onSelect(){const keyInput=dom.imageProviderKeyField.querySelector('input');if(keyInput){keyInput.value='';keyInput.required=false;}void discoverImageProviderModels();}});
     state.imageDiscoveredModels = [];
     renderDiscoveredImageModels();
-    dom.imageProviderDiscoverModels.disabled = !provider;
+    dom.imageProviderDiscoverModels.disabled = false;
     dom.imageProviderDiscoveryStatus.className = "";
     dom.imageProviderDiscoveryStatus.textContent = provider
       ? "读取平台当前开放的模型，不会产生生图费用。"
-      : "请先保存平台，再读取模型列表。";
+      : "填写接口地址与 API Key 后自动读取模型，保存平台后可导入。";
 
     populateProviderTestModels(provider?.id || "");
     const hasTestModels = dom.imageProviderTestModel.options.length > 0;
@@ -845,6 +1002,7 @@
       ? (provider.lastTestMessage || (hasTestModels ? "选择一个模型验证上游连接。" : "当前平台还没有模型，请先添加模型后再测试连接。"))
       : "保存平台并添加模型后可测试连接。";
     dom.imageProviderDialog.showModal();
+    if(provider)window.setTimeout(()=>{if(state.imageEditingProvider===provider)void discoverImageProviderModels();},0);
     renderIcons();
     if (focusTest && !dom.imageProviderTest.disabled) dom.imageProviderTest.focus();
     else dom.imageProviderName.focus();
@@ -883,6 +1041,7 @@
     dom.imageProviderDiscoveryList.replaceChildren();
     dom.imageProviderDiscoveryList.hidden = state.imageDiscoveredModels.length === 0;
     dom.imageProviderImportModels.hidden = state.imageDiscoveredModels.length === 0;
+    dom.imageProviderImportModels.disabled = !state.imageEditingProvider || dom.imageProviderBaseUrl.value!==state.imageEditingProvider.baseUrl || !!dom.imageProviderKeyField.querySelector("input")?.value;
     const existing = new Set(modelsForProvider(state.imageEditingProvider?.id || "").map((model) => model.modelId));
     state.imageDiscoveredModels.forEach((model) => {
       const label = document.createElement("label");
@@ -898,25 +1057,29 @@
     });
   }
 
+  let imageDiscoverySequence=0,imageDiscoveryTimer,imageDiscoveryPending=false;
   async function discoverImageProviderModels() {
     const provider = state.imageEditingProvider;
-    if (!provider) return;
+    const apiKey=dom.imageProviderKeyField.querySelector('input')?.value||'';
+    if(!dom.imageProviderBaseUrl.value||(!apiKey&&!provider?.hasApiKey&&!window.nikaiModelProfiles?.profileId(dom.imageProviderForm)))return;
+    const requestSequence=imageDiscoverySequence;
+    const signature=JSON.stringify([dom.imageProviderBaseUrl.value,apiKey]);
     const editorSession = state.imageProviderEditorSession;
-    const key = `provider-discover:${provider.id}`;
-    if (!startImageAction(key, [dom.imageProviderDiscoverModels, dom.imageProviderImportModels])) return;
+    const key = `provider-discover:${provider?.id||'new'}`;
+    if (!startImageAction(key, [dom.imageProviderDiscoverModels, dom.imageProviderImportModels])) {imageDiscoveryPending=true;return;}
     dom.imageProviderDiscoveryStatus.className = "";
     dom.imageProviderDiscoveryStatus.textContent = "正在读取平台模型列表";
     try {
-      const result = await imageRequest(`${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}/discover-models`, { method: "POST", body: "{}" });
-      if (!isCurrentProviderEditor(editorSession)) return;
-      state.imageDiscoveredModels = asArray(result?.items);
+      const result = await imageRequest('/api/admin/v1/model-discovery', {method:'POST',body:JSON.stringify(window.nikaiModelProfiles?.withProfile(dom.imageProviderForm,{scope:'image',providerId:provider?.id,endpoint:dom.imageProviderBaseUrl.value,apiKey})||{scope:'image',providerId:provider?.id,endpoint:dom.imageProviderBaseUrl.value,apiKey})});
+      if (!isCurrentProviderEditor(editorSession)||requestSequence!==imageDiscoverySequence||signature!==JSON.stringify([dom.imageProviderBaseUrl.value,dom.imageProviderKeyField.querySelector('input')?.value||''])) return;
+      state.imageDiscoveredModels = asArray(result?.items).map(x=>({modelId:x.id,displayName:x.id,imageLikely:/image|dall|flux|imagen|seedream|sdxl|stable-diffusion/i.test(x.id)}));
       renderDiscoveredImageModels();
       dom.imageProviderDiscoveryStatus.className = state.imageDiscoveredModels.length ? "is-success" : "";
       dom.imageProviderDiscoveryStatus.textContent = state.imageDiscoveredModels.length
         ? `读取到 ${state.imageDiscoveredModels.length} 个模型，已优先勾选图片模型候选。`
         : "平台返回了空模型列表，请在平台控制台确认当前分组的模型权限。";
     } catch (error) {
-      if (isCurrentProviderEditor(editorSession)) {
+      if (isCurrentProviderEditor(editorSession)&&requestSequence===imageDiscoverySequence) {
         state.imageDiscoveredModels = [];
         renderDiscoveredImageModels();
         dom.imageProviderDiscoveryStatus.className = "is-error";
@@ -924,12 +1087,14 @@
       }
     } finally {
       setImageActionBusy(key, false, isCurrentProviderEditor(editorSession) ? [dom.imageProviderDiscoverModels, dom.imageProviderImportModels] : []);
+      if(imageDiscoveryPending&&isCurrentProviderEditor(editorSession)){imageDiscoveryPending=false;void discoverImageProviderModels();}
     }
   }
 
   async function importDiscoveredImageModels() {
     const provider = state.imageEditingProvider;
     if (!provider) return;
+    if(dom.imageProviderBaseUrl.value!==provider.baseUrl||dom.imageProviderKeyField.querySelector('input')?.value){dom.imageProviderDiscoveryStatus.textContent='请先保存平台地址和密钥，再刷新并导入模型。';return;}
     const selected = [...dom.imageProviderDiscoveryList.querySelectorAll("input[type='checkbox']:checked")]
       .filter((input) => !input.disabled).map((input) => input.value);
     if (!selected.length) {
@@ -971,6 +1136,7 @@
   }
 
   function cleanupImageProviderDialog() {
+    imageDiscoverySequence++;imageDiscoveryPending=false;window.clearTimeout(imageDiscoveryTimer);
     state.imageProviderEditorSession = null;
     state.imageEditingProvider = null;
     dom.imageProviderKeyField.replaceChildren();
@@ -978,6 +1144,15 @@
     dom.imageProviderTest.disabled = false;
   }
 
+  let imageModelPicker;
+  const imageModelEndpoint=document.createElement("input");
+  function updateImageModelPicker(modelId=""){
+    const provider=state.imageProviders.find(p=>p.id===dom.imageModelProvider.value);
+    imageModelEndpoint.value=provider?.baseUrl||"";
+    imageModelPicker ||= window.nikaiModelPicker({form:dom.imageModelForm,scope:"image",endpoint:imageModelEndpoint,model:dom.imageModelUpstreamId,providerId:()=>dom.imageModelProvider.value,token:()=>state.imageAdminToken});
+    dom.imageModelUpstreamId=imageModelPicker.select;
+    imageModelPicker.setConfig({endpoint:provider?.baseUrl||"",model:modelId,hasKey:provider?.hasApiKey},true);
+  }
   function openImageModelDialog(model = null) {
     state.imageModelEditorSession = nextImageEditorSession("model");
     state.imageEditingModel = model;
@@ -986,7 +1161,7 @@
     dom.imageModelId.value = model?.id || "";
     dom.imageModelRevision.value = model?.revision ?? "";
     populateProviderSelect(dom.imageModelProvider, model?.providerId || state.imageProviders[0]?.id || "");
-    dom.imageModelUpstreamId.value = model?.modelId || "";
+    updateImageModelPicker(model?.modelId||"");
     dom.imageModelDisplayName.value = model?.displayName || "";
     dom.imageModelMaxImages.value = model?.maxImages ?? 1;
     dom.imageModelSortOrder.value = model?.sortOrder ?? 0;
@@ -1031,16 +1206,21 @@
         baseUrl: dom.imageProviderBaseUrl.value.trim(),
         generationPath: dom.imageProviderGenerationPath.value.trim(),
         editPath: dom.imageProviderEditPath.value.trim(),
+        balancePath: dom.imageProviderBalancePath.value.trim(),
+        balanceValueField: dom.imageProviderBalanceValueField.value.trim() || "balance",
+        balanceCurrencyField: dom.imageProviderBalanceCurrencyField.value.trim(),
         timeoutMs: Number(dom.imageProviderTimeout.value),
         enabled: dom.imageProviderEnabled.checked
       };
       if (provider) payload.revision = Number(dom.imageProviderRevision.value);
       const keyInput = dom.imageProviderKeyField.querySelector("#image-provider-api-key");
       if (keyInput) payload.apiKey = keyInput.value;
+      Object.assign(payload, window.nikaiModelProfiles?.withProfile(dom.imageProviderForm,payload)||payload);
       await imageRequest(provider ? `${IMAGE_PROVIDER_API}/${encodeURIComponent(provider.id)}` : IMAGE_PROVIDER_API, {
         method: provider ? "PATCH" : "POST",
         body: JSON.stringify(payload)
       });
+      if (provider) delete state.imageBalances[provider.id];
       if (isCurrentProviderEditor(editorSession)) closeImageProviderDialog();
       await refreshImageWorkspace();
       toast(provider ? "图片平台已更新" : "图片平台已新增");
@@ -1251,6 +1431,7 @@
         averageEngagementSeconds: asNumber(kpis.averageEngagementSeconds),
         statsStartDate: kpis.statsStartDate || "",
         changes: kpis.changes || {}
+        ,previous: kpis.previous || {}
       },
       hourlySeries: asArray(source.trafficSeries ?? source.hourlySeries ?? source.series ?? source.timeline).map((point, index) => ({
         hour: point.hour || point.time || point.bucket || String(index),
@@ -1281,6 +1462,7 @@
         pvShare: asNumber(page.pvShare),
         uvShare: asNumber(page.uvShare),
         averageViewsPerVisitor: asNumber(page.averageViewsPerVisitor),
+        previousPageViews: Number.isFinite(page.previousPageViews) ? page.previousPageViews : undefined,
         change: asNumber(page.change)
       })),
       sourceStats: asArray(source.sourceStats),
@@ -1298,7 +1480,7 @@
       uniqueVisitors: { value: data.kpis.uniqueVisitors, type: "number", change: data.kpis.changes?.uniqueVisitors },
       cumulativeUv: { value: data.kpis.cumulativeUv, type: "number", caption: data.kpis.statsStartDate ? `起始 ${data.kpis.statsStartDate}` : "永久去重访客" },
       averageDailyPv: { value: data.kpis.averageDailyPv, type: "number", caption: "当前周期日均" },
-      averageDailyUv: { value: data.kpis.averageDailyUv, type: "number", caption: "当前周期日均" },
+      averageDailyUv: { value: data.kpis.averageDailyUv, type: "number", caption: "每日去重访客之和 ÷ 天数" },
       searches: { value: data.kpis.searches, type: "number", change: data.kpis.changes?.searches },
       outboundClicks: { value: data.kpis.officialClicks, type: "number", change: data.kpis.changes?.officialClicks },
       clickThroughRate: { value: data.kpis.conversionRate, type: "percent" },
@@ -1314,7 +1496,11 @@
         ? formatPercent(metric.value)
         : formatNumber(metric.value);
       const trend = card.querySelector(".kpi-trend");
-      if (Number.isFinite(metric.change)) {
+      const previousKey = card.dataset.kpi === "outboundClicks" ? "officialClicks" : card.dataset.kpi;
+      if (Number.isFinite(metric.change) && data.kpis.previous[previousKey] === 0) {
+        trend.textContent = "上期为 0";
+        trend.className = "kpi-trend is-neutral";
+      } else if (Number.isFinite(metric.change)) {
         trend.textContent = `${metric.change >= 0 ? "+" : ""}${formatPercent(metric.change)}`;
         trend.className = `kpi-trend ${metric.change > 0 ? "is-up" : metric.change < 0 ? "is-down" : "is-neutral"}`;
       } else {
@@ -1335,7 +1521,7 @@
     const start = formatDateTime(data.window?.startAt);
     const end = formatDateTime(data.window?.endAt);
     dom.overviewNote.textContent = data.window?.startAt && data.window?.endAt
-      ? `${start} — ${end} · 北京时间 · 最近更新 ${formatDateTime(data.generatedAt, true)}`
+      ? `${start} — ${end} · 北京时间 · 对比 ${formatDateTime(data.window.compareStartAt)} — ${formatDateTime(data.window.compareEndAt)} · 最近更新 ${formatDateTime(data.generatedAt, true)}`
       : `${data.window?.hours || WINDOW_HOURS[state.window]} 小时窗口 · 每 5 秒更新`;
   }
 
@@ -1365,6 +1551,7 @@
 
   function renderTrend(data) {
     const series = data.hourlySeries;
+    dom.chartTooltip.hidden = true;
     dom.chart.replaceChildren();
     const title = svgNode("title", { id: "chart-title" }, "PV 与 UV 趋势");
     const totalViews = series.reduce((total, point) => total + point.pageViews, 0);
@@ -1440,11 +1627,11 @@
     dom.chart.append(labels);
 
     const hitArea = svgNode("g", { "aria-hidden": "true" });
-    const sliceWidth = Math.max(plotWidth / Math.max(series.length, 1), 8);
     series.forEach((point, index) => {
+      const left = index === 0 ? margin.left : (xAt(index - 1) + xAt(index)) / 2;
+      const right = index === series.length - 1 ? width - margin.right : (xAt(index) + xAt(index + 1)) / 2;
       const hit = svgNode("rect", {
-        x: Math.max(xAt(index) - sliceWidth / 2, margin.left), y: margin.top,
-        width: Math.min(sliceWidth, width - margin.right - Math.max(xAt(index) - sliceWidth / 2, margin.left)),
+        x: left, y: margin.top, width: right - left,
         height: plotHeight, fill: "transparent"
       });
       hit.addEventListener("pointerenter", (event) => showChartTooltip(event, point));
@@ -1504,15 +1691,14 @@
     const pages = data.pagePerformance;
     dom.pagePerformanceBody.replaceChildren();
     dom.pagePerformanceEmpty.hidden = pages.length > 0;
-    dom.pagePerformanceMeta.textContent = pages.length ? `${formatNumber(pages.length)} 个页面` : "—";
-    pages.forEach((page) => {
+    dom.pagePerformanceMeta.textContent = pages.length ? `展示前 ${Math.min(5, pages.length)} / 共 ${formatNumber(pages.length)} 个页面` : "—";
+    pages.slice(0, 5).forEach((page) => {
       const row = document.createElement("tr");
       const nameCell = document.createElement("td");
       const name = document.createElement("strong");
       name.textContent = page.pageName || page.path;
       const type = document.createElement("small");
-      type.textContent = page.pageType || "页面";
-      nameCell.append(name, type);
+      nameCell.append(name);
       const pathCell = document.createElement("td");
       pathCell.textContent = page.path;
       pathCell.title = page.path;
@@ -1521,7 +1707,7 @@
       const pvShare = document.createElement("td"); pvShare.textContent = formatPercent(page.pvShare);
       const uvShare = document.createElement("td"); uvShare.textContent = formatPercent(page.uvShare);
       const avg = document.createElement("td"); avg.textContent = page.uniqueVisitors ? page.averageViewsPerVisitor.toFixed(2) : "—";
-      const change = document.createElement("td"); change.textContent = `${page.change >= 0 ? "+" : ""}${formatPercent(page.change)}`;
+      const change = document.createElement("td"); change.textContent = page.previousPageViews === 0 ? "上期无浏览" : `${page.change >= 0 ? "+" : ""}${formatPercent(page.change)}`;
       change.className = page.change > 0 ? "is-good" : page.change < 0 ? "is-bad" : "";
       row.append(nameCell, pathCell, pv, uv, pvShare, uvShare, avg, change);
       dom.pagePerformanceBody.append(row);
@@ -1530,6 +1716,13 @@
 
   function renderDimensionStats(listNode, items, emptyText) {
     listNode.replaceChildren();
+    const isDevice = listNode === dom.deviceStatsList;
+    const descriptions = isDevice ? {
+      desktop: "电脑浏览器访问，包含笔记本和台式机", mobile: "手机浏览器访问", tablet: "平板浏览器访问", unknown: "浏览器未提供足够信息"
+    } : {
+      direct: "未收到来源信息；可能是输入网址、收藏夹、聊天链接或隐私设置隐藏了来源",
+      search: "通过搜索引擎链接进入", wechat: "通过可识别的微信链接进入", website: "通过其他网站链接进入", internal: "由本站页面进入，原始站外来源未能还原", unknown: "未采集或无法识别来源信息"
+    };
     if (!items.length) {
       const empty = document.createElement("div");
       empty.className = "empty-state";
@@ -1545,11 +1738,16 @@
       const title = document.createElement("strong");
       title.textContent = item.label || item.key;
       const detail = document.createElement("small");
-      detail.textContent = `PV ${formatNumber(item.pageViews)} · UV ${formatNumber(item.uniqueVisitors)} · PV占比 ${formatPercent(item.pvShare)} · UV占比 ${formatPercent(item.uvShare)}`;
-      copy.append(title, detail);
+      detail.textContent = descriptions[item.key] || "其他已记录的访问分类";
+      const metrics = document.createElement("small");
+      metrics.className = "analytics-dimension-metrics";
+      metrics.textContent = `${formatNumber(item.pageViews)} 次浏览 · ${formatNumber(item.uniqueVisitors)} 个访客 · 占全部浏览 ${formatPercent(item.pvShare)}`;
+      const track = document.createElement("div");track.className = "analytics-share-track";
+      const fill = document.createElement("div");fill.style.width = `${Math.min(100, Math.max(0, Number(item.pvShare) || 0))}%`;track.append(fill);
+      copy.append(title, detail, metrics, track);
       const change = document.createElement("span");
-      change.className = `search-count ${item.change > 0 ? "is-good" : item.change < 0 ? "is-bad" : ""}`.trim();
-      change.textContent = `${item.change >= 0 ? "+" : ""}${formatPercent(item.change)}`;
+      change.className = `search-count ${item.previousPageViews === 0 ? "" : item.change > 0 ? "is-good" : item.change < 0 ? "is-bad" : ""}`.trim();
+      change.textContent = item.previousPageViews === 0 ? "上期无浏览" : `较上期 ${item.change >= 0 ? "+" : ""}${formatPercent(item.change)}`;
       row.append(copy, change);
       listNode.append(row);
       if (item.domains?.length) {
@@ -2135,6 +2333,7 @@
 
   function cmsListUrl() {
     if (state.cmsEntity === "announcements") return "/api/admin/v1/site-announcements";
+    state.cmsLimit = state.cmsEntity === 'tools' ? 5 : 20;
     const params = new URLSearchParams({ limit: String(state.cmsLimit), offset: String(state.cmsOffset) });
     if (state.cmsEntity === "tools") {
       if (state.cmsQuery) params.set("q", state.cmsQuery);
@@ -2886,21 +3085,123 @@
     submit.disabled = false;
   }
 
-  function setupNavigationObserver() {
-    if (!("IntersectionObserver" in window)) return;
-    const links = [...document.querySelectorAll(".side-nav-item[href^='#']")];
-    const sections = links.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (!visible) return;
-      links.forEach((link) => {
-        const active = link.getAttribute("href") === `#${visible.target.id}`;
-        link.classList.toggle("is-active", active);
-        if (active) link.setAttribute("aria-current", "page");
-        else link.removeAttribute("aria-current");
+  function setupContentTabs() {
+    const tabs = [...document.querySelectorAll("[data-content-tab]")];
+    const panels = [...document.querySelectorAll("[data-content-panel]")];
+    const activate = (tab) => {
+      tabs.forEach((item) => {
+        const selected = item === tab;
+        item.classList.toggle("is-active", selected);
+        item.setAttribute("aria-selected", String(selected));
+        item.tabIndex = selected ? 0 : -1;
       });
-    }, { rootMargin: "-20% 0px -65%", threshold: [0, 0.2, 0.5] });
-    sections.forEach((section) => observer.observe(section));
+      panels.forEach((panel) => { panel.hidden = panel.dataset.contentPanel !== tab.dataset.contentTab; });
+    };
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => activate(tab));
+      tab.addEventListener("keydown", (event) => {
+        const next = event.key === "ArrowRight" ? (index + 1) % tabs.length
+          : event.key === "ArrowLeft" ? (index + tabs.length - 1) % tabs.length
+          : event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : -1;
+        if (next < 0) return;
+        event.preventDefault(); activate(tabs[next]); tabs[next].focus();
+      });
+    });
+    if (tabs.length) activate(tabs[0]);
+  }
+
+  function setupNavigationGroups() {
+    const groups = [...document.querySelectorAll('details.side-nav-group')];
+    const key = 'nikai-admin-nav-groups-v1';
+    const storage = () => window.nikaiStorage?.local || window.localStorage;
+    let saved = {};
+    try { const value = JSON.parse(storage().getItem(key) || '{}'); if (value && typeof value === 'object' && !Array.isArray(value)) saved = value; } catch {}
+    const activeHash = location.hash || '#overview';
+    groups.forEach((group) => {
+      const id = group.querySelector('.side-nav-item')?.getAttribute('href');
+      const isDestination = [...group.querySelectorAll('.side-nav-item')].some(link => link.getAttribute('href') === activeHash);
+      group.open = typeof saved[id] === 'boolean' ? saved[id] : isDestination;
+      group.addEventListener('toggle', () => {
+        try { const state = Object.fromEntries(groups.map(item => [item.querySelector('.side-nav-item')?.getAttribute('href'), item.open])); storage().setItem(key, JSON.stringify(state)); } catch {}
+      });
+    });
+    const revealDestination = () => {
+      if (!location.hash) return;
+      const link = [...document.querySelectorAll('.side-nav-item')].find(item => item.getAttribute('href') === location.hash);
+      const group = link?.closest('details.side-nav-group');
+      if (group) group.open = true;
+    };
+    revealDestination();
+    window.addEventListener('hashchange', revealDestination);
+    window.addEventListener('popstate', revealDestination);
+  }
+
+  function setupNavigationObserver() {
+    const links = [...document.querySelectorAll(".side-nav-item[href^='#']")];
+    const select = (id) => links.forEach((link) => {
+      const active = link.getAttribute("href") === `#${id}`;
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+    let destination = null;
+    const update = () => {
+      if (destination && Math.abs(window.scrollY - destination.y) <= 2) {
+        select(destination.id);
+        return;
+      }
+      destination = null;
+      const sections = links.map((link) => document.querySelector(link.getAttribute("href")))
+        .filter((section) => section && section.getClientRects().length)
+        .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+      if (!sections.length) return;
+      // Short final sections cannot reach the observer's old narrow activation band.
+      if (window.scrollY > 0 && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) {
+        select(sections.at(-1).id);
+        return;
+      }
+      const threshold = Math.max(110, window.innerHeight * 0.2);
+      const current = sections.filter((section) => section.getBoundingClientRect().top <= threshold).at(-1) || sections[0];
+      select(current.id);
+    };
+    let queued = false;
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(() => { queued = false; update(); });
+    };
+    const navigate = (hash) => {
+      const section = links.map((link) => document.querySelector(link.getAttribute("href")))
+        .find((entry) => entry && `#${entry.id}` === hash && entry.getClientRects().length);
+      if (!section) return false;
+      const header = document.querySelector(".topbar");
+      const sidebar = document.querySelector(".sidebar");
+      const headerBottom = Math.max(0, header?.getBoundingClientRect().bottom || 0);
+      const mobileNavBottom = window.innerWidth <= 760 ? Math.max(0, sidebar?.getBoundingClientRect().bottom || 0) : 0;
+      const offset = Math.max(headerBottom, mobileNavBottom, 86) + 18;
+      const top = Math.max(0, window.scrollY + section.getBoundingClientRect().top - offset);
+      window.scrollTo({ top, behavior: "instant" });
+      // Adjacent short sections share the same clamped scroll position at page end.
+      destination = { id: section.id, y: window.scrollY };
+      select(section.id);
+      return true;
+    };
+    links.forEach((link) => link.addEventListener("click", (event) => {
+      if (event.button > 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      const hash = link.getAttribute("href");
+      if (!navigate(hash)) return;
+      event.preventDefault();
+      if (location.hash !== hash) window.history.pushState(null, "", hash);
+    }));
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", () => {
+      if (destination) navigate(`#${destination.id}`);
+      else schedule();
+    });
+    window.addEventListener("hashchange", () => navigate(location.hash || "#overview"));
+    window.addEventListener("popstate", () => navigate(location.hash || "#overview"));
+    if (navigate(location.hash)) return;
+    update();
   }
 
   function setupChartResizeObserver() {
@@ -3010,11 +3311,23 @@
     dom.cmsForm.addEventListener("submit", saveCmsRecord);
     dom.usersRefresh.addEventListener("click", () => void loadUsers());
     dom.feedbackRefresh.addEventListener("click", () => void loadFeedback());
+    document.querySelector('#newsletter-search-form').addEventListener('submit', event => { event.preventDefault(); void loadNewsletter(0); });
+    document.querySelector('#newsletter-status').addEventListener('change', () => void loadNewsletter(0));
+    document.querySelector('#newsletter-refresh').addEventListener('click', () => void loadNewsletter(0));
+    document.querySelector('#newsletter-prev').addEventListener('click', () => void loadNewsletter(Math.max(0, newsletterOffset - 20)));
+    document.querySelector('#newsletter-next').addEventListener('click', () => void loadNewsletter(newsletterOffset + 20));
     dom.feedbackStatusFilter.addEventListener("change", () => void loadFeedback());
     dom.imageTokenForm.addEventListener("submit", unlockImageWorkspace);
     dom.imageWorkspaceRefresh.addEventListener("click", () => void refreshImageWorkspace());
     dom.imageProviderAdd.addEventListener("click", () => openImageProviderDialog());
     dom.imageModelAdd.addEventListener("click", () => openImageModelDialog());
+    dom.imageModelProvider.addEventListener('change',()=>{imageModelPicker?.changed();updateImageModelPicker();});
+    dom.imageProviderForm.addEventListener('input',event=>{
+      if(!['baseUrl','apiKey'].includes(event.target.name))return;
+      window.nikaiModelProfiles?.clear(dom.imageProviderForm);
+      imageDiscoverySequence++;window.clearTimeout(imageDiscoveryTimer);state.imageDiscoveredModels=[];renderDiscoveredImageModels();
+      imageDiscoveryTimer=window.setTimeout(()=>void discoverImageProviderModels(),650);
+    });
     dom.imageProviderForm.addEventListener("submit", saveImageProvider);
     dom.imageProviderDialogClose.addEventListener("click", closeImageProviderDialog);
     dom.imageProviderDialogCancel.addEventListener("click", closeImageProviderDialog);
@@ -3040,7 +3353,9 @@
     window.addEventListener("online", () => void loadMonitoring({ manual: true }));
     window.addEventListener("offline", () => showGlobalError(new Error("网络已断开，正在等待恢复")));
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden && !state.paused) void loadMonitoring({ manual: true });
+      if (document.hidden) return;
+      if (!state.paused) void loadMonitoring({ manual: true });
+      void refreshConfiguredImageBalances();
     });
   }
 
@@ -3081,13 +3396,13 @@
           return true;
         }
       } catch {}
-      sessionStorage.removeItem("nike-admin-token");
+      window.nikaiStorage.session.removeItem("nike-admin-token");
       state.token = "";
     }
     if (accountAuthenticated) location.replace("/");
     else {
       const next = `${location.pathname}${location.search}${location.hash}`;
-      location.replace(`/auth.html?mode=admin&next=${encodeURIComponent(next)}`);
+      location.replace(`/auth?mode=admin&next=${encodeURIComponent(next)}`);
     }
     return false;
   }
@@ -3101,6 +3416,8 @@
     renderImageProviders();
     renderImageModels();
     bindEvents();
+    setupContentTabs();
+    setupNavigationGroups();
     setupNavigationObserver();
     setupChartResizeObserver();
     state.pollTimer = window.setInterval(() => void loadMonitoring(), POLL_INTERVAL_MS);
@@ -3115,6 +3432,7 @@
       void loadUsers();
     }
     void loadFeedback();
+    void loadNewsletter();
     void refreshImageWorkspace();
     void loadMonitoring({ manual: true });
   }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createGame, flipCard, settleMismatch } from '../memory-game-core.mjs';
+import { createGame, flipCard, settleMismatch } from '../public/memory-game-core.mjs';
 
 test('shuffle preserves exactly eight pairs and uses random choices', () => {
   const a = createGame(() => 0), b = createGame(() => 0.999);

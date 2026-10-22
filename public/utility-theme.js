@@ -9,11 +9,11 @@ if (themeButton) themeButton.addEventListener('click', () => {
 
 const utilityNav = document.querySelector('.site-nav');
 const utilityHeaderActions = document.querySelector('.erase-header-actions');
-if (utilityNav && utilityHeaderActions) {
-  const menuButton = document.createElement('button');
-  menuButton.className = 'utility-menu-button';
+if (utilityNav && utilityHeaderActions && !utilityNav.closest?.('.site-header-shared')) {
+  const menuButton = document.getElementById('utility-menu-open') || document.createElement('button');
+  if (!menuButton.className) menuButton.className = 'utility-menu-button';
   menuButton.type = 'button';
-  menuButton.textContent = '☰';
+  if (!menuButton.id) menuButton.textContent = '☰';
   menuButton.setAttribute('aria-label', '打开主导航');
   menuButton.setAttribute('aria-expanded', 'false');
 
@@ -36,5 +36,5 @@ if (utilityNav && utilityHeaderActions) {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeMenu();
   });
-  utilityHeaderActions.append(menuButton);
+  if (!menuButton.id) utilityHeaderActions.append(menuButton);
 }

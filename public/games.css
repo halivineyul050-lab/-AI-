@@ -73,3 +73,46 @@ footer{text-align:center;font-size:12px;color:var(--text-muted);padding:36px 0 1
 @media(max-width:1079px){.games-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.game-card--hero{grid-column:1/-1;grid-row:auto;display:grid;grid-template-columns:1.1fr .9fr}.game-card--hero .card-art{height:100%;min-height:330px}.game-card--wide,.game-card--compact{grid-column:span 1;display:flex}.game-card--wide .card-art,.game-card--compact .card-art{height:180px;min-height:0}}
 @media(max-width:719px){.games-main{padding:24px 18px}.games-intro{display:block;margin-bottom:28px}.games-intro h1{font-size:38px}.intro-note{margin-top:22px}.games-grid{grid-template-columns:1fr;gap:18px}.game-card--hero,.game-card--wide,.game-card--compact{grid-column:auto;display:flex}.game-card--hero .card-art,.game-card--wide .card-art,.game-card--compact .card-art{height:175px;min-height:0}.game-card--hero .card-art>span,.game-card--wide .card-art>span{font-size:82px}.game-card--hero .card-copy,.game-card--wide .card-copy,.game-card--compact .card-copy{padding:22px}.game-card--hero .card-copy h2{font-size:25px}.card-copy>div{align-items:flex-end}}
 @media(prefers-reduced-motion:reduce){.game-card{transition:none}.game-card:hover{transform:none}}
+
+/* Small playful index tabs frame the game art without recoloring the games. */
+.games-intro { position: relative; }
+.games-intro>div>p:first-child { border: 0; border-radius: 4px 11px 4px 11px; background: #DDF36A; color: #272b12; transform: rotate(-1deg); }
+.games-intro h1 { text-wrap: balance; }
+.intro-note { border-radius: 6px var(--radius-lg) 6px var(--radius-lg); }
+.card-copy>small { border: 0; border-radius: 4px 9px 4px 9px; background: #DDF36A; color: #272b12; }
+.game-card { border-radius: 6px var(--radius-xl) 6px var(--radius-xl); }
+@media(max-width:719px) {
+  .games-main { min-width: 0; padding-inline: 14px; }
+  .games-grid,.game-card,.card-copy { min-width: 0; }
+  .card-copy h2,.card-copy p { overflow-wrap: anywhere; }
+}
+
+/* Editorial directory finish: keep every game's own art and accent colors. */
+.games-main{max-width:1320px}
+.games-intro{padding-bottom:30px;border-bottom:1px solid var(--border)}
+.games-intro>div>p:first-child{display:inline-flex;align-items:center;min-height:28px;margin:0;padding:0 11px;border:1px solid color-mix(in srgb,var(--brand) 24%,var(--border));border-radius:999px;background:var(--brand-soft);font-size:10px;font-weight:800;letter-spacing:2px}
+.games-intro h1{font-size:clamp(40px,5vw,58px);line-height:1.12;letter-spacing:-.055em}
+.intro-note{min-width:230px;padding:16px 18px;border:1px solid var(--border);border-radius:var(--radius-lg);background:color-mix(in srgb,var(--bg-surface) 78%,var(--bg-page));box-shadow:var(--shadow-xs)}
+.intro-note>span{background:var(--bg-surface);font-weight:750}
+.intro-note p{margin:9px 0 0;font-size:13px;line-height:1.7}
+.game-card{position:relative;isolation:isolate;border-radius:var(--radius-xl);box-shadow:var(--shadow-xs)}
+.game-card .card-art:after{position:absolute;inset:0;z-index:0;content:"";background:linear-gradient(180deg,transparent 46%,rgba(0,0,0,.2));pointer-events:none}
+.game-card .card-art>span,.game-card .card-art>i,.game-card .card-art>b{z-index:1}
+.game-card:hover .card-copy strong{text-decoration:underline;text-underline-offset:3px}
+.card-copy>small{align-self:flex-start;padding:5px 9px;border:1px solid color-mix(in srgb,var(--brand) 22%,var(--border));border-radius:999px;background:var(--brand-soft);font-size:10px;letter-spacing:.08em;line-height:1.2}
+.card-copy h2{line-height:1.25;letter-spacing:-.035em}
+.card-copy p{max-width:54ch}
+.card-copy>div{align-items:center;padding-top:14px;border-top:1px solid var(--border)}
+.card-copy strong{display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border-radius:999px;background:var(--brand-soft);font-weight:750}
+.game-card--hero .card-copy>div{padding-top:16px}
+.game-card:focus-visible{outline:3px solid var(--brand);outline-offset:4px;box-shadow:0 0 0 7px var(--brand-soft),var(--shadow-md)}
+@media(max-width:719px){
+  .games-intro{padding-bottom:22px;gap:14px}
+  .games-intro h1{font-size:clamp(36px,10vw,42px);letter-spacing:-.045em}
+  .intro-note{min-width:0;padding:13px 14px}
+  .game-card{border-radius:var(--radius-lg)}
+  .game-card--hero .card-art,.game-card--wide .card-art,.game-card--compact .card-art{height:164px}
+  .card-copy>div{padding-top:12px}
+}
+
+.card-art.free-city-3d{background-color:#1c3545;background-image:linear-gradient(155deg,transparent 0 47%,#d5bd7266 48% 51%,transparent 52%),linear-gradient(25deg,transparent 0 44%,#e2d6b455 45% 48%,transparent 49%),linear-gradient(180deg,#8eb4c4 0%,#3f6875 48%,#253b36 49%,#172a26 100%)}

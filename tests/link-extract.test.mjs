@@ -1,6 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseShare, normalizeDouyin, normalizeXhs, allowedMedia, publicAddress } from '../backend/link-extract-core.mjs';
+import { parseShare, normalizeDouyin, normalizeXhs, allowedMedia, publicAddress, douyinDesktopTarget } from '../backend/link-extract-core.mjs';
+
+test('Douyin short links switch from the mobile share page to the exact public desktop work',()=>{
+ const short=parseShare('https://v.douyin.com/xPgtN5paItc/');
+ assert.equal(douyinDesktopTarget(short,'https://www.iesdouyin.com/share/video/7695798327628298367/?tracking=ignored'),'https://www.douyin.com/video/7695798327628298367');
+ const direct=parseShare('https://www.douyin.com/video/123');
+ assert.equal(douyinDesktopTarget(direct),direct.url);
+ assert.equal(douyinDesktopTarget(direct,'https://www.douyin.com/video/999'),null);
+ assert.equal(douyinDesktopTarget(short,'https://www.douyin.com.evil.test/video/123'),null);
+ assert.equal(douyinDesktopTarget(short,'https://user@www.douyin.com/video/123'),null);
+ assert.equal(douyinDesktopTarget(short,'https://www.douyin.com:444/video/123'),null);
+ assert.equal(douyinDesktopTarget(short,'https://www.xiaohongshu.com/explore/123'),null);
+ assert.equal(douyinDesktopTarget(short,'https://www.douyin.com/'),null);
+ assert.equal(douyinDesktopTarget(parseShare('https://xhslink.com/o/abc123')),null);
+});
 test('share text extracts exact supported link and retains Xiaohongshu signed parameters',()=>{
  assert.equal(parseShare('文字 [https://v.douyin.com/Zz3vFYpegDw/](https://v.douyin.com/Zz3vFYpegDw/) 复制').platform,'douyin');
  assert.equal(parseShare('https://www.xiaohongshu.com/explore/abcdef123456789012345678?xsec_token=abc&xsec_source=pc').url,'https://www.xiaohongshu.com/explore/abcdef123456789012345678?xsec_token=abc&xsec_source=pc');

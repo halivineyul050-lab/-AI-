@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import vm from "node:vm";
 
-const source = readFileSync(new URL("../site-announcements.js", import.meta.url), "utf8");
+const source = readFileSync(new URL("../public/site-announcements.js", import.meta.url), "utf8");
 
 class Element {
   constructor(tag) { this.tagName = tag; this.children = []; this.listeners = {}; this.open = false; }

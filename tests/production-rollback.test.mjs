@@ -9,4 +9,8 @@ test('manual rollback selects a previous complete directory and keeps the failed
   assert.match(script, /mv "\$previous" "\$app_dir"/);
   assert.match(script, /chmod 0755 "\$app_dir"/);
   assert.match(script, /wait_ready/);
+  assert.ok(script.indexOf('flock -n 9') < script.indexOf('previous="${1:-$(find'));
+  assert.match(script, /NIKAI_RELEASE_APP_DIR/);
+  assert.match(script, /if \[\[ -d "\$previous\/public" \]\]; then logo_target=/);
+  assert.match(script, /manual-rollback\\tfailed/);
 });

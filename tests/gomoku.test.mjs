@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createBoard, playMove, isWin, isDraw, chooseMove} from '../gomoku-core.mjs';
+import {createBoard, playMove, isWin, isDraw, chooseMove} from '../public/gomoku-core.mjs';
 test('five or more wins in all four directions', () => {
   for (const step of [1, 15, 16, 14]) {
     const b = createBoard();

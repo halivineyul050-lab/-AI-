@@ -1,4 +1,4 @@
-import { parseShare, normalizeDouyin, normalizeXhs } from './link-extract-core.mjs';
+import { parseShare, normalizeDouyin, normalizeXhs, douyinDesktopTarget } from './link-extract-core.mjs';
 
 // Read only the requested work's response; never export browser credentials or user state.
 export async function extractInBrowser(share, endpoint, signal) {
@@ -30,11 +30,16 @@ export async function extractInBrowser(share, endpoint, signal) {
   targetId=(await call('Target.createTarget',{url:'about:blank',background:true})).targetId;
   sid=(await call('Target.attachToTarget',{targetId,flatten:true})).sessionId;
   await call('Network.enable',{maxResourceBufferSize:4000000,maxTotalBufferSize:8000000});
-  await call('Page.navigate',{url:share.url});
+  let desktopTarget=douyinDesktopTarget(share);
+  await call('Page.navigate',{url:desktopTarget||share.url});
   while(!timeoutSignal.aborted){
    const r=await call('Runtime.evaluate',{expression:`JSON.stringify({url:location.href, note: (()=>{const id=location.pathname.match(/\\/(?:explore|discovery\\/item)\\/([a-z\\d]+)/i)?.[1];return window.__INITIAL_STATE__?.note?.noteDetailMap?.[id]?.note||null})()})`,returnByValue:true});
    let page;try{page=JSON.parse(r.result.value);}catch{}
    if(page){
+    if(!desktopTarget){
+     const resolved=douyinDesktopTarget(share,page.url);
+     if(resolved){desktopTarget=resolved;await call('Page.navigate',{url:resolved});continue;}
+    }
     let current;try{current=parseShare(page.url);}catch{}
     if(current?.id&&current.platform===share.platform&&(!share.id||share.id===current.id)){
      if(page.note)candidates.push(page.note);
@@ -43,7 +48,8 @@ export async function extractInBrowser(share, endpoint, signal) {
    }
    await new Promise(r=>setTimeout(r,600));
   }
-  throw new Error('未获取到作品数据。请检查链接，或先在本机浏览器打开该作品完成登录/验证后重试。');
+  signal?.throwIfAborted();
+  throw new Error('未获取到作品数据。请确认原作品可公开播放；平台要求登录或验证时，本次无法匿名解析。');
  }finally{
   if(targetId&&ws.readyState===1)await call('Target.closeTarget',{targetId},null).catch(()=>{});
   close();

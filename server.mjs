@@ -1,21 +1,44 @@
+import {discoverModels,chatEndpoint} from './backend/model-discovery.mjs';
+import {createModelProfileStore} from './backend/model-profiles.mjs';
+import {createNestdutio} from './backend/nestdutio/service.mjs';
+import {handleNestdutio} from './backend/nestdutio/routes.mjs';
+import { createManualRechargeStore } from './backend/manual-recharge.mjs';
+import { createExplainerRunner } from './backend/explainer.mjs';
+import { createExplainerStore } from './backend/explainer-config.mjs';
+import { createExplainerJobs } from './backend/explainer-jobs.mjs';
+import { createCreditStore } from './backend/credits.mjs';
+import { createImageJobStore } from './backend/image-job-store.mjs';
+import { createImageGenerationService } from './backend/services/image-generation.mjs';
+import { createAuthEmailService, validateEmailCode } from "./backend/auth-email.mjs";
+import { markUserEmailVerified, resetUserPassword } from "./backend/auth.mjs";
+import {createAssistantStore,createAssistantRunner} from './backend/assistant.mjs';
+import { createNewsSync } from "./backend/news-sync.mjs";
+import { createSkillStore, createSkillRunner, importSkillMarkdown } from './backend/skills.mjs';
+import { createCreatorStore } from './backend/creator-page.mjs';
 import { createServer } from "node:http";
 import { createLinkExtractor } from "./backend/link-extract.mjs";
 import { createImageTools } from "./backend/image-tools.mjs";
 import { createImageEraser } from "./backend/image-erase.mjs";
 import { createImageProviderStore } from "./backend/image-provider-store.mjs";
+import { createImageCloudHistoryStore } from "./backend/image-cloud-history.mjs";
+import { createAvatarStore, readAvatar } from "./backend/account-avatar.mjs";
 import { createSiteAnnouncementStore } from "./backend/site-announcements.mjs";
 import { createSecretBox } from "./backend/image-provider-secrets.mjs";
 import { createImageGenerationGateway, imageErrorTitle } from "./backend/image-generation-gateway.mjs";
 import { createImageProviderDiscovery } from "./backend/image-provider-discovery.mjs";
+import { createImageProviderBalance } from "./backend/image-provider-balance.mjs";
+import { createRateLimiter } from "./backend/rate-limiter.mjs";
 import { assertSafeUpstreamUrl } from "./backend/safe-upstream.mjs";
 import { gzipSync } from "node:zlib";
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getMonitoringSnapshot } from "./backend/monitoring.mjs";
-import { scheduleNewsPublisher } from "./backend/news-publisher.mjs";
+import { listArticleSourceLinks } from "./backend/article-source-links.mjs";
 import { notifyFeedbackEmail } from "./backend/email.mjs";
+import { verifyNewsletterUnsubscribeToken } from "./backend/weekly-digest.mjs";
+import { listNewsletterSubscriptions } from "./backend/newsletter-admin.mjs";
 import {
   authCookieName,
   authSessionMaxAgeSeconds,
@@ -24,6 +47,7 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  verifyUserPassword,
   updateUserAccess
 } from "./backend/auth.mjs";
 import {
@@ -48,11 +72,13 @@ import {
   getArticle,
   getBootstrap,
   getGrowthSnapshot,
+  getNewsHotRanking,
   getCategories,
   getSubmissionStatus,
   getTool,
   insertEvents,
   listArticles,
+  listNewsPage,
   listUserFavorites,
   addUserFavorite,
   removeUserFavorite,
@@ -120,13 +146,41 @@ const mimeTypes = {
 };
 
 const staticFiles = new Set([
+  "nestdutio.html", "nestdutio.css", "nestdutio.js", "admin-nestdutio.js",
+  "anatomy-scene.mjs", "anatomy-renderer.mjs", "anatomy.css", "admin-explainer.js", "admin-provider.css", "vendor/anatomy/iso-kit.mjs", "vendor/anatomy/LICENSE", "vendor/anatomy/UPSTREAM.md",
+  "explain-scene.mjs", "explain-ai.mjs", "explain-video.mjs", "explain-projects.mjs",
+  "explain.html", "explain.css", "explain.js",
+  "admin-news-sync.js", "admin-news-sync.css", "news-sync.css", "image-job-request.mjs",
+  "lucide.min.js",
+  "skills.html", "skills.js", "skills.css", "admin-skills.js",
+  "admin-model-profiles.js", "admin-model-picker.js", "assistant.js", "assistant.css", "admin-assistant.js", "credits.css", "credits-account.js", "credits-admin.js", "recharge.html", "recharge.css", "recharge.js", "admin-recharge.js", "admin-recharge.css",
+  "creator.html", "creator.css", "creator.js", "admin-creator.js", "admin-creator.css",
   "video-input-limits.js",
+  "safe-storage.js",
+  "header-account.js",
+  "site-header.css",
+  "site-header.js",
+  "theme-init.js",
+  "seo-analytics.js",
+  "brand-icon.svg",
   "site-announcements.js", "site-announcements.css",
   "design-system.css",
+  "assets/css/site/site-shell.css",
+  "assets/css/site/site-catalog.css",
+  "assets/css/site/site-content.css",
+  "assets/css/site/site-overlays.css",
+  "assets/css/site/site-responsive.css",
+  "assets/css/site/site-homepage.css",
+  "assets/home/ai-companion.png",
+  "assets/home/hero-scene-v2.webp",
+  "assets/home/assistant-wave.png",
   "game-shell.css",
   "link-extract.html",
   "video-pricing.html",
-  "image-generation.html", "image-generation.css", "image-generation.js", "image-generation-history.js",
+  "image-generation.html", "image-generation.css", "image-generation.js", "image-generation-history.js", "first-creation-core.mjs", "first-creation.js",
+  "assets/image-generation/first-creation/editorial-cover.webp", "assets/image-generation/first-creation/video-cover.webp",
+  "assets/image-generation/first-creation/pet-avatar.webp", "assets/image-generation/first-creation/chinese-illustration.webp",
+  "assets/image-generation/first-creation/product-background.webp", "assets/image-generation/first-creation/product-display.webp",
   "assets/image-generation/demo-square.svg", "assets/image-generation/demo-landscape.svg", "assets/image-generation/demo-portrait.svg",
   "image-edit.html", "image-edit.css", "image-edit.js", "image-edit-core.mjs", "image-input.mjs",
   "image-background.html", "image-enhance.html", "image-ai.css", "image-ai.js",
@@ -144,6 +198,11 @@ const staticFiles = new Set([
   "image-erase.js",
   "link-extract.css",
   "link-extract.js",
+  "video-watermark.html",
+  "video-watermark.css",
+  "video-watermark.js",
+  "video-watermark-core.js",
+  "video-watermark-worker.js",
   "video-mask.html",
   "video-mask.css",
   "video-mask.js",
@@ -152,6 +211,7 @@ const staticFiles = new Set([
   "utilities.html",
   "video-crop.html",
   "video-crop.css",
+  "video-frame.css",
   "video-crop.js",
   "video-crop-core.js",
   "video-crop-worker.js",
@@ -171,6 +231,7 @@ const staticFiles = new Set([
   "auth.html",
   "auth.css",
   "auth.js",
+  "auth-redirect.mjs",
   "admin.html",
   "admin.css",
   "admin.js",
@@ -178,8 +239,7 @@ const staticFiles = new Set([
   "brand-icon-192.png",
   "brand-icon-512.png",
   "baidu_verify_codeva-FSh1NIJkcR.html",
-  "robots.txt",
-  "sitemap.xml"
+  "robots.txt"
   ,"manifest.webmanifest"
 ]);
 const publicAppRoutes = new Set(["/discover", "/favorites", "/guides", "/rankings", "/compare", "/tutorials", "/news", "/advertise", "/about", "/standards", "/terms", "/privacy", "/legal", "/feedback"]);
@@ -191,26 +251,6 @@ function parseAllowedOrigins(value) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean));
-}
-
-function createRateLimiter() {
-  const buckets = new Map();
-  return function enforce(key, limit, windowMs, cost = 1) {
-    const now = Date.now();
-    const current = buckets.get(key);
-    if (!current || current.resetAt <= now) {
-      buckets.set(key, { count: cost, resetAt: now + windowMs });
-      return;
-    }
-    current.count += cost;
-    if (current.count > limit) {
-      const retryAfter = Math.max(Math.ceil((current.resetAt - now) / 1000), 1);
-      throw new HttpError(429, "rate_limited", "请求过于频繁，请稍后再试", { retryAfter });
-    }
-    if (buckets.size > 5000) {
-      for (const [bucketKey, bucket] of buckets) if (bucket.resetAt <= now) buckets.delete(bucketKey);
-    }
-  };
 }
 
 function parseCookies(request) {
@@ -284,6 +324,9 @@ function readBearerToken(request) {
 }
 
 function assertSameOriginForCookie(request, allowedOrigins) {
+  if (String(request.headers["sec-fetch-site"] || "").toLowerCase() === "cross-site") {
+    throw new HttpError(403, "csrf_rejected", "跨站请求被拒绝");
+  }
   const origin = String(request.headers.origin || "");
   const referer = String(request.headers.referer || "");
   const isAllowed = (value) => {
@@ -307,18 +350,27 @@ function userAgentFamily(value) {
   return "other";
 }
 
-function sendJson(response, status, payload, extraHeaders = {}) {
-  const body = JSON.stringify(payload);
+function sendJson(response, status, payload, extraHeaders = {}, request = null) {
+  let body = Buffer.from(JSON.stringify(payload), "utf8");
+  const acceptsGzip = String(request?.headers["accept-encoding"] || "").split(",").some((part) => {
+    const [encoding, ...parameters] = part.trim().toLowerCase().split(";");
+    const quality = parameters.find((parameter) => parameter.trim().startsWith("q="));
+    return encoding === "gzip" && (!quality || Number(quality.trim().slice(2)) > 0);
+  });
+  const compressed = acceptsGzip && body.length > 1024;
+  if (compressed) body = gzipSync(body, { level: 6 });
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
-    "Content-Length": Buffer.byteLength(body),
+    "Content-Length": body.length,
+    ...(request ? { Vary: "Accept-Encoding" } : {}),
+    ...(compressed ? { "Content-Encoding": "gzip" } : {}),
     ...extraHeaders
   });
   response.end(body);
 }
 
-function sendData(response, data, meta, status = 200, headers) {
-  sendJson(response, status, meta ? { data, meta } : { data }, headers);
+function sendData(response, data, meta, status = 200, headers, request = null) {
+  sendJson(response, status, meta ? { data, meta } : { data }, headers, request);
 }
 
 function sendProblem(response, error, requestId) {
@@ -331,6 +383,8 @@ function sendProblem(response, error, requestId) {
     requestId
   };
   if (error.details && status < 500) payload.details = error.details;
+  // Financial state from the authenticated task lookup is safe even when provider/storage failures are 5xx.
+  if (error instanceof HttpError && error.details?.settlement) payload.details = { settlement: error.details.settlement };
   sendJson(response, status, payload, status === 429 && error.details?.retryAfter
     ? { "Retry-After": String(error.details.retryAfter) }
     : undefined);
@@ -343,11 +397,14 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
   response.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   if (isProduction) response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   const requestPath = new URL(request.url || "/", "http://localhost").pathname;
-  const isPricingPage = requestPath === "/video-pricing.html";
+  const isExplainPage = ["/explain", "/explain.html", "/explain/"].includes(requestPath);
+  const isPricingPage = ["/video-pricing", "/video-pricing.html", "/video-pricing/"].includes(requestPath);
   const isAdminResource = requestPath.startsWith("/api/admin/") || /^\/admin(?:\.|$)/.test(requestPath);
   const isGifPage = requestPath === "/utilities/video-to-gif" || requestPath === "/video-gif.html";
   const isCropPage = requestPath === "/utilities/video-crop" || requestPath === "/video-crop.html";
   const isCropWorker = requestPath === "/video-crop-worker.js";
+  const isWatermarkPage = requestPath === "/utilities/video-watermark" || requestPath === "/video-watermark.html";
+  const isWatermarkWorker = requestPath === "/video-watermark-worker.js";
   const isMaskPage = requestPath === "/utilities/video-mask" || requestPath === "/video-mask.html";
   const isMaskWorker = requestPath === "/video-mask-worker.js";
   const isLinkPage = requestPath === "/utilities/link-extract" || requestPath === "/link-extract.html";
@@ -355,10 +412,11 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
   const isImageGenerationPage = requestPath === "/image-generation" || requestPath === "/image-generation.html";
   response.setHeader("Content-Security-Policy", [
     "default-src 'self'",
-    isPricingPage ? "script-src 'self' 'unsafe-inline'" : isCropPage || isCropWorker || isMaskPage || isMaskWorker ? "script-src 'self' 'wasm-unsafe-eval'" : isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
+    isPricingPage ? "script-src 'self' 'unsafe-inline'" : isCropPage || isCropWorker || isMaskPage || isMaskWorker || isWatermarkPage || isWatermarkWorker ? "script-src 'self' 'wasm-unsafe-eval'" : isAdminResource ? "script-src 'self'" : "script-src 'self' https://unpkg.com",
     "style-src 'self' 'unsafe-inline'",
-    isGifPage || isErasePage || isImageGenerationPage || ["/utilities/image-edit","/utilities/image-background","/utilities/image-enhance","/image-edit.html","/image-background.html","/image-enhance.html"].includes(requestPath) ? "img-src 'self' data: blob:" : "img-src 'self' data: https:",
-    ...(isGifPage || isCropPage || isMaskPage || isLinkPage ? ["media-src 'self' blob:", "worker-src 'self'"] : []),
+    ["/auth", "/auth.html", "/admin", "/admin.html", "/recharge", "/recharge.html"].includes(requestPath) || isWatermarkPage || isExplainPage || isGifPage || isErasePage || isImageGenerationPage || ["/utilities/image-edit","/utilities/image-background","/utilities/image-enhance","/image-edit.html","/image-background.html","/image-enhance.html"].includes(requestPath) ? "img-src 'self' data: blob:" : "img-src 'self' data: https:",
+    ...(isGifPage || isCropPage || isMaskPage || isWatermarkPage || isLinkPage ? ["media-src 'self' blob:", "worker-src 'self'"] : []),
+    ...(isExplainPage ? ["media-src 'self' blob:"] : []),
     isPricingPage ? "connect-src 'self' https://ai.fun.tv" : "connect-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -375,44 +433,122 @@ function applySecurityHeaders(request, response, allowedOrigins, isProduction) {
   }
 }
 
-function serveStatic(request, response, pathname, staticDir) {
-  if(pathname === "/admin"){response.writeHead(302,{Location:"/admin.html","Cache-Control":"no-store"});response.end();return true;}
-  if(pathname === "/utilities/never-retreat"){response.writeHead(301,{Location:"/games/never-retreat","Cache-Control":"no-store"});response.end();return true;}
-  const logoMatch = pathname.match(/^\/assets\/tool-logos\/([a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif))$/);
-  const isAppRoute = publicAppRoutes.has(pathname) || /^\/category\/[a-z0-9-]+$/.test(pathname);
-  const utilityPages = new Map([["/image-generation","image-generation.html"],["/games/2048","game-2048.html"],["/games/memory","memory-game.html"],["/games/breakout","breakout.html"],["/games","games.html"],["/games/never-retreat","never-retreat.html"],["/games/snake","snake.html"],["/games/gomoku","gomoku.html"],["/games/flight","flight.html"],["/utilities","utilities.html"],["/utilities/video-to-gif","video-gif.html"],["/utilities/video-crop","video-crop.html"],["/utilities/video-mask","video-mask.html"],["/utilities/link-extract","link-extract.html"],["/utilities/image-erase","image-erase.html"],["/utilities/image-edit","image-edit.html"],["/utilities/image-background","image-background.html"],["/utilities/image-enhance","image-enhance.html"]]);
-  const fileName = utilityPages.get(pathname) || (pathname === "/" || isAppRoute ? "index.html" : pathname.slice(1));
-  if (!logoMatch && !staticFiles.has(fileName)) return false;
-  const filePath = logoMatch
-    ? resolve(staticDir, "assets", "tool-logos", logoMatch[1])
-    : resolve(staticDir, fileName);
-  if (!existsSync(filePath) || !statSync(filePath).isFile()) return false;
-  let content = readFileSync(filePath);
-  if (extname(filePath).toLowerCase() === ".html") {
-    const html = content.toString("utf8");
-    if (/<(?:!doctype\s+html|html\b)/i.test(html)) content = Buffer.from(injectAnnouncementAssets(html), "utf8");
+const staticFileCache = new Map();
+const staticCacheMaxEntries = 64;
+const staticCacheMaxFileBytes = 1024 * 1024;
+const staticStreamThreshold = 1024 * 1024;
+
+function readCachedStaticFile(filePath, fileStats) {
+  const cached = staticFileCache.get(filePath);
+  if (cached && cached.mtimeMs === fileStats.mtimeMs && cached.size === fileStats.size) {
+    staticFileCache.delete(filePath);
+    staticFileCache.set(filePath, cached);
+    return cached;
+  }
+  staticFileCache.delete(filePath);
+  const raw = readFileSync(filePath);
+  const entry = { mtimeMs: fileStats.mtimeMs, size: fileStats.size, raw, gzip: null };
+  if (raw.length <= staticCacheMaxFileBytes) {
+    staticFileCache.set(filePath, entry);
+    while (staticFileCache.size > staticCacheMaxEntries) staticFileCache.delete(staticFileCache.keys().next().value);
+  }
+  return entry;
+}
+
+function serveStaticFile(request, response, filePath, { cacheControl, extraHeaders = {}, injectAnnouncements = false, injectAssistant = false } = {}) {
+  const fileStats = statSync(filePath);
+  const fileType = extname(filePath).toLowerCase();
+  const isHtml = fileType === ".html";
+  const etag = `W/"${fileStats.size.toString(16)}-${Math.trunc(fileStats.mtimeMs).toString(16)}"`;
+  const baseHeaders = {
+    "Content-Type": mimeTypes[fileType] || "application/octet-stream",
+    "Last-Modified": fileStats.mtime.toUTCString(),
+    "Cache-Control": cacheControl || "public, max-age=300",
+    ...(!isHtml ? { ETag: etag } : {}),
+    ...extraHeaders
+  };
+  const acceptedEtags = String(request.headers["if-none-match"] || "").split(",").map((item) => item.trim());
+  if (!isHtml && (acceptedEtags.includes("*") || acceptedEtags.includes(etag))) {
+    response.writeHead(304, baseHeaders);
+    response.end();
+    return true;
+  }
+  if (!isHtml && fileStats.size > staticStreamThreshold) {
+    response.writeHead(200, { ...baseHeaders, "Content-Length": fileStats.size });
+    if (request.method === "HEAD") response.end();
+    else createReadStream(filePath).on("error", (error) => response.destroy(error)).pipe(response);
+    return true;
+  }
+
+  let content = readCachedStaticFile(filePath, fileStats).raw;
+  if (isHtml) {
+    let html = content.toString("utf8");
+    if (/href=["'][^"']*utility-theme\.css(?:[?"'])/i.test(html)) {
+      html = html.replace(/<head([^>]*)>/i, '<head$1><script src="/theme-init.js"></script>');
+    }
+    if (injectAnnouncements && /<(?:!doctype\s+html|html\b)/i.test(html)) html = injectAnnouncementAssets(html);
+    if (injectAssistant) html = injectAssistantAssets(html);
+    content = Buffer.from(html, "utf8");
   }
   const acceptsGzip = /\bgzip\b/i.test(String(request.headers["accept-encoding"] || ""));
-  const compressible = /\.(?:html|css|js|json|xml|txt|webmanifest)$/i.test(filePath);
-  const compressed = acceptsGzip && compressible && content.length > 1024;
-  if (compressed) content = gzipSync(content, { level: 6 });
-  const isAdminResource = /^admin(?:\.|$)/.test(fileName);
+  const compressible = /\.(?:html|css|js|mjs|json|xml|txt|webmanifest)$/i.test(filePath);
+  const shouldCompress = acceptsGzip && compressible && content.length > 1024;
+  if (shouldCompress) {
+    const cacheEntry = readCachedStaticFile(filePath, fileStats);
+    content = cacheEntry.gzip || (cacheEntry.gzip = gzipSync(content, { level: 6 }));
+  }
   response.writeHead(200, {
-    "Content-Type": mimeTypes[extname(filePath)] || "application/octet-stream",
+    ...baseHeaders,
     "Content-Length": content.length,
-    ...(compressed ? { "Content-Encoding": "gzip", Vary: "Accept-Encoding" } : {}),
-    "Cache-Control": isAdminResource
-      ? "no-store, private"
-      : (fileName.endsWith(".html") || /^image-edit(?:-core)?\.(?:js|mjs|css)$/.test(fileName)) ? "no-store" : logoMatch ? "public, max-age=86400" : "public, max-age=300"
+    ...(shouldCompress ? { "Content-Encoding": "gzip", Vary: "Accept-Encoding" } : {})
   });
   if (request.method === "HEAD") response.end();
   else response.end(content);
   return true;
 }
 
+const canonicalPages = new Map([["/nestdutio","nestdutio.html"],["/explain","explain.html"],["/recharge","recharge.html"],["/","index.html"],["/auth","auth.html"],["/admin","admin.html"],["/skills","skills.html"],["/creator","creator.html"],["/video-pricing","video-pricing.html"],["/image-generation","image-generation.html"],["/games/2048","game-2048.html"],["/games/memory","memory-game.html"],["/games/breakout","breakout.html"],["/games","games.html"],["/games/never-retreat","never-retreat.html"],["/games/snake","snake.html"],["/games/gomoku","gomoku.html"],["/games/flight","flight.html"],["/utilities","utilities.html"],["/utilities/video-to-gif","video-gif.html"],["/utilities/video-crop","video-crop.html"],["/utilities/video-watermark","video-watermark.html"],["/utilities/video-mask","video-mask.html"],["/utilities/link-extract","link-extract.html"],["/utilities/image-erase","image-erase.html"],["/utilities/image-edit","image-edit.html"],["/utilities/image-background","image-background.html"],["/utilities/image-enhance","image-enhance.html"]]);
+
+function serveStatic(request, response, pathname, staticDir) {
+  const canonicalPath = [...canonicalPages].find(([path, file]) => pathname === `/${file}` || (path !== "/" && pathname === `${path}/`))?.[0];
+  if (canonicalPath !== undefined) {
+    const query = new URL(request.url, "http://localhost").search;
+    response.writeHead(308, { Location: `${canonicalPath}${query}`, "Cache-Control": canonicalPath === "/admin" ? "no-store, private" : "no-store" });
+    response.end();
+    return true;
+  }
+  if(pathname === "/utilities/never-retreat"){response.writeHead(301,{Location:"/games/never-retreat","Cache-Control":"no-store"});response.end();return true;}
+  const logoMatch = pathname.match(/^\/assets\/tool-logos\/([a-z0-9-]+\.(?:png|jpe?g|webp|ico|svg|gif|avif))$/);
+  const isAppRoute = publicAppRoutes.has(pathname) || /^\/category\/[a-z0-9-]+$/.test(pathname);
+
+  const fileName = canonicalPages.get(pathname) || (pathname === "/" || isAppRoute ? "index.html" : pathname.slice(1));
+  if (!logoMatch && !staticFiles.has(fileName)) return false;
+  const filePath = logoMatch
+    ? resolve(staticDir, "assets", "tool-logos", logoMatch[1])
+    : resolve(staticDir, fileName);
+  if (!existsSync(filePath) || !statSync(filePath).isFile()) return false;
+  const isAdminResource = /^admin(?:\.|$)/.test(fileName);
+  return serveStaticFile(request, response, filePath, {
+    cacheControl: isAdminResource
+      ? "no-store, private"
+      : (fileName.endsWith(".html") || /^image-edit(?:-core)?\.(?:js|mjs|css)$/.test(fileName)) ? "no-store" : logoMatch ? "public, max-age=86400" : "public, max-age=300",
+    extraHeaders: logoMatch && extname(filePath).toLowerCase() === ".svg"
+      ? { "Content-Security-Policy": "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox" }
+      : {},
+    injectAnnouncements: true,
+    injectAssistant: ["index.html","creator.html","skills.html","image-generation.html","video-pricing.html","utilities.html","games.html"].includes(fileName)
+  });
+}
+
 function serveProductionGame(request, response, pathname, staticDir) {
-  const match = pathname.match(/^\/games\/(ironfront|yiren-buche|tank-air-war)(?:\/(.*))?$/);
+  const match = pathname.match(/^\/games\/(ironfront|yiren-buche|tank-air-war|free-city-3d)(?:\/(.*))?$/);
   if (!match) return false;
+  if (match[2] === "index.html") {
+    const query = new URL(request.url, "http://localhost").search;
+    response.writeHead(308, { Location: `/games/${match[1]}${query}`, "Cache-Control": "no-store" });
+    response.end();
+    return true;
+  }
   let relativePath;
   try {
     relativePath = decodeURIComponent(match[2] || "index.html");
@@ -427,21 +563,10 @@ function serveProductionGame(request, response, pathname, staticDir) {
   const filePath = resolve(gameRoot, ...segments);
   if (!filePath.startsWith(`${gameRoot}${sep}`) || !existsSync(filePath) || !statSync(filePath).isFile()) return false;
 
-  let content = readFileSync(filePath);
-  if (extname(filePath).toLowerCase() === ".html") content = Buffer.from(injectAnnouncementAssets(content.toString("utf8")), "utf8");
-  const acceptsGzip = /\bgzip\b/i.test(String(request.headers["accept-encoding"] || ""));
-  const compressible = /\.(?:html|css|js|json|txt)$/i.test(filePath);
-  const compressed = acceptsGzip && compressible && content.length > 1024;
-  if (compressed) content = gzipSync(content, { level: 6 });
-  response.writeHead(200, {
-    "Content-Type": mimeTypes[extname(filePath).toLowerCase()] || "application/octet-stream",
-    "Content-Length": content.length,
-    ...(compressed ? { "Content-Encoding": "gzip", Vary: "Accept-Encoding" } : {}),
-    "Cache-Control": extname(filePath).toLowerCase() === ".html" ? "no-store" : "public, max-age=86400"
+  return serveStaticFile(request, response, filePath, {
+    cacheControl: extname(filePath).toLowerCase() === ".html" ? "no-store" : "public, max-age=86400",
+    injectAnnouncements: true
   });
-  if (request.method === "HEAD") response.end();
-  else response.end(content);
-  return true;
 }
 
 function escapeHTML(value) {
@@ -467,13 +592,21 @@ function safeJsonScript(value) {
 }
 
 function absoluteSiteUrl(request, pathname = "/") {
-  const proto = String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim() || "http";
-  const host = String(request.headers["x-forwarded-host"] || request.headers.host || "47.93.245.219").split(",")[0].trim();
-  return new URL(pathname, `${proto}://${host}`).toString();
+  const base = request.publicBaseUrl || "";
+  if (base) {
+    try {
+      const canonical = new URL(base);
+      if (["http:", "https:"].includes(canonical.protocol) && !canonical.username && !canonical.password) {
+        return new URL(pathname, canonical.origin).toString();
+      }
+    } catch { /* Ignore malformed deployment configuration and use the request origin. */ }
+  }
+  const host = String(request.headers.host || "localhost").split(",")[0].trim();
+  return new URL(pathname, `${request.socket.encrypted ? "https" : "http"}://${host}`).toString();
 }
 
 function sendHtml(request, response, html, status = 200, headers = {}) {
-  const body = Buffer.from(injectAnnouncementAssets(html), "utf8");
+  const body = Buffer.from(injectAssistantAssets(injectAnnouncementAssets(html)), "utf8");
   response.writeHead(status, {
     "Content-Type": "text/html; charset=utf-8",
     "Content-Length": body.length,
@@ -482,6 +615,12 @@ function sendHtml(request, response, html, status = 200, headers = {}) {
   });
   if (request.method === "HEAD") response.end();
   else response.end(body);
+}
+
+function injectAssistantAssets(html) {
+  if (html.includes('data-nikai-assistant="assets"')) return html;
+  const assets = '<link rel="stylesheet" href="/assistant.css?v=20261014-compact-1" data-nikai-assistant="assets"><script defer src="/assistant.js?v=20261014-compact-1" data-nikai-assistant="assets"></script>';
+  return html.replace(/<\/head>/i, `${assets}</head>`);
 }
 
 function injectAnnouncementAssets(html) {
@@ -685,9 +824,10 @@ function buildToolSeoPage(request, tool, relatedTools, categories) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, tool.logoUrl || "/brand-icon-192.png?v=20260916-2"))}">
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260805-21">
+  <link rel="stylesheet" href="/design-system.css?v=20261012-detail-style-1">
+  <link rel="stylesheet" href="/styles.css?v=20261012-detail-style-1">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
-  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
+  <script defer src="/seo-analytics.js?v=20261020-analytics-1"></script>
 </head>
 <body class="seo-tool-page">
   <header class="seo-tool-topbar">
@@ -837,9 +977,10 @@ function buildGuideSeoPage(request, topic, tools) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260805-21">
+  <link rel="stylesheet" href="/design-system.css?v=20261012-detail-style-1">
+  <link rel="stylesheet" href="/styles.css?v=20261012-detail-style-1">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
-  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
+  <script defer src="/seo-analytics.js?v=20261020-analytics-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -906,9 +1047,10 @@ function buildCompareSeoPage(request, topic, tools) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260805-21">
+  <link rel="stylesheet" href="/design-system.css?v=20261012-detail-style-1">
+  <link rel="stylesheet" href="/styles.css?v=20261012-detail-style-1">
   <script type="application/ld+json">${safeJsonScript(schema)}</script>
-  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
+  <script defer src="/seo-analytics.js?v=20261020-analytics-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -968,8 +1110,9 @@ function buildGuideIndexPage(request) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260805-21">
-  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
+  <link rel="stylesheet" href="/design-system.css?v=20261012-detail-style-1">
+  <link rel="stylesheet" href="/styles.css?v=20261012-detail-style-1">
+  <script defer src="/seo-analytics.js?v=20261020-analytics-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -1025,8 +1168,9 @@ function buildCompareIndexPage(request) {
   <meta property="og:url" content="${escapeAttribute(canonical)}">
   <meta property="og:image" content="${escapeAttribute(absoluteSiteUrl(request, "/brand-icon-192.png?v=20260916-2"))}">
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
-  <link rel="stylesheet" href="/styles.css?v=20260805-21">
-  <script defer src="/seo-analytics.js?v=20260722-traffic-1"></script>
+  <link rel="stylesheet" href="/design-system.css?v=20261012-detail-style-1">
+  <link rel="stylesheet" href="/styles.css?v=20261012-detail-style-1">
+  <script defer src="/seo-analytics.js?v=20261020-analytics-1"></script>
 </head>
 <body class="seo-tool-page seo-collection-page">
   <header class="seo-tool-topbar">
@@ -1067,8 +1211,9 @@ function buildSitemap(request, db) {
     ["/image-generation", "monthly", "0.8"],
     ["/utilities/video-to-gif", "monthly", "0.8"],
     ["/utilities", "monthly", "0.8"],
-    ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight","/games/ironfront","/games/yiren-buche","/games/tank-air-war"].map(path=>[path,"monthly","0.8"]),
+    ...["/games/2048","/games/memory","/games/breakout","/games","/games/never-retreat","/games/snake","/games/gomoku","/games/flight","/games/ironfront","/games/yiren-buche","/games/tank-air-war","/games/free-city-3d"].map(path=>[path,"monthly","0.8"]),
     ["/utilities/video-crop", "monthly", "0.8"],
+    ["/utilities/video-watermark", "monthly", "0.8"],
     ["/utilities/video-mask", "monthly", "0.8"],
     ["/utilities/image-erase", "monthly", "0.8"],
     ["/utilities/image-edit", "monthly", "0.8"],
@@ -1103,18 +1248,33 @@ function buildSitemap(request, db) {
 export function buildApplication(options = {}) {
   const imageTools = createImageTools(options.imageTools);
   const imageEraser = createImageEraser(options.imageEraser);
-  const linkExtractor = createLinkExtractor({endpoint:options.linkBrowserEndpoint ?? process.env.NIKE_LINK_BROWSER_WS ?? ""});
   const environment = options.environment ?? process.env.NODE_ENV ?? "development";
   const isProduction = environment === "production";
+  const linkExtractor = createLinkExtractor({endpoint:options.linkBrowserEndpoint ?? process.env.NIKE_LINK_BROWSER_WS ?? "",publicMode:options.linkPublicEnabled ?? (process.env.NIKE_DOUYIN_PUBLIC_ENABLED === "1" || isProduction && process.env.NIKE_DOUYIN_PUBLIC_ENABLED !== "0"),extractPublic:options.linkExtractPublic});
   const configuredDbPath = options.dbPath || process.env.NIKE_DB_PATH;
   const configuredAnalyticsSalt = options.analyticsSalt ?? process.env.NIKE_ANALYTICS_SALT;
   if (isProduction && !configuredDbPath) throw new Error("Production requires NIKE_DB_PATH on persistent storage");
   if (isProduction && !configuredAnalyticsSalt) throw new Error("Production requires NIKE_ANALYTICS_SALT");
   const dbPath = resolve(configuredDbPath || defaultDbPath);
-  const staticDir = resolve(options.staticDir || rootDir);
+  const staticDir = resolve(options.staticDir || rootDir, options.staticDir ? "." : "public");
   const logger = options.logger ?? environment !== "test";
   const adminToken = options.adminToken ?? process.env.NIKE_ADMIN_TOKEN ?? "";
   const analyticsSalt = configuredAnalyticsSalt ?? randomBytes(32).toString("hex");
+  const configuredPublicBaseUrl = options.publicBaseUrl ?? process.env.PUBLIC_BASE_URL;
+  // An empty environment value is common when copied from .env.example. In
+  // production keep canonical URLs pinned to the public site in that case.
+  const publicBaseUrlInput = isProduction
+    ? (String(configuredPublicBaseUrl || "").trim() || "https://ontimo.cn")
+    : (configuredPublicBaseUrl || "");
+  let publicBaseUrl = "";
+  if (publicBaseUrlInput) {
+    let parsedPublicBaseUrl;
+    try { parsedPublicBaseUrl = new URL(publicBaseUrlInput); } catch { throw new Error("PUBLIC_BASE_URL must be an absolute HTTP(S) URL"); }
+    if (!["http:", "https:"].includes(parsedPublicBaseUrl.protocol) || parsedPublicBaseUrl.username || parsedPublicBaseUrl.password) {
+      throw new Error("PUBLIC_BASE_URL must be an absolute HTTP(S) URL");
+    }
+    publicBaseUrl = parsedPublicBaseUrl.origin;
+  }
   const tokenAdminEnabled = options.tokenAdminEnabled
     ?? (!isProduction || process.env.NIKE_ENABLE_TOKEN_ADMIN === "true");
   const autoSeed = options.autoSeed
@@ -1127,14 +1287,35 @@ export function buildApplication(options = {}) {
   const trustProxy = String(options.trustProxy ?? process.env.NIKE_TRUST_PROXY ?? "false") === "true";
   const db = openDatabase(dbPath);
   const imageStore = createImageProviderStore(db);
+  const imageCloudHistory = createImageCloudHistoryStore(db);
+  const avatars = createAvatarStore(db);
+  const authEmail = createAuthEmailService(db, {env: options.authEmailEnv ?? process.env, fetchImpl: options.authEmailFetch ?? fetch});
   const announcementStore = createSiteAnnouncementStore(db);
+  const creatorStore = createCreatorStore(db);
   let imageSecretBox = null;
   try { imageSecretBox = createSecretBox(options.imageConfigKey ?? process.env.NIKE_IMAGE_CONFIG_KEY); } catch { /* Fail closed on operations that require a key. */ }
+  const modelProfiles = createModelProfileStore(db, imageSecretBox);
   const imageGenerationConfigured = Boolean(imageSecretBox);
+  const assistantStore = createAssistantStore(db, imageSecretBox);
+  const assistantRunner = createAssistantRunner(assistantStore, {fetchImpl: options.assistantFetch, ...(options.assistantLookup ? {lookup: options.assistantLookup} : {})});
+  const explainerStore = createExplainerStore(db, imageSecretBox, assistantStore);
+  const explainerRunner = createExplainerRunner(explainerStore, {fetchImpl: options.assistantFetch, ...(options.assistantLookup ? {lookup: options.assistantLookup} : {})});
+  const explainerJobs = createExplainerJobs(db, explainerRunner, explainerStore);
+  const skillStore = createSkillStore(db, imageSecretBox);
+  const skillRunner = createSkillRunner(skillStore, { fetchImpl: options.skillFetch, ...(options.skillLookup ? { lookup: options.skillLookup } : {}) });
   const imageGateway = createImageGenerationGateway({ store: imageStore, secretBox: imageSecretBox, fetchImpl: options.imageFetch, tempRoot: options.imageTempRoot, now: options.imageNow });
   const imageDiscovery = createImageProviderDiscovery({ store: imageStore, secretBox: imageSecretBox, fetchImpl: options.imageFetch });
+  const imageBalance = createImageProviderBalance({ store: imageStore, secretBox: imageSecretBox, fetchImpl: options.imageFetch, now: options.imageNow });
+  const creditStore = createCreditStore(db);
+  const nestdutio=createNestdutio({db,box:imageSecretBox,assistant:assistantStore,billing:creditStore,parentOrigin:options.nestdutioParentOrigin??publicBaseUrl,production:isProduction,options});
+  const rechargeStore = createManualRechargeStore(db, {secretBox: imageSecretBox});
+  const imageJobs = createImageJobStore(db, creditStore);
+  imageJobs.recover();
+  const activeCreditReservations = new Set();
   const imageResults = new Map();
+  const imageGeneration = createImageGenerationService({ jobs: imageJobs, creditStore, imageGateway, imageCloudHistory, imageResults, activeCreditReservations, logger });
   const pruneImageResults = () => {
+    imageJobs.prune();
     for (const [id, result] of imageResults) if (Date.parse(result.images[0]?.expiresAt) <= Date.now()) imageResults.delete(id);
   };
   const imageResultTimer = setInterval(pruneImageResults, 60_000);
@@ -1146,8 +1327,8 @@ export function buildApplication(options = {}) {
       const key = imageSecretBox?.decrypt(provider.encryptedApiKey);
       if (key && key.length > 4) apiKeyHint += key.slice(-4);
     } catch { /* A missing/rotated master key must not prevent redacted reads. */ }
-    const { id, name, baseUrl, generationPath, editPath, timeoutMs, enabled, lastTestStatus, lastTestMessage, lastTestedAt, revision, createdAt, updatedAt } = provider;
-    return { id, name, baseUrl, generationPath, editPath, timeoutMs, enabled, lastTestStatus, lastTestMessage, lastTestedAt, revision, createdAt, updatedAt, hasApiKey: Boolean(provider.encryptedApiKey), apiKeyHint };
+    const { id, name, baseUrl, generationPath, editPath, balancePath, balanceValueField, balanceCurrencyField, timeoutMs, enabled, lastTestStatus, lastTestMessage, lastTestedAt, revision, createdAt, updatedAt } = provider;
+    return { id, name, baseUrl, generationPath, editPath, balancePath, balanceValueField, balanceCurrencyField, timeoutMs, enabled, lastTestStatus, lastTestMessage, lastTestedAt, revision, createdAt, updatedAt, hasApiKey: Boolean(provider.encryptedApiKey), apiKeyHint };
   };
   const imageWrite = (write) => {
     try {
@@ -1172,7 +1353,8 @@ export function buildApplication(options = {}) {
   pruneOperationalData(db);
   const retentionTimer = setInterval(() => pruneOperationalData(db), 24 * 60 * 60_000);
   retentionTimer.unref();
-  const newsPublisher = scheduleNewsPublisher({ db, environment, logger });
+  const newsSync = createNewsSync(db, { dailyBriefing:isProduction, secretBox: imageSecretBox, ...(options.newsSync || {}) });
+  if (isProduction) newsSync.start();
   const rateLimit = createRateLimiter();
   const runtimeStartedAt = new Date();
   const recentRequests = [];
@@ -1209,6 +1391,38 @@ export function buildApplication(options = {}) {
     const access = requireManagementAccess(request, ip);
     if (!access.user?.isSuperAdmin) throw new HttpError(403, "super_admin_required", "仅超级管理员可以管理账号权限");
     return access;
+  };
+  const requireProfileAdmin = (request, ip) => {
+    const access = requireManagementAccess(request, ip);
+    if (!access.user?.isSuperAdmin) throw new HttpError(403, 'super_admin_required', '仅超级管理员可以管理和使用密钥配置库');
+    return access;
+  };
+  const profileEndpoint = (endpoint, kind) => {
+    try { return kind === 'chat' ? chatEndpoint(endpoint) : new URL(endpoint).href.replace(/\/$/, ''); }
+    catch { throw new HttpError(422, 'model_profile_endpoint_invalid', '请检查所选配置的接口地址'); }
+  };
+  const configuredProfileSource = (scope, providerId) => {
+    if (scope === 'image') {
+      const provider = typeof providerId === 'string' ? imageStore.getProvider(providerId) : null;
+      if (!provider?.encryptedApiKey) throw new HttpError(422, 'model_profile_source_missing', '请先输入 API Key 或选择已保存密钥的平台');
+      return {kind:'image', endpoint:provider.baseUrl, key:()=>imageSecretBox?.decrypt(provider.encryptedApiKey)};
+    }
+    const stores = {assistant:assistantStore, explainer:explainerStore, nestdutio:nestdutio.config};
+    if (!Object.hasOwn(stores, scope)) throw new HttpError(422, 'invalid_model_scope', '模型配置类型无效');
+    const store = stores[scope], config = store.config();
+    if (!config.hasKey) throw new HttpError(422, 'model_profile_source_missing', '请先输入 API Key 或保存当前模块配置');
+    return {kind:'chat', endpoint:config.endpoint, key:()=>store.key()};
+  };
+  const resolveModelProfile = (input, scope, request, ip) => {
+    if (!input || !Object.hasOwn(input, 'profileId')) return input;
+    requireProfileAdmin(request, ip);
+    const profile = modelProfiles.get(input.profileId), kind = scope === 'image' ? 'image' : 'chat';
+    if (profile.kind !== kind || input.clearKey || input.apiKey ||
+        profileEndpoint(scope === 'image' ? input.baseUrl ?? input.endpoint : input.endpoint, kind) !== profileEndpoint(profile.endpoint, kind)) {
+      throw new HttpError(422, 'model_profile_mismatch', '所选配置与接口不匹配，请重新选用配置或填写新的 API Key');
+    }
+    const {profileId, ...result} = input;
+    return {...result, apiKey:modelProfiles.key(profileId)};
   };
   const getSystemSnapshot = ({ includeImageGenerationConfigured = false } = {}) => {
     const now = Date.now();
@@ -1247,6 +1461,7 @@ export function buildApplication(options = {}) {
   };
 
   const server = createServer(async (request, response) => {
+    request.publicBaseUrl = publicBaseUrl;
     const startedAt = performance.now();
     const requestId = randomUUID();
     const method = request.method || "GET";
@@ -1255,6 +1470,7 @@ export function buildApplication(options = {}) {
     const ip = getIp(request);
     response.setHeader("X-Request-Id", requestId);
     applySecurityHeaders(request, response, allowedOrigins, isProduction);
+    if(['/nestdutio','/nestdutio.html'].includes(pathname)){const template=options.nestdutioPreviewOrigin??process.env.NIKAI_NESTDUTIO_PREVIEW_ORIGIN;const source=template?new URL(template.replace('{project}','preview-placeholder')).origin.replace('preview-placeholder','*'):(!isProduction?'http://*.localhost:*':"'none'");response.setHeader('Content-Security-Policy',response.getHeader('Content-Security-Policy')+'; frame-src '+source);}
     if (pathname.startsWith("/api/admin/")) response.setHeader("Cache-Control", "no-store, private");
 
     response.on("finish", () => {
@@ -1277,10 +1493,99 @@ export function buildApplication(options = {}) {
     });
 
     try {
+      if (["POST", "PUT", "PATCH", "DELETE"].includes(method)
+        && parseCookies(request)[authCookieName]) {
+        assertSameOriginForCookie(request, allowedOrigins);
+      }
+      if (pathname === '/api/v1/recharge/config' && method === 'GET') {
+        sendData(response,rechargeStore.config(getUserBySession(db,parseCookies(request)[authCookieName])?.id),null,200,{'Cache-Control':'no-store, private'});return;
+      }
+      const rechargeAsset=pathname.match(/^\/api\/v1\/recharge\/assets\/([0-9a-f-]{36})$/);
+      if(rechargeAsset && ['GET','HEAD'].includes(method)){
+        const user=getUserBySession(db,parseCookies(request)[authCookieName]);let isAdmin=false;
+        try{requireManagementAccess(request,ip);isAdmin=true;}catch{/* Public configured QR codes and owned assets remain available. */}
+        const image=rechargeStore.asset(rechargeAsset[1],user?.id||null,isAdmin);
+        if(!image)throw new HttpError(404,'recharge_asset_missing','图片不存在');
+        response.writeHead(200,{'Content-Type':image.mimeType,'Content-Length':image.bytes.length,'Cache-Control':'no-store, private','Content-Security-Policy':"default-src 'none'; sandbox",'X-Content-Type-Options':'nosniff'});
+        response.end(method==='HEAD'?undefined:image.bytes);return;
+      }
+      if(pathname==='/api/v1/account/recharges'||pathname.startsWith('/api/v1/account/recharges/')){
+        response.setHeader('Cache-Control','no-store, private');const user=getUserBySession(db,parseCookies(request)[authCookieName]);
+        if(!user)throw new HttpError(401,'not_authenticated','请先登录充值');
+        if(pathname==='/api/v1/account/recharges'){
+          if(method==='GET'){sendData(response,rechargeStore.list(user.id));return;}
+          if(method==='POST'){rateLimit(`${user.id}:manual-recharge-create`,10,600_000);sendData(response,rechargeStore.create(user.id,await readJsonBody(request,4096)),null,201);return;}
+        }
+        const match=pathname.match(/^\/api\/v1\/account\/recharges\/([0-9a-f-]{36})(\/(?:proof|cancel))?$/);
+        if(match&&method==='GET'&&!match[2]){sendData(response,rechargeStore.get(user.id,match[1]));return;}
+        if(match&&method==='POST'&&match[2]==='/cancel'){rateLimit(`${user.id}:manual-recharge-cancel`,10,600_000);sendData(response,rechargeStore.cancel(user.id,match[1]));return;}
+        if(match&&method==='POST'&&match[2]==='/proof'){rateLimit(`${user.id}:manual-recharge-proof`,10,600_000);sendData(response,rechargeStore.submitProof(user.id,match[1],await readJsonBody(request,3*1024*1024)));return;}
+        throw new HttpError(404,'route_not_found','接口不存在');
+      }
+      if(pathname.startsWith('/api/admin/v1/recharge')){
+        const access=requireManagementAccess(request,ip);response.setHeader('Cache-Control','no-store, private');
+        if(pathname==='/api/admin/v1/recharge/config'){
+          if(method==='GET'){sendData(response,rechargeStore.config());return;}
+          if(method==='PUT'){sendData(response,rechargeStore.configure(await readJsonBody(request,16*1024)));return;}
+        }
+        const channel=pathname.match(/^\/api\/admin\/v1\/recharge\/channels\/(alipay|wechat)\/qr$/);
+        if(channel&&method==='POST'){rateLimit(`${access.actor}:manual-recharge-qr`,10,600_000);const body=await readJsonBody(request,3*1024*1024);sendData(response,rechargeStore.uploadQr(channel[1],body.image));return;}
+        if(pathname==='/api/admin/v1/recharges'&&method==='GET'){sendData(response,rechargeStore.listAdmin(url.searchParams.get('status')||'pending'));return;}
+        const review=pathname.match(/^\/api\/admin\/v1\/recharges\/([0-9a-f-]{36})\/review$/);
+        if(review&&method==='POST'){rateLimit(`${access.actor}:manual-recharge-review`,60,60_000);sendData(response,rechargeStore.review(review[1],await readJsonBody(request,4096),access.user?.id||access.actor));return;}
+        throw new HttpError(404,'route_not_found','接口不存在');
+      }
+      if (method === 'GET' && pathname === '/api/v1/credits/config') {
+        sendData(response, rechargeStore.pricing(getUserBySession(db,parseCookies(request)[authCookieName])?.id), null, 200, {'Cache-Control':'no-store, private'}); return;
+      }
+      if (['/api/v1/account/credits','/api/v1/account/credits/redeem'].includes(pathname)) {
+        response.setHeader('Cache-Control','no-store, private');
+        const user = getUserBySession(db,parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401,'not_authenticated','请先登录查看积分');
+        if (method === 'POST' && pathname.endsWith('/redeem')) {
+          rateLimit(`${user.id}:credit-redeem`,10,60_000);
+          const body = await readJsonBody(request,4096);
+          creditStore.redeem(user.id,body.code);
+        } else if (method !== 'GET' || pathname.endsWith('/redeem')) throw new HttpError(404,'route_not_found','接口不存在');
+        sendData(response,{...creditStore.wallet(user.id),ledger:creditStore.ledger(user.id)}); return;
+      }
+      if (pathname === '/api/admin/v1/credits' || pathname.startsWith('/api/admin/v1/credits/')) {
+        const access = requireManagementAccess(request,ip);
+        response.setHeader('Cache-Control','no-store, private');
+        if (pathname === '/api/admin/v1/credits' && method === 'GET') {
+          sendData(response,{config:creditStore.config(),codes:creditStore.listCodes(),grants:creditStore.listGrants(),pending:creditStore.pendingReservations(),models:imageStore.listModels().map(({id,displayName})=>({id,displayName}))});return;
+        }
+        if (pathname === '/api/admin/v1/credits' && method === 'PUT') {
+          const input=await readJsonBody(request,32*1024);
+          const validModels=new Set(['nestdutio',...imageStore.listModels().map(model=>model.id)]);
+          if(input.modelPrices && Object.keys(input.modelPrices).some(id=>!validModels.has(id))) throw new HttpError(422,'credit_invalid','模型积分配置包含不存在的模型');
+          sendData(response,creditStore.configure(input));return;
+        }
+        if (pathname === '/api/admin/v1/credits/accounts' && method === 'GET') {
+          rateLimit(`${access.actor}:credit-account`,60,60_000);
+          sendData(response,creditStore.findGrantAccount(new URL(request.url,'http://local').searchParams.get('query')));return;
+        }
+        if (pathname === '/api/admin/v1/credits/grants' && method === 'POST') {
+          rateLimit(`${access.actor}:credit-grant`,30,60_000);
+          sendData(response,creditStore.grant(await readJsonBody(request,4096),access.actor));return;
+        }
+        if (pathname === '/api/admin/v1/credits/codes' && method === 'POST') {
+          rateLimit(`${access.actor}:credit-codes`,20,60_000);
+          sendData(response,{codes:creditStore.createCodes(await readJsonBody(request,4096),access.user?.id||null)},null,201);return;
+        }
+        const codeMatch=pathname.match(/^\/api\/admin\/v1\/credits\/codes\/([0-9a-f-]{36})\/disable$/);
+        if(codeMatch&&method==='POST'){creditStore.disableCode(codeMatch[1]);sendData(response,{disabled:true});return;}
+        const reservationMatch=pathname.match(/^\/api\/admin\/v1\/credits\/reservations\/([0-9a-f-]{36})\/settle$/);
+        if(reservationMatch&&method==='POST'){
+          if(activeCreditReservations.has(reservationMatch[1]) || imageJobs.isPendingReservation(reservationMatch[1])) throw new HttpError(409,'credit_job_running','图片仍在生成，暂不能手动结算');
+          const body=await readJsonBody(request,4096);sendData(response,creditStore.settle(reservationMatch[1],body.successCount));return;
+        }
+        throw new HttpError(404,'route_not_found','接口不存在');
+      }
       if (pathname.startsWith("/api/admin/v1/image-")) {
-        requireTokenAdmin(request, ip);
-        const context = { actor: "admin-token", requestId };
-        const match = pathname.match(/^\/api\/admin\/v1\/(image-providers|image-models)(?:\/([^/]+)(?:\/(test|discover-models))?)?$/);
+        const managementAccess = requireManagementAccess(request, ip);
+        const context = { actor: managementAccess.actor, requestId };
+        const match = pathname.match(/^\/api\/admin\/v1\/(image-providers|image-models)(?:\/([^/]+)(?:\/(test|discover-models|balance))?)?$/);
         if (!match) throw new HttpError(404, "route_not_found", "接口不存在");
         const [, kind, id, action] = match;
         const isProvider = kind === "image-providers";
@@ -1306,10 +1611,18 @@ export function buildApplication(options = {}) {
           sendData(response, await imageDiscovery.discover(id));
           return;
         }
+        if (method === "POST" && isProvider && id && action === "balance") {
+          response.setHeader("Cache-Control", "no-store, private");
+          rateLimit(`${ip}:image-balance:${id}`, 10, 60_000);
+          sendData(response, await imageBalance.query(id), null, 200, { "Cache-Control": "no-store, private" });
+          return;
+        }
         if (!action && ((method === "POST" && !id) || (method === "PATCH" && id))) {
           const body = await readImageRequestBody(request);
-          const input = isProvider ? validateImageProvider(body, Boolean(id)) : validateImageModel(body, Boolean(id));
+          const resolved = isProvider ? resolveModelProfile(body, 'image', request, ip) : body;
+          const input = isProvider ? validateImageProvider(resolved, Boolean(id)) : validateImageModel(body, Boolean(id));
           if (isProvider) {
+            if (Object.hasOwn(input, "apiKey")) requireSuperAdmin(request, ip);
             if (input.baseUrl) {
               try { await assertSafeUpstreamUrl(input.baseUrl, { signal: AbortSignal.timeout(5000) }); }
               catch { throw new HttpError(422, "invalid_url", "生图平台地址必须指向可访问的公共 HTTPS 服务"); }
@@ -1345,20 +1658,88 @@ export function buildApplication(options = {}) {
       }
       if (method === "POST" && pathname === "/api/v1/image-generations") {
         response.setHeader("Cache-Control", "no-store, private");
-        rateLimit(`${ip}:image-generation`, 20, 60_000);
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录后生成图片");
         const input = validateImageGeneration(await readImageRequestBody(request));
+        rateLimit(`${ip}:image-generation`, 20, 60_000, input.count);
         const model = imageStore.getModel(input.modelRecordId);
         if (model?.enabled && imageStore.getProvider(model.providerId)?.enabled && (input.count > model.maxImages || !model.supportedRatios.includes(input.ratio))) throw new HttpError(422, "invalid_field", "数量或比例超出所选模型的支持范围");
-        const result = await imageGateway.generate(input);
+        if (!imageSecretBox) throw new HttpError(503,'image_service_unconfigured',imageErrorTitle('image_service_unconfigured'));
+        if (!model?.enabled || !imageStore.getProvider(model.providerId)?.enabled) throw new HttpError(503,'image_model_unavailable',imageErrorTitle('image_model_unavailable'));
         pruneImageResults();
-        imageResults.set(result.generationId, result);
-        sendData(response, { generationId: result.generationId, images: result.images.map(({ id, mimeType, expiresAt }) => ({ id, mimeType, expiresAt, url: `/api/v1/image-generations/${result.generationId}/images/${id}` })) });
+        imageJobs.assertCapacity(user.id);
+        const key=request.headers['idempotency-key'];
+        if(key!==undefined && (typeof key!=='string'||! /^[A-Za-z0-9_-]{8,120}$/.test(key))) throw new HttpError(422,'invalid_idempotency_key','请求标识无效');
+        const job = imageGeneration.prepare(user.id, input, model.id, key);
+        const generate = () => imageGeneration.run(job, user.id, input, model);
+        if (request.headers.prefer === 'respond-async') {
+          void generate().catch(error => {
+            if (logger) console.error('Image generation task failed:', error?.code || 'unknown');
+          });
+          sendData(response, { jobId: job.id, state: 'pending', reservedCredits: job.reservation.reservedCredits }, null, 202);
+        } else sendData(response, await generate());
+        return;
+      }
+      if (method === 'GET' && pathname === '/api/v1/image-creation-context') {
+        response.setHeader('Cache-Control', 'no-store, private');
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, 'not_authenticated', '请先登录');
+        sendData(response, imageJobs.summary(user.id));
+        return;
+      }
+      const imageJobMatch = pathname.match(/^\/api\/v1\/image-generation-jobs\/([0-9a-f-]{36})$/);
+      if (method === 'GET' && imageJobMatch) {
+        response.setHeader('Cache-Control', 'no-store, private');
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, 'not_authenticated', '请先登录');
+        pruneImageResults();
+        const job = imageJobs.get(imageJobMatch[1], user.id);
+        if (!job) throw new HttpError(404, 'image_job_not_found', '生成任务已过期，请先查看账号云历史。');
+        if (job.state === 'failed') throw new HttpError(job.error.status, job.error.code, job.error.message, { settlement: job.settlement });
+        if (job.state === 'pending') sendData(response, { jobId: imageJobMatch[1], state: 'pending' }, null, 202);
+        else sendData(response, job.data);
+        return;
+      }
+      if (pathname === '/api/v1/image-history' && ['GET', 'DELETE'].includes(method)) {
+        response.setHeader('Cache-Control', 'no-store, private');
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, 'not_authenticated', '请先登录');
+        if (method === 'DELETE') { sendData(response, { cleared: imageCloudHistory.clear(user.id) }); return; }
+        const rawLimit = url.searchParams.get('limit');
+        const limit = rawLimit === null ? 24 : Number(rawLimit);
+        if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new HttpError(422, 'invalid_field', '历史分页数量无效');
+        let page;
+        try { page = imageCloudHistory.list(user.id, { limit, cursor: url.searchParams.get('cursor') }); }
+        catch { throw new HttpError(422, 'invalid_field', '历史分页游标无效'); }
+        sendData(response, { ...page, items: page.items.map((item) => ({ ...item, url: `/api/v1/image-history/${item.id}/image` })) });
+        return;
+      }
+      const historyImageMatch = pathname.match(/^\/api\/v1\/image-history\/([0-9a-f-]{36})\/image$/);
+      if (historyImageMatch && ['GET', 'HEAD'].includes(method)) {
+        response.setHeader('Cache-Control', 'no-store, private');
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, 'not_authenticated', '请先登录');
+        const image = imageCloudHistory.getImage(user.id, historyImageMatch[1]);
+        if (!image) throw new HttpError(404, 'image_result_not_found', '图片不存在');
+        response.writeHead(200, { 'Content-Type': image.mimeType, 'Content-Length': image.bytes.length });
+        response.end(method === 'HEAD' ? undefined : image.bytes);
+        return;
+      }
+      const historyItemMatch = pathname.match(/^\/api\/v1\/image-history\/([0-9a-f-]{36})$/);
+      if (historyItemMatch && method === 'DELETE') {
+        response.setHeader('Cache-Control', 'no-store, private');
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, 'not_authenticated', '请先登录');
+        sendData(response, { deleted: imageCloudHistory.remove(user.id, historyItemMatch[1]) });
         return;
       }
       const imageResultMatch = pathname.match(/^\/api\/v1\/image-generations\/([0-9a-f-]{36})\/images\/([0-9a-f-]{36})$/);
       if (["GET", "HEAD"].includes(method) && imageResultMatch) {
         response.setHeader("Cache-Control", "no-store, private");
         const result = imageResults.get(imageResultMatch[1]);
+        const user = getUserBySession(db, parseCookies(request)[authCookieName]);
+        if (!user) throw new HttpError(401, 'not_authenticated', '请先登录');
+        if (result && result.ownerId !== user.id) throw new HttpError(404, 'image_result_not_found', '图片不存在');
         const image = result?.images.find((item) => item.id === imageResultMatch[2]);
         if (!image || Date.parse(image.expiresAt) <= Date.now()) {
           pruneImageResults();
@@ -1414,20 +1795,24 @@ export function buildApplication(options = {}) {
         const localAddress = ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(request.socket.remoteAddress);
         let localHost = false;
         try { localHost = ["localhost", "127.0.0.1", "[::1]"].includes(new URL(`http://${request.headers.host}`).hostname); } catch {}
-        if (!localAddress || !localHost || ["cross-site", "same-site"].includes(request.headers["sec-fetch-site"])) throw new HttpError(403,"local_only","分享链接解析目前仅支持本机访问。");
+        if ((!linkExtractor.publicMode && (!localAddress || !localHost)) || ["cross-site", "same-site"].includes(request.headers["sec-fetch-site"])) throw new HttpError(403,"local_only","当前访问方式不可用，请从本站页面使用解析工具。");
         if (request.headers.origin && request.headers.origin !== `http://${request.headers.host}` && request.headers.origin !== `https://${request.headers.host}`) throw new HttpError(403,"local_only","跨站请求被拒绝。");
-        if (method === "GET" && pathname === "/api/utilities/link-extract/status") { sendData(response,{enabled:linkExtractor.enabled,mode:"local"}); return; }
+        if (method === "GET" && pathname === "/api/utilities/link-extract/status") { sendData(response,{enabled:linkExtractor.enabled,mode:linkExtractor.publicMode?"public":"local",loginRequired:linkExtractor.publicMode}); return; }
+        const user=linkExtractor.publicMode?getUserBySession(db,parseCookies(request)[authCookieName]):null;
+        if(linkExtractor.publicMode&&!user)throw new HttpError(401,"not_authenticated","请先登录后使用视频解析。");
+        const owner=user?String(user.id):undefined;
         const abort = new AbortController();
-        const signal = AbortSignal.any([abort.signal,AbortSignal.timeout(600000)]);
+        const signal = AbortSignal.any([abort.signal,AbortSignal.timeout(linkExtractor.publicMode?120000:600000)]);
         response.on("close",()=>abort.abort());
         try {
           if (method === "POST" && pathname === "/api/utilities/link-extract") {
             rateLimit(`${ip}:link-extract`,5,60000);
+            if(owner)rateLimit(`${owner}:link-extract`,3,60000);
             const body = await readJsonBody(request,32000);
-            sendData(response,await linkExtractor.parse(body.text,signal)); return;
+            sendData(response,await linkExtractor.parse(body.text,signal,owner)); return;
           }
           const asset = pathname.match(/^\/api\/utilities\/link-extract\/([a-f0-9]{48})\/(video|cover|audio)$/);
-          if (method === "GET" && asset) { await linkExtractor.download(asset[1],asset[2],request,response,signal); return; }
+          if (method === "GET" && asset) { if(owner)rateLimit(`${owner}:link-download`,30,60000);await linkExtractor.download(asset[1],asset[2],request,response,signal,owner); return; }
           throw new HttpError(404,"not_found","资源不存在。");
         } catch(error) {
           if (response.headersSent || response.destroyed) { response.destroy(); return; }
@@ -1515,12 +1900,42 @@ export function buildApplication(options = {}) {
 
       if (method === "GET" && pathname === "/api/v1/site/bootstrap") {
         rateLimit(`${ip}:read`, 120, 60_000);
-        sendData(response, getBootstrap(db), {
+        const newsLimit = Number(url.searchParams.get("newsLimit") || 60);
+        if (!Number.isInteger(newsLimit) || newsLimit < 1 || newsLimit > 1000) throw new HttpError(422, "invalid_news_limit", "资讯数量须为1到1000");
+        sendData(response, getBootstrap(db, { newsLimit }), {
           contentVersion: new Date().toISOString(),
           backend: db.backend || "node-sqlite"
-        });
+        }, 200, {}, request);
         return;
       }
+
+      if(await handleNestdutio({request,response,user:pathname.startsWith('/api/v1/nestdutio/')?getUserBySession(db,parseCookies(request)[authCookieName]):null,pathname,service:nestdutio,sendData,rateLimit}))return;
+      if (method === "GET" && pathname === "/api/v1/explain/config") { rateLimit(`${ip}:read`,120,60_000); sendData(response,explainerStore.publicConfig(),null,200,{"Cache-Control":"no-store"}); return; }
+      if (method === "GET" && pathname === "/api/v1/explain/projects") {
+        const user=getUserBySession(db,parseCookies(request)[authCookieName]);if(!user)throw new HttpError(401,"auth_required","请先登录再查看历史项目");
+        rateLimit(`${user.id}:explainer-projects`,120,60_000);
+        const query=new URL(request.url,"http://localhost").searchParams;
+        sendData(response,explainerJobs.list(user.id,{q:query.get('q')??'',state:query.get('state')??'all',offset:query.get('offset')??'0'}),null,200,{"Cache-Control":"no-store"});return;
+      }
+      if (pathname === "/api/v1/explain/tasks" && method === "POST") {
+        const user=getUserBySession(db,parseCookies(request)[authCookieName]);
+        if(!user)throw new HttpError(401,"auth_required","请先登录再生成交互讲解");
+        rateLimit(`${user.id}:explainer`,6,60_000);
+        const input=await readJsonBody(request,8192);
+        sendData(response,explainerJobs.submit(user.id,input,input.requestKey),null,202,{"Cache-Control":"no-store"});return;
+      }
+      const explainerTaskMatch=pathname.match(/^\/api\/v1\/explain\/tasks\/([0-9a-f-]{36})$/i);
+      if(explainerTaskMatch && method === "GET") {
+        const user=getUserBySession(db,parseCookies(request)[authCookieName]);if(!user)throw new HttpError(401,"auth_required","请先登录再查看交互讲解");
+        rateLimit(`${user.id}:explainer-poll`,120,60_000);
+        sendData(response,explainerJobs.get(user.id,explainerTaskMatch[1]),null,200,{"Cache-Control":"no-store"});return;
+      }
+      if (method === "POST" && pathname === "/api/v1/explain/generate") { const user=getUserBySession(db,parseCookies(request)[authCookieName]); if(!user)throw new HttpError(401,"auth_required","请先登录再生成交互讲解"); rateLimit(`${user.id}:explainer`,3,60_000); sendData(response,await explainerRunner.run(user.id,await readJsonBody(request,8192))); return; }
+      if (method === "GET" && pathname === "/api/v1/assistant/config") { rateLimit(`${ip}:read`, 120, 60_000); sendData(response, assistantStore.publicConfig(), null, 200, {"Cache-Control":"no-store"}); return; }
+      if (method === "POST" && pathname === "/api/v1/assistant/chat") { const user = getUserBySession(db, parseCookies(request)[authCookieName]); if (!user) throw new HttpError(401, "auth_required", "请先登录再使用AI助手"); rateLimit(`${user.id}:assistant`, 10, 60_000); const body = await readJsonBody(request, 48 * 1024); sendData(response, await assistantRunner.run(user.id, body)); return; }
+      if (method === "GET" && pathname === "/api/v1/skills") { rateLimit(`${ip}:read`, 120, 60_000); sendData(response, skillStore.read(true), null, 200, { "Cache-Control": "no-store" }); return; }
+      if (method === "POST" && pathname === "/api/v1/skills/run") { const user = getUserBySession(db, parseCookies(request)[authCookieName]); if (!user) throw new HttpError(401, "auth_required", "请先登录再使用Skill"); rateLimit(`${user.id}:skills`, 5, 60_000); const body = await readJsonBody(request, 32 * 1024); sendData(response, await skillRunner.run(user.id, body.skillId, body.input)); return; }
+      if (method === "GET" && pathname === "/api/v1/creator") { rateLimit(`${ip}:read`, 120, 60_000); sendData(response, creatorStore.read(true), null, 200, { "Cache-Control": "no-store" }); return; }
 
       if (method === "GET" && pathname === "/api/v1/site-announcements") {
         rateLimit(`${ip}:read`, 120, 60_000);
@@ -1534,9 +1949,35 @@ export function buildApplication(options = {}) {
         return;
       }
 
+      if (method === "POST" && pathname === "/api/v1/auth/email-code") {
+        rateLimit(`${ip}:email-code`, 10, 60 * 60_000);
+        const body = await readJsonBody(request, 4096);
+        if (!["register","reset"].includes(body.purpose)) throw new HttpError(422,"invalid_code_purpose","验证码用途无效");
+        sendData(response, await authEmail.issue(body.email,body.purpose), null, 200, {"Cache-Control":"no-store"});return;
+      }
+      if (method === "POST" && pathname === "/api/v1/auth/reset-password") {
+        rateLimit(`${ip}:password-reset`, 10, 15 * 60_000);
+        const body=await readJsonBody(request,4096);
+        const input=validateLogin({email:body.email,password:body.password});
+        sendData(response,await resetUserPassword(db,input.email,input.password,authEmail.authorize(input.email,"reset",body.code)),null,200,{"Cache-Control":"no-store","Set-Cookie":authCookie("",request,trustProxy,0)});return;
+      }
+      if (method === "POST" && ["/api/v1/account/verify-email/send","/api/v1/account/verify-email"].includes(pathname)) {
+        const user=getUserBySession(db,parseCookies(request)[authCookieName]);
+        if(!user)throw new HttpError(401,"not_authenticated","请先登录");
+        rateLimit(`${user.id}:verify-email`,10,15*60_000);
+        const body=await readJsonBody(request,4096);
+        if(!await verifyUserPassword(db,user.id,body.password))throw new HttpError(401,"invalid_credentials","当前密码不正确");
+        const result=pathname.endsWith("/send")?await authEmail.issue(user.email,"verify"):{user:markUserEmailVerified(db,user.id,authEmail.authorize(user.email,"verify",body.code))};
+        sendData(response,result,null,200,{"Cache-Control":"no-store"});return;
+      }
       if (method === "POST" && pathname === "/api/v1/auth/register") {
         rateLimit(`${ip}:auth-register`, 5, 60 * 60_000);
-        const result = registerUser(db, validateRegistration(await readJsonBody(request)));
+        const body = await readJsonBody(request);
+        const {code, ...fields} = body;
+        const input = validateRegistration(fields);
+        validateEmailCode(code);
+        if(db.prepare("SELECT 1 FROM users WHERE normalized_email = ?").get(input.normalizedEmail)) throw new HttpError(409,"email_registered","该邮箱已经注册");
+        const result = await registerUser(db, input, {authorize: authEmail.authorize(input.email,"register",code),emailVerified:true});
         sendData(response, { user: result.user }, null, 201, {
           "Cache-Control": "no-store",
           "Set-Cookie": authCookie(result.token, request, trustProxy)
@@ -1546,7 +1987,9 @@ export function buildApplication(options = {}) {
 
       if (method === "POST" && pathname === "/api/v1/auth/login") {
         rateLimit(`${ip}:auth-login`, 10, 15 * 60_000);
-        const result = loginUser(db, validateLogin(await readJsonBody(request)));
+        const loginInput = validateLogin(await readJsonBody(request));
+        rateLimit(`auth-login-email:${hashIp(loginInput.normalizedEmail)}`, 10, 15 * 60_000);
+        const result = await loginUser(db, loginInput);
         sendData(response, { user: result.user }, null, 200, {
           "Cache-Control": "no-store",
           "Set-Cookie": authCookie(result.token, request, trustProxy)
@@ -1595,6 +2038,24 @@ export function buildApplication(options = {}) {
         }
       }
 
+      if (pathname === "/api/v1/account/avatar" && ["GET", "HEAD", "PUT", "DELETE"].includes(method)) {
+        const token = parseCookies(request)[authCookieName];
+        const user = getUserBySession(db, token);
+        if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        if (method === "GET" || method === "HEAD") {
+          const avatar = avatars.get(user.id);
+          if (!avatar) throw new HttpError(404, "avatar_not_found", "尚未设置头像");
+          response.writeHead(200, { "Content-Type": avatar.mimeType, "Content-Length": avatar.bytes.length, "Cache-Control": "no-store, private" });
+          response.end(method === "HEAD" ? undefined : avatar.bytes);
+          return;
+        }
+        rateLimit(`${user.id}:account-avatar`, 10, 600_000);
+        if (method === "PUT") avatars.save(user.id, await readAvatar(request));
+        else avatars.reset(user.id);
+        sendData(response, { user: getUserBySession(db, token) }, null, 200, { "Cache-Control": "no-store" });
+        return;
+      }
+
       if (method === "GET" && pathname === "/api/v1/account/summary") {
         const user = getUserBySession(db, parseCookies(request)[authCookieName]);
         if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
@@ -1621,6 +2082,7 @@ export function buildApplication(options = {}) {
       if (method === "PUT" && accountHistoryMatch) {
         const user = getUserBySession(db, parseCookies(request)[authCookieName]);
         if (!user) throw new HttpError(401, "not_authenticated", "请先登录");
+        rateLimit(`${ip}:account-history-write`, 60, 60_000);
         const tool = getTool(db, accountHistoryMatch[1]);
         if (!tool) throw new HttpError(404, "tool_not_found", "工具不存在或尚未发布");
         recordUserToolHistory(db, user.id, tool.id);
@@ -1652,6 +2114,7 @@ export function buildApplication(options = {}) {
         rateLimit(`${ip}:account-delete`, 3, 60 * 60_000);
         const body = await readJsonBody(request);
         if (body.confirmation !== "DELETE") throw new HttpError(422, "confirmation_required", "请输入 DELETE 确认注销账号");
+        if (!await verifyUserPassword(db, user.id, body.password)) throw new HttpError(401, "reauthentication_failed", "密码验证失败，请重新输入当前密码");
         if (!deleteUserAccount(db, user.id)) throw new HttpError(409, "account_protected", "该账号不能注销");
         sendData(response, { deleted: true }, null, 200, {
           "Cache-Control": "no-store",
@@ -1677,6 +2140,7 @@ export function buildApplication(options = {}) {
           language: url.searchParams.get("language") || url.searchParams.get("lang") || "all",
           sort: (url.searchParams.get("sort") || "recommended") === "newest" ? "latest" : (url.searchParams.get("sort") || "recommended"),
           sponsored: category === "all" ? false : undefined,
+          maxLimit: 100,
           limit: url.searchParams.get("limit") || 24,
           offset: url.searchParams.get("offset") || 0
         });
@@ -1689,8 +2153,6 @@ export function buildApplication(options = {}) {
         rateLimit(`${ip}:read`, 120, 60_000);
         const tool = getTool(db, toolMatch[1]);
         if (!tool) throw new HttpError(404, "tool_not_found", "未找到该工具");
-        const historyUser = getUserBySession(db, parseCookies(request)[authCookieName]);
-        if (historyUser) recordUserToolHistory(db, historyUser.id, tool.id);
         sendData(response, tool);
         return;
       }
@@ -1722,6 +2184,15 @@ export function buildApplication(options = {}) {
         }
       }
 
+      const newsImage=pathname.match(/^\/api\/v1\/news\/images\/([a-f0-9]{64})$/);
+      if(method==='GET'&&newsImage){const image=newsSync.images.read(newsImage[1]);if(!image)throw new HttpError(404,'news_image_not_found','图片不存在');response.writeHead(200,{'Content-Type':image.mimeType,'Content-Length':image.bytes.length,'Cache-Control':'public, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'});response.end(image.bytes);return;}
+      if (method === "GET" && pathname === "/api/v1/news/status") { sendData(response, newsSync.publicStatus(), null, 200, { "Cache-Control": "no-store" }); return; }
+      if (method === "GET" && pathname === "/api/v1/news") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        const limit = Number(url.searchParams.get("limit") || 60), offset = Number(url.searchParams.get("offset") || 0);
+        if (!Number.isInteger(limit) || limit < 1 || limit > 60 || !Number.isSafeInteger(offset) || offset < 0 || offset > 100000) throw new HttpError(422, "invalid_news_page", "资讯分页参数无效");
+        const page = listNewsPage(db, { limit, offset }); sendData(response, page.items, { total: page.total, offset, limit, hasMore: page.hasMore }, 200, {}, request); return;
+      }
       if (method === "GET" && pathname === "/api/v1/articles") {
         rateLimit(`${ip}:read`, 120, 60_000);
         const kind = url.searchParams.get("kind");
@@ -1730,11 +2201,34 @@ export function buildApplication(options = {}) {
         return;
       }
 
+      if (method === "GET" && pathname === "/api/v1/news/hot") {
+        rateLimit(`${ip}:read`, 120, 60_000);
+        const rawLimit = url.searchParams.get("limit");
+        const limit = rawLimit === null ? 10 : Number(rawLimit);
+        if (!Number.isInteger(limit) || limit < 1 || limit > 10) {
+          throw new HttpError(422, "invalid_limit", "limit 必须是 1 到 10 之间的整数", { field: "limit" });
+        }
+        sendData(response, {
+          windowHours: 48,
+          halfLifeHours: 24,
+          generatedAt: new Date().toISOString(),
+          items: getNewsHotRanking(db, Date.now(), limit)
+        });
+        return;
+      }
+
       const articleMatch = pathname.match(/^\/api\/v1\/articles\/([a-z0-9-]+)$/);
       if (method === "GET" && articleMatch) {
         rateLimit(`${ip}:read`, 120, 60_000);
         const article = getArticle(db, articleMatch[1]);
         if (!article) throw new HttpError(404, "article_not_found", "未找到该内容");
+        article.sources = listArticleSourceLinks(db, article.id, article).map((source) => ({
+          sourceUrl: source.sourceUrl,
+          sourceName: source.sourceName,
+          sourceTitle: source.sourceTitle,
+          sourcePublishedAt: source.sourcePublishedAt,
+          discoveredAt: source.discoveredAt
+        }));
         sendData(response, article);
         return;
       }
@@ -1793,7 +2287,10 @@ export function buildApplication(options = {}) {
         const input = validateSubscription(await readJsonBody(request));
         const subscriptionUser = getUserBySession(db, parseCookies(request)[authCookieName]);
         const subscription = upsertNewsletterSubscription(db, input, subscriptionUser?.id || null);
-        sendData(response, subscription, { message: "订阅意向已记录" }, subscription.existing ? 200 : 201);
+        const message = subscription.status === "active" && !subscription.reactivationRequired
+          ? "订阅成功，每周一发送周报"
+          : "订阅未生效，请通过问题反馈联系我们";
+        sendData(response, subscription, { message }, subscription.existing ? 200 : 201);
         return;
       }
 
@@ -1806,8 +2303,19 @@ export function buildApplication(options = {}) {
         }
         const feedbackUser = getUserBySession(db, parseCookies(request)[authCookieName]);
         const feedback = createFeedback(db, input, feedbackUser?.id || null);
-        void notifyFeedbackEmail(feedback, process.env, console).catch((error) => console.error(`[feedback-email] ${error.message}`));
+        void notifyFeedbackEmail({ ...input, ...feedback }, process.env, console).catch((error) => console.error(`[feedback-email] ${error.message}`));
         sendData(response, feedback, { message: "反馈已收到" }, 201);
+        return;
+      }
+
+      if (pathname === "/newsletter/unsubscribe" && (method === "GET" || method === "POST")) {
+        rateLimit(`${ip}:newsletter-unsubscribe`, 20, 60_000);
+        const id = url.searchParams.get("id") || "";
+        const token = url.searchParams.get("token") || "";
+        if (!/^[A-Za-z0-9-]{1,128}$/.test(id) || !verifyNewsletterUnsubscribeToken(id,token)) throw new HttpError(400,"invalid_unsubscribe_link","退订链接无效，请通过问题反馈联系我们。");
+        if (method === "POST") db.prepare("UPDATE newsletter_subscriptions SET status = 'unsubscribed', unsubscribed_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = ? AND status = 'active'").run(id);
+        response.writeHead(200,{"Content-Type":"text/html; charset=utf-8","Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Robots-Tag":"noindex","Content-Security-Policy":"default-src 'none'; form-action 'self'; base-uri 'none'"});
+        response.end(`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>取消周报订阅</title><main><h1>${method === "POST" ? "周报订阅已取消" : "取消泥壳AI周报订阅"}</h1><p>${method === "POST" ? "之后将不再向此订阅邮箱发送周报。" : "确认后将停止接收周报，你可以随时重新订阅。"}</p>${method === "GET" ? '<form method="post"><button type="submit">确认取消订阅</button></form>' : ""}<p><a href="/">返回工具库</a></p></main></html>`);
         return;
       }
 
@@ -1928,6 +2436,58 @@ export function buildApplication(options = {}) {
         rateLimit(`${ip}:admin`, 60, 60_000);
         const managementAccess = requireManagementAccess(request, ip);
         const managementActor = managementAccess.actor;
+        if (method === 'GET' && pathname === '/api/admin/v1/newsletter') {
+          sendData(response, listNewsletterSubscriptions(db, url.searchParams), null, 200, { 'Cache-Control': 'no-store, private' });
+          return;
+        }
+        const modelProfileMatch = pathname.match(/^\/api\/admin\/v1\/model-profiles(?:\/([a-f0-9-]{36}))?$/);
+        if (modelProfileMatch) {
+          requireProfileAdmin(request, ip);
+          response.setHeader('Cache-Control', 'no-store, private');
+          const id = modelProfileMatch[1];
+          if (method === 'GET') { sendData(response, id ? modelProfiles.get(id) : {items:modelProfiles.list(url.searchParams.has('kind') ? url.searchParams.get('kind') : undefined)}); return; }
+          if (method === 'DELETE' && id) { sendData(response, modelProfiles.remove(id)); return; }
+          if (method === 'POST' && !id) {
+            const body = await readJsonBody(request, 16 * 1024);
+            if (!body || typeof body !== 'object' || Array.isArray(body)) throw new HttpError(422, 'invalid_model_profile', '配置格式无效');
+            let input = body;
+            if (Object.hasOwn(body, 'profileId')) input = resolveModelProfile(body, body.kind === 'image' ? 'image' : 'assistant', request, ip);
+            else if (!body.apiKey) {
+              const source = configuredProfileSource(body.source?.scope, body.source?.providerId);
+              if (source.kind !== body.kind || profileEndpoint(body.endpoint, body.kind) !== profileEndpoint(source.endpoint, source.kind)) throw new HttpError(422, 'model_profile_mismatch', '新接口地址需要填写新的 API Key');
+              input = {...body, apiKey:source.key()};
+            }
+            sendData(response, modelProfiles.create(input), null, 201); return;
+          }
+          throw new HttpError(405, 'method_not_allowed', '不支持此操作');
+        }
+        if(method==='POST'&&pathname==='/api/admin/v1/model-discovery'){
+          rateLimit(`${ip}:model-discovery`,20,60000);
+          const rawInput=await readJsonBody(request,16384);
+          const input=resolveModelProfile(rawInput,rawInput?.scope,request,ip);
+          const stores={assistant:assistantStore,explainer:explainerStore,nestdutio:nestdutio.config,skills:skillStore};
+          let saved;
+          if(input.scope==='news-sync'){saved={endpoint:newsSync.read().model.endpoint,key:()=>newsSync.modelKey()};}
+          else if(input.scope==='image'){
+            const provider=input.providerId?imageStore.getProvider(input.providerId):null;
+            saved={endpoint:provider?.baseUrl,key:()=>imageSecretBox?.decrypt(provider.encryptedApiKey)};
+          }else if(Object.hasOwn(stores,input.scope)){
+            const store=stores[input.scope],config=store.config();
+            saved=config.mode==='inherit'?{}:{endpoint:config.endpoint,key:()=>store.key()};
+          }else throw new HttpError(422,'invalid_model_scope','模型配置类型无效');
+          sendData(response,await discoverModels(input,saved,{...(options.modelDiscoveryLookup?{lookup:options.modelDiscoveryLookup}:{}),fetchImpl:options.modelDiscoveryFetch}),null,200,{'Cache-Control':'no-store'});return;
+        }
+        if (method === "GET" && pathname === "/api/admin/v1/news-sync") {
+          const pendingOffset = Number(url.searchParams.get("pendingOffset") || 0);
+          if (!Number.isSafeInteger(pendingOffset) || pendingOffset < 0 || pendingOffset > 100000) throw new HttpError(422, "invalid_news_offset", "分页位置无效");
+          sendData(response, newsSync.read({ pendingOffset }), null, 200, { "Cache-Control": "no-store" }); return;
+        }
+        if (method === "PUT" && pathname === "/api/admin/v1/news-sync/config") { sendData(response, newsSync.configure(await readJsonBody(request, 64 * 1024), { actor: managementActor, requestId })); return; }
+        if (method === "PUT" && pathname === "/api/admin/v1/news-sync/model") { sendData(response, newsSync.configureModel(await readJsonBody(request, 16 * 1024), { actor: managementActor, requestId })); return; }
+        if (method === "POST" && pathname === "/api/admin/v1/news-sync/test") { rateLimit(`${ip}:news-test`, 5, 60_000); const body = await readJsonBody(request, 8 * 1024); sendData(response, await newsSync.testSource(body.source)); return; }
+        if (method === "POST" && pathname === "/api/admin/v1/news-sync/sync") { await readJsonBody(request, 1024); if (newsSync.read().status.running) throw new HttpError(409, "news_sync_running", "已有同步任务正在运行"); void newsSync.run().catch(() => {}); sendData(response, newsSync.read().status, null, 202); return; }
+        const newsReviewMatch = pathname.match(/^\/api\/admin\/v1\/news-sync\/items\/([a-f0-9]{64})$/);
+        if (method === "POST" && newsReviewMatch) { sendData(response, newsSync.review(newsReviewMatch[1], await readJsonBody(request, 16 * 1024), { actor: managementActor, requestId })); return; }
 
         if (method === "GET" && pathname === "/api/admin/v1/users") {
           requireSuperAdmin(request, ip);
@@ -1959,6 +2519,17 @@ export function buildApplication(options = {}) {
         if (method === "GET" && pathname === "/api/admin/v1/summary") {
           sendData(response, getAdminSummary(db));
           return;
+        }
+        if(method==='GET'&&pathname==='/api/admin/v1/nestdutio/usage'){sendData(response,{items:nestdutio.jobs.usageReport(Number(new URL(request.url,'http://local').searchParams.get('limit')??20))});return;}
+        if(pathname==='/api/admin/v1/nestdutio/provider'){if(method==='GET'){sendData(response,{...nestdutio.config.config(),...nestdutio.publicConfig()});return;}if(method==='PUT'){const input=resolveModelProfile(await readJsonBody(request,16384),'nestdutio',request,ip);if(input.unitCredits!==undefined&&(!Number.isSafeInteger(input.unitCredits)||input.unitCredits<1||input.unitCredits>10000))throw new HttpError(422,'nestdutio_price_invalid','生成积分需为1至10000整数');await nestdutio.config.configure(input,options.nestdutioLookup?{lookup:options.nestdutioLookup}:{});if(input.unitCredits!==undefined){const c=creditStore.config();creditStore.configure({modelPrices:{...c.modelPrices,nestdutio:input.unitCredits}});}sendData(response,{...nestdutio.config.config(),...nestdutio.publicConfig()});return;}}
+        if (pathname === "/api/admin/v1/explainer/provider") { if (method === "GET") { sendData(response, explainerStore.config()); return; } if (method === "PUT") { sendData(response, await explainerStore.configure(resolveModelProfile(await readJsonBody(request, 16 * 1024), 'explainer', request, ip), options.assistantLookup ? {lookup:options.assistantLookup} : {})); return; } }
+        if (pathname === "/api/admin/v1/assistant/provider") { if (method === "GET") { sendData(response, assistantStore.config()); return; } if (method === "PUT") { sendData(response, await assistantStore.configure(resolveModelProfile(await readJsonBody(request, 16 * 1024), 'assistant', request, ip), options.assistantLookup ? {lookup:options.assistantLookup} : {})); return; } }
+        if (pathname === "/api/admin/v1/skills") { if (method === "GET") { sendData(response, skillStore.read()); return; } if (method === "PUT") { sendData(response, skillStore.save(await readJsonBody(request, 2 * 1024 * 1024))); return; } }
+        if (pathname === "/api/admin/v1/skills/provider") { if (method === "GET") { sendData(response, skillStore.config()); return; } if (method === "PUT") { sendData(response, skillStore.configure(await readJsonBody(request, 16 * 1024))); return; } }
+        if (method === "POST" && pathname === "/api/admin/v1/skills/import") { const body = await readJsonBody(request, 8 * 1024); sendData(response, await importSkillMarkdown(body.url)); return; }
+        if (pathname === "/api/admin/v1/creator") {
+          if (method === "GET") { sendData(response, creatorStore.read()); return; }
+          if (method === "PUT") { sendData(response, creatorStore.save(await readJsonBody(request, 1024 * 1024))); return; }
         }
         if (pathname === "/api/admin/v1/site-announcements") {
           if (method === "GET") {
@@ -2099,7 +2670,8 @@ export function buildApplication(options = {}) {
     logoSyncResult,
     imageGenerationConfigured,
     server,
-    listen(port = 4173, host = "127.0.0.1") {
+    async listen(port = 4173, host = "127.0.0.1") {
+      await nestdutio.startHosting();
       return new Promise((resolveListen, reject) => {
         server.once("error", reject);
         server.listen(port, host, () => {
@@ -2109,12 +2681,14 @@ export function buildApplication(options = {}) {
       });
     },
     async close() {
+      await nestdutio.close();
+      await explainerJobs.shutdown();
       imageGateway.close();
+      await imageGeneration.close();
       clearInterval(imageResultTimer);
       imageResults.clear();
       clearInterval(retentionTimer);
-      if (newsPublisher.timer) clearInterval(newsPublisher.timer);
-      if (newsPublisher.startupTimer) clearTimeout(newsPublisher.startupTimer);
+      await newsSync.close();
       let cleanupError;
       try { await imageGateway.cleanupExpired(); } catch (error) { cleanupError = error; }
       return new Promise((resolveClose, reject) => {

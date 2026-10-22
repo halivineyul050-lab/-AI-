@@ -2,6 +2,7 @@ import { Worker } from 'node:worker_threads';
 import { readFileSync } from 'node:fs';
 
 const BUFFER_BYTES = 64 * 1024 * 1024;
+const OPERATION_TIMEOUT_MS = 10_000;
 const mariaMigrations = [
   {
     version: 14,
@@ -22,8 +23,56 @@ const mariaMigrations = [
     version: 17,
     name: 'image_provider_edit_path',
     sql: readFileSync(new URL('./mariadb/migrations/017_image_provider_edit_path.sql', import.meta.url), 'utf8')
-  }
+  },
+  {
+    version: 18,
+    name: 'image_provider_balance',
+    sql: readFileSync(new URL('./mariadb/migrations/018_image_provider_balance.sql', import.meta.url), 'utf8')
+  },
+  {
+    version: 19,
+    name: 'article_source_links',
+    sql: readFileSync(new URL('./mariadb/migrations/019_article_source_links.sql', import.meta.url), 'utf8')
+  },
+  {
+    version: 20,
+    name: 'image_cloud_history',
+    sql: readFileSync(new URL('./mariadb/migrations/020_image_cloud_history.sql', import.meta.url), 'utf8')
+  },
+  {
+    version: 21,
+    name: 'user_avatars',
+    sql: readFileSync(new URL('./mariadb/migrations/021_user_avatars.sql', import.meta.url), 'utf8')
+  },
+  { version: 22, name: 'creator_page', sql: readFileSync(new URL('./mariadb/migrations/022_creator_page.sql', import.meta.url), 'utf8') },
+  { version: 23, name: 'skills', sql: readFileSync(new URL('./mariadb/migrations/023_skills.sql', import.meta.url), 'utf8') },
+  { version: 24, name: 'news_sync', sql: readFileSync(new URL('./mariadb/migrations/024_news_sync.sql', import.meta.url), 'utf8') },
+  { version: 25, name: 'assistant', sql: readFileSync(new URL('./mariadb/migrations/025_assistant.sql', import.meta.url), 'utf8') },
+  { version: 26, name: 'email_auth', sql: readFileSync(new URL('./mariadb/migrations/026_email_auth.sql', import.meta.url), 'utf8') },
+  { version: 27, name: 'credits', sql: readFileSync(new URL('./mariadb/migrations/027_credits.sql', import.meta.url), 'utf8') },
+  { version: 28, name: 'manual_recharge', sql: readFileSync(new URL('./mariadb/migrations/028_manual_recharge.sql', import.meta.url), 'utf8') },
+  { version: 29, name: 'first_purchase', sql: readFileSync(new URL('./mariadb/migrations/029_first_purchase.sql', import.meta.url), 'utf8') },
+  { version: 30, name: 'image_jobs_runtime', sql: readFileSync(new URL('./mariadb/migrations/030_image_jobs_runtime.sql', import.meta.url), 'utf8') },
+  { version: 31, name: 'news_brief_images', sql: readFileSync(new URL('./mariadb/migrations/031_news_brief_images.sql', import.meta.url), 'utf8') },
+  { version: 32, name: 'explainer', sql: readFileSync(new URL('./mariadb/migrations/032_explainer.sql', import.meta.url), 'utf8') },
+  { version: 33, name: 'nestdutio', sql: readFileSync(new URL('./mariadb/migrations/033_nestdutio.sql', import.meta.url), 'utf8') },
+  { version: 34, name: 'nestdutio_publishing', sql: readFileSync(new URL('./mariadb/migrations/034_nestdutio_publishing.sql', import.meta.url), 'utf8') },
+  { version: 35, name: 'nestdutio_forms', sql: readFileSync(new URL('./mariadb/migrations/035_nestdutio_forms.sql', import.meta.url), 'utf8') },
+  { version: 36, name: 'nestdutio_domains', sql: readFileSync(new URL('./mariadb/migrations/036_nestdutio_domains.sql', import.meta.url), 'utf8') },
+  { version: 37, name: 'nestdutio_metering', sql: readFileSync(new URL('./mariadb/migrations/037_nestdutio_metering.sql', import.meta.url), 'utf8') },
+  { version: 38, name: 'credit_grants', sql: readFileSync(new URL('./mariadb/migrations/038_credit_grants.sql', import.meta.url), 'utf8') },
+  { version: 39, name: 'nestdutio_history', sql: readFileSync(new URL('./mariadb/migrations/039_nestdutio_history.sql', import.meta.url), 'utf8') },
+  { version: 40, name: 'nestdutio_progress', sql: readFileSync(new URL('./mariadb/migrations/040_nestdutio_progress.sql', import.meta.url), 'utf8') },
+  { version: 41, name: 'nestdutio_checkpoints', sql: readFileSync(new URL('./mariadb/migrations/041_nestdutio_checkpoints.sql', import.meta.url), 'utf8') },
+  { version: 42, name: 'model_profiles', sql: readFileSync(new URL('./mariadb/migrations/042_model_profiles.sql', import.meta.url), 'utf8') },
+  { version: 43, name: 'nestdutio_request_usage', sql: readFileSync(new URL('./mariadb/migrations/043_nestdutio_request_usage.sql', import.meta.url), 'utf8') },
+  { version: 44, name: 'nestdutio_wechat', sql: readFileSync(new URL('./mariadb/migrations/044_nestdutio_wechat.sql', import.meta.url), 'utf8') }
 ];
+
+export function createMariaResponseBuffer() {
+  const buffer = new SharedArrayBuffer(BUFFER_BYTES);
+  return { buffer, state: new Int32Array(buffer, 0, 3), bytes: new Uint8Array(buffer, 12) };
+}
 
 export function applyMariaMigrations(db) {
   const hasMigration = db.prepare('SELECT 1 FROM schema_migrations WHERE version = ?');
@@ -49,7 +98,7 @@ export function translateMariaSql(sql) {
   value = value.replace(/CAST\(\(\(julianday\(([^)]+)\)\s*-\s*julianday\(\?\)\)\s*\*\s*24\.0\)\s*\+\s*0\.0000001\s+AS\s+INTEGER\)/gi, 'TIMESTAMPDIFF(HOUR, ?, $1)');
   value = value.replace(/date\(([^,()]+),\s*'\+8 hours'\)/gi, "DATE_FORMAT(DATE_ADD($1, INTERVAL 8 HOUR), '%Y-%m-%d')");
   value = value.replace(/\s+AS\s+TEXT\b/gi, ' AS CHAR');
-  value = value.replace(/CAST\((json_extract\([^)]*\))\s+AS\s+CHAR\)/gi, 'CAST($1 AS CHAR) COLLATE utf8mb4_unicode_ci');
+  value = value.replace(/CAST\((json_extract\([^)]*\))\s+AS\s+CHAR\)/gi, 'CAST(JSON_UNQUOTE($1) AS CHAR) COLLATE utf8mb4_unicode_ci');
   value = value.replace(/json_type\(([^,()]+),\s*([^()]+)\)\s*=\s*'text'/gi, "JSON_TYPE(JSON_EXTRACT($1, $2)) = 'STRING'");
   value = value.replace(/\s+COLLATE\s+NOCASE/gi, ' COLLATE utf8mb4_unicode_ci');
   value = value.replace(/CAST\((json_extract\([^)]*\))\s+AS\s+REAL\)/gi, 'CAST($1 AS DECIMAL(30,8))');
@@ -77,20 +126,22 @@ export class MariaDbCompat {
   constructor(options = connectionOptions()) {
     this.backend = 'mariadb';
     this.worker = new Worker(new URL('./mariadb-worker.mjs', import.meta.url), { workerData: options });
-    this.buffer = new SharedArrayBuffer(BUFFER_BYTES);
-    this.state = new Int32Array(this.buffer, 0, 3);
-    this.bytes = new Uint8Array(this.buffer, 12);
+    Object.assign(this, createMariaResponseBuffer());
     this.call('ping');
   }
 
   call(type, payload = {}) {
-    Atomics.store(this.state, 0, 0);
-    this.worker.postMessage({ type, payload, buffer: this.buffer });
-    const wait = Atomics.wait(this.state, 0, 0, 30_000);
-    if (wait === 'timed-out') throw new Error('MariaDB operation timed out');
-    const length = Atomics.load(this.state, 1);
-    const failed = Atomics.load(this.state, 2) === 1;
-    const result = JSON.parse(new TextDecoder().decode(this.bytes.subarray(0, length)) || 'null');
+    const { buffer, state, bytes } = this;
+    Atomics.store(state, 0, 0);
+    this.worker.postMessage({ type, payload, buffer });
+    const wait = Atomics.wait(state, 0, 0, OPERATION_TIMEOUT_MS);
+    if (wait === 'timed-out') {
+      Object.assign(this, createMariaResponseBuffer());
+      throw new Error('MariaDB operation timed out');
+    }
+    const length = Atomics.load(state, 1);
+    const failed = Atomics.load(state, 2) === 1;
+    const result = JSON.parse(new TextDecoder().decode(bytes.subarray(0, length)) || 'null');
     if (failed) {
       const error = new Error(result.message || 'MariaDB operation failed');
       error.code = result.code;

@@ -37,3 +37,40 @@
     padding: 24px 16px 44px;
   }
 }
+
+/* Shared page chrome; board and arena palettes stay in each game's stylesheet. */
+:is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main){--game-shell-gap:clamp(18px,3vw,28px)}
+:is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main)>a,
+:is(.game-intro,.g2048-intro,.gomoku-intro) a{
+  display:inline-flex;align-items:center;gap:7px;min-height:34px;margin-bottom:16px;padding:0 11px;
+  border:1px solid var(--border);border-radius:999px;background:var(--bg-surface);color:var(--text-secondary);
+  font-size:12px;font-weight:700;text-decoration:none;transition:border-color .16s ease,color .16s ease,background-color .16s ease
+}
+:is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main)>a:hover,
+:is(.game-intro,.g2048-intro,.gomoku-intro) a:hover{border-color:var(--brand);background:var(--brand-soft);color:var(--brand)}
+:is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro,.breakout-intro) h1,
+.memory-main>h1{font-size:clamp(32px,4vw,44px);line-height:1.16;letter-spacing:-.045em}
+:is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro,.breakout-intro) h1 span{display:block;margin-top:7px;color:var(--text-secondary);font-size:clamp(14px,1.5vw,17px);font-weight:600;letter-spacing:0;line-height:1.55}
+:is(.game-kicker,.snake-kicker,.gomoku-kicker,.flight-kicker,.g2048-kicker,.memory-kicker,.breakout-kicker){font-size:10px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
+:is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro,.breakout-intro)>p:last-child,
+.snake-intro>p,.flight-intro>p,.breakout-intro>p{color:var(--text-secondary);line-height:1.75}
+:is(.arena-shell,.snake-shell,.board-shell,.gomoku-panel,.flight-shell,.g2048-shell,.g2048-panel,.memory-shell,.memory-panel,.breakout-shell){border-radius:var(--radius-xl)}
+:is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main) :is(button,a,select,input):focus-visible{outline:3px solid color-mix(in srgb,var(--brand) 76%,white);outline-offset:3px}
+:is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main) :is(.g2048-panel,.gomoku-panel,.memory-panel,.snake-guide){box-shadow:var(--shadow-sm)}
+@media(max-width:720px){
+  :is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro,.breakout-intro) h1,.memory-main>h1{font-size:clamp(29px,8vw,36px)}
+  :is(.arena-shell,.snake-shell,.board-shell,.gomoku-panel,.flight-shell,.g2048-shell,.g2048-panel,.memory-shell,.memory-panel,.breakout-shell){border-radius:var(--radius-lg)}
+  :is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main)>a,
+  :is(.game-intro,.g2048-intro,.gomoku-intro) a{margin-bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  :is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main)>a,
+  :is(.game-intro,.g2048-intro,.gomoku-intro) a{transition:none}
+}
+
+/* Shared game-page framing; the play area continues to use its game palette. */
+.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main { min-width: 0; }
+:is(.game-intro,.snake-intro,.gomoku-intro,.flight-intro,.g2048-intro,.breakout-intro) h1 { text-wrap: balance; }
+@media(max-width:480px) {
+  :is(.game-main,.snake-main,.gomoku-main,.flight-main,.g2048-main,.memory-main,.breakout-main) { padding-inline: 12px; }
+}

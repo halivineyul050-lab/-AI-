@@ -8,14 +8,14 @@ const RECENT_LIMIT = 40;
 const SUBMISSION_STATUSES = ["pending", "approved", "rejected", "duplicate"];
 
 const sourceLabels = {
-  direct: "直接访问",
+  direct: "直接访问 / 未提供来源",
   search: "搜索引擎",
   wechat: "微信",
   website: "其他网站",
   internal: "站内跳转",
   unknown: "未知来源"
 };
-const deviceLabels = { desktop: "电脑端", mobile: "移动端", tablet: "平板端", unknown: "未知设备" };
+const deviceLabels = { desktop: "电脑", mobile: "手机", tablet: "平板", unknown: "无法识别的设备" };
 
 function normalizeHours(value) {
   const hours = Number.parseInt(value, 10);
@@ -127,9 +127,9 @@ function buildWindow(options = {}) {
     const start = utcForBeijingDate(startDate);
     const endOfEndDate = utcForBeijingDate(endDate, 1);
     const end = endDate === today && range !== "yesterday" ? now : endOfEndDate;
-    const durationMs = Math.max(end.getTime() - start.getTime(), HOUR_MS);
-    const compareEnd = start;
-    const compareStart = new Date(compareEnd.getTime() - durationMs);
+    const durationMs = Math.max(end.getTime() - start.getTime(), 0);
+    const compareStart = utcForBeijingDate(startDate, -daysBetweenBeijingDates(startDate, endDate));
+    const compareEnd = new Date(compareStart.getTime() + durationMs);
     return {
       mode: "date",
       range,
@@ -177,6 +177,8 @@ function makeEntityLabel(row, properties) {
 }
 
 function pageName(path, pageType) {
+  const names = { '/news': 'AI 资讯', '/feedback': '意见反馈', '/advertise': '广告合作', '/submit': '提交工具', '/about': '关于我们', '/privacy': '隐私政策' };
+  if (names[path]) return names[path];
   if (path === "/" || path === "/#tools") return "首页 / 工具库";
   if (path.startsWith("/tools/")) return `工具详情：${decodeURIComponent(path.split("/").pop() || "")}`;
   if (path.startsWith("/guides/")) return `专题：${decodeURIComponent(path.split("/").pop() || "")}`;
@@ -246,7 +248,7 @@ function getKpis(db, window) {
     )
     SELECT COUNT(*) AS sessions,
       SUM(CASE WHEN page_views = 1 AND interactions = 0 THEN 1 ELSE 0 END) AS bounced
-    FROM session_activity
+    FROM session_activity WHERE page_views > 0
   `).get(window.startAt, window.endAt);
   const avgDuration = db.prepare(`
     SELECT AVG(CAST(json_extract(properties_json, '$.duration_ms') AS REAL)) AS value
@@ -254,8 +256,14 @@ function getKpis(db, window) {
     WHERE event_name = 'page_engagement' AND received_at >= ? AND received_at < ?
       AND json_valid(properties_json)
   `).get(window.startAt, window.endAt).value;
+  const dailyUv = db.prepare(`SELECT SUM(uv) AS total FROM (
+    SELECT date(received_at, '+8 hours') AS day, COUNT(DISTINCT visitor_id) AS uv
+    FROM analytics_events WHERE event_name = 'page_view' AND received_at >= ? AND received_at < ?
+    GROUP BY day
+  ) daily_visitors`).get(window.startAt, window.endAt);
   return {
     ...current,
+    previous,
     bounceRate: rate(sessionStats.bounced, sessionStats.sessions),
     pendingSubmissions: count(operational.pending_submissions),
     activeSubscribers: count(operational.active_subscribers),
@@ -265,7 +273,7 @@ function getKpis(db, window) {
     cumulativeUv: count(operational.cumulative_uv),
     statsStartDate: operational.stats_start_at ? beijingDate(new Date(operational.stats_start_at)) : "",
     averageDailyPv: decimal(current.pageViews / Math.max(window.days, 1)),
-    averageDailyUv: decimal(current.uniqueVisitors / Math.max(window.days, 1)),
+    averageDailyUv: decimal(count(dailyUv.total) / Math.max(window.days, 1)),
     averageEngagementSeconds: decimal((Number(avgDuration) || 0) / 1000),
     changes: {
       pageViews: changeRate(current.pageViews, previous.pageViews),
@@ -280,17 +288,17 @@ function getKpis(db, window) {
 function dimensionStats(db, window, jsonKey, labels) {
   const query = `
     WITH current_rows AS (
-      SELECT COALESCE(NULLIF(TRIM(CAST(json_extract(properties_json, ?) AS TEXT)), ''), 'unknown') AS dimension,
+      SELECT COALESCE(NULLIF(TRIM(CASE WHEN json_valid(properties_json) THEN CAST(json_extract(properties_json, ?) AS TEXT) ELSE NULL END), ''), 'unknown') AS dimension,
         COUNT(*) AS pv, COUNT(DISTINCT visitor_id) AS uv
       FROM analytics_events
-      WHERE event_name = 'page_view' AND received_at >= ? AND received_at < ? AND json_valid(properties_json)
+      WHERE event_name = 'page_view' AND received_at >= ? AND received_at < ?
       GROUP BY dimension
     ),
     previous_rows AS (
-      SELECT COALESCE(NULLIF(TRIM(CAST(json_extract(properties_json, ?) AS TEXT)), ''), 'unknown') AS dimension,
+      SELECT COALESCE(NULLIF(TRIM(CASE WHEN json_valid(properties_json) THEN CAST(json_extract(properties_json, ?) AS TEXT) ELSE NULL END), ''), 'unknown') AS dimension,
         COUNT(*) AS pv, COUNT(DISTINCT visitor_id) AS uv
       FROM analytics_events
-      WHERE event_name = 'page_view' AND received_at >= ? AND received_at < ? AND json_valid(properties_json)
+      WHERE event_name = 'page_view' AND received_at >= ? AND received_at < ?
       GROUP BY dimension
     )
     SELECT current_rows.dimension, current_rows.pv, current_rows.uv,
@@ -300,7 +308,8 @@ function dimensionStats(db, window, jsonKey, labels) {
     ORDER BY current_rows.pv DESC, current_rows.uv DESC, current_rows.dimension COLLATE NOCASE ASC
   `;
   const rows = db.prepare(query).all(`$.${jsonKey}`, window.startAt, window.endAt, `$.${jsonKey}`, window.compareStartAt, window.compareEndAt);
-  const totals = rows.reduce((sum, row) => ({ pv: sum.pv + count(row.pv), uv: sum.uv + count(row.uv) }), { pv: 0, uv: 0 });
+  const totals = db.prepare(`SELECT COUNT(*) AS pv, COUNT(DISTINCT visitor_id) AS uv FROM analytics_events
+    WHERE event_name = 'page_view' AND received_at >= ? AND received_at < ?`).get(window.startAt, window.endAt);
   return rows.map((row) => ({
     key: row.dimension,
     label: labels[row.dimension] || row.dimension,
@@ -308,6 +317,7 @@ function dimensionStats(db, window, jsonKey, labels) {
     uniqueVisitors: count(row.uv),
     pvShare: rate(row.pv, totals.pv),
     uvShare: rate(row.uv, totals.uv),
+    previousPageViews: count(row.previous_pv),
     change: changeRate(row.pv, row.previous_pv)
   }));
 }
@@ -357,6 +367,7 @@ function getPagePerformance(db, window, kpis) {
     pvShare: rate(row.page_views, kpis.pageViews),
     uvShare: rate(row.unique_visitors, kpis.uniqueVisitors),
     averageViewsPerVisitor: decimal(count(row.page_views) / Math.max(count(row.unique_visitors), 1)),
+    previousPageViews: count(row.previous_page_views),
     change: changeRate(row.page_views, row.previous_page_views)
   }));
 }

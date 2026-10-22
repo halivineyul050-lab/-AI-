@@ -23,6 +23,7 @@ function fixture(failNewService = false) {
   mkdirSync(join(source, 'scripts'), { recursive: true });
   mkdirSync(join(source, 'tests'));
   mkdirSync(join(source, 'imports'));
+  mkdirSync(join(source, 'public', 'assets', 'tool-logos'), { recursive: true });
   writeFileSync(join(appDir, '.env'), 'NIKAI_DB_ENGINE=sqlite\n');
   writeFileSync(join(appDir, '.env.before-restore'), 'old secret\n');
   writeFileSync(join(appDir, 'server.mjs'), "export const version = 'old';\n");
@@ -39,9 +40,11 @@ function fixture(failNewService = false) {
   writeFileSync(join(source, 'package.json'), JSON.stringify(packageJson));
   writeFileSync(join(source, 'package-lock.json'), JSON.stringify({ name: 'release-fixture', version: '1.0.0', lockfileVersion: 3, requires: true, packages: { '': { name: 'release-fixture', version: '1.0.0' } } }));
   writeFileSync(join(source, 'server.mjs'), "export const version = 'new';\n");
+  writeFileSync(join(source, 'public', 'assets', 'tool-logos', 'fixture.svg'), '<svg/>');
+  writeFileSync(join(source, 'public', 'runtime.js'), '');
   writeFileSync(join(source, 'tests', 'current.test.mjs'), "import { test } from 'node:test'; test('current release', () => {});\n");
   writeFileSync(join(source, 'imports', 'template.csv'), 'new template');
-  for (const name of ['release-production.sh', 'rollback-production.sh', 'active-database-backup.mjs', 'apply-production-migrations.mjs']) {
+  for (const name of ['release-production.sh', 'rollback-production.sh', 'active-database-backup.mjs', 'apply-production-migrations.mjs', 'production-operations.mjs', 'backup-database.sh', 'backup-mariadb.sh']) {
     cpSync(new URL(name, scriptsDir), join(source, 'scripts', name));
   }
   execFileSync('tar', ['-czf', archive, '-C', source, '.']);
@@ -72,6 +75,7 @@ test('release ignores stale live tests and switches a complete clean tree', { sk
     assert.equal(readFileSync(join(paths.appDir, 'imports', 'uploaded.csv'), 'utf8'), 'retained import');
     assert.equal(readFileSync(join(paths.appDir, 'imports', 'template.csv'), 'utf8'), 'new template');
     assert.ok(!existsSync(join(paths.appDir, 'imports', 'imports')));
+    assert.ok(existsSync(join(paths.appDir, 'assets', 'tool-logos')), 'production sandbox write path remains present after switching');
     assert.equal(readdirSync(paths.snapshotDir).filter((name) => name.startsWith('previous-')).length, 1);
     const archiveName = readdirSync(paths.snapshotDir).find((name) => name.startsWith('release-') && name.endsWith('.tgz'));
     const entries = execFileSync('tar', ['-tzf', join(paths.snapshotDir, archiveName)], { encoding: 'utf8' });

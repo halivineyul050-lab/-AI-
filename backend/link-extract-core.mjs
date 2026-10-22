@@ -15,6 +15,16 @@ export function parseShare(text) {
  if(!id && !['v.douyin.com','xhslink.com','www.xhslink.com'].includes(u.hostname))throw new Error('请使用具体作品的分享链接。');
  u.hash='';return {url:u.href,platform,id};
 }
+// A mobile share error is not evidence that the corresponding desktop work is unavailable.
+// Accept only an exact, supported work URL; never follow a recommendation or arbitrary redirect.
+export function douyinDesktopTarget(share, currentUrl=share.url) {
+ if(share.platform!=='douyin')return null;
+ try {
+  const current=parseShare(currentUrl);
+  if(current.platform!=='douyin'||!current.id||share.id&&share.id!==current.id)return null;
+  return `https://www.douyin.com/video/${current.id}`;
+ }catch{return null;}
+}
 export function allowedMedia(value) {
  try {const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&['douyinvod.com','douyinpic.com','byteimg.com','ibytedtos.com','bytecdn.cn','xhscdn.com'].some(h=>u.hostname===h||u.hostname.endsWith('.'+h));}catch{return false;}
 }

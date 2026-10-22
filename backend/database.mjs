@@ -3,6 +3,9 @@ import { applyMariaMigrations, openMariaDatabase } from './mariadb-compat.mjs';
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
+import { escapeLikePattern } from "./like-pattern.mjs";
+import { listArticleSourceLinks } from "./article-source-links.mjs";
+import { calculateNewsHotRanking } from "./news-hot-ranking.mjs";
 
 const schemaPath = resolve(import.meta.dirname, "schema.sql");
 const migrations = [
@@ -23,6 +26,33 @@ const migrations = [
   ,{ version: 15, name: "image_provider_timeout", sql: readFileSync(resolve(import.meta.dirname, "migrations", "015_image_provider_timeout.sql"), "utf8") }
   ,{ version: 16, name: "site_announcements", sql: readFileSync(resolve(import.meta.dirname, "migrations", "016_site_announcements.sql"), "utf8") }
   ,{ version: 17, name: "image_provider_edit_path", sql: readFileSync(resolve(import.meta.dirname, "migrations", "017_image_provider_edit_path.sql"), "utf8") }
+  ,{ version: 18, name: "image_provider_balance", sql: readFileSync(resolve(import.meta.dirname, "migrations", "018_image_provider_balance.sql"), "utf8") }
+  ,{ version: 19, name: "article_source_links", sql: readFileSync(resolve(import.meta.dirname, "migrations", "019_article_source_links.sql"), "utf8") }
+  ,{ version: 20, name: "image_cloud_history", sql: readFileSync(resolve(import.meta.dirname, "migrations", "020_image_cloud_history.sql"), "utf8") }
+  ,{ version: 21, name: "user_avatars", sql: readFileSync(resolve(import.meta.dirname, "migrations", "021_user_avatars.sql"), "utf8") }
+  ,{ version: 22, name: "creator_page", sql: readFileSync(resolve(import.meta.dirname, "migrations", "022_creator_page.sql"), "utf8") }
+  ,{ version: 23, name: "skills", sql: readFileSync(resolve(import.meta.dirname, "migrations", "023_skills.sql"), "utf8") }
+  ,{ version: 24, name: "news_sync", sql: readFileSync(resolve(import.meta.dirname, "migrations", "024_news_sync.sql"), "utf8") }
+  ,{ version: 25, name: "assistant", sql: readFileSync(resolve(import.meta.dirname, "migrations", "025_assistant.sql"), "utf8") }
+  ,{ version: 26, name: "email_auth", sql: readFileSync(resolve(import.meta.dirname, "migrations", "026_email_auth.sql"), "utf8") }
+, { version: 27, name: "credits", sql: readFileSync(resolve(import.meta.dirname, "migrations", "027_credits.sql"), "utf8") }
+, { version: 28, name: "manual_recharge", sql: readFileSync(resolve(import.meta.dirname, "migrations", "028_manual_recharge.sql"), "utf8") },
+  { version: 29, name: 'first_purchase', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '029_first_purchase.sql'), 'utf8') },
+  { version: 30, name: 'image_jobs_runtime', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '030_image_jobs_runtime.sql'), 'utf8') },
+  { version: 31, name: 'news_brief_images', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '031_news_brief_images.sql'), 'utf8') },
+  { version: 32, name: 'explainer', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '032_explainer.sql'), 'utf8') },
+  { version: 33, name: 'nestdutio', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '033_nestdutio.sql'), 'utf8') },
+  { version: 34, name: 'nestdutio_publishing', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '034_nestdutio_publishing.sql'), 'utf8') },
+  { version: 35, name: 'nestdutio_forms', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '035_nestdutio_forms.sql'), 'utf8') },
+  { version: 36, name: 'nestdutio_domains', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '036_nestdutio_domains.sql'), 'utf8') },
+  { version: 37, name: 'nestdutio_metering', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '037_nestdutio_metering.sql'), 'utf8') },
+  { version: 38, name: 'credit_grants', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '038_credit_grants.sql'), 'utf8') },
+  { version: 39, name: 'nestdutio_history', sql: readFileSync(new URL('./migrations/039_nestdutio_history.sql', import.meta.url), 'utf8') },
+  { version: 40, name: 'nestdutio_progress', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '040_nestdutio_progress.sql'), 'utf8') },
+  { version: 41, name: 'nestdutio_checkpoints', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '041_nestdutio_checkpoints.sql'), 'utf8') },
+  { version: 42, name: 'model_profiles', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '042_model_profiles.sql'), 'utf8') },
+  { version: 43, name: 'nestdutio_request_usage', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '043_nestdutio_request_usage.sql'), 'utf8') },
+  { version: 44, name: 'nestdutio_wechat', sql: readFileSync(resolve(import.meta.dirname, 'migrations', '044_nestdutio_wechat.sql'), 'utf8') }
 ];
 
 function hashToken(value) {
@@ -323,7 +353,7 @@ export function syncCuratedContent(db, seedData) {
   });
 }
 
-function hydrateTool(db, row, placement = "detail_drawer") {
+function hydrateTool(db, row, placement = "detail_drawer", relations = null) {
   if (!row) return null;
   return {
     id: row.id,
@@ -337,16 +367,16 @@ function hydrateTool(db, row, placement = "detail_drawer") {
     description: row.description,
     price: row.pricing_type,
     platforms: rowsToStrings(
-      db.prepare("SELECT platform FROM tool_platforms WHERE tool_id = ? ORDER BY position").all(row.id),
+      relations?.platforms ?? db.prepare("SELECT platform FROM tool_platforms WHERE tool_id = ? ORDER BY position").all(row.id),
       "platform"
     ),
     language: row.language,
     features: rowsToStrings(
-      db.prepare("SELECT feature FROM tool_features WHERE tool_id = ? ORDER BY position").all(row.id),
+      relations?.features ?? db.prepare("SELECT feature FROM tool_features WHERE tool_id = ? ORDER BY position").all(row.id),
       "feature"
     ),
     useCases: rowsToStrings(
-      db.prepare("SELECT use_case FROM tool_use_cases WHERE tool_id = ? ORDER BY position").all(row.id),
+      relations?.useCases ?? db.prepare("SELECT use_case FROM tool_use_cases WHERE tool_id = ? ORDER BY position").all(row.id),
       "use_case"
     ),
     login: row.login_requirement,
@@ -356,11 +386,39 @@ function hydrateTool(db, row, placement = "detail_drawer") {
     popular: row.popularity,
     quality: row.data_quality_status || "basic",
     badges: rowsToStrings(
-      db.prepare("SELECT badge FROM tool_badges WHERE tool_id = ? ORDER BY position").all(row.id),
+      relations?.badges ?? db.prepare("SELECT badge FROM tool_badges WHERE tool_id = ? ORDER BY position").all(row.id),
       "badge"
     ),
     sponsored: Boolean(row.is_sponsored)
   };
+}
+
+function hydrateTools(db, rows) {
+  if (!rows.length) return [];
+
+  const ids = rows.map((row) => row.id);
+  const placeholders = ids.map(() => "?").join(", ");
+  const relationsByTool = new Map(ids.map((id) => [id, { platforms: [], features: [], useCases: [], badges: [] }]));
+  const relationQueries = [
+    ["platforms", "tool_platforms", "platform"],
+    ["features", "tool_features", "feature"],
+    ["useCases", "tool_use_cases", "use_case"],
+    ["badges", "tool_badges", "badge"]
+  ];
+
+  for (const [name, table, field] of relationQueries) {
+    const relatedRows = db.prepare(`
+      SELECT tool_id, ${field} AS relation_value
+      FROM ${table}
+      WHERE tool_id IN (${placeholders})
+      ORDER BY tool_id, position
+    `).all(...ids);
+    for (const related of relatedRows) {
+      relationsByTool.get(related.tool_id)?.[name].push({ [field]: related.relation_value });
+    }
+  }
+
+  return rows.map((row) => hydrateTool(db, row, "detail_drawer", relationsByTool.get(row.id)));
 }
 
 export function syncSeedToolLogos(db, seedData) {
@@ -404,15 +462,15 @@ export function listTools(db, filters = {}) {
 
   if (filters.q) {
     where.push(`(
-      t.name LIKE ? ESCAPE '\\'
-      OR t.summary LIKE ? ESCAPE '\\'
-      OR t.description LIKE ? ESCAPE '\\'
-      OR EXISTS (SELECT 1 FROM categories c WHERE c.id = t.category_id AND c.name LIKE ? ESCAPE '\\')
-      OR EXISTS (SELECT 1 FROM tool_features tf WHERE tf.tool_id = t.id AND tf.feature LIKE ? ESCAPE '\\')
-      OR EXISTS (SELECT 1 FROM tool_use_cases tuc WHERE tuc.tool_id = t.id AND tuc.use_case LIKE ? ESCAPE '\\')
-      OR EXISTS (SELECT 1 FROM tool_badges tb WHERE tb.tool_id = t.id AND tb.badge LIKE ? ESCAPE '\\')
+      t.name LIKE ? ESCAPE '!'
+      OR t.summary LIKE ? ESCAPE '!'
+      OR t.description LIKE ? ESCAPE '!'
+      OR EXISTS (SELECT 1 FROM categories c WHERE c.id = t.category_id AND c.name LIKE ? ESCAPE '!')
+      OR EXISTS (SELECT 1 FROM tool_features tf WHERE tf.tool_id = t.id AND tf.feature LIKE ? ESCAPE '!')
+      OR EXISTS (SELECT 1 FROM tool_use_cases tuc WHERE tuc.tool_id = t.id AND tuc.use_case LIKE ? ESCAPE '!')
+      OR EXISTS (SELECT 1 FROM tool_badges tb WHERE tb.tool_id = t.id AND tb.badge LIKE ? ESCAPE '!')
     )`);
-    const escaped = String(filters.q).replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+    const escaped = escapeLikePattern(filters.q);
     const like = `%${escaped}%`;
     params.push(like, like, like, like, like, like, like);
   }
@@ -445,7 +503,8 @@ export function listTools(db, filters = {}) {
     ? `t.category_sort_order ASC, ${selectedOrder}`
     : selectedOrder;
 
-  const limit = Math.min(Math.max(Number(filters.limit) || 100, 1), 500);
+  const maxLimit = Math.min(Math.max(Number(filters.maxLimit) || 500, 1), 500);
+  const limit = Math.min(Math.max(Number(filters.limit) || 100, 1), maxLimit);
   const offset = Math.max(Number(filters.offset) || 0, 0);
   const whereSql = where.join(" AND ");
   const total = Number(db.prepare(`SELECT COUNT(*) AS count FROM tools t WHERE ${whereSql}`).get(...params).count);
@@ -457,7 +516,7 @@ export function listTools(db, filters = {}) {
   `).all(...params, limit, offset);
 
   return {
-    items: rows.map((row) => hydrateTool(db, row)),
+    items: hydrateTools(db, rows),
     total,
     limit,
     offset
@@ -487,6 +546,7 @@ export function getTool(db, idOrSlug) {
 }
 
 function hydrateArticle(row) {
+  const metadata = row?.sync_document ? JSON.parse(row.sync_document).publishedSnapshot : null;
   return row ? {
     id: row.id,
     slug: row.slug,
@@ -496,7 +556,10 @@ function hydrateArticle(row) {
     excerpt: row.excerpt,
     image: row.cover_url,
     body: row.body_text,
-    date: row.published_date,
+    date: metadata?.publishedAt || row.published_date,
+    discoveredAt: metadata?.discoveredAt || null,
+    attribution: metadata?.attribution || null,
+    timestampKind: metadata ? (metadata.publishedAt ? "published" : "discovered") : "published",
     readTime: row.read_time,
     source: row.source_name,
     sourceUrl: row.source_url
@@ -511,11 +574,109 @@ export function listArticles(db, kind) {
 }
 
 export function getArticle(db, idOrSlug) {
+  const join = db.backend === "mariadb" ? "n.article_id COLLATE utf8mb4_unicode_ci = a.id" : "n.article_id=a.id";
   return hydrateArticle(db.prepare(`
-    SELECT * FROM articles
-    WHERE (id = ? OR slug = ?) AND status = 'published'
+    SELECT a.*, n.document AS sync_document FROM articles a
+    LEFT JOIN news_sync_items n ON ${join}
+    WHERE (a.id = ? OR a.slug = ?) AND a.status = 'published'
     LIMIT 1
   `).get(idOrSlug, idOrSlug));
+}
+
+function articleEvidenceTimestamp(source) {
+  const value = source?.sourcePublishedAt || source?.discoveredAt || "";
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+export function getRecentNewsEventAnchors(db, now = Date.now()) {
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  const cutoff = new Date(nowMs - 48 * 60 * 60_000).toISOString();
+  const rows = db.prepare(`
+    SELECT a.id, a.title, a.excerpt, a.source_url, a.source_name, a.published_date, a.created_at,
+      COALESCE(
+        (SELECT MAX(COALESCE(l.source_published_at, l.discovered_at))
+         FROM article_source_links l WHERE l.article_id = a.id),
+        a.created_at,
+        a.published_date
+      ) AS latest_source_at
+    FROM articles a
+    WHERE a.kind = 'news' AND a.status = 'published'
+    ORDER BY latest_source_at DESC, a.id ASC
+    LIMIT 100
+  `).all();
+  if (!rows.length) return [];
+  const ids = rows.map((row) => row.id);
+  const placeholders = ids.map(() => "?").join(", ");
+  const relationRows = db.prepare(`
+    SELECT article_id, source_url, source_name, source_title, source_published_at, discovered_at, feed_url
+    FROM article_source_links
+    WHERE article_id IN (${placeholders})
+    ORDER BY article_id ASC, COALESCE(source_published_at, discovered_at) DESC, source_url_hash ASC
+  `).all(...ids);
+  const linksByArticle = new Map(ids.map((id) => [id, []]));
+  relationRows.forEach((row) => linksByArticle.get(row.article_id)?.push(row));
+  const anchors = [];
+  for (const row of rows) {
+    const sources = listArticleSourceLinks(db, row.id, row, linksByArticle.get(row.id));
+    const latest = sources.reduce((value, source) => {
+      const sourceAt = articleEvidenceTimestamp(source);
+      return sourceAt === null ? value : value === null ? sourceAt : Math.max(value, sourceAt);
+    }, null);
+    if (latest === null || latest < Date.parse(cutoff) || latest > nowMs) continue;
+    anchors.push({ id: row.id, title: row.title, excerpt: row.excerpt, latestSourceAt: new Date(latest).toISOString() });
+    if (anchors.length === 10) break;
+  }
+  return anchors;
+}
+
+export function getNewsHotRanking(db, now = Date.now(), limit = 10) {
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  const cutoff = new Date(nowMs - 48 * 60 * 60_000).toISOString();
+  const nowIso = new Date(nowMs).toISOString();
+  const rows = db.prepare(`
+    SELECT a.*,
+      COALESCE(
+        (SELECT MAX(COALESCE(all_links.source_published_at, all_links.discovered_at))
+         FROM article_source_links all_links WHERE all_links.article_id = a.id),
+        a.created_at,
+        a.published_date
+      ) AS latest_source_at
+    FROM articles a
+    WHERE a.kind = 'news' AND a.status = 'published'
+      AND (
+        EXISTS (
+          SELECT 1 FROM article_source_links recent
+          WHERE recent.article_id = a.id
+            AND COALESCE(recent.source_published_at, recent.discovered_at) >= ?
+            AND COALESCE(recent.source_published_at, recent.discovered_at) <= ?
+        )
+        OR (a.source_url <> '' AND COALESCE(a.created_at, a.published_date) >= ? AND COALESCE(a.created_at, a.published_date) <= ?)
+      )
+    ORDER BY latest_source_at DESC, a.id ASC
+    LIMIT 200
+  `).all(cutoff, nowIso, cutoff, nowIso);
+  if (!rows.length) return [];
+
+  const ids = rows.map((row) => row.id);
+  const placeholders = ids.map(() => "?").join(", ");
+  const relationRows = db.prepare(`
+    SELECT article_id, source_url, source_name, source_title, source_published_at, discovered_at, feed_url
+    FROM article_source_links
+    WHERE article_id IN (${placeholders})
+    ORDER BY article_id ASC, COALESCE(source_published_at, discovered_at) DESC, source_url_hash ASC
+  `).all(...ids);
+  const linksByArticle = new Map(ids.map((id) => [id, []]));
+  relationRows.forEach((row) => linksByArticle.get(row.article_id)?.push(row));
+  const rankingInput = rows.map((row) => {
+    const sources = listArticleSourceLinks(db, row.id, row, linksByArticle.get(row.id));
+    const firstSourceAt = sources.reduce((value, source) => {
+      const sourceAt = articleEvidenceTimestamp(source);
+      return sourceAt === null ? value : value === null ? sourceAt : Math.min(value, sourceAt);
+    }, null);
+    return { ...hydrateArticle(row), firstSourceAt: firstSourceAt === null ? null : new Date(firstSourceAt).toISOString(), sources };
+  });
+  return calculateNewsHotRanking(rankingInput, nowMs, limit);
 }
 
 export function getCollections(db) {
@@ -538,12 +699,25 @@ export function getCollections(db) {
   }));
 }
 
-export function getBootstrap(db) {
+export function listNewsPage(db, { limit = 60, offset = 0 } = {}) {
+  const total = Number(db.prepare("SELECT COUNT(*) AS count FROM articles WHERE status='published' AND kind='news'").get().count);
+  const join = db.backend === "mariadb" ? "n.article_id COLLATE utf8mb4_unicode_ci = a.id" : "n.article_id=a.id";
+  const publishedOrder = db.backend === "mariadb" ? "COALESCE(n.published_at COLLATE utf8mb4_unicode_ci,a.published_date)" : "COALESCE(n.published_at,a.published_date)";
+  const rows = db.prepare(`SELECT a.*, n.document AS sync_document FROM articles a
+    LEFT JOIN news_sync_items n ON ${join}
+    WHERE a.status='published' AND a.kind='news'
+    ORDER BY ${publishedOrder} DESC, a.created_at DESC, a.id ASC LIMIT ? OFFSET ?`).all(limit, offset);
+  const items = rows.map((row) => { const { body, ...summary } = hydrateArticle(row); return summary; });
+  return { items, total, offset, limit, hasMore: offset + items.length < total };
+}
+
+export function getBootstrap(db, { newsLimit = 60 } = {}) {
   return {
     categories: getCategories(db),
     sponsor: listTools(db, { sponsored: true, limit: 1 }).items[0] || null,
-    tutorials: listArticles(db, "tutorial"),
-    newsItems: listArticles(db, "news"),
+    tutorials: listArticles(db, "tutorial").map(({ body, ...summary }) => summary),
+    newsItems: listNewsPage(db, { limit: newsLimit }).items,
+    newsMeta: { total: Number(db.prepare("SELECT COUNT(*) AS count FROM articles WHERE status='published' AND kind='news'").get().count), limit: newsLimit },
     collections: getCollections(db)
   };
 }
@@ -857,8 +1031,28 @@ export function unsubscribeAccountNewsletter(db, userId) {
 }
 
 export function deleteUserAccount(db, userId) {
-  const result = db.prepare("DELETE FROM users WHERE id = ? AND is_super_admin = 0").run(userId);
-  return Number(result.changes) === 1;
+  return runTransaction(db, () => {
+    // Check protection before touching child records; lock the parent on MariaDB.
+    const user = db.prepare("SELECT id FROM users WHERE id = ? AND is_super_admin = 0" +
+      (db.backend === 'mariadb' ? ' FOR UPDATE' : '')).get(userId);
+    if (!user) return false;
+
+    for(const table of ['nestdutio_wechat_settings','nestdutio_project_targets'])db.prepare(`DELETE FROM ${table} WHERE project_id IN (SELECT id FROM nestdutio_projects WHERE user_id = ?)`).run(userId);
+
+    db.prepare('DELETE FROM nestdutio_request_usage WHERE task_id IN (SELECT id FROM nestdutio_tasks WHERE user_id = ?)').run(userId);
+
+    // These tables intentionally have no cascading user foreign key on MariaDB.
+    // Jobs reference reservations, so remove jobs before their credit holds.
+    for (const table of ['image_generation_jobs', 'credit_reservations', 'credit_grants',
+      'credit_ledger', 'credit_gift_claims', 'credit_purchase_claims', 'credit_wallets']) {
+      db.prepare(`DELETE FROM ${table} WHERE user_id = ?`).run(userId);
+    }
+    // Clearing ownership must not turn a used code back into a redeemable code.
+    db.prepare('UPDATE credit_codes SET redeemed_by = NULL, disabled = 1 WHERE redeemed_by = ?').run(userId);
+    db.prepare('UPDATE credit_codes SET created_by = NULL WHERE created_by = ?').run(userId);
+    const result = db.prepare("DELETE FROM users WHERE id = ? AND is_super_admin = 0").run(userId);
+    return Number(result.changes) === 1;
+  });
 }
 
 export function addUserFavorite(db, userId, toolId) {

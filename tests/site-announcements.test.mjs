@@ -67,11 +67,13 @@ test("announcement store rejects unsafe text, dates, versions and button destina
   } finally { f.close(); }
 });
 
-test("site announcement and image edit migrations are registered in order", () => {
+test("site announcement, image edit, and balance migrations are registered in order", () => {
   const f = fixture();
   try {
-    assert.equal(f.db.prepare("PRAGMA user_version").get().user_version, 17);
+    assert.equal(f.db.prepare("PRAGMA user_version").get().user_version, 44);
     assert.ok(f.db.prepare("SELECT 1 FROM schema_migrations WHERE version = 16 AND name = 'site_announcements'").get());
+    assert.ok(f.db.prepare("SELECT 1 FROM schema_migrations WHERE version = 17 AND name = 'image_provider_edit_path'").get());
+    assert.ok(f.db.prepare("SELECT 1 FROM schema_migrations WHERE version = 18 AND name = 'image_provider_balance'").get());
     assert.ok(f.db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'site_announcements'").get());
   } finally { f.close(); }
 });

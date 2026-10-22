@@ -29,7 +29,8 @@ before(async () => {
     dbPath: join(testDir, "test.db"),
     logger: false,
     adminToken: "integration-test-admin-token",
-    analyticsSalt: "integration-test-analytics-salt"
+    analyticsSalt: "integration-test-analytics-salt",
+    publicBaseUrl: "https://ontimo.cn"
   });
   const address = await app.listen(0, "127.0.0.1");
   baseUrl = `http://127.0.0.1:${address.port}`;
@@ -75,19 +76,20 @@ test("video GIF tool route and local encoder resources are served with scoped CS
   }
   const home = await request('/');
   assert.equal((home.body.match(/href="\/utilities"/g)||[]).length, 2);
-  const admin = await request('/admin.html');
-  assert.doesNotMatch(admin.response.headers.get('content-security-policy'), /blob:/);
+  const admin = await request('/admin');
+  assert.doesNotMatch(admin.response.headers.get('content-security-policy'), /script-src[^;]*blob:|media-src[^;]*blob:/);
 });
 
 test('video crop and utility index expose both tools and a scoped WASM policy', async () => {
   const index = await request('/utilities');
   assert.equal(index.response.status,200);
+  assert.ok(index.body.indexOf('/theme-init.js') < index.body.indexOf('/utility-theme.css'), 'theme applies before the utility stylesheet paints');
   assert.match(index.body,/href="\/utilities\/video-crop"/);
   assert.match(index.body,/href="\/utilities\/video-to-gif"/);
   const crop = await request('/utilities/video-crop');
   assert.equal(crop.response.status,200);
   assert.match(crop.response.headers.get('content-security-policy'),/'wasm-unsafe-eval'/);
-  for(const path of ['/video-crop.js','/video-crop-core.js','/video-crop-worker.js','/assets/vendor/ffmpeg/ffmpeg-core.js']) {
+  for(const path of ['/video-crop.js','/video-crop-core.js','/video-crop-worker.js','/theme-init.js','/assets/vendor/ffmpeg/ffmpeg-core.js']) {
     const resource = await request(path);
     assert.equal(resource.response.status,200);
     assert.match(resource.response.headers.get('content-type'),/javascript/);
@@ -95,7 +97,7 @@ test('video crop and utility index expose both tools and a scoped WASM policy', 
   const wasm=await fetch(`${baseUrl}/assets/vendor/ffmpeg/ffmpeg-core.wasm`,{method:'HEAD'});
   assert.equal(wasm.status,200);
   assert.equal(wasm.headers.get('content-type'),'application/wasm');
-  const admin=await request('/admin.html');
+  const admin=await request('/admin');
   assert.doesNotMatch(admin.response.headers.get('content-security-policy'),/wasm-unsafe-eval/);
 });
 
@@ -109,7 +111,27 @@ test('mask tool is discoverable and has local media and encoder access without r
   assert.match(worker.response.headers.get('content-security-policy'),/'wasm-unsafe-eval'/);
   for(const path of ['/video-mask.js','/video-mask-core.js','/video-mask.css'])assert.equal((await request(path)).response.status,200);
   assert.match((await request('/utilities')).body,/href="\/utilities\/video-mask"/);
-  assert.doesNotMatch((await request('/admin.html')).response.headers.get('content-security-policy'),/wasm-unsafe-eval|blob:/);
+  assert.doesNotMatch((await request('/admin')).response.headers.get('content-security-policy'),/wasm-unsafe-eval|script-src[^;]*blob:|media-src[^;]*blob:/);
+});
+
+test("bootstrap is compressed and excludes article bodies while details retain them", async () => {
+  const compressed = await request("/api/v1/site/bootstrap", { headers: { "Accept-Encoding": "gzip" } });
+  assert.equal(compressed.response.headers.get("content-encoding"), "gzip");
+  assert.equal(compressed.response.headers.get("vary"), "Accept-Encoding");
+  for (const article of [...compressed.body.data.newsItems, ...compressed.body.data.tutorials]) {
+    assert.equal(Object.hasOwn(article, "body"), false);
+    assert.ok(article.title && article.excerpt);
+  }
+  const article = compressed.body.data.tutorials[0];
+  const detail = await request(`/api/v1/articles/${article.slug || article.id}`);
+  assert.equal(detail.response.status, 200);
+  assert.ok(detail.body.data.body);
+  const identity = await request("/api/v1/site/bootstrap", { headers: { "Accept-Encoding": "gzip;q=0, identity" } });
+  assert.equal(identity.response.headers.get("content-encoding"), null);
+  assert.deepEqual(identity.body.data, compressed.body.data);
+  const icons = await request("/lucide.min.js");
+  assert.equal(icons.response.status, 200);
+  assert.match(icons.body, /@license lucide v0\.468\.0/);
 });
 
 test("health and bootstrap expose persisted content", async () => {
@@ -141,18 +163,19 @@ test("health and bootstrap expose persisted content", async () => {
   assert.equal(gptNews.source, "OpenAI");
   assert.match(gptNews.sourceUrl, /^https:\/\//);
   assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations WHERE version = 1").get().count, 1);
-  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 17);
-  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 17);
+  assert.equal(app.db.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get().count, 44);
+  assert.equal(app.db.prepare("PRAGMA user_version").get().user_version, 44);
 });
 
-test("admin short route and unauthenticated flow lead to management-token login", async () => {
+test("canonical admin route serves the page and retains the management login flow", async () => {
   const shortRoute = await request("/admin");
-  assert.equal(shortRoute.response.status, 302);
-  assert.equal(shortRoute.response.headers.get("location"), "/admin.html");
+  assert.equal(shortRoute.response.status, 200);
+  assert.match(shortRoute.body, /运营与内容中心/);
+  assert.match(shortRoute.response.headers.get("cache-control"), /no-store, private/);
 
   const script = await request("/admin.js");
   assert.equal(script.response.status, 200);
-  assert.match(script.body, /auth\.html\?mode=admin&next=/);
+  assert.match(script.body, /auth\?mode=admin&next=/);
 });
 
 test("favorites route serves the app shell for direct navigation", async () => {
@@ -222,13 +245,49 @@ test("Baidu ownership verification file is publicly accessible", async () => {
   assert.equal((await verification.text()).trim(), "99393810d0297358084e1fd2aa896c94");
 });
 
+test("SEO pages' analytics and brand SVG assets are served from the public directory", async () => {
+  for (const [path, type] of [["/seo-analytics.js", /javascript/], ["/brand-icon.svg", /image\/svg\+xml/]]) {
+    const asset = await fetch(`${baseUrl}${path}`);
+    assert.equal(asset.status, 200, `${path} should be served`);
+    assert.match(asset.headers.get("content-type") || "", type);
+  }
+});
+
+test("static assets support validators, 304 responses and large-file HEAD requests", async () => {
+  const asset = await fetch(`${baseUrl}/seo-analytics.js`);
+  assert.equal(asset.status, 200);
+  const etag = asset.headers.get("etag");
+  assert.ok(etag);
+  const cached = await fetch(`${baseUrl}/seo-analytics.js`, { headers: { "If-None-Match": etag } });
+  assert.equal(cached.status, 304);
+  assert.equal(await cached.text(), "");
+
+  const large = await fetch(`${baseUrl}/assets/vendor/ffmpeg/ffmpeg-core.wasm`, { method: "HEAD" });
+  assert.equal(large.status, 200);
+  assert.ok(Number(large.headers.get("content-length")) > 1024 * 1024);
+  assert.ok(large.headers.get("etag"));
+  const cachedLarge = await fetch(`${baseUrl}/assets/vendor/ffmpeg/ffmpeg-core.wasm`, {
+    method: "HEAD",
+    headers: { "If-None-Match": large.headers.get("etag") }
+  });
+  assert.equal(cachedLarge.status, 304);
+});
+
+test("uploaded SVG logo responses disable script execution and external resources", async () => {
+  const path = "/assets/tool-logos/chatgpt.svg";
+  const response = await fetch(`${baseUrl}${path}`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-security-policy") || "", /default-src 'none'.*sandbox/);
+});
+
 test("tool detail SEO pages render crawlable HTML and appear in sitemap", async () => {
-  const page = await fetch(`${baseUrl}/tools/doubao`);
+  const page = await fetch(`${baseUrl}/tools/doubao`, { headers: { "X-Forwarded-Host": "evil.test", "X-Forwarded-Proto": "https" } });
   assert.equal(page.status, 200);
   assert.match(page.headers.get("content-type") || "", /text\/html/);
   const html = await page.text();
   assert.match(html, /<h1>豆包<\/h1>/);
-  assert.match(html, /<link rel="canonical" href="http:\/\/127\.0\.0\.1:\d+\/tools\/doubao">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/ontimo\.cn\/tools\/doubao">/);
+  assert.doesNotMatch(html, /evil\.test/);
   assert.match(html, /application\/ld\+json/);
   const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(jsonLdMatch);
@@ -246,6 +305,27 @@ test("tool detail SEO pages render crawlable HTML and appear in sitemap", async 
   const sitemap = await fetch(`${baseUrl}/sitemap.xml`);
   assert.equal(sitemap.status, 200);
   assert.match(await sitemap.text(), /\/tools\/doubao/);
+});
+
+test("production canonical URLs remain pinned when PUBLIC_BASE_URL is empty", async (t) => {
+  const productionDir = mkdtempSync(join(tmpdir(), "nike-ai-production-base-"));
+  const productionApp = buildApplication({
+    environment: "production",
+    dbPath: join(productionDir, "production-test.db"),
+    analyticsSalt: "production-test-analytics-salt",
+    publicBaseUrl: "",
+    autoSeed: false,
+    logger: false
+  });
+  t.after(async () => {
+    await productionApp.close();
+    rmSync(productionDir, { recursive: true, force: true });
+  });
+  const address = await productionApp.listen(0, "127.0.0.1");
+  const sitemap = await fetch(`http://127.0.0.1:${address.port}/sitemap.xml`, { headers: { Host: "attacker.example" } });
+  assert.equal(sitemap.status, 200);
+  assert.match(await sitemap.text(), /https:\/\/ontimo\.cn\//);
+  assert.doesNotMatch(await (await fetch(`http://127.0.0.1:${address.port}/sitemap.xml`, { headers: { Host: "attacker.example" } })).text(), /attacker\.example/);
 });
 
 test("every seeded tool exposes a reachable local Logo asset", async () => {
@@ -280,6 +360,10 @@ test("tool API combines search and structured filters", async () => {
   const featureSearch = await request("/api/v1/tools?q=%E5%85%A8%E6%A0%88%E5%BC%80%E5%8F%91");
   assert.equal(featureSearch.response.status, 200);
   assert.ok(featureSearch.body.data.some((tool) => tool.id === "cursor"));
+
+  const wildcardSearch = await request("/api/v1/tools?q=%25");
+  assert.equal(wildcardSearch.response.status, 200);
+  assert.equal(wildcardSearch.body.meta.total, 0);
 });
 
 test("tool API paginates the organic catalog without overlaps", async () => {
@@ -296,6 +380,13 @@ test("tool API paginates the organic catalog without overlaps", async () => {
   assert.equal(second.body.data.some((tool) => tool.sponsored), false);
   const firstIds = new Set(first.body.data.map((tool) => tool.id));
   assert.equal(second.body.data.some((tool) => firstIds.has(tool.id)), false);
+});
+
+test("public tool list caps each response at 100 records", async () => {
+  const response = await request("/api/v1/tools?limit=500&offset=0");
+  assert.equal(response.response.status, 200);
+  assert.equal(response.body.meta.limit, 100);
+  assert.ok(response.body.data.length <= 100);
 });
 
 test("AI comic category includes the disclosed sponsor and pins Orange Dream Factory first", async () => {
@@ -543,7 +634,13 @@ test("production refuses ephemeral database and analytics configuration", () => 
 test('game collection is separate from utilities with working routes and legacy redirect',async()=>{
  const hall=await request('/games');assert.equal(hall.response.status,200);assert.match(hall.body,/休闲小游戏/);
  const utilities=await request('/utilities');assert.doesNotMatch(utilities.body,/utility-card[^>]*href="[^"]*(?:games|never-retreat)/);
- const home=await request('/');assert.match(home.body,/href="\/utilities">小工具<\/a>\s*<a[^>]+href="\/games">休闲小游戏/);
+ const home=await request('/');
+ const navigation=home.body.match(/<nav\b[^>]*class="[^"]*site-nav[^"]*"[^>]*>([\s\S]*?)<\/nav>/)?.[1];
+ assert.ok(navigation,'homepage has primary navigation');
+ for(const destination of ['/utilities','/games']){
+  assert.match(navigation,new RegExp('href="'+destination+'"[^>]*>[^<]+</a>'));
+  assert.equal((await request(destination)).response.status,200);
+ }
  for(const name of ['snake','gomoku','flight','never-retreat']){
   assert.equal((await request('/games/'+name)).response.status,200);
   const module=await request('/'+name+'-core.mjs');assert.equal(module.response.status,200);assert.match(module.response.headers.get('content-type'),/javascript/);

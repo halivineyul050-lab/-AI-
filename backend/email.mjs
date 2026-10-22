@@ -6,13 +6,14 @@ const categoryLabels = {
   other: "其他"
 };
 
-export async function notifyFeedbackEmail(feedback, env = process.env, logger = console) {
+export async function notifyFeedbackEmail(feedback, env = process.env, logger = console, { fetchImpl = fetch } = {}) {
   const apiKey = String(env.RESEND_API_KEY || "").trim();
   const to = String(env.FEEDBACK_EMAIL_TO || "").trim();
-  const from = String(env.FEEDBACK_EMAIL_FROM || "onboarding@resend.dev").trim();
-  if (!apiKey || !to) return { sent: false, skipped: true, reason: "email_not_configured" };
-  const response = await fetch("https://api.resend.com/emails", {
+  const from = String(env.FEEDBACK_EMAIL_FROM || env.AUTH_EMAIL_FROM || "").trim();
+  if (!apiKey || !to || !from) return { sent: false, skipped: true, reason: "email_not_configured" };
+  const response = await fetchImpl("https://api.resend.com/emails", {
     method: "POST",
+    signal: AbortSignal.timeout(15_000),
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from,
@@ -25,10 +26,12 @@ export async function notifyFeedbackEmail(feedback, env = process.env, logger = 
         `联系邮箱：${feedback.contactEmail || "未提供"}`,
         "",
         feedback.message
-      ].join("\\n")
+      ].join("\n")
     })
   });
   if (!response.ok) throw new Error(`Resend email returned ${response.status}`);
-  logger.info?.(`[feedback-email] sent ${feedback.id}`);
-  return { sent: true };
+  const receipt = await response.json();
+  if (typeof receipt?.id !== "string" || !receipt.id) throw new Error("Resend email delivery unconfirmed");
+  logger.info?.(`[feedback-email] sent ${feedback.id} message ${receipt.id}`);
+  return { sent: true, messageId: receipt.id };
 }

@@ -1,6 +1,7 @@
 const $=id=>document.getElementById(id);
 let result=null,parseAbort=null,audioAbort=null,audioUrl=null;
-async function json(response){const data=await response.json();if(!response.ok)throw new Error(data.title||'请求失败，请重试。');return data.data;}
+$('paste-share').addEventListener('click',async()=>{try{$('share-text').value=(await navigator.clipboard.readText()).slice(0,8000);$('share-text').focus();}catch{$('share-text').focus();$('extract-status').textContent='请在输入框按 Ctrl+V，或长按粘贴分享链接。';}});
+async function json(response){const data=await response.json();if(!response.ok){if(response.status===401)$('extract-login').hidden=false;throw new Error(data.title||'请求失败，请重试。');}return data.data;}
 function clearAudio(){audioAbort?.abort();audioAbort=null;if(audioUrl)URL.revokeObjectURL(audioUrl);audioUrl=null;$('audio-preview').pause();$('audio-preview').removeAttribute('src');$('audio-preview').load();$('audio-preview').hidden=true;$('download-audio').hidden=true;$('audio-status').textContent='';$('cancel-audio').hidden=true;}
 function show(data){
  result=data;clearAudio();$('results').hidden=false;$('empty-state').hidden=true;
@@ -35,4 +36,4 @@ $('copy-text').addEventListener('click',async()=>{try{await navigator.clipboard.
 $('source-video').addEventListener('error',()=>{$('video-note').textContent='视频预览暂不可用，请尝试下载；若下载失败，请重新解析。';});
 $('cover-image').addEventListener('error',()=>{$('cover-missing').hidden=false;$('cover-missing').textContent='封面加载失败，请重新解析。';$('cover-image').hidden=true;});
 window.addEventListener('pagehide',()=>{parseAbort?.abort();clearAudio();});
-try{const status=await json(await fetch('/api/utilities/link-extract/status'));$('extract-button').disabled=!status.enabled;$('extract-status').textContent=status.enabled?'解析服务已就绪。':'本机解析尚未启用，请配置解析浏览器后使用。';}catch(error){$('extract-status').textContent=error.message;}
+try{const status=await json(await fetch('/api/utilities/link-extract/status'));$('extract-button').disabled=!status.enabled;if(status.mode==='public'){document.body.dataset.extractMode='public';$('result-text').rows=4;$('extract-mode').textContent='抖音公开视频 · 在线原型';$('extract-lead').textContent='粘贴抖音分享链接，预览视频、下载源文件，保存封面与文案。';$('extract-platforms').textContent='抖音 · 单条视频';$('audio-card').hidden=true;$('extract-help').textContent='登录本站后使用。仅支持可匿名播放的抖音单条视频；需要平台登录或验证时会停止解析。每次最长约 45 秒，临时下载地址 20 分钟内有效。';$('extract-status').textContent=status.enabled?'在线解析已就绪，请粘贴分享链接。':'在线解析暂未开放。';}else{$('extract-status').textContent=status.enabled?'本机解析服务已就绪。':'本机解析尚未启用，请配置解析浏览器后使用。';}}catch(error){$('extract-status').textContent=error.message;}

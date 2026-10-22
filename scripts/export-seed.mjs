@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import vm from "node:vm";
 
 const root = resolve(import.meta.dirname, "..");
-const source = readFileSync(resolve(root, "app.js"), "utf8");
+const source = readFileSync(resolve(root, "public", "app.js"), "utf8");
 
 function extractArray(name) {
   const pattern = new RegExp(`const ${name} = (\\[[\\s\\S]*?\\n\\]);`);

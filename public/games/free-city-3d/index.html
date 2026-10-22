@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15252b">
+  <base href="/games/free-city-3d/">
+  <title>自由都市 3D · 街头传说</title>
+  <link rel="icon" href="/brand-icon-192.png?v=20260916-2">
+  <meta name="description" content="驾驶、接单、探索一座立体城市。无需下载，键盘与触屏均可游玩。">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main class="game" aria-label="自由都市 3D">
+    <a class="site-return" href="/games" aria-label="返回休闲小游戏">← 返回游戏大厅</a>
+    <canvas id="game-canvas" aria-label="自由都市游戏场景"></canvas>
+
+    <section class="hud" aria-live="polite">
+      <div class="hud-top">
+        <div class="cash"><small>现金</small><strong id="money">$ 0</strong></div>
+        <div class="wanted" aria-label="通缉等级"><span>通缉</span><strong id="stars">☆☆☆☆☆</strong></div>
+      </div>
+      <div class="mission-card">
+        <span class="eyebrow">当前委托</span>
+        <strong id="mission-title">第一单 · 送货上路</strong>
+        <span id="mission-text">前往金色标记取货</span>
+        <small id="distance">目标距离 -- m</small>
+      </div>
+      <div class="vehicle-card">
+        <strong id="vehicle-name">步行</strong>
+        <span id="vehicle-speed">0 km/h</span>
+        <div class="health-track"><i id="health-bar"></i></div>
+      </div>
+    </section>
+
+    <div class="map-frame"><canvas id="minimap" width="180" height="180" aria-label="城市小地图"></canvas></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <section id="overlay" class="overlay">
+      <div class="menu-card">
+        <p class="eyebrow">OPEN CITY · STREET STORIES</p>
+        <h1 id="overlay-title">自由都市 <em>3D</em></h1>
+        <p id="overlay-desc">穿过街区、接单送货，在真实车流与警车追逐中寻找自己的路线。</p>
+        <div class="feature-row"><span>立体街区</span><span>开放驾驶</span><span>城市委托</span></div>
+        <p id="loading" class="loading" hidden>正在铺开城市街道…</p>
+        <p id="error" class="error" role="alert" hidden>3D 引擎暂时无法启动，请重试。</p>
+        <button id="start" class="primary" data-engine-src="/games/yiren-buche/three.min.js">进入城市</button>
+        <small class="controls-hint">WASD / 方向键移动 · E 上下车 · Shift 加速 · 空格手刹</small>
+      </div>
+    </section>
+
+    <div class="touch-controls" aria-label="触屏驾驶控制">
+      <div class="dpad">
+        <span></span><button data-control="forward" aria-label="前进">▲</button><span></span>
+        <button data-control="left" aria-label="左转">◀</button><button data-control="back" aria-label="后退">▼</button><button data-control="right" aria-label="右转">▶</button>
+      </div>
+      <div class="touch-actions">
+        <button data-control="enter" aria-label="上车或下车">E<small>上下车</small></button>
+        <button data-control="accelerate" aria-label="加速">⚡<small>加速</small></button>
+        <button data-control="handbrake" aria-label="手刹">◉<small>手刹</small></button>
+      </div>
+    </div>
+    <button id="pause" class="pause" type="button" aria-label="暂停游戏">Ⅱ</button>
+  </main>
+</body>
+</html>

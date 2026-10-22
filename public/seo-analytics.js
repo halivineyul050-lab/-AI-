@@ -35,8 +35,8 @@
     const platform = navigator.platform || "";
     const touch = navigator.maxTouchPoints || 0;
     if (/ipad|tablet|playbook|silk/i.test(ua) || (platform === "MacIntel" && touch > 1)) return "tablet";
-    if (/mobile|iphone|ipod|android.*mobile|windows phone|micromessenger|wxwork/i.test(ua)) return "mobile";
-    if (/android/i.test(ua) && touch > 1) return "tablet";
+    if (/mobile|iphone|ipod|android.*mobile|windows phone/i.test(ua)) return "mobile";
+    if (/android/i.test(ua)) return "tablet";
     if (/windows|macintosh|linux|x11/i.test(ua)) return "desktop";
     return "unknown";
   }

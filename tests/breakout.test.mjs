@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createGame, launch, step } from '../breakout-core.mjs';
+import { createGame, launch, step } from '../public/breakout-core.mjs';
 test('wall reflection keeps ball in bounds',()=>{const g=createGame();launch(g);Object.assign(g.ball,{x:9,y:300,vx:-350,vy:-100});step(g,.04);assert.ok(g.ball.vx>0);assert.ok(g.ball.x>=8);});
 test('paddle reflects direction based on impact position',()=>{const g=createGame();launch(g);Object.assign(g.ball,{x:g.paddle.x+45,y:465,vx:0,vy:350});step(g,.04);assert.ok(g.ball.vy<0);assert.ok(g.ball.vx>0);});
 test('brick collision awards points and removes brick',()=>{const g=createGame();launch(g);const b=g.bricks.at(-1);Object.assign(g.ball,{x:b.x+b.w/2,y:b.y+b.h+10,vx:0,vy:-350});step(g,.03);assert.equal(b.alive,false);assert.equal(g.score,100);});

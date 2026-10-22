@@ -9,7 +9,7 @@ import { test } from 'node:test';
 
 test('MariaDB backup is consistent, protected, checksummed and retained',()=>{
   const source=readFileSync(new URL('../scripts/backup-mariadb.sh',import.meta.url),'utf8');
-  assert.match(source,/set -euo pipefail/);assert.match(source,/--single-transaction/);assert.match(source,/--defaults-extra-file/);assert.match(source,/umask 077/);assert.match(source,/sha256sum/);assert.match(source,/-mtime/);
+  assert.match(source,/set -euo pipefail/);assert.match(source,/--single-transaction/);assert.match(source,/--defaults-extra-file/);assert.match(source,/umask 077/);assert.match(source,/sha256sum/);assert.match(source,/\.partial/);assert.match(source,/-mtime/);
 });
 
 const bash = process.platform === 'win32'

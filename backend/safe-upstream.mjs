@@ -68,6 +68,11 @@ export async function assertSafeUpstreamUrl(url, { lookup = dnsLookup, signal } 
 // Use the validated addresses for the actual connection; a second DNS lookup
 // would allow rebinding between validation and fetch. Keep the URL hostname for TLS.
 function pinnedFetch(url, options, addresses) {
+  // Some hosts publish IPv6 records even when this server has no IPv6 route.
+  // All DNS answers were checked above; use IPv4 when both families exist.
+  const connectionAddresses = addresses.some(({ family }) => family === 4)
+    ? addresses.filter(({ family }) => family === 4)
+    : addresses;
   return new Promise((resolve, reject) => {
     const request = https.request(url, {
       method: options.method,
@@ -75,8 +80,8 @@ function pinnedFetch(url, options, addresses) {
       signal: options.signal,
       agent: false,
       lookup(hostname, settings, callback) {
-        if (settings.all) callback(null, addresses);
-        else callback(null, addresses[0].address, addresses[0].family);
+        if (settings.all) callback(null, connectionAddresses);
+        else callback(null, connectionAddresses[0].address, connectionAddresses[0].family);
       }
     }, (upstream) => {
       try {

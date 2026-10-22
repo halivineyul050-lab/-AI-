@@ -5,7 +5,7 @@ let connection;
 const encode = new TextEncoder();
 
 async function handle(type, payload) {
-  connection ||= await mysql.createConnection({ ...workerData, supportBigNumbers: true, bigNumberStrings: false, multipleStatements: true });
+  connection ||= await mysql.createConnection({ ...workerData, supportBigNumbers: true, bigNumberStrings: false, multipleStatements: true, enableKeepAlive: true });
   if (type === 'ping') { await connection.ping(); return { ready: 1 }; }
   if (type === 'close') { await connection.end(); return { closed: true }; }
   if (type === 'exec') { await connection.query(payload.sql); return { changes: 0 }; }
@@ -22,6 +22,10 @@ parentPort.on('message', async ({ type, payload, buffer }) => {
   let result;
   try { result = await handle(type, payload); }
   catch (error) {
+    if (['PROTOCOL_CONNECTION_LOST', 'ECONNRESET', 'ECONNREFUSED', 'ER_SERVER_SHUTDOWN', 'ETIMEDOUT'].includes(error.code)) {
+      try { connection?.destroy(); } catch {}
+      connection = undefined;
+    }
     failed = 1;
     const constraint = ['ER_DUP_ENTRY','ER_NO_REFERENCED_ROW_2','ER_ROW_IS_REFERENCED_2'].includes(error.code);
     result = { message: error.message, code: constraint ? 'ERR_SQLITE_CONSTRAINT' : error.code };

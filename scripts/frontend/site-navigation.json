@@ -1,0 +1,299 @@
+{
+  "items": [
+    {
+      "id": "tools",
+      "label": "逛工具",
+      "appLabel": "首页",
+      "href": "/",
+      "appView": "tools",
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "discover",
+      "label": "发现",
+      "href": "/discover",
+      "appView": "discover",
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "rankings",
+      "label": "榜单",
+      "href": "/rankings",
+      "appView": "rankings",
+      "primary": false,
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "news",
+      "label": "资讯与教程",
+      "href": "/news",
+      "appView": "news",
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "video-pricing",
+      "label": "视频模型价格",
+      "href": "/video-pricing",
+      "primary": false,
+      "showOn": [
+        "pricing"
+      ]
+    },
+    {
+      "id": "image-generation",
+      "label": "AI 生图",
+      "href": "/image-generation",
+      "primary": false,
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "utilities",
+      "label": "小工具",
+      "href": "/utilities",
+      "primary": false,
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "games",
+      "label": "小游戏",
+      "href": "/games",
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "creator",
+      "label": "关于我",
+      "href": "/creator",
+      "primary": false,
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "id": "skills",
+      "label": "Skills",
+      "href": "/skills",
+      "primary": false,
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    },
+    {
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ],
+      "primary": false,
+      "id": "explain",
+      "label": "交互讲解",
+      "href": "/explain"
+    },
+    {
+      "id": "nestdutio",
+      "label": "NeStudio",
+      "href": "/nestdutio",
+      "primary": false,
+      "showOn": [
+        "app",
+        "utility",
+        "pricing"
+      ]
+    }
+  ],
+  "pages": {
+    "index.html": {
+      "shell": "app",
+      "active": "tools"
+    },
+    "image-generation.html": {
+      "shell": "utility",
+      "active": "image-generation"
+    },
+    "image-edit.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "image-erase.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "image-background.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "image-enhance.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "utilities.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "link-extract.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "video-gif.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "video-crop.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "video-mask.html": {
+      "shell": "utility",
+      "active": "utilities"
+    },
+    "video-pricing.html": {
+      "shell": "pricing",
+      "active": "video-pricing"
+    },
+    "games.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "game-2048.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "memory-game.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "breakout.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "snake.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "gomoku.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "flight.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "never-retreat.html": {
+      "shell": "utility",
+      "active": "games"
+    },
+    "creator.html": {
+      "shell": "utility",
+      "active": "creator"
+    },
+    "skills.html": {
+      "shell": "utility",
+      "active": "skills"
+    },
+    "explain.html": {
+      "active": "explain",
+      "shell": "utility"
+    },
+    "nestdutio.html": {
+      "active": "nestdutio",
+      "shell": "utility"
+    }
+  },
+  "groups": [
+    {
+      "label": "AI 工具",
+      "active": [
+        "tools",
+        "discover",
+        "rankings",
+        "video-pricing"
+      ],
+      "links": [
+        [
+          "/",
+          "工具库"
+        ],
+        [
+          "/discover",
+          "发现"
+        ],
+        [
+          "/rankings",
+          "工具榜单"
+        ],
+        [
+          "/video-pricing",
+          "视频模型价格"
+        ]
+      ]
+    },
+    {
+      "label": "创作与效率",
+      "active": [
+        "image-generation",
+        "utilities",
+        "skills",
+        "games",
+        "explain",
+        "nestdutio"
+      ],
+      "links": [
+        [
+          "/image-generation",
+          "AI 生图"
+        ],
+        [
+          "/nestdutio",
+          "NeStudio"
+        ],
+        [
+          "/explain",
+          "交互讲解"
+        ],
+        [
+          "/utilities",
+          "实用小工具"
+        ],
+        [
+          "/skills",
+          "Skills"
+        ],
+        [
+          "/games",
+          "小游戏"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { slide, move, createGame, canMove, undo } from '../game-2048-core.mjs';
+import { slide, move, createGame, canMove, undo } from '../public/game-2048-core.mjs';
 const grid = (...rows) => rows.flat();
 test('each tile merges once and awards resulting values', () => {
   const result = slide(grid([2,2,2,2],[4,4,8,0],[0,0,0,0],[0,0,0,0]), 'left');

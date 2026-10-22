@@ -1,0 +1,4 @@
+ALTER TABLE image_providers
+  ADD COLUMN IF NOT EXISTS balance_path VARCHAR(1024) NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS balance_value_field VARCHAR(512) NOT NULL DEFAULT 'balance',
+  ADD COLUMN IF NOT EXISTS balance_currency_field VARCHAR(512) NOT NULL DEFAULT '';

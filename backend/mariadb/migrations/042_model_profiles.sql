@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS model_profiles (
+ id VARCHAR(36) PRIMARY KEY,
+ name VARCHAR(80) NOT NULL UNIQUE,
+ kind VARCHAR(8) NOT NULL CHECK (kind IN ('chat','image')),
+ endpoint TEXT NOT NULL,
+ model VARCHAR(120) NOT NULL,
+ encrypted_key TEXT NOT NULL,
+ created_at VARCHAR(32) NOT NULL,
+ updated_at VARCHAR(32) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

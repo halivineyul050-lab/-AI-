@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-const adminScript = readFileSync(new URL("../admin.js", import.meta.url), "utf8");
+const adminScript = readFileSync(new URL("../public/admin.js", import.meta.url), "utf8");
 const initBody = adminScript.match(/async function init\(\)\s*\{([\s\S]*?)\n  \}/)?.[1] || "";
 
 test("an authenticated admin session automatically loads the content manager", () => {
@@ -27,9 +27,10 @@ test("monitoring does not send the account-session marker as a bearer token", ()
   assert.match(monitoringBody, /error\.status\s*===\s*401\s*&&\s*state\.token\s*&&\s*state\.token\s*!==\s*"__session_admin__"/);
 });
 
-const adminHtml = readFileSync(new URL("../admin.html", import.meta.url), "utf8");
-test("admin page cache-busts the session-gate fix", () => {
-  assert.match(adminHtml, /admin\.js\?v=20260924-reference-1/);
+const adminHtml = readFileSync(new URL("../public/admin.html", import.meta.url), "utf8");
+test("admin page cache-busts the current session gate and navigation", () => {
+  assert.match(adminHtml, /admin\.js\?v=20261020-analytics-1/);
+  assert.ok(adminHtml.indexOf('/admin-model-picker.js?') < adminHtml.indexOf('src="admin.js?'));
 });
 
 test("account session is checked before any previously remembered admin token", () => {

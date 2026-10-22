@@ -8,11 +8,14 @@
   <title>运营与内容中心 · 泥壳AI</title>
   <link rel="icon" href="/brand-icon-192.png?v=20260916-2" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="/brand-icon-192.png?v=20260916-2">
-  <link rel="stylesheet" href="/design-system.css?v=20260915-2">
-  <link rel="stylesheet" href="admin.css?v=20260923-vvvox-1">
+  <link rel="stylesheet" href="/design-system.css?v=20260929-foundation-1">
+  <link rel="stylesheet" href="admin.css?v=20261020-analytics-1">
   <script defer src="admin-icons.js?v=20260920-image-models-1"></script>
-  <script defer src="admin.js?v=20260924-reference-1"></script>
-</head>
+  <script defer src="safe-storage.js?v=20260928-1"></script>
+  <script defer src="/admin-model-profiles.js?v=20261020-profiles-1"></script>
+  <script defer src="/admin-model-picker.js?v=20261020-profiles-1"></script>
+  <script defer src="admin.js?v=20261020-analytics-1"></script>
+<link rel="stylesheet" href="/admin-creator.css?v=20261015-provider-style-1"><script defer src="/admin-creator.js?v=20261013-creator-layout-1"></script><script defer src="/admin-skills.js?v=20261016-models-1"></script><link rel="stylesheet" href="/admin-news-sync.css?v=20261013-brief-1"><script defer src="/admin-news-sync.js?v=20261016-models-1"></script><script defer src="/admin-assistant.js?v=20261020-profiles-1"></script><link rel="stylesheet" href="/credits.css?v=20261013-first-purchase-1"><script defer src="/credits-admin.js?v=20261016-models-1"></script><link rel="stylesheet" href="/admin-recharge.css?v=20261013-preview-3"><script defer src="/admin-recharge.js?v=20261013-first-purchase-1"></script><script defer src="/admin-explainer.js?v=20261020-profiles-1"></script><link rel="stylesheet" href="/admin-provider.css?v=20261020-clear-key-1"><script defer src="/admin-nestdutio.js?v=20261020-cost-quality-1"></script></head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
 
@@ -23,36 +26,43 @@
         <span class="brand-copy"><strong>泥壳AI</strong><small>运营与内容中心</small></span>
       </a>
 
-      <nav class="side-nav" aria-label="页面区域">
-        <a class="side-nav-item is-active" href="#overview" aria-current="page">
+      <nav class="side-nav" aria-label="页面区域"><details class="side-nav-group" open><summary class="side-nav-label">数据监控</summary><a class="side-nav-item is-active" href="#overview" aria-current="page">
           <i data-lucide="layout-dashboard" aria-hidden="true"></i><span>数据概览</span>
         </a>
-        <a class="side-nav-item" href="#traffic">
+<a class="side-nav-item" href="#traffic">
           <i data-lucide="chart-no-axes-combined" aria-hidden="true"></i><span>访问趋势</span>
         </a>
-        <a class="side-nav-item" href="#content">
+<a class="side-nav-item" href="#content">
           <i data-lucide="mouse-pointer-click" aria-hidden="true"></i><span>内容表现</span>
         </a>
-        <a class="side-nav-item" href="#events">
+<a class="side-nav-item" href="#events">
           <i data-lucide="radio" aria-hidden="true"></i><span>实时事件</span>
-        </a>
-        <a class="side-nav-item" href="#cms">
+        </a></details>
+<details class="side-nav-group" open><summary class="side-nav-label">内容运营</summary><a class="side-nav-item" href="#cms">
           <i data-lucide="panels-top-left" aria-hidden="true"></i><span>内容管理</span>
         </a>
-        <a class="side-nav-item" href="#image-models">
-          <i data-lucide="sparkles" aria-hidden="true"></i><span>图片模型</span>
-        </a>
-        <a class="side-nav-item" id="users-nav" href="#users" hidden>
-          <i data-lucide="users-round" aria-hidden="true"></i><span>账号权限</span>
-        </a>
-        <a class="side-nav-item" href="#feedback">
-          <i data-lucide="message-square-text" aria-hidden="true"></i><span>问题反馈</span>
-        </a>
-        <a class="side-nav-item" href="#reviews">
+<a class="side-nav-item" href="#news-sync-admin"><i data-lucide="rss" aria-hidden="true"></i><span>资讯自动更新</span></a>
+<a class="side-nav-item" href="#skills-admin"><i data-lucide="sparkles" aria-hidden="true"></i><span>Skills管理</span></a>
+<a class="side-nav-item" href="#creator-admin"><i data-lucide="user" aria-hidden="true"></i><span>个人主页</span></a>
+<a class="side-nav-item" href="#reviews">
           <i data-lucide="clipboard-check" aria-hidden="true"></i><span>投稿审核</span>
           <span class="nav-badge" id="review-nav-count" hidden>0</span>
         </a>
-      </nav>
+<a class="side-nav-item" href="#newsletter-admin"><i data-lucide="mail" aria-hidden="true"></i><span>周报订阅</span></a>
+<a class="side-nav-item" href="#feedback">
+          <i data-lucide="message-square-text" aria-hidden="true"></i><span>问题反馈</span>
+        </a></details>
+<details class="side-nav-group" open><summary class="side-nav-label">充值与积分</summary><a class="side-nav-item" href="#recharge-admin"><i data-lucide="scan-line"></i><span>充值审核</span></a>
+<a class="side-nav-item" href="#credits-admin"><i data-lucide="wallet"></i><span>积分管理</span></a></details>
+<details class="side-nav-group" open><summary class="side-nav-label">系统配置</summary><a class="side-nav-item" href="#image-models">
+          <i data-lucide="sparkles" aria-hidden="true"></i><span>图片模型</span>
+        </a>
+<a class="side-nav-item" href="#assistant-admin"><i data-lucide="bot" aria-hidden="true"></i><span>小助手配置</span></a>
+<a class="side-nav-item" href="#explainer-admin"><i data-lucide="layers" aria-hidden="true"></i><span>交互讲解配置</span></a>
+<a class="side-nav-item" href="#nestdutio-admin"><i data-lucide="panels-top-left" aria-hidden="true"></i><span>NeStudio 配置</span></a>
+<a class="side-nav-item" id="users-nav" href="#users" hidden>
+          <i data-lucide="users-round" aria-hidden="true"></i><span>账号权限</span>
+        </a></details></nav>
 
       <div class="sidebar-foot">
         <div class="connection-summary">
@@ -105,7 +115,8 @@
           <button id="error-retry" type="button">重试</button>
         </div>
 
-        <section class="section" id="overview" aria-labelledby="overview-title">
+        <div class="admin-group-heading" aria-label="数据监控"><span>数据监控</span></div>
+<section class="section" id="overview" aria-labelledby="overview-title">
           <div class="section-heading">
             <div>
               <p class="eyebrow">当前窗口</p>
@@ -114,6 +125,7 @@
             <p class="section-note" id="overview-note">每 5 秒同步一次</p>
           </div>
 
+          <p class="analytics-help">浏览次数（PV）：页面被浏览的次数，重复浏览也计入。访客数（UV）：按浏览器标识去重，同一人在不同浏览器访问可能重复计算；拦截统计也可能导致漏记。</p>
           <div class="kpi-grid" id="kpi-grid" aria-busy="true">
             <article class="kpi-card" data-kpi="pageViews">
               <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="eye" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
@@ -121,7 +133,7 @@
             </article>
             <article class="kpi-card" data-kpi="uniqueVisitors">
               <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="users" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
-              <p>独立访客</p><strong class="kpi-value">—</strong><small>去重访客数</small>
+              <p>独立访客</p><strong class="kpi-value">—</strong><small>按浏览器标识去重，非实际人数</small>
             </article>
             <article class="kpi-card" data-kpi="cumulativeUv">
               <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="user-check" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">累计</span></div>
@@ -145,7 +157,7 @@
             </article>
             <article class="kpi-card" data-kpi="clickThroughRate">
               <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="percent" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
-              <p>点击转化率</p><strong class="kpi-value">—</strong><small>浏览至官网</small>
+              <p>官网点击 / 详情浏览</p><strong class="kpi-value">—</strong><small>官网点击次数 ÷ 详情浏览次数</small>
             </article>
             <article class="kpi-card" data-kpi="pendingSubmissions">
               <div class="kpi-card-head"><span class="kpi-icon amber"><i data-lucide="inbox" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">—</span></div>
@@ -157,12 +169,11 @@
             </article>
             <article class="kpi-card" data-kpi="bounceRate">
               <div class="kpi-card-head"><span class="kpi-icon"><i data-lucide="log-out" aria-hidden="true"></i></span><span class="kpi-trend is-neutral">实时</span></div>
-              <p>单页跳出率</p><strong class="kpi-value">—</strong><small>未产生互动的访问</small>
+              <p>单页无互动占比</p><strong class="kpi-value">—</strong><small>窗口内仅浏览一页且无互动的会话占比</small>
             </article>
           </div>
         </section>
-
-        <section class="panel chart-panel" id="traffic" aria-labelledby="traffic-title">
+<section class="panel chart-panel" id="traffic" aria-labelledby="traffic-title">
           <div class="panel-head">
             <div>
               <p class="eyebrow">TRAFFIC</p>
@@ -182,8 +193,7 @@
             <div class="chart-tooltip" id="chart-tooltip" role="tooltip" hidden></div>
           </div>
         </section>
-
-        <section class="panel page-performance-panel" aria-labelledby="page-performance-title">
+<section class="panel page-performance-panel" aria-labelledby="page-performance-title">
           <div class="panel-head compact">
             <div><p class="eyebrow">PAGES</p><h2 id="page-performance-title">页面访问</h2></div>
             <span class="panel-meta" id="page-performance-meta">—</span>
@@ -196,32 +206,43 @@
             <div class="empty-state" id="page-performance-empty" hidden>当前时间窗口暂无页面访问</div>
           </div>
         </section>
-
-        <section class="content-grid" id="content" aria-label="转化与内容表现">
-          <article class="panel" aria-labelledby="source-stats-title">
+<section class="content-grid section" id="content" aria-labelledby="content-title">
+          <div class="section-heading"><div><p class="eyebrow">CONTENT PERFORMANCE</p><h2 id="content-title">内容表现</h2></div></div>
+          <div class="cms-tabs" role="tablist" aria-label="内容表现分类">
+            <button class="cms-tab is-active" id="content-tab-sources" type="button" role="tab" aria-selected="true" aria-controls="content-panel-sources" data-content-tab="sources" tabindex="0">访问来源</button>
+            <button class="cms-tab" id="content-tab-devices" type="button" role="tab" aria-selected="false" aria-controls="content-panel-devices" data-content-tab="devices" tabindex="-1">终端设备</button>
+            <button class="cms-tab" id="content-tab-funnel" type="button" role="tab" aria-selected="false" aria-controls="content-panel-funnel" data-content-tab="funnel" tabindex="-1">转化漏斗</button>
+            <button class="cms-tab" id="content-tab-tools" type="button" role="tab" aria-selected="false" aria-controls="content-panel-tools" data-content-tab="tools" tabindex="-1">热门工具</button>
+            <button class="cms-tab" id="content-tab-searches" type="button" role="tab" aria-selected="false" aria-controls="content-panel-searches" data-content-tab="searches" tabindex="-1">热门搜索</button>
+            <button class="cms-tab" id="content-tab-gaps" type="button" role="tab" aria-selected="false" aria-controls="content-panel-gaps" data-content-tab="gaps" tabindex="-1">无结果搜索</button>
+            <button class="cms-tab" id="content-tab-categories" type="button" role="tab" aria-selected="false" aria-controls="content-panel-categories" data-content-tab="categories" tabindex="-1">分类关注度</button>
+          </div>
+          <article class="panel" id="content-panel-sources" role="tabpanel" aria-labelledby="content-tab-sources" data-content-panel="sources">
             <div class="panel-head compact">
               <div><p class="eyebrow">SOURCES</p><h2 id="source-stats-title">访问来源分布</h2></div>
-              <span class="panel-meta">PV / UV / 占比</span>
+              <span class="panel-meta">按浏览次数排序</span>
             </div>
+            <p class="analytics-help">来源沿用本次浏览会话首次记录的信息。未提供来源不等于没有推广效果，历史缺失的来源无法补回。</p>
             <div class="search-list" id="source-stats-list"></div>
           </article>
 
-          <article class="panel" aria-labelledby="device-stats-title">
+          <article class="panel" id="content-panel-devices" role="tabpanel" aria-labelledby="content-tab-devices" data-content-panel="devices" hidden>
             <div class="panel-head compact">
               <div><p class="eyebrow">DEVICES</p><h2 id="device-stats-title">终端设备分布</h2></div>
-              <span class="panel-meta">PV / UV / 占比</span>
+              <span class="panel-meta">按浏览次数排序</span>
             </div>
+            <p class="analytics-help">根据浏览器提供的信息估算设备类型，不代表设备品牌或型号。同一个访客可能出现在多个分类中。设备识别修正仅影响新记录，历史分类未重算。</p>
             <div class="search-list" id="device-stats-list"></div>
           </article>
 
-          <article class="panel funnel-panel" aria-labelledby="funnel-title">
+          <article class="panel funnel-panel" id="content-panel-funnel" role="tabpanel" aria-labelledby="content-tab-funnel" data-content-panel="funnel" hidden>
             <div class="panel-head compact">
               <div><p class="eyebrow">FUNNEL</p><h2 id="funnel-title">用户转化漏斗</h2></div>
             </div>
             <div class="funnel" id="funnel-list"></div>
           </article>
 
-          <article class="panel" aria-labelledby="tools-title">
+          <article class="panel" id="content-panel-tools" role="tabpanel" aria-labelledby="content-tab-tools" data-content-panel="tools" hidden>
             <div class="panel-head compact">
               <div><p class="eyebrow">TOOLS</p><h2 id="tools-title">热门工具</h2></div>
               <span class="panel-meta" id="tools-total">—</span>
@@ -229,21 +250,21 @@
             <div class="rank-list" id="top-tools-list"></div>
           </article>
 
-          <article class="panel" aria-labelledby="searches-title">
+          <article class="panel" id="content-panel-searches" role="tabpanel" aria-labelledby="content-tab-searches" data-content-panel="searches" hidden>
             <div class="panel-head compact">
               <div><p class="eyebrow">SEARCH</p><h2 id="searches-title">热门搜索</h2></div>
               <span class="panel-meta" id="searches-total">—</span>
             </div>
             <div class="search-list" id="top-searches-list"></div>
           </article>
-          <article class="panel" aria-labelledby="search-gaps-title">
+          <article class="panel" id="content-panel-gaps" role="tabpanel" aria-labelledby="content-tab-gaps" data-content-panel="gaps" hidden>
             <div class="panel-head compact">
               <div><p class="eyebrow">CONTENT GAPS</p><h2 id="search-gaps-title">无结果搜索</h2></div>
               <span class="panel-meta" id="search-gaps-total">—</span>
             </div>
             <div class="search-list" id="search-gaps-list"></div>
           </article>
-          <article class="panel" aria-labelledby="category-performance-title">
+          <article class="panel" id="content-panel-categories" role="tabpanel" aria-labelledby="content-tab-categories" data-content-panel="categories" hidden>
             <div class="panel-head compact">
               <div><p class="eyebrow">CATEGORIES</p><h2 id="category-performance-title">分类关注度</h2></div>
               <span class="panel-meta" id="category-performance-meta">—</span>
@@ -251,8 +272,7 @@
             <div class="search-list" id="category-performance-list"></div>
           </article>
         </section>
-
-        <section class="monitoring-grid" id="events" aria-label="实时事件与系统健康">
+<section class="monitoring-grid" id="events" aria-label="实时事件与系统健康">
           <article class="panel event-panel" aria-labelledby="events-title">
             <div class="panel-head compact">
               <div><p class="eyebrow">LIVE EVENTS</p><h2 id="events-title">最近事件</h2></div>
@@ -275,8 +295,8 @@
             </dl>
           </article>
         </section>
-
-        <section class="cms-section section" id="cms" aria-labelledby="cms-title">
+<div class="admin-group-heading" aria-label="内容运营"><span>内容运营</span></div>
+<section class="cms-section section" id="cms" aria-labelledby="cms-title">
           <div class="section-heading cms-section-heading">
             <div>
               <p class="eyebrow">CONTENT MANAGEMENT</p>
@@ -362,8 +382,107 @@
             </div>
           </div>
         </section>
+<section class="section panel" id="news-sync-admin" aria-labelledby="news-sync-title"><div class="section-heading"><div><h2 id="news-sync-title">资讯自动更新</h2><p class="section-note">每天搜集AI热点，核对来源后自动发布简短快讯。</p></div></div><p id="news-sync-status" role="status">正在确认管理员权限…</p><div id="news-sync-root"></div></section>
+<section class="section panel" id="skills-admin"><div class="section-heading"><div><h2>Skills管理</h2><p class="section-note">上传或导入Skill，管理公开展示与在线使用。</p></div><div class="creator-admin-actions"><a class="secondary-button" href="/skills" target="_blank" rel="noopener">查看Skills页面</a><button class="secondary-button" id="skills-admin-load" type="button">加载 / 重新加载</button></div></div><p id="skills-admin-status" role="status">正在确认管理员权限…</p><form id="skills-admin-form" class="creator-admin-form" hidden><button id="skills-admin-add" type="button" class="secondary-button">新增 Skill</button><div id="skills-admin-items"></div><button type="submit" class="primary-button">保存并发布 Skills</button></form><h3>在线执行模型</h3><form id="skills-provider-form" class="creator-admin-form" hidden><label>HTTPS 平台地址或 Chat Completions 接口地址<input name="endpoint" type="url" placeholder="https://你的平台/v1/chat/completions"></label><label>模型名称<input name="model" maxlength="120"></label><label>API Key<input name="apiKey" type="password" autocomplete="new-password"><span id="skills-key-hint"></span></label><label>每个账号每日执行次数<input name="dailyLimit" type="number" min="1" max="100" value="10" required></label><label class="creator-editor-check"><input name="enabled" type="checkbox">启用在线执行</label><button type="submit" class="primary-button">保存模型配置</button></form></section>
+<section class="section panel" id="creator-admin" aria-labelledby="creator-admin-title">
+  <div class="section-heading"><div><p class="eyebrow">CREATOR PROFILE</p><h2 id="creator-admin-title">个人主页</h2><p class="section-note">管理公开展示的平台账号、文章、视频与作品。</p></div><div class="creator-admin-actions"><a href="/creator" target="_blank" rel="noopener" class="secondary-button">查看公开主页 ↗</a><button id="creator-admin-load" type="button" class="secondary-button">重新加载</button></div></div>
+  <p id="creator-admin-status" role="status">正在确认管理权限…</p>
+  <form id="creator-admin-form" class="creator-admin-form" hidden>
+    <section class="creator-settings-card"><div class="creator-group-heading"><div><h3>基本资料</h3><p>设置访客第一眼看到的介绍与头像。</p></div><span class="creator-section-number">01</span></div><div class="creator-base-grid">
+      <label>页面名称<input name="title" maxlength="100" required></label><label>首屏主标题<input name="headline" maxlength="150"></label>
+      <label class="creator-field-wide">个人头像链接<input name="portrait" maxlength="2048" placeholder="https://…"><small>可留空，使用默认头像。</small></label>
+      <label class="creator-field-wide">简短介绍<textarea name="bio" maxlength="1000" rows="2"></textarea></label>
+      <label>关于我<textarea name="aboutText" maxlength="3000" rows="5"></textarea></label><label>关于泥壳AI<textarea name="siteText" maxlength="3000" rows="5"></textarea></label>
+    </div></section>
+    <section class="creator-settings-card creator-admin-group"><div class="creator-group-heading"><div><h3>各平台账号 <span id="creator-account-count" class="creator-group-count">0 条</span></h3><p>集中展示你的平台主页，点击条目展开编辑。</p></div><button id="creator-add-account" type="button" class="secondary-button">＋ 新增平台账号</button></div><div id="creator-editor-accounts" class="creator-editor-list"></div></section>
+    <section class="creator-settings-card creator-admin-group"><div class="creator-group-heading"><div><h3>文章、视频与作品 <span id="creator-content-count" class="creator-group-count">0 条</span></h3><p>已有内容默认收起，新增内容自动展开。</p></div><button id="creator-add-content" type="button" class="secondary-button">＋ 新增内容</button></div><div id="creator-editor-contents" class="creator-editor-list"></div></section>
+    <div class="creator-save-bar"><div><strong>编辑完成后发布更新</strong><p id="creator-save-note">隐藏或删除的条目，保存后不再公开展示。</p></div><button type="submit" class="primary-button">保存并发布</button></div>
+  </form>
+</section>
+<section class="panel review-panel" id="reviews" aria-labelledby="reviews-title">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">REVIEW QUEUE</p>
+              <h2 id="reviews-title">投稿审核队列</h2>
+            </div>
+            <span class="security-label"><i data-lucide="shield-check" aria-hidden="true"></i>敏感数据保护</span>
+          </div>
 
-        <section class="section image-model-section" id="image-models" aria-labelledby="image-models-title">
+          <div class="review-lock" id="review-lock">
+            <span class="lock-icon"><i data-lucide="lock-keyhole" aria-hidden="true"></i></span>
+            <div class="lock-copy">
+              <h3>输入管理令牌后查看投稿</h3>
+              <p>实时监控为本机只读，投稿联系方式与审核操作需 Bearer Token。令牌仅保存在当前页面内存中。</p>
+            </div>
+            <form class="token-form" id="token-form">
+              <label for="admin-token">管理员 Bearer Token</label>
+              <div class="token-input-wrap">
+                <i data-lucide="key-round" aria-hidden="true"></i>
+                <input id="admin-token" name="token" type="password" autocomplete="off" required placeholder="输入 NIKE_ADMIN_TOKEN">
+                <button class="reveal-button" id="reveal-token" type="button" aria-label="显示令牌" title="显示令牌"><i data-lucide="eye" aria-hidden="true"></i></button>
+              </div>
+              <button class="primary-button" type="submit"><i data-lucide="unlock-keyhole" aria-hidden="true"></i>解锁审核队列</button>
+              <p class="form-error" id="token-error" role="alert" hidden></p>
+            </form>
+          </div>
+
+          <div class="review-workspace" id="review-workspace" hidden>
+            <div class="review-toolbar">
+              <div>
+                <strong id="review-count">0 条待审</strong>
+                <span id="review-sync">尚未同步</span>
+              </div>
+              <div class="toolbar-actions">
+                <button class="secondary-button" id="review-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新</button>
+                <button class="secondary-button" id="review-lock-button" type="button"><i data-lucide="lock" aria-hidden="true"></i>锁定</button>
+              </div>
+            </div>
+            <div class="review-table-wrap">
+              <table class="review-table">
+                <caption class="sr-only">待审核工具投稿</caption>
+                <thead><tr><th scope="col">工具</th><th scope="col">联系方式</th><th scope="col">提交时间</th><th scope="col">来源</th><th scope="col">操作</th></tr></thead>
+                <tbody id="review-table-body"></tbody>
+              </table>
+              <div class="table-empty" id="review-empty" hidden>
+                <i data-lucide="circle-check-big" aria-hidden="true"></i><strong>待审队列已清空</strong><span>新投稿会在这里出现</span>
+              </div>
+            </div>
+          </div>
+        </section>
+<section class="section newsletter-panel" id="newsletter-admin" aria-labelledby="newsletter-admin-title">
+  <div class="section-heading newsletter-heading">
+    <div><p class="eyebrow">NEWSLETTER</p><h2 id="newsletter-admin-title">周报订阅</h2><p class="section-note">管理订阅邮箱与账号关联，周报每周一发送。</p></div>
+    <button class="secondary-button" id="newsletter-refresh" type="button">刷新名单</button>
+  </div>
+  <div class="newsletter-stats" id="newsletter-counts" aria-label="订阅概况">
+    <div class="newsletter-stat"><span>全部订阅记录</span><strong data-newsletter-count="total">—</strong><small>累计记录</small></div>
+    <div class="newsletter-stat newsletter-stat-active"><span><i></i>已订阅</span><strong data-newsletter-count="active">—</strong><small>正常接收周报</small></div>
+    <div class="newsletter-stat"><span><i></i>已退订</span><strong data-newsletter-count="unsubscribed">—</strong><small>用户主动退订</small></div>
+    <div class="newsletter-stat newsletter-stat-suppressed"><span><i></i>已停发</span><strong data-newsletter-count="suppressed">—</strong><small>当前不再发送</small></div>
+  </div>
+  <div class="newsletter-list">
+    <form class="newsletter-filters" id="newsletter-search-form">
+      <label class="newsletter-search" for="newsletter-query"><span>邮箱搜索</span><input id="newsletter-query" type="search" maxlength="254" placeholder="输入邮箱或部分地址" autocomplete="off"></label>
+      <label class="newsletter-select" for="newsletter-status"><span>订阅状态</span><select id="newsletter-status"><option value="all">全部状态</option><option value="active">已订阅</option><option value="unsubscribed">已退订</option><option value="suppressed">已停发</option></select></label>
+      <button class="primary-button newsletter-query-button" type="submit">查询名单</button>
+    </form>
+    <div class="newsletter-list-heading"><h3>订阅名单</h3><p id="newsletter-message" role="status" aria-live="polite">正在加载订阅名单…</p></div>
+    <div class="newsletter-table-wrap"><table class="review-table newsletter-table"><caption class="sr-only">周报订阅邮箱名单</caption><thead><tr><th scope="col">订阅邮箱</th><th scope="col">关联账号</th><th scope="col">状态</th><th scope="col">订阅时间</th><th scope="col">最近发送</th><th scope="col">订阅来源</th></tr></thead><tbody id="newsletter-table-body"></tbody></table></div>
+    <div class="newsletter-footer"><p>最近发送：邮件服务已接收，不代表用户已阅读。</p><nav class="newsletter-pagination" aria-label="订阅名单分页"><span id="newsletter-page"></span><button class="secondary-button" id="newsletter-prev" type="button" disabled>上一页</button><button class="secondary-button" id="newsletter-next" type="button" disabled>下一页</button></nav></div>
+  </div>
+</section>
+<section class="section" id="feedback" aria-labelledby="feedback-title">
+          <div class="section-heading">
+            <div><p class="eyebrow">USER FEEDBACK</p><h2 id="feedback-title">问题反馈</h2></div>
+            <div class="toolbar-actions"><select id="feedback-status-filter" aria-label="反馈状态"><option value="all">全部</option><option value="pending">已收到</option><option value="reviewed">审核中</option><option value="resolved">已处理</option><option value="replied">已回复</option><option value="archived">已归档</option></select><button class="secondary-button" id="feedback-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新</button></div>
+          </div>
+          <div class="panel"><div class="review-table-wrap"><table class="review-table"><thead><tr><th>反馈类型</th><th>具体内容</th><th>联系邮箱</th><th>提交页面</th><th>提交时间</th><th>处理状态</th><th>操作</th></tr></thead><tbody id="feedback-table-body"></tbody></table><div class="table-empty" id="feedback-empty" hidden><i data-lucide="message-square-off"></i><strong>暂无反馈</strong></div></div></div>
+        </section>
+<div class="admin-group-heading" aria-label="充值与积分"><span>充值与积分</span></div>
+<section class="section panel" id="recharge-admin"><div class="section-heading"><div><h2>充值审核</h2><p class="section-note">管理个人收款码与人工充值订单</p></div><button type="button" data-recharge-load>读取 / 刷新</button></div><p class="recharge-admin-note">付款凭证仅供辅助核对。通过审核前，务必在实际收款账户确认已收到对应金额；审核通过即直接到账或发放单次兑换码。</p><form data-recharge-config class="recharge-admin-config" hidden><div data-recharge-channels class="recharge-admin-channels"></div><label>预计审核时长（小时）<input name="reviewHours" type="number" min="1" max="168" step="1" required></label><label>用户充值说明<textarea name="notice" maxlength="1000" rows="3"></textarea></label><button type="submit">保存充值渠道配置</button></form><p role="status" aria-live="polite"></p><div class="recharge-admin-tabs" role="tablist" aria-label="充值审核状态"><button type="button" data-recharge-tab="pending" role="tab" aria-selected="true">待审核</button><button type="button" data-recharge-tab="approved" role="tab" aria-selected="false">已完成</button><button type="button" data-recharge-tab="rejected" role="tab" aria-selected="false">已驳回</button></div><div data-recharge-orders></div></section>
+<section id="credits-admin" class="section panel credits-card"><div class="section-heading"><div><h2>积分管理</h2><p class="section-note">管理积分价格、充值套餐与兑换码。</p></div><button data-load type="button" class="secondary-button">读取 / 刷新配置</button></div><p role="status" aria-live="polite"></p><form data-config hidden><div class="credits-grid" data-fields></div><h3>模型每张积分价格</h3><div class="credits-grid" data-models></div><h3>首购优惠</h3><div class="credits-grid" data-first-purchase></div><h3>充值套餐（原价）</h3><div data-packages></div><button data-add-package type="button">添加套餐</button><button>保存积分配置</button></form><h3>直接派发积分</h3><p class="credits-muted">查找已有账户，核对身份后派发。提交成功后立即到账，并记录操作人和备注。</p><form data-grant-lookup><div class="credits-grid"><label>完整邮箱或账户 ID<input name="query" required maxlength="191" autocomplete="off"></label></div><button type="submit">查找账户</button></form><p data-grant-account aria-live="polite">请先查找并核对收款账户。</p><form data-grant hidden><div class="credits-grid"><label>派发积分<input name="credits" type="number" min="1" max="1000000000" step="1" required></label><label>派发备注<input name="reason" maxlength="200" required></label></div><button type="submit">确认派发积分</button></form><h3>最近派发记录</h3><div data-grants></div><h3>创建兑换码</h3><form data-create><div class="credits-grid"><label>每码积分<input name="credits" type="number" min="1" step="1" value="600" required></label><label>数量<input name="count" type="number" min="1" max="100" value="1" step="1" required></label><label>备注<input name="label" maxlength="100"></label><label>到期时间（可选）<input name="expiresAt" type="datetime-local"></label></div><button>生成兑换码</button></form><textarea data-raw-codes readonly hidden aria-label="仅本次可见的兑换码"></textarea><button data-clear type="button">清除本次兑换码显示</button><h3>兑换码记录</h3><div data-codes></div><h3>待核对生图任务</h3><p class="credits-muted">请核实上游实际生成结果，再填写成功张数结算。</p><div data-pending></div></section>
+<div class="admin-group-heading" aria-label="系统配置"><span>系统配置</span></div>
+<section class="section image-model-section" id="image-models" aria-labelledby="image-models-title">
           <div class="section-heading">
             <div>
               <p class="eyebrow">IMAGE GENERATION</p>
@@ -415,8 +534,32 @@
             </div>
           </div>
         </section>
-
-        <section class="section" id="users" aria-labelledby="users-title" hidden>
+<section class="section panel provider-settings-panel" id="assistant-admin" aria-labelledby="assistant-admin-title">
+  <div class="section-heading assistant-admin-heading">
+    <div class="assistant-admin-intro"><span class="assistant-admin-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="13" rx="4"/><path d="M12 7V3M2 12v4m20-4v4M9 16h6"/><circle cx="9" cy="12" r=".8" fill="currentColor"/><circle cx="15" cy="12" r=".8" fill="currentColor"/></svg></span><div><h2 id="assistant-admin-title">小助手配置</h2><p class="section-note">管理紫色机器人，让它成为访客的 AI 工具探索伙伴。</p></div></div>
+    <button type="button" class="secondary-button provider-settings-reload" id="assistant-admin-load"><i data-lucide="refresh-cw" aria-hidden="true"></i>重新加载</button>
+  </div>
+  <p class="provider-settings-status" id="assistant-admin-status" role="status">正在确认管理权限…</p>
+  <form class="creator-admin-form assistant-provider-form" id="assistant-provider-form" hidden>
+    <div class="assistant-settings-grid">
+      <fieldset class="assistant-settings-card"><legend>基础设置</legend><p class="assistant-settings-note">设置见面问候和每天的使用次数。</p>
+        <label>欢迎语<textarea name="welcome" rows="5" maxlength="500" required></textarea><span class="assistant-field-note">访客打开聊天面板时看到的第一句话。</span></label>
+        <label>每个账号每日次数<div class="assistant-limit-input"><input name="dailyLimit" type="number" min="1" step="1" required><span>次 / 天</span></div><span class="assistant-field-note">登录后使用，每日次数由你设置，填写正整数；保存后立即生效。</span></label>
+        <label class="assistant-enable"><span><strong>启用聊天</strong><small>配置完成后，让小助手开始回答。</small></span><input name="enabled" type="checkbox" role="switch"></label>
+      </fieldset>
+      <fieldset class="assistant-settings-card"><legend>模型接入</legend><p class="assistant-settings-note">连接你的小助手专用模型。</p>
+        <label>HTTPS 模型接口地址<input name="endpoint" type="url" placeholder="https://你的平台/v1/chat/completions"><span class="assistant-field-note">支持根地址、带前缀的 /v1 或完整 Chat Completions 地址；保留服务商路径。</span></label>
+        <label>模型名称<input name="model" maxlength="120" placeholder="获取列表后选择模型"></label>
+        <label>API Key<input name="apiKey" type="password" autocomplete="new-password" placeholder="填写密钥；留空保留已保存的密钥"><span id="assistant-key-hint" class="assistant-field-note">留空保留现有密钥</span></label>
+        <label class="assistant-clear-key"><input name="clearKey" type="checkbox"><span>清除现有密钥<small>请先关闭聊天，再保存配置。</small></span></label>
+      </fieldset>
+    </div>
+    <div class="assistant-settings-footer"><span><i data-lucide="shield-check" aria-hidden="true"></i>密钥加密保存，不会在前台显示。</span><div class="assistant-save-area"><p class="provider-settings-feedback" id="assistant-save-status" role="status" aria-live="polite" aria-atomic="true"></p><button type="submit" class="primary-button">保存小助手配置</button></div></div>
+  </form>
+</section>
+<section class="section panel provider-settings-panel" id="explainer-admin" aria-labelledby="explainer-admin-title"></section>
+<section class="section panel provider-settings-panel" id="nestdutio-admin" aria-labelledby="nestdutio-admin-title"></section>
+<section class="section" id="users" aria-labelledby="users-title" hidden>
           <div class="section-heading">
             <div><p class="eyebrow">ACCESS CONTROL</p><h2 id="users-title">账号与管理员权限</h2></div>
             <button class="secondary-button" id="users-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新</button>
@@ -424,74 +567,15 @@
           <div class="panel">
             <div class="review-table-wrap">
               <table class="review-table">
-                <thead><tr><th>账号</th><th>角色</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead>
+                <thead><tr><th>账号</th><th>积分</th><th>角色</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead>
                 <tbody id="users-table-body"></tbody>
               </table>
               <div class="table-empty" id="users-empty" hidden><i data-lucide="users"></i><strong>暂无账号</strong></div>
             </div>
           </div>
         </section>
-
-        <section class="section" id="feedback" aria-labelledby="feedback-title">
-          <div class="section-heading">
-            <div><p class="eyebrow">USER FEEDBACK</p><h2 id="feedback-title">问题反馈</h2></div>
-            <div class="toolbar-actions"><select id="feedback-status-filter" aria-label="反馈状态"><option value="all">全部</option><option value="pending">已收到</option><option value="reviewed">审核中</option><option value="resolved">已处理</option><option value="replied">已回复</option><option value="archived">已归档</option></select><button class="secondary-button" id="feedback-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新</button></div>
-          </div>
-          <div class="panel"><div class="review-table-wrap"><table class="review-table"><thead><tr><th>反馈类型</th><th>具体内容</th><th>联系邮箱</th><th>提交页面</th><th>提交时间</th><th>处理状态</th><th>操作</th></tr></thead><tbody id="feedback-table-body"></tbody></table><div class="table-empty" id="feedback-empty" hidden><i data-lucide="message-square-off"></i><strong>暂无反馈</strong></div></div></div>
-        </section>
-
-        <section class="panel review-panel" id="reviews" aria-labelledby="reviews-title">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">REVIEW QUEUE</p>
-              <h2 id="reviews-title">投稿审核队列</h2>
-            </div>
-            <span class="security-label"><i data-lucide="shield-check" aria-hidden="true"></i>敏感数据保护</span>
-          </div>
-
-          <div class="review-lock" id="review-lock">
-            <span class="lock-icon"><i data-lucide="lock-keyhole" aria-hidden="true"></i></span>
-            <div class="lock-copy">
-              <h3>输入管理令牌后查看投稿</h3>
-              <p>实时监控为本机只读，投稿联系方式与审核操作需 Bearer Token。令牌仅保存在当前页面内存中。</p>
-            </div>
-            <form class="token-form" id="token-form">
-              <label for="admin-token">管理员 Bearer Token</label>
-              <div class="token-input-wrap">
-                <i data-lucide="key-round" aria-hidden="true"></i>
-                <input id="admin-token" name="token" type="password" autocomplete="off" required placeholder="输入 NIKE_ADMIN_TOKEN">
-                <button class="reveal-button" id="reveal-token" type="button" aria-label="显示令牌" title="显示令牌"><i data-lucide="eye" aria-hidden="true"></i></button>
-              </div>
-              <button class="primary-button" type="submit"><i data-lucide="unlock-keyhole" aria-hidden="true"></i>解锁审核队列</button>
-              <p class="form-error" id="token-error" role="alert" hidden></p>
-            </form>
-          </div>
-
-          <div class="review-workspace" id="review-workspace" hidden>
-            <div class="review-toolbar">
-              <div>
-                <strong id="review-count">0 条待审</strong>
-                <span id="review-sync">尚未同步</span>
-              </div>
-              <div class="toolbar-actions">
-                <button class="secondary-button" id="review-refresh" type="button"><i data-lucide="refresh-cw" aria-hidden="true"></i>刷新</button>
-                <button class="secondary-button" id="review-lock-button" type="button"><i data-lucide="lock" aria-hidden="true"></i>锁定</button>
-              </div>
-            </div>
-            <div class="review-table-wrap">
-              <table class="review-table">
-                <caption class="sr-only">待审核工具投稿</caption>
-                <thead><tr><th scope="col">工具</th><th scope="col">联系方式</th><th scope="col">提交时间</th><th scope="col">来源</th><th scope="col">操作</th></tr></thead>
-                <tbody id="review-table-body"></tbody>
-              </table>
-              <div class="table-empty" id="review-empty" hidden>
-                <i data-lucide="circle-check-big" aria-hidden="true"></i><strong>待审队列已清空</strong><span>新投稿会在这里出现</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
+</div>
+</main>
   </div>
 
   <dialog class="review-dialog" id="review-dialog" aria-labelledby="dialog-title">
@@ -548,6 +632,9 @@
           <label class="image-form-field"><span>接口地址</span><input id="image-provider-base-url" name="baseUrl" type="url" required maxlength="500" autocomplete="url" placeholder="https://api.example.com"></label>
           <label class="image-form-field"><span>生成路径</span><input id="image-provider-generation-path" name="generationPath" maxlength="200" autocomplete="off" value="/v1/images/generations" placeholder="/v1/images/generations"></label>
           <label class="image-form-field"><span>参考图编辑路径</span><input id="image-provider-edit-path" name="editPath" maxlength="200" autocomplete="off" value="/v1/images/edits" placeholder="/v1/images/edits"><small>OpenAI 兼容平台通常使用此路径；留空可关闭该平台的参考图功能。</small></label>
+          <label class="image-form-field"><span>余额查询路径</span><input id="image-provider-balance-path" name="balancePath" maxlength="512" autocomplete="off" placeholder="例如 /api/user/self"><small>按平台文档填写站内路径；余额接口因平台而异，留空表示不支持查询。</small></label>
+          <label class="image-form-field"><span>JSON 余额字段</span><input id="image-provider-balance-value-field" name="balanceValueField" maxlength="512" autocomplete="off" value="balance" placeholder="例如 data.balance.remaining"><small>使用点号分隔字段，例如 data.balance。</small></label>
+          <label class="image-form-field"><span>JSON 币种字段（可选）</span><input id="image-provider-balance-currency-field" name="balanceCurrencyField" maxlength="512" autocomplete="off" placeholder="例如 data.currency"></label>
           <label class="image-form-field"><span>超时（毫秒）</span><input id="image-provider-timeout" name="timeoutMs" type="number" min="10000" max="180000" step="1000" value="180000"></label>
         </div>
         <div class="image-key-panel">

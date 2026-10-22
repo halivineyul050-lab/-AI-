@@ -1,4 +1,6 @@
-const savedTheme = localStorage.getItem("nike-theme");
+const safeLocalStorage = window.nikaiStorage.local;
+const safeSessionStorage = window.nikaiStorage.session;
+const savedTheme = safeLocalStorage.getItem("nike-theme");
 if (savedTheme === "dark" || savedTheme === "light") document.documentElement.dataset.theme = savedTheme;
 
 const categories = [
@@ -743,6 +745,7 @@ const newsItems = [
 ];
 
 const articleMap = Object.fromEntries([...tutorials, ...newsItems].map((article) => [article.id, article]));
+let newsHotItems = [];
 
 const collections = [
   {
@@ -776,12 +779,12 @@ const state = {
   language: "all",
   sort: "recommended",
   favoritesOnly: false,
-  layout: localStorage.getItem("nike-layout") || "grid",
+  layout: safeLocalStorage.getItem("nike-layout") || "grid",
   favorites: new Set(readLocalArray("nike-favorites")),
   topics: new Set(readLocalArray("nike-topics")),
   compare: new Set(),
   activeView: "tools",
-  toolLimit: 24,
+  toolLimit: 10,
   toolTotal: tools.filter((tool) => !tool.sponsored).length,
   toolHasMore: false,
   toolLoading: false,
@@ -866,6 +869,9 @@ let toastTimer = null;
 let adImpressionObserver = null;
 let adImpressionTimer = null;
 let contentRevision = null;
+let newsTotal = 0;
+let newsLoading = false;
+let newsRefreshing = false;
 let contentPollTimer = null;
 let currentPageViewStartedAt = Date.now();
 
@@ -902,10 +908,10 @@ async function apiRequest(path, options = {}, timeout = 8000) {
   }
 }
 
-async function loadBackendData() {
+async function loadBackendData({ preserveOnFailure = false } = {}) {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
-      const payload = await apiRequest("/api/v1/site/bootstrap", {}, 5000);
+      const payload = await apiRequest(`/api/v1/site/bootstrap?newsLimit=${Math.max(60, Math.min(newsItems.length, 1000))}`, {}, 5000);
       const data = payload.data;
       const valid = data
         && Array.isArray(data.categories)
@@ -917,6 +923,7 @@ async function loadBackendData() {
       sponsoredTool = data.sponsor || null;
       tutorials.splice(0, tutorials.length, ...data.tutorials);
       newsItems.splice(0, newsItems.length, ...data.newsItems);
+      newsTotal = Number(data.newsMeta?.total ?? data.newsItems.length);
       collections.splice(0, collections.length, ...data.collections);
       rebuildDataMaps();
       const schema = document.getElementById("tool-list-schema");
@@ -931,13 +938,18 @@ async function loadBackendData() {
       }
       backendAvailable = true;
       document.documentElement.dataset.backend = "connected";
-      return;
+      return true;
     } catch {
       if (attempt === 0) await new Promise((resolve) => window.setTimeout(resolve, 350));
     }
   }
+  if (preserveOnFailure && backendAvailable) {
+    document.documentElement.dataset.backend = "stale";
+    return false;
+  }
   backendAvailable = false;
   document.documentElement.dataset.backend = "fallback";
+  return false;
 }
 
 function buildToolQuery(offset = 0, limit = state.toolLimit) {
@@ -1087,23 +1099,72 @@ async function loadCollectionTools() {
   });
 }
 
+function captureNewsPosition() {
+  if (state.activeView !== "news" || document.body.classList.contains("is-locked")) return null;
+  const nodes = [...document.querySelectorAll("#news-list [data-article-id]")];
+  const node = nodes.find((entry) => entry.getBoundingClientRect().bottom > 80);
+  return node ? { id: node.dataset.articleId, top: node.getBoundingClientRect().top } : null;
+}
+function restoreNewsPosition(position) {
+  if (!position || state.activeView !== "news") return;
+  const node = [...document.querySelectorAll("#news-list [data-article-id]")].find((entry) => entry.dataset.articleId === position.id);
+  if (node) window.scrollBy({ top: node.getBoundingClientRect().top - position.top, behavior: "instant" });
+}
+async function refreshNewsSyncStatus() {
+  try {
+    const payload = await apiRequest("/api/v1/news/status", {}, 3000);
+    const time = payload.data?.lastSuccessAt;
+    const label = time ? `最近同步 ${new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit" }).format(new Date(time))}` : "";
+    for (const id of ["home-news-sync-time", "news-sync-time"]) {
+      const node = document.getElementById(id);
+      if (node) { node.textContent = label; node.hidden = !label; }
+    }
+  } catch { /* 已展示的资讯不受状态接口失败影响。 */ }
+}
+async function loadMoreNews() {
+  if (newsLoading || newsRefreshing || !backendAvailable) return;
+  newsLoading = true; filterMergedContent();
+  try {
+    const payload = await apiRequest(`/api/v1/news?offset=${newsItems.length}&limit=60`);
+    if (!Array.isArray(payload.data)) throw new Error("资讯格式无效");
+    const ids = new Set(newsItems.map((item) => item.id));
+    newsItems.push(...payload.data.filter((item) => !ids.has(item.id)));
+    newsTotal = Number(payload.meta?.total ?? newsItems.length);
+    rebuildDataMaps(); filterMergedContent();
+  } catch { showToast("更多资讯加载失败，请重试"); }
+  finally { newsLoading = false; filterMergedContent(); }
+}
 async function refreshPublishedContent() {
-  await loadBackendData();
-  if (!backendAvailable) return;
-  if (!categoryMap[state.category]) state.category = "all";
-  await Promise.all([loadToolResults(), loadRankingTools(), loadGrowthData()]);
-  await loadCollectionTools();
-  renderNavigation();
-  renderSponsor();
-  renderTools();
-  renderCollections();
-  renderContentViews();
-  renderDecisionModules();
+  if (newsRefreshing || newsLoading) return false;
+  newsRefreshing = true;
+  const newsPosition = captureNewsPosition();
+  const previousNewsCount = newsItems.length;
+  try {
+    if (!await loadBackendData({ preserveOnFailure: true })) return false;
+    if (!backendAvailable) return false;
+    // Keep the entire range the visitor already loaded, including beyond 1,000.
+    while (newsItems.length < Math.min(previousNewsCount, newsTotal)) {
+      const payload = await apiRequest(`/api/v1/news?offset=${newsItems.length}&limit=60`);
+      if (!Array.isArray(payload.data) || !payload.data.length) break;
+      newsItems.push(...payload.data);
+    }
+    rebuildDataMaps();
+    if (!categoryMap[state.category]) state.category = "all";
+    const [toolsLoaded] = await Promise.all([loadToolResults(), loadRankingTools(), loadGrowthData()]);
+    if (!toolsLoaded) return false;
+    await loadCollectionTools();
+    renderNavigation(); renderSponsor(); renderTools(); renderCollections();
+    renderContentViews(); renderDecisionModules();
+    restoreNewsPosition(newsPosition);
+    return true;
+  } catch { return false; }
+  finally { newsRefreshing = false; const button = document.getElementById("news-load-more"); if (button) button.disabled = newsLoading; }
 }
 
 async function checkContentRevision({ announce = true } = {}) {
   if (!backendAvailable || document.hidden) return;
   try {
+    void refreshNewsSyncStatus();
     const payload = await apiRequest("/api/v1/content/version", {}, 5000);
     const nextRevision = Number(payload.data?.revision);
     if (!Number.isInteger(nextRevision) || nextRevision < 1) return;
@@ -1112,8 +1173,8 @@ async function checkContentRevision({ announce = true } = {}) {
       return;
     }
     if (nextRevision === contentRevision) return;
+    if (!await refreshPublishedContent()) return;
     contentRevision = nextRevision;
-    await refreshPublishedContent();
     if (announce) showToast("内容已更新");
   } catch {
     // Content polling must never interrupt normal browsing.
@@ -1127,7 +1188,7 @@ function startContentPolling() {
 
 function readLocalArray(key) {
   try {
-    const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+    const parsed = JSON.parse(safeLocalStorage.getItem(key) || "[]");
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
@@ -1135,7 +1196,7 @@ function readLocalArray(key) {
 }
 
 function saveLocalArray(key, values) {
-  localStorage.setItem(key, JSON.stringify([...values]));
+  safeLocalStorage.setItem(key, JSON.stringify([...values]));
 }
 
 function escapeHTML(value) {
@@ -1197,8 +1258,8 @@ function deviceType() {
   const platform = navigator.platform || "";
   const touch = navigator.maxTouchPoints || 0;
   if (/ipad|tablet|playbook|silk/i.test(ua) || (platform === "MacIntel" && touch > 1)) return "tablet";
-  if (/mobile|iphone|ipod|android.*mobile|windows phone|micromessenger|wxwork/i.test(ua)) return "mobile";
-  if (/android/i.test(ua) && touch > 1) return "tablet";
+  if (/mobile|iphone|ipod|android.*mobile|windows phone/i.test(ua)) return "mobile";
+  if (/android/i.test(ua)) return "tablet";
   if (/windows|macintosh|linux|x11/i.test(ua)) return "desktop";
   return "unknown";
 }
@@ -1224,11 +1285,11 @@ function classifyReferrer() {
 function getSessionAttribution() {
   const key = "nike-session-attribution";
   try {
-    const cached = JSON.parse(sessionStorage.getItem(key) || "null");
+    const cached = JSON.parse(safeSessionStorage.getItem(key) || "null");
     if (cached && typeof cached === "object" && cached.source_type) return cached;
   } catch {}
   const attribution = classifyReferrer();
-  try { sessionStorage.setItem(key, JSON.stringify(attribution)); } catch {}
+  try { safeSessionStorage.setItem(key, JSON.stringify(attribution)); } catch {}
   return attribution;
 }
 
@@ -1294,10 +1355,10 @@ function trackPageEngagement() {
 }
 
 function getSessionId() {
-  let id = sessionStorage.getItem("nike-session");
+  let id = safeSessionStorage.getItem("nike-session");
   if (!id) {
     id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    sessionStorage.setItem("nike-session", id);
+    safeSessionStorage.setItem("nike-session", id);
   }
   try {
     const secure = location.protocol === "https:" ? "; Secure" : "";
@@ -1309,10 +1370,10 @@ function getSessionId() {
 }
 
 function getVisitorId() {
-  let id = localStorage.getItem("nike-visitor");
+  let id = safeLocalStorage.getItem("nike-visitor");
   if (!id) {
     id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    localStorage.setItem("nike-visitor", id);
+    safeLocalStorage.setItem("nike-visitor", id);
   }
   return id;
 }
@@ -1371,6 +1432,25 @@ function showToast(message, action = null) {
   toastTimer = setTimeout(() => toast.classList.remove("is-visible"), action ? 5000 : 2600);
 }
 
+let taskTabsExpanded = false;
+const primaryTaskCategoryIds = new Set(["all", "chat", "writing", "image", "video", "comic"]);
+
+function renderTaskTabs() {
+  const tabs = document.getElementById("task-tabs");
+  const extraCategories = categories.filter((category) => !primaryTaskCategoryIds.has(category.id));
+  const visibleCategories = taskTabsExpanded
+    ? categories
+    : categories.filter((category) => primaryTaskCategoryIds.has(category.id));
+  const extraSelected = extraCategories.some((category) => category.id === state.category);
+  tabs.innerHTML = visibleCategories.map((category) => `
+    <button class="task-tab ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${escapeHTML(category.id)}">
+      <i data-lucide="${escapeHTML(safeIconName(category.icon, "shapes"))}"></i><span>${escapeHTML(category.name)}</span>
+    </button>`).join("") + (extraCategories.length ? `
+    <button class="task-tab task-tab-more ${extraSelected && !taskTabsExpanded ? "is-active" : ""}" type="button" data-task-tabs-toggle aria-expanded="${taskTabsExpanded}">
+      <i data-lucide="${taskTabsExpanded ? "chevron-up" : "chevron-down"}"></i><span>${taskTabsExpanded ? "收起分类" : "更多分类"}</span>
+    </button>` : "");
+}
+
 function renderNavigation() {
   const naturalTools = tools.filter((tool) => !tool.sponsored);
   const allCount = categories.find((category) => category.id === "all")?.toolCount ?? naturalTools.length;
@@ -1389,10 +1469,7 @@ function renderNavigation() {
       </button>`;
   }).join("");
 
-  document.getElementById("task-tabs").innerHTML = categories.map((category) => `
-    <button class="task-tab ${state.category === category.id ? "is-active" : ""}" type="button" data-category="${escapeHTML(category.id)}">
-      <i data-lucide="${escapeHTML(safeIconName(category.icon, "shapes"))}"></i><span>${escapeHTML(category.name)}</span>
-    </button>`).join("");
+  renderTaskTabs();
 
   const dropdown = document.getElementById("nav-category-dropdown");
   if (dropdown) {
@@ -1442,23 +1519,23 @@ function renderFeaturedCard(tool) {
   const isCompared = state.compare.has(tool.id);
   const categoryName = categoryMap[tool.category]?.name || "未分类";
   return `
-    <article class="featured-tool-card${tool.sponsored ? " is-sponsored" : ""}" tabindex="0" data-clickable="true" data-tool-id="${tool.id}" aria-label="查看 ${escapeHTML(tool.name)} 详情，按 Enter 打开">
-      <div class="featured-tool-main" data-tool-id="${tool.id}">
+    <article class="featured-tool-card${tool.sponsored ? " is-sponsored" : ""}">
+      <button class="featured-tool-main" type="button" data-tool-id="${escapeHTML(tool.id)}" aria-label="查看 ${escapeHTML(tool.name)} 详情">
         <div class="featured-logo">${logoMarkup(tool)}</div>
         <h3 class="featured-tool-name">${escapeHTML(tool.name)}${tool.sponsored ? '<span class="sponsored-tag">推广</span>' : ""}</h3>
         <p class="featured-tool-desc">${escapeHTML(tool.summary)}</p>
         <span class="featured-tool-category">${escapeHTML(categoryName)} · ${priceLabels[tool.price]}</span>
-      </div>
+      </button>
       <div class="featured-tool-footer">
         <div class="featured-tool-actions">
-          <button class="icon-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${tool.id}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" aria-pressed="${isFavorite}" title="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}">
+          <button class="icon-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${escapeHTML(tool.id)}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" aria-pressed="${isFavorite}" title="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}">
             <i data-lucide="bookmark"></i>
           </button>
-          <button class="icon-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${tool.id}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" aria-pressed="${isCompared}" title="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}">
+          <button class="icon-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${escapeHTML(tool.id)}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" aria-pressed="${isCompared}" title="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}">
             <i data-lucide="columns-3"></i>
           </button>
         </div>
-        <a class="featured-go-link" href="${officialToolHref(tool, "home_featured")}" target="_blank" rel="noopener noreferrer nofollow${tool.sponsored ? " sponsored" : ""}" data-go-link="${tool.id}" aria-label="访问${escapeHTML(tool.name)}官网" title="${escapeHTML(tool.name)}官网">
+        <a class="featured-go-link" href="${officialToolHref(tool, "home_featured")}" target="_blank" rel="noopener noreferrer nofollow${tool.sponsored ? " sponsored" : ""}" data-go-link="${escapeHTML(tool.id)}" aria-label="访问${escapeHTML(tool.name)}官网" title="${escapeHTML(tool.name)}官网">
           <i data-lucide="external-link"></i>
         </a>
       </div>
@@ -1471,7 +1548,7 @@ function renderHomeSections() {
   const categoryTotalElement = document.getElementById("hero-category-total");
   if (categoryTotalElement) categoryTotalElement.textContent = String(categories.filter((category) => category.id !== "all").length);
 
-  const hotwords = ["视频生成", "AI 漫剧", "写代码", "做 PPT", "AI 绘画", "写作", "免费"];
+  const hotwords = ["AI 绘画", "AI 写作", "视频生成", "PPT 生成", "AI 编程", "智能体", "AI 漫剧"];
   const hotwordGrid = document.getElementById("hero-hotwords");
   if (hotwordGrid) {
     hotwordGrid.innerHTML = hotwords.map((word) => `<button class="hero-hotword" type="button" data-hotword="${escapeHTML(word)}">${escapeHTML(word)}</button>`).join("");
@@ -1667,21 +1744,21 @@ function renderToolCard(tool, rank) {
   ).join("");
 
   return `
-    <article class="tool-card${state.animateCards ? " card-enter" : ""}" style="--card-accent:${categoryAccentColors[tool.category] || "#2563eb"}; --i:${rank}" tabindex="0" aria-label="查看 ${escapeHTML(tool.name)} 详情，按 Enter 打开" data-clickable="true" data-tool-id="${tool.id}">
+    <article class="tool-card${state.animateCards ? " card-enter" : ""}" style="--card-accent:${categoryAccentColors[tool.category] || "#2563eb"}; --i:${rank}" data-tool-id="${escapeHTML(tool.id)}">
       <div class="tool-card-header">
         ${logoMarkup(tool)}
         <div class="tool-name-block">
           <div class="tool-name-line">
             <h2>${escapeHTML(tool.name)}</h2>
-            <span class="verified-dot" title="资料更新于 ${tool.updated}"><i data-lucide="refresh-cw"></i></span>
+            <span class="verified-dot" title="资料更新于 ${escapeHTML(tool.updated)}"><i data-lucide="refresh-cw"></i></span>
           </div>
           <span class="tool-category">${escapeHTML(categoryMap[tool.category]?.name || "未分类")}</span>
         </div>
         <div class="tool-card-actions">
-          <button class="icon-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${tool.id}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" aria-pressed="${isFavorite}" title="${isFavorite ? "取消收藏" : "收藏"}">
+          <button class="icon-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${escapeHTML(tool.id)}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" aria-pressed="${isFavorite}" title="${isFavorite ? "取消收藏" : "收藏"}">
             <i data-lucide="bookmark"></i>
           </button>
-          <button class="icon-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${tool.id}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" aria-pressed="${isCompared}" title="${isCompared ? "移出对比" : "加入对比"}">
+          <button class="icon-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${escapeHTML(tool.id)}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" aria-pressed="${isCompared}" title="${isCompared ? "移出对比" : "加入对比"}">
             <i data-lucide="columns-3"></i>
           </button>
         </div>
@@ -1697,7 +1774,7 @@ function renderToolCard(tool, rank) {
         ${decisionTags(tool).map((tag) => `<span>${escapeHTML(tag)}</span>`).join("")}
       </div>
       <div class="tool-card-footer">
-        <span>资料核验于 ${tool.updated}</span>
+        <span>资料核验于 ${escapeHTML(tool.updated)}</span>
         <button class="tool-card-link" type="button" data-alternative-category="${escapeHTML(tool.category)}">同类替代</button>
         <a class="tool-card-link" href="/tools/${encodeURIComponent(tool.slug || tool.id)}" data-seo-link>详情页</a>
         <button class="detail-link" type="button" aria-label="查看${escapeHTML(tool.name)}详情">查看详情 <i data-lucide="arrow-right"></i></button>
@@ -2018,7 +2095,7 @@ function renderDrawer(tool) {
     <div class="detail-hero">
       ${logoMarkup(tool)}
       <div>
-        <div class="tool-name-line"><h2>${escapeHTML(tool.name)}</h2><span class="verified-dot" title="资料更新于 ${tool.updated}"><i data-lucide="refresh-cw"></i></span></div>
+        <div class="tool-name-line"><h2>${escapeHTML(tool.name)}</h2><span class="verified-dot" title="资料更新于 ${escapeHTML(tool.updated)}"><i data-lucide="refresh-cw"></i></span></div>
         <p>${escapeHTML(tool.summary)}</p>
         <div class="badge-row">
           <span class="tool-badge price-${tool.price}">${priceLabels[tool.price]}</span>
@@ -2030,11 +2107,11 @@ function renderDrawer(tool) {
     ${sponsorNotice}
     ${renderQuickVerdict(tool)}
     <div class="detail-actions">
-      <a class="primary-button" href="${officialToolHref(tool, "detail_drawer")}" target="_blank" rel="noopener noreferrer${tool.sponsored ? " nofollow sponsored" : ""}" data-official-id="${tool.id}">
+      <a class="primary-button" href="${officialToolHref(tool, "detail_drawer")}" target="_blank" rel="noopener noreferrer${tool.sponsored ? " nofollow sponsored" : ""}" data-official-id="${escapeHTML(tool.id)}">
         <span>访问官网</span><i data-lucide="external-link"></i>
       </a>
-      <button class="secondary-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${tool.id}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" title="${isFavorite ? "取消收藏" : "收藏"}"><i data-lucide="bookmark"></i></button>
-      <button class="secondary-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${tool.id}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" title="${isCompared ? "移出对比" : "加入对比"}"><i data-lucide="columns-3"></i></button>
+      <button class="secondary-button ${isFavorite ? "is-active" : ""}" type="button" data-favorite-id="${escapeHTML(tool.id)}" aria-label="${isFavorite ? "取消收藏" : "收藏"}${escapeHTML(tool.name)}" title="${isFavorite ? "取消收藏" : "收藏"}"><i data-lucide="bookmark"></i></button>
+      <button class="secondary-button ${isCompared ? "is-active" : ""}" type="button" data-compare-id="${escapeHTML(tool.id)}" aria-label="${isCompared ? "移出对比" : "加入对比"}${escapeHTML(tool.name)}" title="${isCompared ? "移出对比" : "加入对比"}"><i data-lucide="columns-3"></i></button>
     </div>
     <section class="detail-section">
       <h3>产品概览</h3>
@@ -2051,7 +2128,7 @@ function renderDrawer(tool) {
         <div class="fact-row"><dt>平台</dt><dd>${escapeHTML(tool.platforms.map((platform) => platformLabels[platform]).join("、"))}</dd></div>
         <div class="fact-row"><dt>账号要求</dt><dd>${escapeHTML(tool.login)}</dd></div>
         <div class="fact-row"><dt>可用地区</dt><dd>${escapeHTML(tool.region)}</dd></div>
-        <div class="fact-row"><dt>资料更新</dt><dd>${tool.updated}</dd></div>
+        <div class="fact-row"><dt>资料更新</dt><dd>${escapeHTML(tool.updated)}</dd></div>
       </dl>
     </section>
     ${related.length ? `<section class="detail-section"><h3>相似工具</h3><div class="related-tools">${related.map((candidate) => `<button class="related-tool-button" type="button" data-related-id="${candidate.id}">${logoMarkup(candidate)}<span>${escapeHTML(candidate.name)}</span></button>`).join("")}</div></section>` : ""}
@@ -2068,6 +2145,7 @@ function openDrawer(toolId) {
   const drawer = document.getElementById("tool-drawer");
   drawer.setAttribute("aria-label", "工具详情");
   drawer.dataset.toolId = toolId;
+  drawer.dataset.articleId = "";
   drawer.classList.add("is-open");
   drawer.setAttribute("aria-hidden", "false");
   drawer.inert = false;
@@ -2076,6 +2154,7 @@ function openDrawer(toolId) {
   document.body.classList.add("is-locked");
   window.setTimeout(() => document.getElementById("drawer-close").focus(), 200);
   track("tool_detail_view", { tool_id: toolId, category_id: tool.category, pricing_type: tool.price });
+  void apiRequest(`/api/v1/account/history/${encodeURIComponent(toolId)}`, { method: "PUT" }).catch(() => {});
 }
 
 function renderArticleDrawer(article) {
@@ -2096,16 +2175,20 @@ function renderArticleDrawer(article) {
         : ["明确受众、任务和最终交付形态", "为关键步骤选择不同工具而非只用一个", "用人工复核保障事实和表达质量"];
 
   const coverUrl = escapeHTML(safeMediaUrl(article.image, articleCoverFallback));
-  const sourceUrl = article.sourceUrl ? escapeHTML(safeMediaUrl(article.sourceUrl, "")) : "";
+  const sources = articleSourcesForDisplay(article);
   document.getElementById("drawer-content").innerHTML = `
     <div class="article-detail-cover"><img data-fallback data-fallback-src="${escapeHTML(articleCoverFallback)}" src="${coverUrl}" alt="${escapeHTML(article.title)}" width="720" height="405"></div>
     <div class="article-detail-heading">
-      <div class="article-meta"><span class="article-type">${escapeHTML(article.type)}</span><span>${escapeHTML(article.date)}</span><span>${escapeHTML(article.readTime)}</span>${article.source ? `<span>来源：${escapeHTML(article.source)}</span>` : ""}</div>
+      <div class="article-meta"><span class="article-type">${escapeHTML(article.type)}</span><span>${escapeHTML(articleDisplayTime(article))}</span><span>${escapeHTML(article.readTime)}</span>${article.source ? `<span>来源：${escapeHTML(article.source)}</span>` : ""}</div>
       <h2>${escapeHTML(article.title)}</h2>
       <p>${escapeHTML(article.excerpt)}</p>
     </div>
     ${article.body && article.body !== article.excerpt ? `<section class="detail-section"><h3>正文</h3><p>${escapeHTML(article.body)}</p></section>` : ""}
-    ${sourceUrl ? `<section class="detail-section"><h3>官方来源</h3><a class="article-source-link" href="${sourceUrl}" target="_blank" rel="noopener noreferrer nofollow">查看${escapeHTML(article.source || "原始发布")}<i data-lucide="external-link" aria-hidden="true"></i></a></section>` : ""}
+    ${sources.length ? `<section class="detail-section"><h3>来源报道 <span class="article-source-count">${sources.length} 条来源</span></h3><ul class="article-source-list">${sources.map((source) => {
+      const publishedAt = source.sourcePublishedAt ? new Date(source.sourcePublishedAt) : null;
+      const validPublishedAt = publishedAt && !Number.isNaN(publishedAt.getTime());
+      return `<li><a class="article-source-link" href="${escapeHTML(source.url)}" target="_blank" rel="noopener noreferrer nofollow"><span class="article-source-copy"><strong>${escapeHTML(source.sourceName)}</strong>${source.sourceTitle ? `<span>${escapeHTML(source.sourceTitle)}</span>` : ""}${validPublishedAt ? `<time datetime="${escapeHTML(publishedAt.toISOString())}">${escapeHTML(new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(publishedAt))}</time>` : ""}</span><i data-lucide="external-link" aria-hidden="true"></i></a></li>`;
+    }).join("")}</ul></section>` : ""}
     <section class="detail-section">
       <h3>核心要点</h3>
       <ul class="article-key-points">${keyPoints.map((point) => `<li>${escapeHTML(point)}</li>`).join("")}</ul>
@@ -2122,6 +2205,43 @@ function renderArticleDrawer(article) {
   bindImageFallbacks(document.getElementById("drawer-content"));
 }
 
+function safeArticleSourceUrl(value) {
+  try {
+    const url = new URL(String(value || ""));
+    return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? url.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
+function articleSourcesForDisplay(article) {
+  const linked = Array.isArray(article.sources) ? article.sources : [];
+  const candidates = linked.length ? linked : article.sourceUrl ? [{ sourceUrl: article.sourceUrl, sourceName: article.source }] : [];
+  const sources = candidates.map((source) => ({
+    url: safeArticleSourceUrl(source.sourceUrl ?? source.url),
+    sourceName: String(source.sourceName || article.source || "原始来源"),
+    sourceTitle: String(source.sourceTitle || ""),
+    sourcePublishedAt: source.sourcePublishedAt || null
+  })).filter((source) => source.url);
+  if (sources.length || !linked.length || !article.sourceUrl) return sources;
+  const fallbackUrl = safeArticleSourceUrl(article.sourceUrl);
+  return fallbackUrl ? [{ url: fallbackUrl, sourceName: article.source || "原始来源", sourceTitle: "", sourcePublishedAt: null }] : [];
+}
+
+async function refreshArticleDetail(articleId, slug) {
+  try {
+    const payload = await apiRequest(`/api/v1/articles/${encodeURIComponent(slug || articleId)}`, {}, 5000);
+    if (!payload.data || typeof payload.data.body !== "string") return;
+    const article = articleMap[articleId];
+    if (!article) return;
+    Object.assign(article, payload.data);
+    const drawer = document.getElementById("tool-drawer");
+    if (drawer.dataset.articleId === articleId && drawer.classList.contains("is-open")) renderArticleDrawer(article);
+  } catch {
+    // The cached article and its primary source remain readable when detail loading fails.
+  }
+}
+
 function openArticle(articleId) {
   const article = articleMap[articleId];
   if (!article) return;
@@ -2130,6 +2250,7 @@ function openArticle(articleId) {
   const drawer = document.getElementById("tool-drawer");
   drawer.setAttribute("aria-label", "文章详情");
   drawer.dataset.toolId = "";
+  drawer.dataset.articleId = articleId;
   drawer.classList.add("is-open");
   drawer.setAttribute("aria-hidden", "false");
   drawer.inert = false;
@@ -2138,6 +2259,7 @@ function openArticle(articleId) {
   document.body.classList.add("is-locked");
   window.setTimeout(() => document.getElementById("drawer-close").focus(), 200);
   track("article_click", { article_id: articleId, content_type: article.type });
+  void refreshArticleDetail(articleId, article.slug);
 }
 
 function closeDrawer() {
@@ -2197,7 +2319,7 @@ function renderArticles(targetId, items) {
     <article class="article-item">
       <div class="article-image"><img data-fallback data-fallback-src="${escapeHTML(articleCoverFallback)}" src="${escapeHTML(safeMediaUrl(item.image, articleCoverFallback))}" alt="${escapeHTML(item.title)}" loading="lazy" width="720" height="405"></div>
       <div class="article-content">
-        <div class="article-meta"><span class="article-type">${escapeHTML(item.type)}</span><span>${escapeHTML(item.date)}</span><span>${escapeHTML(item.readTime)}</span>${item.source ? `<span>来源：${escapeHTML(item.source)}</span>` : ""}</div>
+        <div class="article-meta"><span class="article-type">${escapeHTML(item.type)}</span><span>${escapeHTML(articleDisplayTime(item))}</span><span>${escapeHTML(item.readTime)}</span>${item.source ? `<span>来源：${escapeHTML(item.source)}</span>` : ""}</div>
         <h2>${escapeHTML(item.title)}</h2>
         <p>${escapeHTML(item.excerpt)}</p>
       </div>
@@ -2205,21 +2327,117 @@ function renderArticles(targetId, items) {
     </article>`).join("");
 }
 
-function filterTutorials(label) {
-  const filtered = label === "全部"
-    ? tutorials
-    : label === "创作"
-      ? tutorials.filter((item) => ["视频", "图像"].includes(item.type))
-      : tutorials.filter((item) => item.type === label);
-  renderArticles("tutorial-list", filtered);
+function renderHomeNewsCards(items) {
+  return items.map((item) => {
+    const article = { ...(articleMap[item.id] || {}), ...item, type: item.type || "AI 行业" };
+    articleMap[item.id] = article;
+    const source = article.source || (Number(article.sourceCount) ? `${Number(article.sourceCount)} 个来源站点` : article.type);
+    const latest = articleDisplayTime(article) || (article.latestSourceAt ? String(article.latestSourceAt).slice(0, 10) : "最近更新");
+    return `<div role="listitem"><button class="home-news-card" type="button" data-article-id="${escapeHTML(article.id)}" aria-label="阅读${escapeHTML(article.title)}"><span class="home-news-cover"><img src="${escapeHTML(safeMediaUrl(article.image, articleCoverFallback))}" alt="" data-fallback data-fallback-src="${escapeHTML(articleCoverFallback)}" loading="lazy" width="108" height="120"><span class="home-news-label">${escapeHTML(article.type)}</span></span><span class="home-news-copy"><span class="home-news-meta">${escapeHTML(source)}<span>·</span>${escapeHTML(latest)}</span><strong>${escapeHTML(article.title)}</strong><span class="home-news-excerpt">${escapeHTML(article.excerpt || "查看事件详情，了解最新 AI 动态与原始来源。")}</span><span class="home-news-bottom"><i data-lucide="newspaper" aria-hidden="true"></i>${Number(article.sourceCount) ? `${Number(article.sourceCount)} 个来源` : "阅读全文"}<i data-lucide="arrow-up-right" aria-hidden="true"></i></span></span></button></div>`;
+  }).join("");
+}
+
+function renderHomeNews() {
+  const list = document.getElementById("home-news-list");
+  const empty = document.getElementById("home-news-empty");
+  if (!list || !empty) return;
+  const articles = [...newsItems]
+    .sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")))
+    .slice(0, 4);
+  list.innerHTML = renderHomeNewsCards(articles);
+  list.setAttribute("aria-busy", "false");
+  empty.hidden = articles.length > 0;
+  if (!articles.length) empty.textContent = "资讯正在整理中，先来发现好用的 AI 工具。";
+  bindImageFallbacks(list);
+  refreshIcons();
+}
+
+function renderNewsHotItems(items) {
+  const targets = [
+    { list: document.getElementById("news-hot-list"), empty: document.getElementById("news-hot-empty"), limit: 10 },
+    { list: document.getElementById("home-hot-list"), empty: document.getElementById("home-hot-empty"), limit: 3 }
+  ].filter(({ list, empty }) => list && empty);
+  if (!targets.length) return;
+  for (const { list, empty, limit } of targets) {
+    list.setAttribute("aria-busy", "false");
+    if (!items.length) {
+      list.innerHTML = "";
+      empty.hidden = false;
+      empty.textContent = list.id === "home-hot-list"
+        ? "暂时还没有多站点共同报道的热点，先来逛逛下面的工具推荐吧。"
+        : "暂时还没有至少两个来源站点共同报道的热点，下面仍可浏览全部资讯。";
+      continue;
+    }
+    empty.hidden = true;
+    list.innerHTML = renderHotNewsCards(items.slice(0, limit));
+  }
+  refreshIcons();
+}
+
+function renderHotNewsCards(items) {
+  if (!items.length) return "";
+  const badgeLabels = new Map([["new", "新"], ["rising", "升温"], ["surge", "突增"]]);
+  return items.map((item) => {
+    const badges = (Array.isArray(item.badges) ? item.badges : []).map((badge) => {
+      const label = badgeLabels.get(badge);
+      return label ? `<span class="news-hot-badge news-hot-badge-${badge}">${label}</span>` : "";
+    }).join("");
+    const sourceTime = new Date(item.latestSourceAt || "");
+    const latest = Number.isNaN(sourceTime.getTime()) ? "最近更新" : new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(sourceTime);
+    articleMap[item.id] = { ...(articleMap[item.id] || {}), ...item, type: item.type || "AI 行业" };
+    return `<div role="listitem"><button class="news-hot-card" type="button" data-article-id="${escapeHTML(item.id)}" aria-label="打开热点文章：${escapeHTML(item.title)}"><span class="news-hot-rank">${String(item.rank).padStart(2, "0")}</span><span class="news-hot-copy"><strong>${escapeHTML(item.title)}</strong><span class="news-hot-meta">${Number(item.sourceCount) || 0} 个来源站点 · ${escapeHTML(latest)}</span></span><span class="news-hot-badges">${badges}</span></button></div>`;
+  }).join("");
+}
+
+async function loadNewsHotItems() {
+  const targets = [
+    [document.getElementById("news-hot-list"), document.getElementById("news-hot-empty")],
+    [document.getElementById("home-hot-list"), document.getElementById("home-hot-empty")]
+  ].filter(([list, empty]) => list && empty);
+  if (!targets.length) return;
+  try {
+    const payload = await apiRequest("/api/v1/news/hot?limit=10", {}, 5000);
+    const items = Array.isArray(payload.data?.items) ? payload.data.items : [];
+    newsHotItems = items;
+    renderNewsHotItems(newsHotItems);
+  } catch {
+    for (const [list, empty] of targets) {
+      list.setAttribute("aria-busy", "false");
+      list.innerHTML = "";
+      empty.hidden = false;
+      empty.textContent = list.id === "home-hot-list"
+        ? "热点暂时没连上，下面的工具推荐仍可以继续逛。"
+        : "热点暂时无法加载，仍可浏览下方资讯。";
+    }
+  }
+}
+
+let mergedContentKind = "all";
+function articleDisplayTime(article) {
+  const value = article.timestampKind === "discovered" ? article.discoveredAt : article.date;
+  const date = new Date(value?.length === 10 ? `${value}T00:00:00+08:00` : value);
+  if (!Number.isFinite(date.getTime())) return String(article.date || "");
+  const label = new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "2-digit", day: "2-digit", ...(String(value).length > 10 ? { hour: "2-digit", minute: "2-digit" } : {}) }).format(date);
+  return `${article.timestampKind === "discovered" ? "收录于 " : ""}${label}`;
+}
+function filterMergedContent(kind = mergedContentKind) {
+  mergedContentKind = ["all", "news", "tutorials"].includes(kind) ? kind : "all";
+  const items = mergedContentKind === "news" ? newsItems : mergedContentKind === "tutorials" ? tutorials : [...newsItems, ...tutorials];
+  renderArticles("news-list", [...items].sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))).slice(0, 8));
+  const moreButton = document.getElementById("news-load-more");
+  if (moreButton) moreButton.hidden = true;
+  const hotSection = document.querySelector("#news-view .news-hot-section");
+  if (hotSection) hotSection.hidden = true;
+  document.querySelectorAll("[data-content-kind]").forEach((button) => { const active = button.dataset.contentKind === mergedContentKind; button.classList.toggle("is-active", active); button.setAttribute("aria-pressed", String(active)); });
   refreshIcons();
 }
 
 function renderContentViews() {
-  renderArticles("tutorial-list", tutorials);
-  renderArticles("news-list", newsItems);
+  filterMergedContent();
+  renderHomeNews();
+  void loadNewsHotItems();
   const latestNewsDate = newsItems
-    .map((item) => new Date(`${item.date}T00:00:00`))
+    .map((item) => new Date(item.date?.length === 10 ? `${item.date}T00:00:00+08:00` : item.date))
     .filter((date) => !Number.isNaN(date.getTime()))
     .sort((left, right) => right - left)[0];
   const newsUpdatedDate = document.getElementById("news-updated-date");
@@ -2280,7 +2498,7 @@ function syncSeoMetadata(viewName) {
     rankings: "AI 工具排行榜 - 泥壳AI工具站",
     compare: "AI 工具对比 - 泥壳AI工具站",
     tutorials: "AI实用教程 - 泥壳AI工具站",
-    news: "AI资讯 - 泥壳AI工具站",
+    news: "资讯与教程 - 泥壳AI工具站",
     advertise: "广告合作 - 泥壳AI工具站",
     about: "关于我们 - 泥壳AI工具站",
     standards: "收录标准 - 泥壳AI工具站",
@@ -2300,6 +2518,7 @@ function scrollToHashTarget(targetId) {
 }
 
 function setActiveView(viewName, updateHistory = true, shouldTrack = true) {
+  if (viewName === "tutorials") { viewName = "news"; filterMergedContent("tutorials"); }
   const nextView = validViews.includes(viewName) ? viewName : "tools";
   const previousView = state.activeView;
   state.activeView = nextView;
@@ -2311,6 +2530,12 @@ function setActiveView(viewName, updateHistory = true, shouldTrack = true) {
   });
   document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.view === nextView);
+  });
+  const moreSummary = document.querySelector(".nav-more > summary");
+  document.querySelectorAll(".nav-group > summary").forEach((summary, index) => summary.classList.toggle("is-active", index === 0 && ["tools", "discover", "rankings"].includes(nextView)));
+  document.querySelectorAll(".nav-more-menu a").forEach((link) => {
+    if (link.getAttribute("href") === viewPathMap[nextView]) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
   });
   if (updateHistory) {
     try {
@@ -2443,7 +2668,7 @@ async function submitNewsletter(form, emailInput, consentInput, source) {
   submitButton.disabled = true;
   try {
     if (!backendAvailable) throw new TypeError("Backend unavailable");
-    await apiRequest("/api/v1/newsletter/subscriptions", {
+    const result = await apiRequest("/api/v1/newsletter/subscriptions", {
       method: "POST",
       body: JSON.stringify({
         email: emailInput.value,
@@ -2453,8 +2678,16 @@ async function submitNewsletter(form, emailInput, consentInput, source) {
         source
       })
     });
+    if (result.data?.status !== "active" || result.data?.reactivationRequired) {
+      showToast(result.data?.status === "unsubscribed"
+        ? "该邮箱已退订，本次未恢复订阅，请通过问题反馈联系我们。"
+        : "该邮箱订阅未生效，请通过问题反馈联系我们。");
+      return;
+    }
     form.reset();
-    showToast("订阅意向已提交");
+    showToast(result.data.existing
+      ? "该邮箱已订阅，每周一发送周报，无需重复订阅。"
+      : "订阅成功！每周一发送周报，订阅后不会立即发送邮件。");
     track("newsletter_subscribe", { source_position: source });
   } catch (error) {
     showToast(error.status ? error.message : "服务暂不可用，请稍后重试");
@@ -2479,11 +2712,12 @@ function loadInitialState() {
 }
 
 function bindEvents() {
+  document.getElementById("news-load-more")?.addEventListener("click", () => void loadMoreNews());
   const themeToggle = document.getElementById("theme-toggle");
   themeToggle?.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    localStorage.setItem("nike-theme", next);
+    safeLocalStorage.setItem("nike-theme", next);
     themeToggle.setAttribute("aria-label", next === "dark" ? "切换浅色模式" : "切换深色模式");
     themeToggle.title = themeToggle.getAttribute("aria-label");
     themeToggle.innerHTML = `<i data-lucide="${next === "dark" ? "sun" : "moon"}"></i>`;
@@ -2500,6 +2734,13 @@ function bindEvents() {
   });
 
   document.getElementById("task-tabs").addEventListener("click", (event) => {
+    if (event.target.closest("[data-task-tabs-toggle]")) {
+      taskTabsExpanded = !taskTabsExpanded;
+      renderTaskTabs();
+      refreshIcons();
+      document.querySelector("#task-tabs [data-task-tabs-toggle]")?.focus({ preventScroll: true });
+      return;
+    }
     const button = event.target.closest("[data-category]");
     if (!button) return;
     state.category = button.dataset.category;
@@ -2591,12 +2832,12 @@ function bindEvents() {
 
   document.getElementById("grid-view-button").addEventListener("click", () => {
     state.layout = "grid";
-    localStorage.setItem("nike-layout", state.layout);
+    safeLocalStorage.setItem("nike-layout", state.layout);
     renderTools();
   });
   document.getElementById("list-view-button").addEventListener("click", () => {
     state.layout = "list";
-    localStorage.setItem("nike-layout", state.layout);
+    safeLocalStorage.setItem("nike-layout", state.layout);
     renderTools();
   });
 
@@ -2620,7 +2861,7 @@ function bindEvents() {
   });
   document.getElementById("tool-grid").addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
-    const card = event.target.closest(".tool-card[data-clickable='true']");
+    const card = event.target.closest(".tool-card[data-tool-id]");
     if (!card || event.target.closest("button")) return;
     event.preventDefault();
     track("tool_card_click", { tool_id: card.dataset.toolId, list_id: "tool_grid", via: "keyboard" });
@@ -2708,7 +2949,7 @@ function bindEvents() {
     if (related && !related.closest("#drawer-content")) openDrawer(related.dataset.relatedId);
     const toastButton = event.target.closest("[data-toast]");
     if (toastButton) showToast(toastButton.dataset.toast);
-    const article = event.target.closest("[data-article-id]");
+    const article = event.target.closest("button[data-article-id]");
     if (article) {
       openArticle(article.dataset.articleId);
     }
@@ -2727,7 +2968,7 @@ function bindEvents() {
 
   document.getElementById("drawer-close").addEventListener("click", closeDrawer);
   document.getElementById("drawer-scrim").addEventListener("click", closeDrawer);
-  document.getElementById("mobile-menu-open").addEventListener("click", openSidebar);
+  // Shared mobile navigation is managed by header-account.js.
   document.getElementById("sidebar-close").addEventListener("click", closeSidebar);
   document.getElementById("sidebar-scrim").addEventListener("click", closeSidebar);
 
@@ -2771,7 +3012,7 @@ function bindEvents() {
       });
       form.reset();
       submissionIdempotencyKey = null;
-      sessionStorage.setItem("nike-last-submission", JSON.stringify({
+      safeSessionStorage.setItem("nike-last-submission", JSON.stringify({
         trackingCode: result.data.trackingCode,
         lookupToken: result.data.lookupToken
       }));
@@ -2831,12 +3072,12 @@ function bindEvents() {
     }
   });
 
-  document.querySelectorAll(".content-tabs").forEach((tabs) => {
+  document.querySelectorAll("#content-kind-tabs").forEach((tabs) => {
     tabs.addEventListener("click", (event) => {
       const button = event.target.closest("button");
       if (!button) return;
       tabs.querySelectorAll("button").forEach((candidate) => candidate.classList.toggle("is-active", candidate === button));
-      filterTutorials(button.textContent.trim());
+      filterMergedContent(button.dataset.contentKind);
     });
   });
 
@@ -2901,6 +3142,10 @@ function selectCategoryFromHome(categoryId, sourcePosition) {
 }
 
 function bindHomeEvents() {
+  const groups = [...document.querySelectorAll('.nav-group')];
+  groups.forEach(group => group.addEventListener('toggle', () => { if (group.open) groups.filter(other => other !== group).forEach(other => other.open = false); }));
+  document.addEventListener('click', event => groups.forEach(group => { if (!group.contains(event.target)) group.open = false; }));
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') { groups.forEach(group => group.open = false); } });
   const dropdownToggle = document.querySelector(".nav-dropdown-toggle");
   const dropdownWrap = document.querySelector(".nav-dropdown-wrap");
   const dropdown = document.getElementById("nav-category-dropdown");
@@ -2932,6 +3177,10 @@ function bindHomeEvents() {
     const card = event.target.closest("[data-category]");
     if (card) selectCategoryFromHome(card.dataset.category, "home_category_card");
   });
+  document.getElementById("home-shortcut-grid")?.addEventListener("click", (event) => {
+    const card = event.target.closest("[data-category]");
+    if (card) selectCategoryFromHome(card.dataset.category, "home_shortcut");
+  });
 
   [document.getElementById("featured-tool-grid"), document.getElementById("newest-tool-grid")].forEach((grid) => {
     if (!grid) return;
@@ -2951,7 +3200,7 @@ function bindHomeEvents() {
     });
     grid.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
-      const card = event.target.closest(".featured-tool-card[data-clickable='true']");
+      const card = event.target.closest(".featured-tool-main[data-tool-id]");
       if (!card || event.target.closest("button, a")) return;
       event.preventDefault();
       track("tool_card_click", { tool_id: card.dataset.toolId, list_id: grid.id, via: "keyboard" });
@@ -2965,6 +3214,7 @@ function bindHomeEvents() {
     state.favoritesOnly = false;
     setActiveView("tools");
     void refreshToolResults();
+    document.querySelector("#tools-view .directory-header")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
   document.getElementById("newest-view-all")?.addEventListener("click", () => {
     state.category = "all";
@@ -3025,13 +3275,36 @@ function bindHomeEvents() {
 }
 
 async function initialize() {
-  localStorage.removeItem("nike-submissions");
-  localStorage.removeItem("nike-newsletter");
+  const backToTop = document.getElementById("back-to-top");
+  if (backToTop) {
+    const updateBackToTop = () => {
+      backToTop.hidden = window.scrollY < window.innerHeight;
+    };
+    window.addEventListener("scroll", updateBackToTop, { passive: true });
+    window.addEventListener("resize", updateBackToTop);
+    backToTop.addEventListener("click", () => {
+      window.scrollTo({
+        top: 0,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
+    });
+    updateBackToTop();
+  }
+  const requestedSubmitDialog = new URLSearchParams(location.search).get("submit") === "1";
+  safeLocalStorage.removeItem("nike-submissions");
+  safeLocalStorage.removeItem("nike-newsletter");
+  // Static icons and the requested page must not wait for API responses.
+  refreshIcons();
+  setActiveView(resolveHashDestination().view, false, false);
+  bindHomeEvents();
   await loadBackendData();
   loadInitialState();
+  renderNavigation();
+  renderContentViews();
+  setActiveView(state.activeView, false, false);
+  bindEvents();
   if (backendAvailable) {
-    await loadCatalogTotal();
-    await Promise.all([loadToolResults(), loadRankingTools(), loadGrowthData()]);
+    await Promise.all([loadCatalogTotal(), loadToolResults(), loadRankingTools(), loadGrowthData()]);
     await loadCollectionTools();
     await checkContentRevision({ announce: false });
   }
@@ -3043,11 +3316,10 @@ async function initialize() {
   renderContentViews();
   renderDecisionModules();
   renderCompareTray();
-  bindEvents();
-  bindHomeEvents();
   document.getElementById("tool-drawer").inert = true;
   syncSidebarAccessibility();
   setActiveView(state.activeView, false, false);
+  if (requestedSubmitDialog) openSubmitDialog();
   refreshIcons();
   bindImageFallbacks();
   currentPageViewStartedAt = Date.now();
