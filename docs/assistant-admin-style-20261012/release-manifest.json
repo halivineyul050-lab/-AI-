@@ -1,0 +1,9 @@
+{
+  "release": "assistant-style-20261012-1",
+  "archiveSha256": "42870f2de46b3be0c90391fa93014279cae78bddda778c4216042d206f359e5e",
+  "files": 673,
+  "changes": {
+    "public/admin-creator.css": "e1b636e05e36b5f64dfd60ef4c3c79957b0efe4ab548a4edef9966f7a53d2c2e",
+    "public/admin.html": "2c862aa8077720422f235ab36a4beda0a064c2f6d5036365d811ecea6882ae77"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "release": "douyin-public-20261014-1",
+  "baseline": "assistant-compact-20261014-1",
+  "files": 646,
+  "sha256": "59e08fd413d0ecb18003253759b654c1c6523d851ea335a767c6eaa21248b142",
+  "changes": [
+    {
+      "path": ".env.example",
+      "before": "aa31dc81312d153b5e2aef556d5d1170738d4ed016395a358813aad681e2cc24",
+      "after": "ae7653979df1c225a106cc2ef6adacbe858f6d49de06de07e43239686712a328"
+    },
+    {
+      "path": "backend/douyin-proxy.mjs",
+      "before": null,
+      "after": "65e8d47c8d25d62e589478b1d6a87c0bd350c28b392d74289666fe2e86e1d808"
+    },
+    {
+      "path": "backend/douyin-public.mjs",
+      "before": null,
+      "after": "d9b1ab7c6527a216cf99ddc6232108fa8193bbb837ac1d0064daaf7fe4f37e80"
+    },
+    {
+      "path": "backend/link-extract-browser.mjs",
+      "before": "48638f629543dcad3771e499a33a8100b54d26997f246b28e53777b8fc534301",
+      "after": "952200b76fb1d036beb6ff093d4392b1801450ed92b0f746d168b15e93efafb2"
+    },
+    {
+      "path": "backend/link-extract-core.mjs",
+      "before": "6318c570381c5969863ed6269534385659b01d9b2a8ee41cf19451e81ba657b4",
+      "after": "a994a9fbf86189395a0006fa5b972870ea35628f051a28c5936b4e358c71e3ab"
+    },
+    {
+      "path": "backend/link-extract.mjs",
+      "before": "814a11792b5814b773d546e1abdddead2b95243f236aa31fca1687629fa32f23",
+      "after": "172c7796e0f80773c3ac7b3581f20ed538e9cf302ae368dc74b1aa469432a310"
+    },
+    {
+      "path": "package-lock.json",
+      "before": "3efb1e2c67e8b9207239b8498da6fd71f08d47175f0836377bf114fd81128d08",
+      "after": "079522855c33286eb697c4cf46243cb472aa54e39ac549da617f4be3ea6031dd"
+    },
+    {
+      "path": "package.json",
+      "before": "94366d99185ec3c62c827ab2a55d645060869499602ced04c77f7556af8a7ec1",
+      "after": "cb399eb5fbb1ee051b859c47f12950f5e8b86c5f7dd04919e728a94d3739b847"
+    },
+    {
+      "path": "public/link-extract.css",
+      "before": "82c2c733ab8f7bff29e01dea03fbc16a6934175aefd1bec5174299e1a9066ef3",
+      "after": "bd3c655d5bf6bf4e880374111b403fc6c47e0225dafc9d1e07b434e17c2bbfee"
+    },
+    {
+      "path": "public/link-extract.html",
+      "before": "40071c354dee68db6f47e859ea65be7052d992f97c7b9cb3d971fe4428cc9f1f",
+      "after": "8751c58ef0759d92e212d8b8967e74aa0f5f5b5ed35dd718fe730447e154dcde"
+    },
+    {
+      "path": "public/link-extract.js",
+      "before": "c432e351ea454d695b86a01b35a38841503396aa06ebcc5d711749572e0f2ee1",
+      "after": "93eae82fee17e0b6b2328a9530b5b65021208e3eb69155afb41854bd0a5444fd"
+    },
+    {
+      "path": "public/utilities.html",
+      "before": "0b4759adc67e3dcecfe14defe2beadeccb7b3ba5b96b678c6058164c86727f07",
+      "after": "cd84de65a751f6930fa09a83ca58846a2b2099845091b821844695e153157bbe"
+    },
+    {
+      "path": "server.mjs",
+      "before": "b53578e7dcfb0d1e7af64310df3011c1b358689b105436e0d13ae706358a1af5",
+      "after": "f146a794935f0c2c324df64763c6c1a49f8bc4d58ff7a2cb8c572e9d60a6e77b"
+    },
+    {
+      "path": "tests/douyin-proxy.test.mjs",
+      "before": null,
+      "after": "9f4d6048bc30f795059eebc19f3acd2d7fa2f658916fdc745105456c611e05b0"
+    },
+    {
+      "path": "tests/douyin-public-api.test.mjs",
+      "before": null,
+      "after": "512216b16f1bf1335051c3fcf223c4ea9ba91db1a382269a20fc49fcc5923d32"
+    },
+    {
+      "path": "tests/douyin-public.test.mjs",
+      "before": null,
+      "after": "842b674d170f8bdf6cbc1437d3d7344f82670f7a89cf1f0e160cdbe14a894ac9"
+    },
+    {
+      "path": "tests/link-extract.test.mjs",
+      "before": "2a6469e431c2d1c5b2e7ae008f5a9e055018f77407395ac3096d596abb51d285",
+      "after": "ee9929d1cebd26706b1590294fec060f85cfe65cbc5c68f775cf3d60fa325001"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "name": "活动报名",
+  "entry": "index.html",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>活动报名</title>\n<style>\n  :root{\n    --bg:#0f172a;\n    --card:#ffffff;\n    --ink:#1e293b;\n    --muted:#64748b;\n    --brand:#4f46e5;\n    --brand-dark:#4338ca;\n    --ok:#059669;\n    --err:#dc2626;\n    --line:#e2e8f0;\n  }\n  *{box-sizing:border-box;}\n  html,body{margin:0;padding:0;}\n  body{\n    min-height:100vh;\n    font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,\"Helvetica Neue\",Arial,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;\n    background:radial-gradient(1200px 600px at 20% -10%,#312e81 0%,transparent 60%),\n               radial-gradient(900px 500px at 110% 10%,#0e7490 0%,transparent 55%),\n               #0f172a;\n    color:var(--ink);\n    display:flex;\n    align-items:center;\n    justify-content:center;\n    padding:24px 16px;\n  }\n  .wrap{width:100%;max-width:560px;}\n  .brand{\n    display:flex;align-items:center;gap:12px;margin-bottom:18px;color:#e0e7ff;\n  }\n  .brand .logo{\n    width:44px;height:44px;flex:0 0 auto;border-radius:12px;\n    background:linear-gradient(135deg,#6366f1,#22d3ee);\n    display:grid;place-items:center;\n  }\n  .brand h1{font-size:20px;margin:0;font-weight:700;letter-spacing:.5px;}\n  .brand p{margin:2px 0 0;font-size:13px;color:#a5b4fc;}\n  .card{\n    background:var(--card);\n    border-radius:18px;\n    padding:24px;\n    box-shadow:0 20px 45px rgba(2,6,23,.45);\n  }\n  .card h2{margin:0 0 4px;font-size:19px;}\n  .card .sub{margin:0 0 20px;font-size:13px;color:var(--muted);}\n  .field{margin-bottom:16px;}\n  label{display:block;font-size:14px;font-weight:600;margin-bottom:6px;}\n  .req{color:var(--err);margin-left:2px;}\n  input,textarea{\n    width:100%;\n    font:inherit;\n    color:var(--ink);\n    background:#f8fafc;\n    border:1.5px solid var(--line);\n    border-radius:10px;\n    padding:11px 13px;\n    transition:border-color .15s,box-shadow .15s,background .15s;\n    outline:none;\n  }\n  textarea{resize:vertical;min-height:96px;}\n  input:focus,textarea:focus{\n    border-color:var(--brand);\n    background:#fff;\n    box-shadow:0 0 0 4px rgba(79,70,229,.15);\n  }\n  input:invalid:not(:placeholder-shown){border-color:var(--err);}\n  .hint{font-size:12px;color:var(--muted);margin-top:5px;}\n  button{\n    width:100%;\n    font:inherit;font-weight:700;font-size:15px;\n    color:#fff;background:linear-gradient(135deg,var(--brand),#7c3aed);\n    border:none;border-radius:11px;padding:13px 16px;\n    cursor:pointer;transition:transform .1s,filter .15s,opacity .15s;\n    min-height:48px;\n  }\n  button:hover:not(:disabled){filter:brightness(1.07);}\n  button:active:not(:disabled){transform:translateY(1px);}\n  button:disabled{opacity:.6;cursor:not-allowed;}\n  .spinner{\n    display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.4);\n    border-top-color:#fff;border-radius:50%;margin-right:8px;vertical-align:-2px;\n    animation:spin .7s linear infinite;\n  }\n  @keyframes spin{to{transform:rotate(360deg);}}\n  #status{\n    margin-top:16px;font-size:14px;border-radius:10px;padding:0;\n    overflow:hidden;max-height:0;transition:max-height .25s ease, padding .25s ease;\n  }\n  #status.show{max-height:300px;padding:13px 14px;}\n  #status.ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;}\n  #status.err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}\n  #status strong{display:block;margin-bottom:3px;}\n  .retry{margin-top:10px;}\n  .retry button{background:linear-gradient(135deg,#dc2626,#e11d48);font-size:14px;padding:10px;min-height:42px;}\n  .foot{text-align:center;color:#94a3b8;font-size:12px;margin-top:16px;}\n  @media (max-width:420px){\n    body{padding:16px 12px;align-items:flex-start;}\n    .card{padding:20px 16px;border-radius:14px;}\n    .brand h1{font-size:18px;}\n  }\n</style>\n</head>\n<body>\n<div class=\"wrap\">\n  <div class=\"brand\">\n    <div class=\"logo\" aria-hidden=\"true\">\n      <svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n        <path d=\"M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z\" stroke=\"#fff\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n        <path d=\"m9 15 2 2 4-4\" stroke=\"#fff\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n      </svg>\n    </div>\n    <div>\n      <h1>春季分享会</h1>\n      <p>2025 城市社区活动 · 名额有限</p>\n    </div>\n  </div>\n\n  <main class=\"card\">\n    <h2>活动报名</h2>\n    <p class=\"sub\">请填写以下信息，我们会通过邮箱与您确认席位。</p>\n\n    <form id=\"signup\" novalidate>\n      <div class=\"field\">\n        <label for=\"name\">姓名<span class=\"req\">*</span></label>\n        <input id=\"name\" name=\"name\" type=\"text\" maxlength=\"80\" required placeholder=\"请输入您的姓名\" autocomplete=\"name\">\n      </div>\n\n      <div class=\"field\">\n        <label for=\"email\">邮箱<span class=\"req\">*</span></label>\n        <input id=\"email\" name=\"email\" type=\"email\" maxlength=\"200\" required placeholder=\"name@example.com\" autocomplete=\"email\">\n      </div>\n\n      <div class=\"field\">\n        <label for=\"note\">备注（可选）</label>\n        <textarea id=\"note\" name=\"note\" maxlength=\"500\" placeholder=\"例如：希望参加的场次、饮食偏好等\"></textarea>\n        <div class=\"hint\">最多 500 字</div>\n      </div>\n\n      <button id=\"submit\" type=\"submit\">提交报名</button>\n\n      <div id=\"status\" role=\"status\" aria-live=\"polite\"></div>\n    </form>\n  </main>\n\n  <p class=\"foot\">报名信息仅用于本次活动联系</p>\n</div>\n\n<script>\n(function(){\n  var form = document.getElementById('signup');\n  var btn = document.getElementById('submit');\n  var statusBox = document.getElementById('status');\n  var nameEl = document.getElementById('name');\n  var emailEl = document.getElementById('email');\n  var noteEl = document.getElementById('note');\n  var submitting = false;\n\n  function setStatus(kind, title, msg, retry){\n    statusBox.className = 'show ' + kind;\n    statusBox.innerHTML = '';\n    var t = document.createElement('strong');\n    t.textContent = title;\n    statusBox.appendChild(t);\n    var m = document.createElement('span');\n    m.textContent = msg;\n    statusBox.appendChild(m);\n    if(retry){\n      var wrap = document.createElement('div');\n      wrap.className = 'retry';\n      var rb = document.createElement('button');\n      rb.type = 'button';\n      rb.id = 'retry';\n      rb.textContent = '重新提交';\n      rb.addEventListener('click', doSubmit);\n      wrap.appendChild(rb);\n      statusBox.appendChild(wrap);\n    }\n  }\n\n  function clearStatus(){\n    statusBox.className = '';\n    statusBox.innerHTML = '';\n  }\n\n  function validate(){\n    if(!nameEl.value.trim()){\n      setStatus('err','无法提交','请填写姓名。',false);\n      nameEl.focus();\n      return false;\n    }\n    if(!emailEl.value.trim()){\n      setStatus('err','无法提交','请填写邮箱。',false);\n      emailEl.focus();\n      return false;\n    }\n    var re = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n    if(!re.test(emailEl.value.trim())){\n      setStatus('err','无法提交','请输入有效的邮箱地址。',false);\n      emailEl.focus();\n      return false;\n    }\n    return true;\n  }\n\n  function setBusy(busy){\n    submitting = busy;\n    btn.disabled = busy;\n    if(busy){\n      btn.innerHTML = '<span class=\"spinner\"></span>提交中，请稍候…';\n    }else{\n      btn.textContent = '提交报名';\n    }\n  }\n\n  async function doSubmit(){\n    if(submitting) return;\n    if(!validate()) return;\n\n    clearStatus();\n    setBusy(true);\n\n    var values = {\n      name: nameEl.value.trim(),\n      email: emailEl.value.trim()\n    };\n    var note = noteEl.value.trim();\n    if(note) values.note = note;\n\n    try{\n      if(!window.NeStdutio || typeof window.NeStdutio.submitForm !== 'function'){\n        throw new Error('提交服务暂不可用');\n      }\n      var res = await window.NeStdutio.submitForm('signup', values);\n      setBusy(false);\n      if(res && res.success === false){\n        setStatus('err','提交失败', (res.message || '请稍后重试。'), true);\n        return;\n      }\n      setStatus('ok','提交成功','报名信息已收到，我们将通过邮箱与您联系。', false);\n      form.reset();\n    }catch(e){\n      setBusy(false);\n      setStatus('err','提交失败', (e && e.message) ? e.message : '网络异常，请稍后重试。', true);\n    }\n  }\n\n  form.addEventListener('submit', function(ev){\n    ev.preventDefault();\n    doSubmit();\n  });\n})();\n</script>\n</body>\n</html>"
+    }
+  ],
+  "forms": [
+    {
+      "id": "signup",
+      "title": "活动报名",
+      "fields": [
+        {
+          "name": "name",
+          "label": "姓名",
+          "type": "text",
+          "required": true,
+          "maxLength": 80
+        },
+        {
+          "name": "email",
+          "label": "邮箱",
+          "type": "email",
+          "required": true,
+          "maxLength": 200
+        },
+        {
+          "name": "note",
+          "label": "备注（可选）",
+          "type": "textarea",
+          "required": false,
+          "maxLength": 500
+        }
+      ]
+    }
+  ],
+  "capabilities": [
+    "forms"
+  ],
+  "acceptance": [
+    {
+      "kind": "fill",
+      "target": "#name",
+      "input": "测试访客"
+    },
+    {
+      "kind": "fill",
+      "target": "#email",
+      "input": "visitor@example.invalid"
+    },
+    {
+      "kind": "fill",
+      "target": "#note",
+      "input": "希望参加下午场"
+    },
+    {
+      "kind": "submitForm",
+      "target": "#submit",
+      "output": "#status",
+      "value": "提交成功",
+      "formId": "signup"
+    }
+  ]
+}

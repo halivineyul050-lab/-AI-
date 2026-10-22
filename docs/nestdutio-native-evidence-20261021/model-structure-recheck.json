@@ -1,0 +1,372 @@
+{
+  "ok": false,
+  "errorCode": "nestdutio_request_limit",
+  "errorMessage": "生成请求已达到安全上限",
+  "budgetCny": 1,
+  "conservativeUpperCny": 0.08952000000000004,
+  "calls": 24,
+  "events": [
+    {
+      "sequence": 1,
+      "phase": "planning",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 446,
+        "completionTokens": 282,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 728
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 2,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 614,
+        "completionTokens": 105,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 719
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 3,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 733,
+        "completionTokens": 40,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 773
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 4,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 754,
+        "completionTokens": 98,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 852
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 5,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 760,
+        "completionTokens": 14,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 774
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 6,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 804,
+        "completionTokens": 14,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 818
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 7,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 760,
+        "completionTokens": 674,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 1434
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 8,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 777,
+        "completionTokens": 38,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 815
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 9,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 787,
+        "completionTokens": 503,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 1290
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 10,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 798,
+        "completionTokens": 772,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 1570
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 11,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 826,
+        "completionTokens": 105,
+        "cachedInputTokens": 512,
+        "reasoningTokens": null,
+        "totalTokens": 931
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 12,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 815,
+        "completionTokens": 22,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 837
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 13,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 830,
+        "completionTokens": 152,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 982
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 14,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 828,
+        "completionTokens": 14,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 842
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 15,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 821,
+        "completionTokens": 667,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1488
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 16,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 830,
+        "completionTokens": 38,
+        "cachedInputTokens": 512,
+        "reasoningTokens": null,
+        "totalTokens": 868
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 17,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 832,
+        "completionTokens": 453,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1285
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 18,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 834,
+        "completionTokens": 1024,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1858
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 19,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 826,
+        "completionTokens": 92,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 918
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 20,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 800,
+        "completionTokens": 25,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 825
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 21,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 815,
+        "completionTokens": 767,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1582
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 22,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 813,
+        "completionTokens": 14,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 827
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 23,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 806,
+        "completionTokens": 558,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1364
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 24,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 815,
+        "completionTokens": 38,
+        "cachedInputTokens": 512,
+        "reasoningTokens": null,
+        "totalTokens": 853
+      },
+      "httpStatus": 200
+    }
+  ],
+  "checks": [],
+  "notice": "No WeChat AppID was available; no claim of WeChat compile or phone validation."
+}

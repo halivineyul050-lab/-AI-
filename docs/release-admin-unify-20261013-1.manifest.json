@@ -1,0 +1,13 @@
+{
+  "release": "admin-unify-20261013-1",
+  "sha256": "04efe120ae946457b6cabe290722fecc25cb43dc04b8e150db400405c2b16f83",
+  "files": 635,
+  "changes": {
+    "public/admin.css": "81ddc942a1bad71ffd7e2cf1c8a316e300bd15dbd7fb2f9bda767b4ef11a8d67",
+    "public/admin.html": "3d5cbd3872dce24f2c954990a8c38fe14f806569e38b641748f43e05908efae8",
+    "public/admin.js": "2d1a33e8a2c2d745edca0087453b80f7829fd7953c11a855f8369fed3999ab96",
+    "tests/admin-layout-order.test.mjs": "ae74f603aaf6a720351fe74720fd04eac68cbdf7a610620a313edcbd56878f84",
+    "tests/admin-navigation.test.mjs": "6cdf5bfb74935b35629a9e7971b23801c8502159e51723e831c8611ff34ac7ec",
+    "tests/admin-session-bootstrap.test.mjs": "04dd458b4ba4aecefeb1499153295b2364d66233996a44c383387d2d28edbc5f"
+  }
+}

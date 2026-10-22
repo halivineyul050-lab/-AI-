@@ -1,0 +1,11 @@
+{
+  "release": "admin-email-exempt-20261012-1",
+  "archiveSha256": "4617520d517d174c85853ec1bc723c1884c01a9dc98f58875ce7783e1af5ddee",
+  "files": 680,
+  "changes": {
+    "public/auth.css": "bc4763d4e03f5130b5fd6cfe07b16f12b7e3882913fb249ac0495b937b300306",
+    "public/auth.html": "e288d5ee2b4f0b90db6d6546a337777658b7785bf14d110a5a16a733cb70795e",
+    "public/auth.js": "4a3ce3cd8f52d3205adc2778154f7e70e604b999554436b71c9af843fbeb1777",
+    "tests/auth-page-initialization.test.mjs": "c2337a7cfd17af85c2c7c7630d149a9b4f03786f7e5416f1803987c850da19f7"
+  }
+}

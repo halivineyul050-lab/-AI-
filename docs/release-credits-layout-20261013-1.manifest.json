@@ -1,0 +1,11 @@
+{
+  "release": "credits-layout-20261013-1",
+  "sha256": "de4451f8dc1cbd90ed5bf60570544eb6278b0e238484a516323d6b4c77069cf8",
+  "files": 690,
+  "changes": {
+    "public/auth.html": "534d7a1e283844ad679df4ee1398caaa7d0f7c562c0b29d8a57fe979aea98509",
+    "public/credits-account.js": "ae679db80662e4ab5c74c63536e44e4fddb787f49de11d754d5eedda6e6b1460",
+    "public/credits.css": "fb2cf9c80fa65424982d29b8fdec93b15c1461b9a3864df70a112c912690e828",
+    "tests/credits-ui.test.mjs": "26f9379d7a41623cf412e7065a37b267e5a0edc086a5856d066578f80d2453ca"
+  }
+}

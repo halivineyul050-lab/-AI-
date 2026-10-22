@@ -1,0 +1,144 @@
+{
+  "release": "nestudio-name-20261016-1",
+  "base": "nestdutio-data-20261016-2",
+  "archiveSha256": "fe95af378de1c4775d64f034711dd6be1955e540f913df0526c8187ed8bea2a3",
+  "changes": [
+    {
+      "file": "public/admin-nestdutio.js",
+      "sha256": "cd626586588a3dec688390828a4d095835963d2ee9aafeb464518981fef873ee"
+    },
+    {
+      "file": "public/admin.html",
+      "sha256": "82a413720521e0a474532fc157fde97e4789546b3dbba5b38170ebe67713522c"
+    },
+    {
+      "file": "public/auth.html",
+      "sha256": "d9fb81f903c61a55758f6c9b01e2e483bc78b1c424741aa4043ec43a7fb5744d"
+    },
+    {
+      "file": "public/breakout.html",
+      "sha256": "e90f74b4451849d63b41264b7bf37eb9e5d8fc71836ab16a180de1561a73a98b"
+    },
+    {
+      "file": "public/creator.html",
+      "sha256": "9a72f7ec781119c0d2f656893345d8e6453b4a0097ac4aa15d29a65977abb7b3"
+    },
+    {
+      "file": "public/credits-account.js",
+      "sha256": "d785e7072cef7a45faf51a84f5a98d6430974c43ba47d84db50dafb119805796"
+    },
+    {
+      "file": "public/explain.html",
+      "sha256": "f2606929c6eb00b9cb3576ea71dda4821b324ccec897948b64515c832575a5fb"
+    },
+    {
+      "file": "public/flight.html",
+      "sha256": "8209becb04defe23025e418bb1e210d46624d5b9b30e331aae2cf15ef25e9417"
+    },
+    {
+      "file": "public/game-2048.html",
+      "sha256": "be3c880aa232f6019d8f0f633a0f50556c3964c7d2ee6bb63090b54867570085"
+    },
+    {
+      "file": "public/games.html",
+      "sha256": "4e8fb945157fe6a7647698e767af0d40959e63b862c0a21e69494c8bf948e2bb"
+    },
+    {
+      "file": "public/gomoku.html",
+      "sha256": "2a4c8b0f0340a9e7811fcdb3eff1d13ff909dfd7449e1fcb9aaf9d2b6f3d2b60"
+    },
+    {
+      "file": "public/image-background.html",
+      "sha256": "cc116afa5db9f71d994aea3cd104a1fc4d88a6f06a5ffcabea6c8fcb7addf7f5"
+    },
+    {
+      "file": "public/image-edit.html",
+      "sha256": "e9baabb709cb0ab1c87fdd8ad5e9f4b594e669fb816e347e1f6a52f10c2c3e06"
+    },
+    {
+      "file": "public/image-enhance.html",
+      "sha256": "f834d1f3816288fa9d1623d699516bf812b09f7b9b053cd9cc5d7b5d8844433f"
+    },
+    {
+      "file": "public/image-erase.html",
+      "sha256": "fba7e6739a4ab957baa1bfce4daf964c8266fe0082b5a310fc217c9ef00b087a"
+    },
+    {
+      "file": "public/image-generation.html",
+      "sha256": "b548f4f2e605cde49385720ab95bc591d1cdff23b146f64e9e9ea71fe4d7b96a"
+    },
+    {
+      "file": "public/index.html",
+      "sha256": "4b8108334d8ed8ecf38312e4cbe0133274378fb6174a0ab516241241ca44a6e2"
+    },
+    {
+      "file": "public/link-extract.html",
+      "sha256": "7329615bbddf9310f957495f0de7ecca87078dbf023947ccb652ec42731ef399"
+    },
+    {
+      "file": "public/memory-game.html",
+      "sha256": "a25a382ffcb1e46a38143b324ca906eacb48985f1ebeab7c64a510a83107ff55"
+    },
+    {
+      "file": "public/nestdutio.html",
+      "sha256": "3d1e9550627330502770431ce5f209d3952a61cd8332d8064885bece9ee81232"
+    },
+    {
+      "file": "public/never-retreat.html",
+      "sha256": "4b02ff50c7dcf56812e9f7bd29031afd2186dde8cff786b4e4c6a3d041c32d1d"
+    },
+    {
+      "file": "public/skills.html",
+      "sha256": "74acf90a4627b7b91226d543becdfb8f5192697e4c9c2f79366b7ae0ce98d0d8"
+    },
+    {
+      "file": "public/snake.html",
+      "sha256": "ad585b19faf4d925a556b151bca849bff5f2c24c8fb8659e6b887b99d25ee826"
+    },
+    {
+      "file": "public/utilities.html",
+      "sha256": "5e761215729d2a228b13275b7bdbd4bdc0925ba91a4c509072d2b6cd0d0efaef"
+    },
+    {
+      "file": "public/video-crop.html",
+      "sha256": "a01f2ed2f9bc37f96c7b743bcdf60455deb7708dbfa44e4b013add1ade145791"
+    },
+    {
+      "file": "public/video-gif.html",
+      "sha256": "1aa581ce8aa1f0b589ec7e83adaa55387f37dc12621d7859ac9ec74461077c42"
+    },
+    {
+      "file": "public/video-mask.html",
+      "sha256": "9416a7ccff7b73291800ef2e5db93d06d329978b058c80d33524a997aa8aa397"
+    },
+    {
+      "file": "public/video-pricing.html",
+      "sha256": "98b847ddbcd8769c1079118aa97056784c86c134e5c618d13492c7fc7e200b90"
+    },
+    {
+      "file": "tests/nestdutio-config.test.mjs",
+      "sha256": "358ef0fe9a75721c46ae6d8214b1006fdbebc42746e8166ae0940a35532e0512"
+    },
+    {
+      "file": "tests/nestdutio-ui.test.mjs",
+      "sha256": "c1fdaf69a397766ebc39a3923e08384a662609abb6548a7146e94dd62a90aa0a"
+    },
+    {
+      "file": "backend/nestdutio/generator.mjs",
+      "sha256": "b7f633724e730357ec0866d8a732b3b87b11ba8e5ecf02b31098bd5932b9ac5e"
+    },
+    {
+      "file": "backend/nestdutio/standalone-server.mjs",
+      "sha256": "08907f64b32f692ce64f9c432221c02132e331886628b43da4fc710bbe4eebec"
+    },
+    {
+      "file": "scripts/frontend/site-navigation.json",
+      "sha256": "4e4aea058bb99bd2508362e709aa6af611c0c5cef34964d3574968baaef1de44"
+    }
+  ],
+  "localTests": {
+    "pass": 704,
+    "skipWindows": 3,
+    "fail": 0
+  }
+}

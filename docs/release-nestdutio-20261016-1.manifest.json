@@ -1,0 +1,286 @@
+[
+  {
+    "path": "package-lock.json",
+    "sha256": "01cdeda8287e21eb4d5cb3936941a63cd38c1278b54360916439b40d1ec857e7"
+  },
+  {
+    "path": "package.json",
+    "sha256": "203210b2f52c84fe666276176eee2da23bb2d2332d44e14a42efc7905b9368fa"
+  },
+  {
+    "path": "server.mjs",
+    "sha256": "bd2f4221ee5e7b222cee3f1846cb1df2add9d1b4ff29a43873d3a80aa6edfcd9"
+  },
+  {
+    "path": "backend/credits.mjs",
+    "sha256": "b59838a6ca429919cbc003b95571491b97bdd75f53e04b74cca20e9556edce02"
+  },
+  {
+    "path": "backend/database.mjs",
+    "sha256": "a4a386b4a0490887eb60a5e5f9e40c930d6819b754f12e4ec6e658bca44ce40a"
+  },
+  {
+    "path": "backend/mariadb-compat.mjs",
+    "sha256": "6cf78f33f53bc610965438d19580eb4655821fee1c50a87174781c566680144c"
+  },
+  {
+    "path": "deploy/nikai-nestdutio.nginx.conf",
+    "sha256": "ac4f3f13686f5a52356b679810b3dfe9d44cd9cb33bf0b278e1a22536ef2c958"
+  },
+  {
+    "path": "deploy/nikai-nestdutio.override.conf",
+    "sha256": "c552450fa6c5567ceba1c6a70e9d37a5285e49f1cefbc59ef1a7a724ce8a52c9"
+  },
+  {
+    "path": "public/admin-nestdutio.js",
+    "sha256": "60ca2ea1356aadd7b9996084ebe7b4ff400fe2912d5839007ed484745ff1a577"
+  },
+  {
+    "path": "public/admin.html",
+    "sha256": "009f388ac6859b08e36133ad5bb7505edd1d05f6a821939013089c224716211c"
+  },
+  {
+    "path": "public/breakout.html",
+    "sha256": "fc39a603f8100b24f7318bb3d1d0e318f9bdb329ab477ba79e83d49971eb1098"
+  },
+  {
+    "path": "public/creator.html",
+    "sha256": "328fe0b4465f03917bf579d9ab0d87c0946b0f86eb1c2c6e183b733ad8dd67bb"
+  },
+  {
+    "path": "public/credits-account.js",
+    "sha256": "ca12d4ec338a8a0f8790d3fbf914ed3a6a2176492bfa614835f31392d7e925d4"
+  },
+  {
+    "path": "public/explain.html",
+    "sha256": "a76e2b3ef2e835293c1dfb3e37e9e6d02314405d926d71a7d65951d88287904f"
+  },
+  {
+    "path": "public/flight.html",
+    "sha256": "4deb43a7bb43e8875c6cc59c7e39a46cdbfbafbf377818704b8877f4ed65facd"
+  },
+  {
+    "path": "public/game-2048.html",
+    "sha256": "70bee18eb44290b64dadcaea77aec506d7f6120c491490708cf9f5b83b16870b"
+  },
+  {
+    "path": "public/games.html",
+    "sha256": "872a90f1e5a2fae2325ce27d21b088a09bdd359c13394b45dcb00143b1059690"
+  },
+  {
+    "path": "public/gomoku.html",
+    "sha256": "c93898712b701c95359b92693a9b1a8e80724e23f2da4e8b8740a94db5a8e226"
+  },
+  {
+    "path": "public/image-background.html",
+    "sha256": "2ab8e141ebd387fc9c0b90a1ee65d423d524b306e46a461267f3fee4563ea0b8"
+  },
+  {
+    "path": "public/image-edit.html",
+    "sha256": "43488c2fe5fc4bb5b094d429ba95e3f7ef37548aafe4c55b5ea2a41c8efe7682"
+  },
+  {
+    "path": "public/image-enhance.html",
+    "sha256": "bd1f196792d867709d0d3b1fe4ef44885bd8dada7b073a21d727c5e9af1d5ec5"
+  },
+  {
+    "path": "public/image-erase.html",
+    "sha256": "f6eb7e5e0324dfae9b554170bed6ee98cbded92a2cf7228d71179a074c9c41b7"
+  },
+  {
+    "path": "public/image-generation.html",
+    "sha256": "8ba54b08912eb4decfce52d7038999fe418260aba31a570146ae8350eadf5a12"
+  },
+  {
+    "path": "public/index.html",
+    "sha256": "385550e40bc2c5c6c1dcba84d9e04e7fe154e02032bc2a3a28a330022fea5461"
+  },
+  {
+    "path": "public/link-extract.html",
+    "sha256": "0d81535b48f8a39281c096c8baab603c5f5b4fcea06bf19a7c2e0e37276851b1"
+  },
+  {
+    "path": "public/memory-game.html",
+    "sha256": "eb4de6ea32549f6b021abfc22cbaf4186ae4e1f9310fabe386794e870f70e8c8"
+  },
+  {
+    "path": "public/nestdutio.css",
+    "sha256": "5c0c6c6a06bca0de5cd8eb6291147535f4a72ce7fcc5de7125343ccbdd915438"
+  },
+  {
+    "path": "public/nestdutio.html",
+    "sha256": "f47d84dae8e96c7a2e81aa05037cc33ad01a61155230b300aef26c1e58977c30"
+  },
+  {
+    "path": "public/nestdutio.js",
+    "sha256": "4bd2941f75f3ac7403dd0d5b2bb15a3be065defde48ae606e9904c51ac29ece4"
+  },
+  {
+    "path": "public/never-retreat.html",
+    "sha256": "0a3c811e5e89afeb08fd988cf95e70e230b9c0fdefab8730383b827af9573532"
+  },
+  {
+    "path": "public/skills.html",
+    "sha256": "11b4f09669e02471bef40c309bfed2b08d50752049dd6306927686f8234bfaf1"
+  },
+  {
+    "path": "public/snake.html",
+    "sha256": "0ca59e16a17fdaadf727b1ff9f6500e9b622020aecf5bb1b98f9c75dac11d8e2"
+  },
+  {
+    "path": "public/utilities.html",
+    "sha256": "be326d6ddd656807edc942716a050be423f9dc81d4d35a7b0c1ac36863fc42e0"
+  },
+  {
+    "path": "public/video-crop.html",
+    "sha256": "801b01511bd66d0ddad52a323628821adf808180b347f0b103535ef8ff1f46ac"
+  },
+  {
+    "path": "public/video-gif.html",
+    "sha256": "230cf136f3e44c60049ea3ec0f426cb8087be8068ab783c54665ccef3d15d415"
+  },
+  {
+    "path": "public/video-mask.html",
+    "sha256": "5566b3c813c16f7cd00b77b4e1a663d11488853860e7e5dcfad7b6cd883a906d"
+  },
+  {
+    "path": "public/video-pricing.html",
+    "sha256": "1cb2fa6ff438827651b8cf36ff512d102e90f6ebc29269d1fe95e94fc36f8dda"
+  },
+  {
+    "path": "tests/admin-layout-order.test.mjs",
+    "sha256": "9aa3280208ffcd6ed28de80ee98ca6a8bae33b3e297febcd20c4bba81242dd87"
+  },
+  {
+    "path": "tests/api.test.mjs",
+    "sha256": "991c961296fd38ba465261d4c5fde3a47cb9d61913032120e547245d968765c4"
+  },
+  {
+    "path": "tests/image-cloud-history-store.test.mjs",
+    "sha256": "0117d54803b3f2dc09aeb6303bebdb1711122b59a5073c9d2c30c2a35a442669"
+  },
+  {
+    "path": "tests/image-provider-store.test.mjs",
+    "sha256": "643ae39831e8f1bd88e7258edbfe488dde4ac832ea17d8812005518852460466"
+  },
+  {
+    "path": "tests/import.test.mjs",
+    "sha256": "48dd057444787c8dd88c636dba8744d4a1ee6a9dc162370d4f71fbfd1ed7aa5f"
+  },
+  {
+    "path": "tests/mariadb-compat.test.mjs",
+    "sha256": "e89eecc8b1eeb06f9ed526932ecb01fa87d540c2825e7cbaa42d1d9d6b4cd2dc"
+  },
+  {
+    "path": "tests/nestdutio-api.test.mjs",
+    "sha256": "d5acde6f526b20e7ced00744bd169233a8eabab55df84e7cc4600a6e766a933e"
+  },
+  {
+    "path": "tests/nestdutio-artifact.test.mjs",
+    "sha256": "3b48ae09b0e90d9404237ead2fade5558947b5d1211ddcea8c838b6ffeda22ee"
+  },
+  {
+    "path": "tests/nestdutio-config.test.mjs",
+    "sha256": "03f7cf425dccc4a2354e9d252cf43eaf74c37ce3b583c4e25df67ba4770208a4"
+  },
+  {
+    "path": "tests/nestdutio-export.test.mjs",
+    "sha256": "4a5dc9dd6624ab2b7efc6eed8a2707dca4a570c3ad33693ec7b6eee2aaf8ec20"
+  },
+  {
+    "path": "tests/nestdutio-generation.test.mjs",
+    "sha256": "76019d334757f3e35a3c06072fe1c614545ee1fd929d06bf801e9d4a8a3939a8"
+  },
+  {
+    "path": "tests/nestdutio-jobs.test.mjs",
+    "sha256": "c6b783f0cb6cacaf6ad47b3ade9685081c34f1aef5d5ef33eb6f261389af8c3d"
+  },
+  {
+    "path": "tests/nestdutio-preview.test.mjs",
+    "sha256": "6f4e19033eb456ad0c3837068707c696a003db3d1a25a549295c8231ef4e199c"
+  },
+  {
+    "path": "tests/nestdutio-projects.test.mjs",
+    "sha256": "1a6f7cd105616d790cbc201327fc3c7dcd30c177291773c06cbc1a7a75d17a50"
+  },
+  {
+    "path": "tests/nestdutio-publishing.test.mjs",
+    "sha256": "0a72b912438b3e94296ea566f4be0234547a95b23ac74d76312232b2e0166ddf"
+  },
+  {
+    "path": "tests/nestdutio-ui.test.mjs",
+    "sha256": "4f8a3e43219c36b4cd93d57d9f04c9b38bdb3bc9ce11640cff6b6b411aa2a72b"
+  },
+  {
+    "path": "tests/site-announcements.test.mjs",
+    "sha256": "66d06ee6378784fe1a275bd0ebd801338773e9ebe7a7acf20ffe48fb18fbfe3e"
+  },
+  {
+    "path": "backend/migrations/033_nestdutio.sql",
+    "sha256": "f95ae8dc504aa65ac956afded4f8aed6d82c72fa2fa23f38d46442224075305c"
+  },
+  {
+    "path": "backend/migrations/034_nestdutio_publishing.sql",
+    "sha256": "b10f8855cc5a589f2421efd174a7fb137c30c5caa6ad03db04a5323d813ad365"
+  },
+  {
+    "path": "backend/nestdutio/artifact.mjs",
+    "sha256": "81bf032f8184e477ccbcde66e917228e8ddaa1db9c1702b2dba8f030409b96c3"
+  },
+  {
+    "path": "backend/nestdutio/browser.mjs",
+    "sha256": "28202341cfcbe4db717a2483b7dbe98da89fe98d1b068048f395433a73c32b46"
+  },
+  {
+    "path": "backend/nestdutio/checker.mjs",
+    "sha256": "e17b7d365419dcf44bb45af07f70505701bb60769189424b7ea52871f832a3ba"
+  },
+  {
+    "path": "backend/nestdutio/config.mjs",
+    "sha256": "0194108eed5b65792e3684a033fc029d236ded3ac08d6661eab090c0dd0b997e"
+  },
+  {
+    "path": "backend/nestdutio/export.mjs",
+    "sha256": "7dc4836d966a651de7dc74f93195b905524df0012e6f0778c32589abe6f49ae7"
+  },
+  {
+    "path": "backend/nestdutio/generator.mjs",
+    "sha256": "783687e0fb511bfce5cd6180bc944986b0ba2de689c3803c0f39e03276962fdb"
+  },
+  {
+    "path": "backend/nestdutio/jobs.mjs",
+    "sha256": "fc83db938188bd44371f253ea603b8069c058d21ca83d50b93673715c20c3caf"
+  },
+  {
+    "path": "backend/nestdutio/preview.mjs",
+    "sha256": "b5f70e5b66b5e3419670a94d179bc2a866a1ca0448b3dcbc3f93dc4641b4ce37"
+  },
+  {
+    "path": "backend/nestdutio/projects.mjs",
+    "sha256": "cfc04a9d08b7f4c0f04d0ce7b89e754e11a5438d1df03cc030f8ec9f1b99ace0"
+  },
+  {
+    "path": "backend/nestdutio/publications.mjs",
+    "sha256": "7f6f586df1a19768f6652d6d076debbe26a42f5cffa41346b57a3069c00b825f"
+  },
+  {
+    "path": "backend/nestdutio/routes.mjs",
+    "sha256": "56cbde5418851ac071587f9dd85927e97b87236d032ab7021fd5547bf8ce60ef"
+  },
+  {
+    "path": "backend/nestdutio/service.mjs",
+    "sha256": "836a8efd707c6360380dbaa3bb79828726910f91e76eaf7c0cb509cf7788f26a"
+  },
+  {
+    "path": "backend/mariadb/migrations/033_nestdutio.sql",
+    "sha256": "157fefa11e9d774c56ecb936a2d02630ae59b7c45413f2c49e5834bab937f777"
+  },
+  {
+    "path": "backend/mariadb/migrations/034_nestdutio_publishing.sql",
+    "sha256": "9c42756f16552bf72abbffdfc749c9d7aaf10a9e9c55aa7257e0d592e7619327"
+  },
+  {
+    "path": "scripts/frontend/site-navigation.json",
+    "sha256": "d6a6006cacb581a420ffc45d79021392aa75144c4b5b0504b5108cd314d4e060"
+  }
+]

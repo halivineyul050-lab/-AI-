@@ -1,0 +1,10 @@
+{
+  "release": "tools-five-20261013-1",
+  "sha256": "9a1354aa84c828f21491faa6ca5e270db110db3ea2a03c2a5a2c0ee80539ff6d",
+  "files": 634,
+  "changes": {
+    "public/admin.html": "e55e010fecfe415253f2d08ae743e1d0b397182092a436fc05d164a7e3f6a53c",
+    "public/admin.js": "a2cbf3c5263dbe8c2ccad7d7168ca3ef077432f25403494f1c8ebeb28d67e076",
+    "tests/admin-session-bootstrap.test.mjs": "c1cf4520e9d83ca88ed7606ae39334db1810c2c523732b2f0960c3a1b8da64ea"
+  }
+}

@@ -1,0 +1,182 @@
+[
+  {
+    "path": "server.mjs",
+    "sha256": "42f94e775df2ec4ac5ba2759336d0140e598ea9c153582a10e8b691273abe6e2",
+    "new": false
+  },
+  {
+    "path": "backend/credits.mjs",
+    "sha256": "07cecff0080f4bb9da76bca8c1a017cdd2d05348924803d9e601c8102af0cdab",
+    "new": false
+  },
+  {
+    "path": "backend/database.mjs",
+    "sha256": "801ede9c8028c4be18c24933a8e1db161168a4f5622737b5c47e9185f1e1ff7b",
+    "new": false
+  },
+  {
+    "path": "backend/mariadb-compat.mjs",
+    "sha256": "2069ecc5021567b169039d6694de9bbe1a28ed217cbfd5bf941c174239071088",
+    "new": false
+  },
+  {
+    "path": "public/admin-nestdutio.js",
+    "sha256": "247c9516eb020d638ab43e99b08cb9ad9df458edfe44ae8b4e652198ae7cc22f",
+    "new": false
+  },
+  {
+    "path": "public/admin.html",
+    "sha256": "18f2d2c19f32eb682632ae15b72b47b736b90682e1409a79debbf6d62e6649b2",
+    "new": false
+  },
+  {
+    "path": "public/auth.html",
+    "sha256": "711052ecec883ea63dcc59bbca9ee927e26239ee1c0f04606c114c3f02d602f7",
+    "new": false
+  },
+  {
+    "path": "public/credits-account.js",
+    "sha256": "6313160b985269f8be071c1c5aad82728f3db8166faf034dd10cd3f7efeaffde",
+    "new": false
+  },
+  {
+    "path": "public/credits-admin.js",
+    "sha256": "9d776324ae49b69d945f3a052c4f7ce579d6f5a226802eb1d2cb1ccdf57d180d",
+    "new": false
+  },
+  {
+    "path": "public/nestdutio.css",
+    "sha256": "dba895f86fb2331a1a9045043ee13765eb44a720732a9221d818ef3f3e95f823",
+    "new": false
+  },
+  {
+    "path": "public/nestdutio.html",
+    "sha256": "67dfaf920bc0336e8ba47121d62b3328f215b109a6c4b7b12882666b357bf1fd",
+    "new": false
+  },
+  {
+    "path": "public/nestdutio.js",
+    "sha256": "d649deec1af779c0db1240fab0aa6d630cca06029d6af5da852be20dc5429855",
+    "new": false
+  },
+  {
+    "path": "tests/api.test.mjs",
+    "sha256": "6e930343f0d148157268a3b073e358884b43ba47dcad446a1b2ee9b09d748082",
+    "new": false
+  },
+  {
+    "path": "tests/credit-grants-ui.test.mjs",
+    "sha256": "53424636cabee659b499cb84ff5b82be4433913ba516ad10921539b2c7ecaf30",
+    "new": true
+  },
+  {
+    "path": "tests/credit-grants.test.mjs",
+    "sha256": "563446ff3b28f8bd629e74da169b8dde36444b84cb4d82af45ae84d456a207ef",
+    "new": true
+  },
+  {
+    "path": "tests/credits-api.test.mjs",
+    "sha256": "c1c2f4d9b034f280e4045e98193e3bdf2001dbd2db2a27bf462ecfcd8f5b7ff3",
+    "new": false
+  },
+  {
+    "path": "tests/image-cloud-history-store.test.mjs",
+    "sha256": "3e528f7ddd61e51b5d9b15809452337c389cd55674d2bb74e38b85b5026cb275",
+    "new": false
+  },
+  {
+    "path": "tests/image-provider-store.test.mjs",
+    "sha256": "cbb35dafa3f68576f035c12cc74ac8b75ad354ed38d4f2fc77f4f4de9bf6d7ab",
+    "new": false
+  },
+  {
+    "path": "tests/import.test.mjs",
+    "sha256": "11349132e0409ddda430e9bc11e73a3a1d4d0c123fc82a7582190fd60d1c5710",
+    "new": false
+  },
+  {
+    "path": "tests/mariadb-compat.test.mjs",
+    "sha256": "4801233395afc43f3397d867e427adfce5f2a0467bfaece6105a8802fe737220",
+    "new": false
+  },
+  {
+    "path": "tests/nestdutio-config.test.mjs",
+    "sha256": "5d504c8372c827825b64eee9b3a844bfca03f2e1e0d4563be3c2694b2a82088f",
+    "new": false
+  },
+  {
+    "path": "tests/nestdutio-generation.test.mjs",
+    "sha256": "8a69cf71a58a6081962e8e776989d1b7489aa1ee0837b4b968aaa305520e602b",
+    "new": false
+  },
+  {
+    "path": "tests/nestdutio-metered-jobs.test.mjs",
+    "sha256": "55709cbc8bcfc58c209303e1a8920e6ffa59fc5ee54221848fef99ad239bc60a",
+    "new": true
+  },
+  {
+    "path": "tests/nestdutio-metered-ui.test.mjs",
+    "sha256": "e9150d56ab3aff4898a9d37b1f3922a293049016a331ee53e0db8189d757adca",
+    "new": true
+  },
+  {
+    "path": "tests/nestdutio-metering.test.mjs",
+    "sha256": "c014f2734ed9eb6981958f00627a6164f103251d9e5fc19fe1e8ea7d6d1c1a7c",
+    "new": true
+  },
+  {
+    "path": "tests/site-announcements.test.mjs",
+    "sha256": "642da77b82afc060d39ee504f8f20857cd7554fb5932a0962932e99ebbc54afe",
+    "new": false
+  },
+  {
+    "path": "backend/migrations/037_nestdutio_metering.sql",
+    "sha256": "30dd7644b68e38dfcee84903313787bb73a2b98113c15e7474a4e543f1ba16fe",
+    "new": true
+  },
+  {
+    "path": "backend/migrations/038_credit_grants.sql",
+    "sha256": "cde449d59c487023c1819acd79fe226d9ffe884a37be4dddb25c4a5dbec949d7",
+    "new": true
+  },
+  {
+    "path": "backend/nestdutio/config.mjs",
+    "sha256": "7f71cca20d52c929a0b1c7b07a7ba4760689fe8a9d9f84938a16610d4eb2f07a",
+    "new": false
+  },
+  {
+    "path": "backend/nestdutio/domain-worker.mjs",
+    "sha256": "74f3629e9f6f090a51e6793971866c0e6c6cfd7103f72fcb81e40c8df946d3f7",
+    "new": false
+  },
+  {
+    "path": "backend/nestdutio/generator.mjs",
+    "sha256": "e7c992555e1538cf2aaea23c688251a33716b38ccdbf45f6f7a4d92a4a9e1e02",
+    "new": false
+  },
+  {
+    "path": "backend/nestdutio/jobs.mjs",
+    "sha256": "d536963719dd1454fc06bdf3f104d715c43f008101faf7f07ad5d95d01bfec0b",
+    "new": false
+  },
+  {
+    "path": "backend/nestdutio/metering.mjs",
+    "sha256": "8676df4f19542b6542ae2881a269079df554d76b727c1d019d058ad89079bfbc",
+    "new": true
+  },
+  {
+    "path": "backend/nestdutio/service.mjs",
+    "sha256": "d9a9a3dbda4790124c458a556e4b4aa4fd1fd81050b4b2afd0a3da2177d9ffe7",
+    "new": false
+  },
+  {
+    "path": "backend/mariadb/migrations/037_nestdutio_metering.sql",
+    "sha256": "1fd5af30efa07dfd3b3c7e8d556de00579e15665a7d04e5c3d4bc2e622c9f476",
+    "new": true
+  },
+  {
+    "path": "backend/mariadb/migrations/038_credit_grants.sql",
+    "sha256": "9ad85864d183ec67659b93c1176e7341048ad16628d8a9814bb281bb9348a948",
+    "new": true
+  }
+]

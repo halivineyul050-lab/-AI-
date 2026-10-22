@@ -1,0 +1,38 @@
+{
+  "scripts": [
+    "https://ontimo.cn/theme-init.js",
+    "https://ontimo.cn/utility-theme.js?v=20261012-mobile-nav-1",
+    "https://ontimo.cn/site-header.js?v=20261010-nav-group-1",
+    "https://ontimo.cn/header-account.js?v=20261012-mobile-nav-1",
+    "https://ontimo.cn/site-announcements.js?v=20260924-1",
+    "https://ontimo.cn/explain.js?v=20261019-projects-1"
+  ],
+  "responses": [
+    {
+      "path": "/api/v1/health/ready",
+      "status": 200,
+      "body": {
+        "data": {
+          "status": "ok",
+          "database": true,
+          "version": 1
+        }
+      }
+    },
+    {
+      "path": "/api/v1/explain/projects",
+      "status": 401
+    },
+    {
+      "path": "/explain-projects.mjs?v=20261019-projects-1",
+      "status": 200
+    },
+    {
+      "path": "/explain.css?v=20261019-projects-1",
+      "status": 200
+    }
+  ],
+  "searchWidth": 532,
+  "mobileOverflow": false,
+  "pageErrors": []
+}

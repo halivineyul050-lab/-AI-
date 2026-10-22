@@ -1,0 +1,57 @@
+{
+  "ok": false,
+  "errorCode": "nestdutio_native_artifact_invalid",
+  "errorMessage": "原生作品结构不符合要求：acceptance.output",
+  "budgetCny": 1,
+  "conservativeUpperCny": 0.011196000000000005,
+  "calls": 3,
+  "events": [
+    {
+      "sequence": 1,
+      "phase": "planning",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 415,
+        "completionTokens": 285,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 700
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 2,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 726,
+        "completionTokens": 285,
+        "cachedInputTokens": 512,
+        "reasoningTokens": null,
+        "totalTokens": 1011
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 3,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 1037,
+        "completionTokens": 285,
+        "cachedInputTokens": 896,
+        "reasoningTokens": null,
+        "totalTokens": 1322
+      },
+      "httpStatus": 200
+    }
+  ],
+  "checks": [],
+  "notice": "No WeChat AppID was available; no claim of WeChat compile or phone validation."
+}

@@ -1,0 +1,8 @@
+{
+  "release": "recharge-pack-links-20261013-2",
+  "sha256": "f68eb16954dfaac3b6f40008380a1fd1d3d715712fa4931d86c8dd62a316b1e2",
+  "files": 703,
+  "changes": {
+    "public/auth.html": "5c45d3b8c854dadfc9069017b524929f6ab1e5638e3067278ca96a9b9d05141d"
+  }
+}

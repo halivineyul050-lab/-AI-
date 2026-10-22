@@ -1,0 +1,19 @@
+{
+  "logos": {
+    "uniqueHashes": 138,
+    "records": 138,
+    "assets": 138
+  },
+  "node": "v22.18.0",
+  "skipped": 3,
+  "passed": 875,
+  "archive": "video-watermark-20261021-1.tgz",
+  "baselineFiles": 877,
+  "production": "success: 878/878 passed, 0 skipped; public entry, export, mobile and health verified",
+  "failed": 0,
+  "total": 878,
+  "archiveSha256": "10a3b2e4bf47c9a0131c9f67f4925938327249f0df590b2338033a363adea0f0",
+  "syntax": "server.mjs and every public JS/MJS passed",
+  "databaseBackup": "/opt/nikai-ai-backups/mariadb/nikai-ai-20261021-154908-2555524.sql.gz",
+  "rollbackDirectory": "/opt/nikai-ai-backups/releases/previous-20261021-154236-video-watermark-20261021-1"
+}

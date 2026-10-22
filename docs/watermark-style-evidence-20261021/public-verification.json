@@ -1,0 +1,39 @@
+{
+  "css": "/video-watermark.css?v=20261021-style-1",
+  "metrics": [
+    {
+      "width": 2560,
+      "left": 440,
+      "right": 440,
+      "upload": 104,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "left": 40,
+      "right": 40,
+      "upload": 104,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "left": 16,
+      "right": 16,
+      "upload": 82,
+      "overflow": false
+    }
+  ],
+  "playback": "0.4 / 3.0 秒",
+  "downloadFailure": null,
+  "errors": [],
+  "health": {
+    "status": 200,
+    "body": {
+      "data": {
+        "status": "ok",
+        "database": true,
+        "version": 1
+      }
+    }
+  }
+}

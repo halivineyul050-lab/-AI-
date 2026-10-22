@@ -1,0 +1,10 @@
+{
+  "release": "recharge-preview-20261013-1",
+  "sha256": "1d2016e117b6d03dccd7fefc9bf975a8418fa216d94515991f6595ef4967caeb",
+  "files": 703,
+  "changes": {
+    "public/admin-recharge.css": "f3b98e1df5bab4c5d6ec207f26ad700ff40f28de1a5cc6824373efec6c602248",
+    "public/admin-recharge.js": "37da9c2ae04f4fe59cb7ee8fc5407eb863f6bc6a5f340fd5b99004afcb0f69b0",
+    "public/admin.html": "372444a75e7938e285ca1ea525ce9b0784c9e9ba4cfbf53d34011df96b9d7c76"
+  }
+}

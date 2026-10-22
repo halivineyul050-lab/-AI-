@@ -1,0 +1,26 @@
+{
+  "release": "assistant-20261012-2",
+  "archiveSha256": "442a6d4fc84e036e1a1d1e9ef3b3a93f90c0b39d982817ea8caab76589542070",
+  "files": 672,
+  "changes": {
+    "server.mjs": "873f3cd45248c76211a98038d4c445ee69ad1086ebf3bb95eb95f2083db0d45b",
+    "backend/assistant.mjs": "1cb9198c506f7e4d243ff268bb93a030fdd95d04ad0a54e2fff02cffa34ec506",
+    "backend/database.mjs": "d24cac40116d4f9cf6c51e9613129b2b626e71939e5e5d7ffaf5bd42f7d02bc3",
+    "backend/mariadb-compat.mjs": "f4220e8e637013dfc292d55b6007bceb75578c101fb7cf68fd19ec9fa8ecd77b",
+    "public/admin-assistant.js": "8e5887e463f9081bf37f5fd365bdb3365b91687d888d8729004653c37989bf39",
+    "public/admin.html": "a975a1f5831674d3ad44008e1c6d8bb7872543c8c3183196b3b452e1bacb9657",
+    "public/assistant.css": "1f9784e343f8409cdc11920da6cbbd1b378d336ea8c9f37ea1d85c3d1106e516",
+    "public/assistant.js": "b9fd3cf38c088553a604519440558cc289940ff3d5ee2b8adde20615a3f3fd84",
+    "tests/api.test.mjs": "126eb8e2e744b3d9e3ae73c136e2dc9871c80de1456cd256c921b1e6654c0674",
+    "tests/assistant-api.test.mjs": "9280d5e122c9658284ef2636b3dcf91d2fadc59d43e8877a49c8f7678b00197a",
+    "tests/assistant-ui.test.mjs": "1d30e53ab0bd955d89271e2dba2e3ddf84cffce09a0691f013d7de415c61c528",
+    "tests/assistant.test.mjs": "c381b47080d6ba73b1416c85b33907110431d462c72ae66b071e16fbd8a635e5",
+    "tests/image-cloud-history-store.test.mjs": "f54a20efe175387c0cec8508de3a19f34c99bdb7213aec2e7a2fe2452fc2337f",
+    "tests/image-provider-store.test.mjs": "22ddad6d383b5f9492719123bac57ca60e5057d6a28db078a5cfa9640fb33de3",
+    "tests/import.test.mjs": "9e4a75de074bd68912a857d0bf20341fb415ffc87c32cfb8cad2a31ae0029a98",
+    "tests/mariadb-compat.test.mjs": "cab51b264c77445ed41d8a4b611574ea621389edb81a020e08358217cda3eda3",
+    "tests/site-announcements.test.mjs": "2cd666c0d5961909bef2480b9b006799f60680bb57f7cfcdac057088d3db9111",
+    "backend/migrations/025_assistant.sql": "0ecff9071414e0df0a13669903f85931a329d43e059aa1a6b043d65dc18b14eb",
+    "backend/mariadb/migrations/025_assistant.sql": "9ebf3560badbeb55610e794aef78820383631142d29381325f01d3b1fe40e9dc"
+  }
+}

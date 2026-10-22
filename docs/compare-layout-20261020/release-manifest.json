@@ -1,0 +1,19 @@
+{
+  "releaseId": "compare-layout-20261020-4",
+  "baseReleaseId": "home-hero-20261020-1",
+  "baseFiles": 825,
+  "files": 826,
+  "changed": [
+    "public/assets/css/site/site-responsive.css",
+    "public/styles.css",
+    "tests/compare-layout-browser.test.mjs",
+    "tests/explainer-video-browser.test.mjs"
+  ],
+  "sha256": "cb81ccc8458cd43bdd02da30c18626d333a27da805b8a64b863278cb430fb156",
+  "fileHashes": {
+    "public/assets/css/site/site-responsive.css": "fb1618f9d531ec4470352c05b3979fa5e8712cf05e687c846e30cadc825c8b18",
+    "public/styles.css": "69bfe1bb61005ce8cf3926ec59e60ec2bb83570eff39e5e9aa6eb12973b6c267",
+    "tests/compare-layout-browser.test.mjs": "a4a39ac58a6fdec808936e804da43162d65fbf6f701d2c26ef10d024213054e3",
+    "tests/explainer-video-browser.test.mjs": "81fa68f7bba940ccbeefda83da72bc76e17c64202af0250266b951c5e7aec98f"
+  }
+}

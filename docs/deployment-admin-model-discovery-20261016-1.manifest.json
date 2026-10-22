@@ -1,0 +1,109 @@
+{
+  "releaseId": "admin-model-discovery-20261016-1",
+  "baseRelease": "backtotop-20261016-1",
+  "baseSha256": "082f1847beacb43bc0cca524780a1bf07e8c9c47c2601f56284c0ba7b3847090",
+  "files": [
+    {
+      "path": "server.mjs",
+      "sha256": "b8b68b7fc38d65fd3fea2ad2264b0f7854638ff2d5846e8c628caa6bb3b1ceea"
+    },
+    {
+      "path": "backend/nestdutio/config.mjs",
+      "sha256": "fef2e8a763d3b69b67260ca03f0d43343c3703fa1668da21fdf6dccba85beec9"
+    },
+    {
+      "path": "backend/skills.mjs",
+      "sha256": "8989b29547840870b5dc091b987fe4dc74f58a05052d8636c28b8401f21b8b5a"
+    },
+    {
+      "path": "backend/news-sync.mjs",
+      "sha256": "464db781ba48c4c9d949af9cee99ef28dda1faf2b8f3e44024e9feb98466d83c"
+    },
+    {
+      "path": "backend/model-discovery.mjs",
+      "sha256": "ec07fd846003ccf5e69752b20cd411f3dcc23c311d49686f1bc921c8722422a2"
+    },
+    {
+      "path": "public/admin.html",
+      "sha256": "9438c0bef5b09873377717609ddee197bc49cc1deba33c562f04cc369c5c3a73"
+    },
+    {
+      "path": "public/admin.js",
+      "sha256": "4687be50a3ffc1a31d54d9ba0c1f79eb01438020e9a8323825cba99e6cec0b74"
+    },
+    {
+      "path": "public/admin-provider.css",
+      "sha256": "7fc0e82ffe756504b143f9a4cc6ec35ef34fbd837c6e8a67224ae23bc1fb3d5a"
+    },
+    {
+      "path": "public/admin-model-picker.js",
+      "sha256": "506bf248ce5b42bfd5f38cd34088bc298a2c1189d2e166364d179a17f7e9aed3"
+    },
+    {
+      "path": "public/admin-assistant.js",
+      "sha256": "7ce160eced501a01348ebba62d65400f29e54c6f10b1ef006dfb6c63d13cdee8"
+    },
+    {
+      "path": "public/admin-explainer.js",
+      "sha256": "06a08920453522e165308617e11dd7e7f72b8cf97e9933c4db5fd49a52243398"
+    },
+    {
+      "path": "public/admin-nestdutio.js",
+      "sha256": "1969e12351e6d19a1c78c0266c34749005d28269c9ec2576e6f413a1e0b04aa1"
+    },
+    {
+      "path": "public/admin-skills.js",
+      "sha256": "75739347b485d65e4f533d9d9383eb1a940ff0da2be9d7e0ad3fdee0852b734f"
+    },
+    {
+      "path": "public/admin-news-sync.js",
+      "sha256": "a561b26db5657cfffca34506f36f4e3cb2ad9c5ba6cca1c2889c9813ec7ad2b3"
+    },
+    {
+      "path": "tests/admin-session-bootstrap.test.mjs",
+      "sha256": "334fa737ed394ac2926041b6854a273ba9a924b0cb5390da42dcadb6fdf0c5f5"
+    },
+    {
+      "path": "tests/admin-image-workspace-behavior.test.mjs",
+      "sha256": "65576bc4a3e9d486b7f02c00a536537afb57e39bcf85136eb652be33ba0ef974"
+    },
+    {
+      "path": "tests/admin-news-sync.test.mjs",
+      "sha256": "df517438540d9680b58d7b024aa7fe125cab9b5a7cb7adf2c918718577e3760a"
+    },
+    {
+      "path": "tests/admin-assistant-save.test.mjs",
+      "sha256": "6aed1200e6ddb0bc22f4b1c39d186ceab4029796baec55d850702639dd2ade7e"
+    },
+    {
+      "path": "tests/nestdutio-config.test.mjs",
+      "sha256": "62be2fe27b5f5e9371b60329d921e56e57a3e3970c3289d6f37a95fd9b1742fc"
+    },
+    {
+      "path": "tests/skills.test.mjs",
+      "sha256": "747e07543283a214e3adaa121246556b35584aa5a78df0f2e78fdd8d16dc5ba0"
+    },
+    {
+      "path": "tests/nestdutio-metered-ui.test.mjs",
+      "sha256": "d987c670abffe05de1fd4d08433a5a8ab07ba9d639cd4892b86c15b508189035"
+    },
+    {
+      "path": "tests/model-discovery.test.mjs",
+      "sha256": "e280c9861277870b952cf740916deb4375428c85e8c3e92a30834c02b14365c7"
+    },
+    {
+      "path": "tests/model-discovery-api.test.mjs",
+      "sha256": "2681fa6f09ae70ece4b91e9b67581c7e5543e11a7caf3bd88e56dfb4d3ef9dab"
+    },
+    {
+      "path": "tests/admin-model-picker-browser.test.mjs",
+      "sha256": "972d14b67b59963e40a0642dbdc4616fba57d35f452dab231bc50cfa236667da"
+    }
+  ],
+  "excludedWorkspaceDifferences": [
+    "unrelated news routes and imports in server.mjs",
+    "package.json script order",
+    "migration-count test assertions",
+    "other dirty workspace files"
+  ]
+}

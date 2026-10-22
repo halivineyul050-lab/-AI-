@@ -1,0 +1,10 @@
+{
+  "release": "recharge-save-20261013-1",
+  "sha256": "40c2af3ea5ff05decad5ef01afb1695852412de254252f095939115f189088d9",
+  "files": 703,
+  "changes": {
+    "public/admin-recharge.js": "27de29765fbef84ee64abc86388579ed48323fcce204673a8744004d676d9eb2",
+    "public/admin.html": "2db60980812df23dac5627c04510f6a797b611e9657d0c128fbcb18f348dbed4",
+    "tests/recharge-config-save.test.mjs": "c60f5eb0c1fb29828deeda2ffe5bdfea58629fbdcd84bb7d39e0e631503d0196"
+  }
+}

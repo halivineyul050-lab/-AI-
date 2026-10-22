@@ -1,0 +1,12 @@
+{
+  "release": "user-credits-20261013-1",
+  "sha256": "e8d9342d97863e5496073bbd588b8eed28500c5cebf60e613b8184f0092e015d",
+  "files": 704,
+  "changes": {
+    "backend/auth.mjs": "96fd696617479b138977a3a527d46d0e9ae1db2e8e65b509102bad8bbd6b8b81",
+    "public/admin.html": "356cf6c17e9948e27a748c9b19c54f0db2b8206fba015607826405de39ef7005",
+    "public/admin.js": "8194eb94e0300deddb06a708ad26b1f4bba6fa63845b972617986211bd5f09b9",
+    "tests/admin-session-bootstrap.test.mjs": "f02f2f963cabf5aba8d028eed28fa762745b1bb8e3dad3af555642b632ce1586",
+    "tests/admin-user-credits.test.mjs": "4ec326bf1abc9306db383d24152d07aff4ddd6f4a2bd59d84004da50aeeac4fc"
+  }
+}

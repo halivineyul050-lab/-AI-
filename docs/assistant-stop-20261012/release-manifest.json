@@ -1,0 +1,12 @@
+{
+  "release": "assistant-stop-20261012-1",
+  "archiveSha256": "3ec792d224be6b2586c14a77b3b2aa4b5106667ad7cb8ecb9f89fc1db8d06c50",
+  "files": 680,
+  "changes": {
+    "server.mjs": "6014d849fa0e08261eabfdc0a3bd65bc95190b3b83faa793cde21a0110ffc97a",
+    "public/assistant.css": "b32e578b93458906c32658b6b4733108c46432bc329767332fcf9aa4952b5500",
+    "public/assistant.js": "38854c55670d12c7d121cca794e4168166037e92c6f3924e311819de9cd5243c",
+    "tests/assistant-api.test.mjs": "fceab7e140a3c7a9a73bea68c304f9f0269fa827e66a15f722d632fe3b52966a",
+    "tests/assistant-ui.test.mjs": "ba966b040d060acc37efc63ecde8451a9138cf34a37831a945a78ebff094be9c"
+  }
+}

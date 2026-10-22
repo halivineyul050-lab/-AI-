@@ -1,0 +1,14 @@
+{
+  "release": "assistant-quota-20261012-1",
+  "archiveSha256": "6646f679bce8d91d1f47a4de070399e11ccac9920caf8bc0fd61bee78eaa57be",
+  "files": 681,
+  "changes": {
+    "server.mjs": "2d66827ce855e997b8fde29b7ef42b11627629cf548af02029a5c7f3c9f8736e",
+    "backend/assistant.mjs": "307d3a898a7cb1b9de9bb718df6c54a26becd85f38567427949183a5156a0eb3",
+    "public/admin.html": "ec63255172b78749ae873adb90ea3b6adaac519530b0ded56d2a0d92740af808",
+    "public/assistant.js": "4e446631657aea008adcf4ea58e94bff1de183d38781c91306434039585c28e2",
+    "tests/assistant-api.test.mjs": "29c4158c7069b880d27a0c275b52e557a9550c1dbb36d4568a9033a306e97661",
+    "tests/assistant-ui.test.mjs": "6292b0651d71ae78641f1f36f4d855fd402431be97679b41e122c0f0de1167e1",
+    "tests/assistant.test.mjs": "a8c0a5b701cb551d51b75605c79b0461e45bf9cb7e62057a612b9e4bb2ad51d7"
+  }
+}

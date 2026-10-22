@@ -1,0 +1,27 @@
+{
+  "release": "daily-ai-briefs-20261013-1",
+  "sha256": "cbd60f098eda265689c6506654c27a0bc47e181bfb4f0654ba0233d137348903",
+  "files": 640,
+  "changes": {
+    "backend/database.mjs": "5da1f258d5f33c9b0040b56b14baf71eb210de2193aee027e59376bcc951fad6",
+    "backend/mariadb-compat.mjs": "06d376443750ecb8a75db0fdaa73527b61fe3465df86291f355d7d93f10ab888",
+    "backend/mariadb/migrations/031_news_brief_images.sql": "7ebbae5df9ed5ebeaf0de55f9ede8c9d7eb90f5115ecf72d1f3ac92c7976f631",
+    "backend/migrations/031_news_brief_images.sql": "7e8efdb0e91c7ef50e9ff1030eacb28b21a930c1196b8b755ceb3888e0a3153f",
+    "backend/news-briefing.mjs": "861413201e9f48371a9ec93b38b3540600f818652f2732e44cbabfb27fef714e",
+    "backend/news-feed-fetch.mjs": "11794344d84a9e1e715a61e8db30dccc58e3321ea122c29b707d5e354049af86",
+    "backend/news-sync.mjs": "5943a8564d4dccf804c4eb9e38725a24bde79e98e90ff6b0d7578b05461ef34a",
+    "public/admin-news-sync.css": "f8c2247e84755a38a836161a6c2443c6e1901e0d435bd9a0fad6c657d71ed121",
+    "public/admin-news-sync.js": "662715036d39302bc367ecae8cdb0f69e4c42400f60394771b09573bed8eefc4",
+    "public/admin.html": "fe7e64f8cafbe047f12c8cb19cbf3368ee2bc6d007e45b970f02f07d359ced5d",
+    "server.mjs": "08346e417943d4988d8bcb5ea8ea123175e12968adb29c47200b40be7b9c1e2c",
+    "tests/admin-news-sync.test.mjs": "6dc1714f6b51c1a15551ff8e58861506d359f88af526ff2362fdf99eb37c08ee",
+    "tests/api.test.mjs": "e23e8ac07b71da0cc07ce3ff1b2a2c4bf49716625f5fb957798b3b1ced6a4a50",
+    "tests/image-cloud-history-store.test.mjs": "cc979ba978ffa1d8953da2de4408800087811310e2010a37448ad904a80332e3",
+    "tests/image-provider-store.test.mjs": "08f35f96c433e06f7a35d6213347c6e6a86cf3b945169e42999b9ffdfece5a01",
+    "tests/import.test.mjs": "37802f7397df62428a55a596b0eb42f4bf8568f258cf29318eb401ddbac06e21",
+    "tests/mariadb-compat.test.mjs": "d9ee0da9a2a18b10c3f044ee577fa863e2803d8f7c4f2dbddd631238b70fd033",
+    "tests/news-briefing.test.mjs": "e552e5a2693ddfa14429f55650d4f0cb64c00ea8e844ec652ed1f8a408837907",
+    "tests/news-cover-api.test.mjs": "a9d6db0d124c72dcdd565b2f518ae0463aff623edc8b1c6527cdb3eafc66efc6",
+    "tests/site-announcements.test.mjs": "6e73cfc19ea1e28a2bc8ec4274d6f9518de150916984dc87dcc76faa073cb1d8"
+  }
+}

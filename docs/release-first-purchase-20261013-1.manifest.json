@@ -1,0 +1,31 @@
+{
+  "release": "first-purchase-20261013-1",
+  "sha256": "6948ee6a059852471391fb0cc626a620ebe7f6f21244bddbd56b84988db7e3fe",
+  "files": 707,
+  "changes": {
+    "server.mjs": "e705d2856babcc22e1d24d5d873d29a589f76973a4e2c12bad988f66b270bd00",
+    "backend/credits.mjs": "1f23c655608c196e686c6a2b0f76c851502d62cfc0b985497ddd28bb9a1b6371",
+    "backend/database.mjs": "c933ba20c792b659bb4e4a39f086e46b4f7defd00f032ca0f590df7932537e10",
+    "backend/manual-recharge.mjs": "b300fc9baddc9845aed23cc8de1860b55ffde373dfa43e80fcffc4c2695f24c0",
+    "backend/mariadb-compat.mjs": "0c2a7ad5383fa1d2283ecc1d31f9847002f5b97ef3af333aa1826b2f4e0d3c5e",
+    "public/admin-recharge.js": "34ea4e611ff3dae4782a7c6bcb3a5e8011de2b072203c6eb7581ecb88aba86ef",
+    "public/admin.html": "171f999b65e23b03318d61337bd109846e1bb7479ca5cff957726f2a052b5041",
+    "public/auth.html": "9b1ada9cf1c49c956fb0622568175a234629f300ce8d556dd8bcd1dd28cb7b5e",
+    "public/credits-account.js": "8842510e5f6e1328d63add58db951da402802be521996fc88ce4323dcf2d4aef",
+    "public/credits-admin.js": "59ddfbdc792a2c617489d04cd401d0ef18b3e75db2e5b2360f6cf3838697fcbd",
+    "public/credits.css": "1471cf44bf2065412ba577fcd1d65675a784910adbd6258262294985bde5ebf8",
+    "public/recharge.css": "9161a51aa426d3d19bb9e422bc97e139ad8f0a2a25092fce8e678eedda075b8c",
+    "public/recharge.html": "6af594e0f4a157fe08cb08b0946f272f85998cb8419034e9934ddf3be181298c",
+    "public/recharge.js": "29a54fe58b78b05ea523186958c2bef58863c4859042dcf16014f68c30ed6426",
+    "tests/api.test.mjs": "8fbc0b3a344a2a21bacd9f2250b06f55892a5e2ff88cd15fdda00dae37ee0054",
+    "tests/first-purchase.test.mjs": "1f7ea1c5ec6ec7c015eb8eef658bb0dcf9adfbe418447d98e3a934e5642e0cc6",
+    "tests/image-cloud-history-store.test.mjs": "5f7b27a74f93771421183479b9fc09e8a675bec6574e22f3b0a3048841ef64b9",
+    "tests/image-provider-store.test.mjs": "91d0b6a95ac3ba8e6e39376714b3b2d2cb82fde6aab2f41adf5c17fd99e9fc5a",
+    "tests/import.test.mjs": "ac0c91de43d987b9016754361ab8d04d0560c60a6f14c9afc043a5ad2386ae38",
+    "tests/manual-recharge.test.mjs": "b193e3257094c0193468ea02fda3382b53e91de39f3db5c436dc547dc372666c",
+    "tests/mariadb-compat.test.mjs": "3bc461254f1771465974ee860b943886c735003912420f2a153f8c2bdbdf5c7b",
+    "tests/site-announcements.test.mjs": "d23779ff8877f17da0f14d655e8d6b065d3d771fa3913beea02c32b20bf971de",
+    "backend/migrations/029_first_purchase.sql": "1aaaf5b26dee48d43ca108eea828d41d162acd2cea7c3bc7ded304d810e583f5",
+    "backend/mariadb/migrations/029_first_purchase.sql": "cb4f081ef08aa9fd331364f0920a2ca89e8c822e3deea7d01a79f05219437b3e"
+  }
+}

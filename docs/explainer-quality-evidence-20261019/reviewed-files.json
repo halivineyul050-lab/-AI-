@@ -1,0 +1,15 @@
+[
+  "backend/explainer.mjs",
+  "backend/explainer-output.mjs",
+  "public/anatomy-renderer.mjs",
+  "public/anatomy-scene.mjs",
+  "public/anatomy.css",
+  "public/explain.js",
+  "public/explain-ai.mjs",
+  "public/explain-scene.mjs",
+  "public/explain.html",
+  "tests/anatomy-browser.test.mjs",
+  "tests/anatomy-rendering.test.mjs",
+  "tests/explainer-json-mode.test.mjs",
+  "docs/explainer-anatomy.md"
+]

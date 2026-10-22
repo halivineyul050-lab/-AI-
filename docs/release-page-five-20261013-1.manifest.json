@@ -1,0 +1,10 @@
+{
+  "release": "page-five-20261013-1",
+  "sha256": "a449845221a178c35036493dc2ccdd2e31f004f2cb7893a90f152533ef943518",
+  "files": 703,
+  "changes": {
+    "public/admin.html": "e879fd92cfb581e61f7592eae4b0a80f4e0340b36927318a5bee8ab2e73844b2",
+    "public/admin.js": "3f0fcc734ab0b9e5c1f4dbde4488cc36513a8e565a6ce3cb8024ec5d9075868b",
+    "tests/admin-session-bootstrap.test.mjs": "5e7b41ad62b438e97d6a5e4d4a1cd404ce8b9ed34ae50a969da89fda405b37ca"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "release": "category-tabs-20261013-1",
+  "sha256": "c8fec484646a097e0949d06819e513ebede8c0d3bfc2b32114d76846fac94d1c",
+  "files": 703,
+  "changes": {
+    "public/app.js": "1301d91ac78a83e2b658bfd48deff139a8297575bc016cc015426bc10547dbb1",
+    "public/index.html": "6e31ab44594858d8039a6b7fce428ff235d0df30ab604a245954112104bf732d",
+    "public/styles.css": "45d440c67221ae7eb499bb0ef2a01556980556f82ac359aba901a92e94ba34a8",
+    "public/assets/css/site/site-catalog.css": "56491cdaabe13fe6c81aee86e117efc9dbf6ccf00e653f68c4ec946b2e718600"
+  }
+}

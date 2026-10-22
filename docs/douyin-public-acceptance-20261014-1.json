@@ -1,0 +1,26 @@
+{
+  "release": "douyin-public-20261014-1",
+  "sampleId": "7695798327628298367",
+  "ok": true,
+  "playback": {
+    "ready": 4,
+    "duration": 132.607007,
+    "time": 0.091156,
+    "error": false
+  },
+  "download": {
+    "bytes": 9200651,
+    "mp4": true
+  },
+  "cover": {
+    "status": 200,
+    "bytes": 9984
+  },
+  "caption": true,
+  "pageErrors": 0,
+  "fixtureCleaned": true,
+  "serverTests": {
+    "total": 593,
+    "passed": 593
+  }
+}

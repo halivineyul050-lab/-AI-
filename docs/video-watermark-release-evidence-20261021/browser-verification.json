@@ -1,0 +1,26 @@
+{
+  "console": "Only existing unauthenticated account request HTTP 401, no page exceptions or FFmpeg errors",
+  "review": "Independent requesting-code-review review: no blocking issues; stale parameter error fixed and reproduced before/after",
+  "viewportDesktop": {
+    "height": 1000,
+    "width": 1440
+  },
+  "browser": "Chrome",
+  "viewportMobile": {
+    "height": 844,
+    "width": 390
+  },
+  "checks": [
+    "PNG transparency retained in decoded export",
+    "All four modes exported successfully",
+    "Audio preserved in landscape MP4",
+    "Silent portrait MP4 exported without invented audio",
+    "Fifteen decoded watermark positions agree with preview within 4px",
+    "Fully transparent image rejected",
+    "Cancel and retry works",
+    "Playback, scrub, reset, width and opacity work",
+    "Changed settings invalidate previous output",
+    "Tall watermark error clears after reducing width",
+    "No horizontal overflow at 390px"
+  ]
+}

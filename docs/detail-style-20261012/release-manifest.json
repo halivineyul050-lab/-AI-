@@ -1,0 +1,9 @@
+{
+  "release": "detail-style-20261012-1",
+  "archiveSha256": "bdbefce869c1f310fa2164bfd7de9aa16592c7b17dcbd56e13fbaad76df84490",
+  "files": 681,
+  "changes": {
+    "server.mjs": "adaf43eb63a728263c6ba4d768ac3dc9d04c6b84dc067a653e3828618a95b5aa",
+    "tests/seo-design-styles.test.mjs": "7477dea8fd63feee9b5ab60f4a20e9dd60d06f62df52f602c454e5b15eb38977"
+  }
+}

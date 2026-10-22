@@ -1,0 +1,48 @@
+{
+  "scope": "临时隔离 SQLite 测试应用；不含生产流量或生产数据库",
+  "measuredAt": "2026-10-08",
+  "performanceMethod": {
+    "requests": "本机 loopback，串行 HTTP 请求，warm-up 1 次后测量，fetch 完整读取响应体",
+    "database": "按项目 schema + 19 个 migration 建立的新 SQLite 测试库并载入种子数据",
+    "limitations": ["不是生产 MariaDB", "不是并发/容量压测", "每个接口独立 limiter 状态", "监控接口受 30 次/分钟限流，因此测 25 个样本"]
+  },
+  "latencyMs": [
+    {"endpoint":"GET /api/v1/tools?q=AI&limit=24&offset=0","samples":100,"p50":2.32,"p95":3.06,"max":10.03,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/tools?limit=24&offset=0","samples":100,"p50":2.19,"p95":2.86,"max":6.23,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/site/bootstrap","samples":100,"p50":1.28,"p95":2.47,"max":3.60,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/health","samples":100,"p50":0.72,"p95":2.12,"max":3.54,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/categories","samples":100,"p50":0.72,"p95":1.08,"max":2.35,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/tools/chatgpt","samples":100,"p50":0.68,"p95":0.97,"max":1.30,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/news/hot?limit=10","samples":100,"p50":0.87,"p95":1.38,"max":3.62,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/articles?kind=news","samples":100,"p50":0.62,"p95":0.84,"max":2.72,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/image-models","samples":100,"p50":0.58,"p95":0.95,"max":3.12,"responses":{"200":101}},
+    {"endpoint":"GET /api/v1/site-announcements","samples":100,"p50":0.49,"p95":0.68,"max":0.99,"responses":{"200":101}},
+    {"endpoint":"GET /api/admin/v1/monitoring?hours=24","samples":25,"p50":2.05,"p95":3.82,"max":4.05,"responses":{"200":26}}
+  ],
+  "requestResponseSamples": [
+    {"request":"GET /api/v1/health","status":200,"response":{"data":{"status":"ok","database":true,"version":1}}},
+    {"request":"GET /api/v1/tools?limit=1&offset=0","status":200,"response":{"data":{"items":[{"id":"doubao","slug":"doubao","name":"豆包","category":"chat","price":"free","updated":"2026-07-07"}]},"meta":{"total":27,"limit":1,"offset":0}}},
+    {"request":"GET /api/v1/auth/me","status":401,"response":{"type":"https://nike-ai.local/problems/not_authenticated","title":"请先登录","status":401,"code":"not_authenticated","requestId":"<每次请求生成 UUID>"}},
+    {"request":"GET /api/admin/v1/users","status":401,"response":{"type":"https://nike-ai.local/problems/unauthorized","title":"管理端认证失败","status":401,"code":"unauthorized","requestId":"<每次请求生成 UUID>"}},
+    {"request":"GET /api/v1/news/hot?limit=0","status":422,"response":{"type":"https://nike-ai.local/problems/invalid_limit","title":"limit 必须是 1 到 10 之间的整数","status":422,"code":"invalid_limit","requestId":"<每次请求生成 UUID>","details":{"field":"limit"}}}
+  ],
+  "accessChecks": {
+    "unauthenticatedUserScopedRequests": {"count":15,"allStatus":401,"codes":["not_authenticated"],"methodsAndPaths":["GET /api/v1/auth/me","GET /api/v1/account/favorites","GET /api/v1/account/summary","GET /api/v1/account/activity","DELETE /api/v1/account/history","DELETE /api/v1/account/newsletter","PATCH /api/v1/account/notifications","DELETE /api/v1/account","PUT /api/v1/account/favorites/chatgpt","PUT /api/v1/account/history/chatgpt","POST /api/v1/image-generations","GET /api/v1/image-history","DELETE /api/v1/image-history","GET /api/v1/image-history/00000000-0000-4000-8000-000000000001/image","DELETE /api/v1/image-history/00000000-0000-4000-8000-000000000001"]},
+    "unauthenticatedAdminRequests": {"count":5,"allStatus":401,"code":"unauthorized","methodsAndPaths":["GET /api/admin/v1/users","GET /api/admin/v1/summary","GET /api/admin/v1/content/tools","POST /api/admin/v1/content/media/logos","GET /api/admin/v1/image-providers"]},
+    "horizontalFavorites": {"setup":"两名一次性测试账号在临时库内注册；A、B 起始收藏均为空。","sequence":["A PUT /api/v1/account/favorites/chatgpt -> 200 {toolId:chatgpt,favorite:true}","B GET /api/v1/account/favorites -> {toolIds:[]}","B DELETE /api/v1/account/favorites/chatgpt -> 200 {favorite:false}","A GET /api/v1/account/favorites -> {toolIds:[chatgpt]}"]},
+    "csrf": {"request":"PATCH /api/v1/account/notifications with A cookie and Origin: https://evil.invalid","status":403,"code":"csrf_rejected"}
+  },
+  "sqliteQueryPlans": {
+    "toolList": ["SCAN t","USE TEMP B-TREE FOR ORDER BY"],
+    "toolSearch": ["SCAN t","CORRELATED SCALAR SUBQUERY 1","SEARCH c USING INDEX sqlite_autoindex_categories_1 (id=?)","CORRELATED SCALAR SUBQUERY 2","SEARCH tf USING COVERING INDEX sqlite_autoindex_tool_features_1 (tool_id=?)","CORRELATED SCALAR SUBQUERY 3","SEARCH tuc USING COVERING INDEX sqlite_autoindex_tool_use_cases_1 (tool_id=?)","CORRELATED SCALAR SUBQUERY 4","SEARCH tb USING COVERING INDEX sqlite_autoindex_tool_badges_1 (tool_id=?)","USE TEMP B-TREE FOR ORDER BY"],
+    "analyticsEventsByReceivedAt": ["SCAN analytics_events USING COVERING INDEX idx_events_session_time"],
+    "outboundClicksByCreatedAt": ["SCAN outbound_clicks USING COVERING INDEX idx_outbound_tool_time"]
+  },
+  "automatedChecks": {"command":"npm test","tests":342,"passed":339,"failed":0,"skipped":3,"durationMs":30664.6},
+  "dependencyCheck": {"command":"npm audit --offline --json","reportedVulnerabilities":0,"productionDependencies":11,"totalDependencies":12,"limitation":"offline advisory cache; does not prove current registry advisory status"},
+  "screenshots": [
+    {"file":"docs/audit-screenshots-2026-10-08/home-desktop.png","viewport":"1440x1000","environment":"temporary local SQLite test server"},
+    {"file":"docs/audit-screenshots-2026-10-08/home-mobile.png","viewport":"390x844","environment":"temporary local SQLite test server"},
+    {"file":"docs/audit-screenshots-2026-10-08/admin-desktop.png","viewport":"1440x1000","environment":"temporary local SQLite test server; unauthenticated account login gate"}
+  ]
+}

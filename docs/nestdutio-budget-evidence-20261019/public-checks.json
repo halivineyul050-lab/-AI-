@@ -1,0 +1,32 @@
+{
+  "scripts": [
+    "https://ontimo.cn/nestdutio.js?v=20261019-resilient-1",
+    "https://ontimo.cn/site-header.js?v=20261010-nav-group-1",
+    "https://ontimo.cn/header-account.js?v=20261012-mobile-nav-1",
+    "https://ontimo.cn/site-announcements.js?v=20260924-1"
+  ],
+  "responses": [
+    {
+      "path": "/api/v1/health/ready",
+      "status": 200,
+      "body": {
+        "data": {
+          "status": "ok",
+          "database": true,
+          "version": 1
+        }
+      }
+    },
+    {
+      "path": "/nestdutio.js?v=20261019-resilient-1",
+      "status": 200
+    },
+    {
+      "path": "/nestdutio.css?v=20261019-resilient-1",
+      "status": 200
+    }
+  ],
+  "anonymousResume": 401,
+  "mobileOverflow": false,
+  "pageErrors": []
+}

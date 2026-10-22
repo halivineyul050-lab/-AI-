@@ -1,0 +1,182 @@
+{
+  "static": {
+    "audio": true,
+    "duration": "3.018005",
+    "size": [
+      320,
+      180
+    ],
+    "watermarkCenters": [
+      [
+        50.5,
+        28.5
+      ],
+      [
+        50.3,
+        28.4
+      ],
+      [
+        50.3,
+        28.4
+      ]
+    ],
+    "previewParity": [
+      {
+        "time": 0,
+        "pixelDeviation": 0.54
+      },
+      {
+        "time": 1.5,
+        "pixelDeviation": 0.58
+      },
+      {
+        "time": 2.9,
+        "pixelDeviation": 0.58
+      }
+    ]
+  },
+  "diagonal": {
+    "audio": true,
+    "duration": "3.018005",
+    "size": [
+      320,
+      180
+    ],
+    "watermarkCenters": [
+      [
+        50.5,
+        28.5
+      ],
+      [
+        160.2,
+        89.4
+      ],
+      [
+        262.5,
+        147.5
+      ]
+    ],
+    "previewParity": [
+      {
+        "time": 0,
+        "pixelDeviation": 0.54
+      },
+      {
+        "time": 1.5,
+        "pixelDeviation": 0.63
+      },
+      {
+        "time": 2.9,
+        "pixelDeviation": 1.17
+      }
+    ]
+  },
+  "patrol": {
+    "audio": true,
+    "duration": "3.018005",
+    "size": [
+      320,
+      180
+    ],
+    "watermarkCenters": [
+      [
+        60.4,
+        23.4
+      ],
+      [
+        258.5,
+        155.5
+      ],
+      [
+        42.3,
+        29.5
+      ]
+    ],
+    "previewParity": [
+      {
+        "time": 0,
+        "pixelDeviation": 0.71
+      },
+      {
+        "time": 1.5,
+        "pixelDeviation": 0.85
+      },
+      {
+        "time": 2.9,
+        "pixelDeviation": 1.1
+      }
+    ]
+  },
+  "internal": {
+    "audio": true,
+    "duration": "3.018005",
+    "size": [
+      320,
+      180
+    ],
+    "watermarkCenters": [
+      [
+        64.5,
+        38.5
+      ],
+      [
+        98.5,
+        90.5
+      ],
+      [
+        98.5,
+        124.5
+      ]
+    ],
+    "previewParity": [
+      {
+        "time": 0,
+        "pixelDeviation": 1.18
+      },
+      {
+        "time": 1.5,
+        "pixelDeviation": 0.21
+      },
+      {
+        "time": 2.9,
+        "pixelDeviation": 0.99
+      }
+    ]
+  },
+  "silent-out": {
+    "audio": false,
+    "duration": "3.000000",
+    "size": [
+      180,
+      320
+    ],
+    "watermarkCenters": [
+      [
+        36.5,
+        63.5
+      ],
+      [
+        54.5,
+        159.5
+      ],
+      [
+        58.5,
+        221.5
+      ]
+    ],
+    "previewParity": [
+      {
+        "time": 0,
+        "pixelDeviation": 0.76
+      },
+      {
+        "time": 1.5,
+        "pixelDeviation": 1.7
+      },
+      {
+        "time": 2.9,
+        "pixelDeviation": 2.28
+      }
+    ]
+  }
+}

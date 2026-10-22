@@ -1,0 +1,32 @@
+{
+  "release": "manual-recharge-20261013-1",
+  "sha256": "eea600e364b416b471287e6d8344eb1ea5f8c7ffddc6bd4ddbd8bc1f04591acb",
+  "files": 702,
+  "changes": {
+    "backend/credits.mjs": "95300680a223b471277b23526971e6d3ef8a60f5e14921f54cee08ca1221ed80",
+    "backend/database.mjs": "604fb467f99054a6e65d6b8085ec9218f98096b6ab0de0f20835349bb8e8903a",
+    "backend/manual-recharge.mjs": "e686edbb3bb74b30180ebfcf5fa037d5284dc4adbe7fa5c6a5d3e9049be2bb3d",
+    "backend/mariadb-compat.mjs": "69aa279236f3cc9a52e61301b15a6a0f3462d869868f76badaa52846d88bce66",
+    "backend/mariadb/migrations/028_manual_recharge.sql": "a9178e935a71c1eb86d5a2c14168e3f8060de1bf2caccf60dae62e3c6610bf76",
+    "backend/migrations/028_manual_recharge.sql": "253ee50a44ba01babfeccc919e819634b7acadd8203f39c93c85a7f44e439bf9",
+    "public/admin-recharge.css": "ec450659611d5367cc5f20af49cc1495768e5d64f5e5ac76e327618b2f6a577c",
+    "public/admin-recharge.js": "47d7eaee79c7046b147225204aef293616ed04b6a161d8172db75bb50859cc17",
+    "public/admin.html": "347785c1b1c6183be7a13eff18ee3e7ddaf24aa6347461adb3540498eff9c5d8",
+    "public/auth.html": "8a044f286e4e63dc4d3c00912fad9dd4747450a71c5d1eb3517417835599a780",
+    "public/credits-account.js": "c373a2ecd718c2781b93c7d951284b0738e3f48a817072232c7013f979b4355a",
+    "public/recharge.css": "5a02533ee20d4f93e75ec911bd2dfc4f23c28611dbd51532cd9c983e106f4027",
+    "public/recharge.html": "8456a1999476d67e7c63a2bca77ef9f255472655d0b4ae49e3e8e7a094b223d0",
+    "public/recharge.js": "76f7dab8f40eed94d1c525af95b85d7ea478c9d9ada2bc4b995b3d490744129d",
+    "server.mjs": "8c71c6452cc1d55a8878465198697b65668d1401c794dec0e200cd1f70d023f4",
+    "tests/admin-route.test.mjs": "18d666a796895ea46a76b12438b44e5a68e66bc528ef438dc8f46f6744066788",
+    "tests/api.test.mjs": "e5825756742f353543bba264ddf74cd7a919cc6770ee6725230996ad242d6c00",
+    "tests/image-cloud-history-store.test.mjs": "8cecb6b7b4dd2069d52ccfd46822d1b3ba03e6375b1ef04f760d910933460353",
+    "tests/image-provider-store.test.mjs": "4f7cae676fa2db6a0173c6a145842c94c8902696b2e6e0a6e8b6f94b45e343ee",
+    "tests/import.test.mjs": "1bf7d2977cc4c3ca4db031a7924af4060bfea72191536dfd7cf735d7bae0ba53",
+    "tests/manual-recharge-api.test.mjs": "a9272d6ba264d029236ae0a57bb6526e7fc7da487e99c2858d7404a2e568edb6",
+    "tests/manual-recharge.test.mjs": "f6749c62bdd6f6c78efad96beda611887662a2996d7cf9a24eb3bdb778607bf0",
+    "tests/mariadb-compat.test.mjs": "313c7b561bf37e46565e967e986e4531a674b92824c68f2be6a24d14095d0c64",
+    "tests/recharge-ui.test.mjs": "4378cb09cb75846329ad3fc2415f1eba02c3ff3c93ff8b996ea7aff6fab70b34",
+    "tests/site-announcements.test.mjs": "a50383fb0eb549396cded4f8a73a0f14bdfa3e7dfbf5aa0a0dea91ba55f0c184"
+  }
+}

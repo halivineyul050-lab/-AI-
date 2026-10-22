@@ -1,0 +1,6 @@
+{"scope":"assistant","configurationStatus":200,"discoveryStatus":200,"modelCount":9,"savedModelListed":true}
+{"scope":"explainer","configurationStatus":200,"state":"inherits-assistant"}
+{"scope":"nestdutio","configurationStatus":200,"state":"inherits-assistant"}
+{"scope":"skills","configurationStatus":200,"discoveryStatus":200,"modelCount":9,"savedModelListed":true}
+{"scope":"news-sync","configurationStatus":200,"discoveryStatus":200,"modelCount":7,"savedModelListed":false}
+{"scope":"image","configurationStatus":200,"discoveryStatus":200,"modelCount":4}

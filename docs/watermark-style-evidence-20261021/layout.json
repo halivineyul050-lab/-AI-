@@ -1,0 +1,42 @@
+[
+  {
+    "width": 2560,
+    "left": 440,
+    "right": 440,
+    "uploadHeight": 104,
+    "overflow": false,
+    "columns": "1252px 400px"
+  },
+  {
+    "width": 1440,
+    "left": 40,
+    "right": 40,
+    "uploadHeight": 104,
+    "overflow": false,
+    "columns": "976px 360px"
+  },
+  {
+    "width": 1024,
+    "left": 24,
+    "right": 24,
+    "uploadHeight": 104,
+    "overflow": false,
+    "columns": "638px 320px"
+  },
+  {
+    "width": 768,
+    "left": 24,
+    "right": 24,
+    "uploadHeight": 104,
+    "overflow": false,
+    "columns": "720px"
+  },
+  {
+    "width": 390,
+    "left": 16,
+    "right": 16,
+    "uploadHeight": 82,
+    "overflow": false,
+    "columns": "358px"
+  }
+]

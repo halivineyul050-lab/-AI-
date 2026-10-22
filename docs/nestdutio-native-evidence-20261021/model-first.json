@@ -1,0 +1,86 @@
+{
+  "ok": false,
+  "errorCode": "nestdutio_artifact_invalid",
+  "budgetCny": 1,
+  "conservativeUpperCny": 0.05559999999999998,
+  "calls": 5,
+  "events": [
+    {
+      "sequence": 1,
+      "phase": "planning",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 287,
+        "completionTokens": 288,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 575
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 2,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 602,
+        "completionTokens": 288,
+        "cachedInputTokens": 384,
+        "reasoningTokens": null,
+        "totalTokens": 890
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 3,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 917,
+        "completionTokens": 288,
+        "cachedInputTokens": 768,
+        "reasoningTokens": null,
+        "totalTokens": 1205
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 4,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 779,
+        "completionTokens": 2429,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 3208
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 5,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 823,
+        "completionTokens": 2805,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 3628
+      },
+      "httpStatus": 200
+    }
+  ],
+  "checks": [],
+  "notice": "No WeChat AppID was available; no claim of WeChat compile or phone validation."
+}

@@ -1,0 +1,278 @@
+{
+  "ok": true,
+  "files": 8,
+  "bytes": 7475,
+  "verification": {
+    "structure": "passed",
+    "compile": "pending",
+    "business": "pending"
+  },
+  "budgetCny": 1,
+  "conservativeUpperCny": 0.07146800000000003,
+  "calls": 17,
+  "events": [
+    {
+      "sequence": 1,
+      "phase": "planning",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 444,
+        "completionTokens": 310,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 754
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 2,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 680,
+        "completionTokens": 81,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 761
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 3,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 767,
+        "completionTokens": 53,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 820
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 4,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 788,
+        "completionTokens": 806,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 1594
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 5,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 794,
+        "completionTokens": 14,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 808
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 6,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 794,
+        "completionTokens": 647,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 1441
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 7,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 811,
+        "completionTokens": 63,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 874
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 8,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 821,
+        "completionTokens": 489,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 1310
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 9,
+      "phase": "generating",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 832,
+        "completionTokens": 662,
+        "cachedInputTokens": 0,
+        "reasoningTokens": null,
+        "totalTokens": 1494
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 10,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 863,
+        "completionTokens": 81,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 944
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 11,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 849,
+        "completionTokens": 20,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 869
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 12,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 864,
+        "completionTokens": 107,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 971
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 13,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 862,
+        "completionTokens": 14,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 876
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 14,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 855,
+        "completionTokens": 669,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1524
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 15,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 864,
+        "completionTokens": 63,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 927
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 16,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 866,
+        "completionTokens": 543,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1409
+      },
+      "httpStatus": 200
+    },
+    {
+      "sequence": 17,
+      "phase": "repairing",
+      "model": "deepseek-flash",
+      "status": "reported",
+      "usage": {
+        "status": "reported",
+        "promptTokens": 868,
+        "completionTokens": 906,
+        "cachedInputTokens": 640,
+        "reasoningTokens": null,
+        "totalTokens": 1774
+      },
+      "httpStatus": 200
+    }
+  ],
+  "checks": [
+    {
+      "structure": "passed",
+      "compile": "pending",
+      "business": "pending"
+    }
+  ],
+  "notice": "No WeChat AppID was available; no claim of WeChat compile or phone validation."
+}

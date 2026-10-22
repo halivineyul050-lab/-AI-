@@ -1,0 +1,5 @@
+{
+  "backend/nestdutio/generator.mjs": "65f622da6da65832d0e1a34b79f38eaf81587f71c757b583da16b428cd51973b",
+  "tests/nestdutio-resilient-generation.test.mjs": "37158e97c3237c6fa1dc8c4d07bd48d7f9bb4630f639f25116f7d34c860ee373",
+  "docs/superpowers/specs/2026-10-19-nestdutio-provider-output-fix.md": "9c4fb462f3a1afacde0c7c6ac97a4d0ba40df145b8e5982108009bc3d72a048a"
+}

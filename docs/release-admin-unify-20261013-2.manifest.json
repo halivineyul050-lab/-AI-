@@ -1,0 +1,9 @@
+{
+  "release": "admin-unify-20261013-2",
+  "sha256": "c70f6ca2e492b3e80d24d784cb2efac58a822db22797c278e1bae8117fbe57b4",
+  "files": 635,
+  "changes": {
+    "public/admin.html": "f99bc62b6137879036d73a67e669fe814e073951ed1ab7dce8972b2ec924417c",
+    "tests/admin-layout-order.test.mjs": "7bd3d184c12da510a054510b11ad17be3f96009b351d3066abe4df5482241d69"
+  }
+}

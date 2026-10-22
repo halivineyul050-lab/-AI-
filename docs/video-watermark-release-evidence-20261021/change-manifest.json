@@ -1,0 +1,18 @@
+{
+  "changed": [
+    "public/utilities.html",
+    "server.mjs"
+  ],
+  "added": [
+    "public/video-watermark-core.js",
+    "public/video-watermark-worker.js",
+    "public/video-watermark.css",
+    "public/video-watermark.html",
+    "public/video-watermark.js",
+    "tests/video-watermark-page.test.mjs",
+    "tests/video-watermark.test.mjs",
+    "docs/superpowers/plans/2026-10-21-video-watermark.md",
+    "docs/superpowers/specs/2026-10-21-video-watermark-design.md"
+  ],
+  "baseSha256": "0f23dca74721539af7c7d8771ec73488103b270c9d049e952644c034583a632e"
+}

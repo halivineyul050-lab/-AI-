@@ -1,0 +1,6060 @@
+{
+  "verifiedAt": "2026-10-22T01:57:00.031Z",
+  "productionRelease": "watermark-style-20261021-1",
+  "productionArchiveSha256": "f69fcbb7091d195259f795b939ea3a055cd12612c87acaa32dfb56a9f5cfe94b",
+  "allSource": {
+    "different": 54,
+    "identical": 791,
+    "line-endings-only": 43,
+    "local-only": 560
+  },
+  "changed": {
+    "absent-both": 1,
+    "different": 50,
+    "identical": 424,
+    "line-endings-only": 43,
+    "local-only": 486
+  },
+  "areas": {
+    "accounts-credits": 45,
+    "assistant": 12,
+    "creator": 9,
+    "documentation-evidence": 510,
+    "explainer": 28,
+    "governance-operations": 20,
+    "image-tools": 43,
+    "nestdutio-models": 113,
+    "news-delivery": 27,
+    "news-hot-local": 4,
+    "shared-or-manual-review": 163,
+    "skills": 8,
+    "video-tools": 22
+  },
+  "productionOnly": [],
+  "files": [
+    {
+      "path": ".env.example",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "git": "M",
+      "relation": "local-only",
+      "area": "governance-operations"
+    },
+    {
+      "path": ".github/workflows/deploy.yml",
+      "git": "D",
+      "relation": "absent-both",
+      "area": "governance-operations"
+    },
+    {
+      "path": ".gitignore",
+      "git": "M",
+      "relation": "local-only",
+      "area": "governance-operations"
+    },
+    {
+      "path": "README.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/README.md",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/auth.mjs",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/content-admin.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/database.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/email.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/image-generation-gateway.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "image-tools"
+    },
+    {
+      "path": "backend/image-provider-store.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "backend/link-extract-browser.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/link-extract-core.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/link-extract.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/mariadb-compat.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/mariadb-worker.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/monitoring.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/news-publisher.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/safe-upstream.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/validation.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "docs/design-system.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/production-release.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-25-favorites-discovery.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-ai-news-event-hot-ranking-design.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-main-site-editorial-redesign-design.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-15-anatomy-explainer-upgrade-design.md",
+      "git": "M",
+      "relation": "different",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/上线前检查清单.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/项目冗余文件检查-2026-09-15.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/项目问题解决方案-2026-09-28.md",
+      "git": "M",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "package-lock.json",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "package.json",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/admin.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/admin.html",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/admin.js",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/app.js",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/auth.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/auth.html",
+      "git": "M",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/auth.js",
+      "git": "M",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/breakout.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/design-system.css",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/flight.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/game-2048.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/game-shell.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games.css",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/ironfront/assets/style.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/tank-air-war/style.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/yiren-buche/style.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/gomoku.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/image-ai.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-background.html",
+      "git": "M",
+      "relation": "different",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-edit.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-edit.html",
+      "git": "M",
+      "relation": "different",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-enhance.html",
+      "git": "M",
+      "relation": "different",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-erase.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-erase.html",
+      "git": "M",
+      "relation": "different",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-generation.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-generation.html",
+      "git": "M",
+      "relation": "different",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/image-generation.js",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/index.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/link-extract.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/link-extract.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/link-extract.js",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/memory-game.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/never-retreat.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/seo-analytics.js",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/snake.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/styles.css",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/utilities.html",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/utility-theme.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/utility-theme.js",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/video-crop.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-crop.html",
+      "git": "M",
+      "relation": "different",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-gif.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-gif.html",
+      "git": "M",
+      "relation": "different",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-mask-worker.js",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-mask.css",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-mask.html",
+      "git": "M",
+      "relation": "different",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-mask.js",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-pricing.html",
+      "git": "M",
+      "relation": "different",
+      "area": "video-tools"
+    },
+    {
+      "path": "scripts/apply-production-migrations.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "scripts/backup-mariadb.sh",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "governance-operations"
+    },
+    {
+      "path": "scripts/export-seed.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "scripts/release-production.sh",
+      "git": "M",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "scripts/rollback-production.sh",
+      "git": "M",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "scripts/send-weekly-digest.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "scripts/sync-tool-logos.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "server.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-image-models.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/admin-image-workspace-behavior.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/admin-layout.test.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-session-bootstrap.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/api.test.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/auth.test.mjs",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/breakout.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/design-system.test.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/favorites-ui.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/flight.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/game-2048.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/gomoku.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/image-edit.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-generation-api.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-generation-gateway.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-generation-history.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-generation-placeholder.test.mjs",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-generation-ui.test.mjs",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-input.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-provider-api.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-provider-operations.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-provider-security.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-provider-store.test.mjs",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/import.test.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/link-extract.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/logo-assets.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/mariadb-compat.test.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/mariadb-operations.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/memory-game.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/never-retreat.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/news-publisher.test.mjs",
+      "git": "M",
+      "relation": "different",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/production-release-flow.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/production-rollback.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/site-announcements-client.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/site-announcements.test.mjs",
+      "git": "M",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/snake.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/utility-navigation.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/video-crop.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "tests/video-gif.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "tests/video-input-limits.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/video-mask.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "tests/video-pricing.test.mjs",
+      "git": "M",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "AGENTS.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "governance-operations"
+    },
+    {
+      "path": "backend/account-avatar.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/article-source-links.mjs",
+      "git": "??",
+      "relation": "local-only",
+      "area": "news-hot-local"
+    },
+    {
+      "path": "backend/assistant.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "assistant"
+    },
+    {
+      "path": "backend/auth-email.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/creator-page.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "backend/credits.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/douyin-proxy.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/douyin-public.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/explainer-config.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "backend/explainer-jobs.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "backend/explainer-output.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "backend/explainer.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "backend/image-cloud-history.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "backend/image-job-store.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "backend/image-provider-balance.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "backend/like-pattern.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/manual-recharge.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/mariadb/migrations/018_image_provider_balance.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/mariadb/migrations/019_article_source_links.sql",
+      "git": "??",
+      "relation": "local-only",
+      "area": "news-hot-local"
+    },
+    {
+      "path": "backend/mariadb/migrations/020_image_cloud_history.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/mariadb/migrations/021_user_avatars.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/mariadb/migrations/022_creator_page.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "backend/mariadb/migrations/023_skills.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "skills"
+    },
+    {
+      "path": "backend/mariadb/migrations/024_news_sync.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/mariadb/migrations/025_assistant.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "backend/mariadb/migrations/026_email_auth.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/mariadb/migrations/027_credits.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/mariadb/migrations/028_manual_recharge.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/mariadb/migrations/029_first_purchase.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/mariadb/migrations/030_image_jobs_runtime.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/mariadb/migrations/031_news_brief_images.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/mariadb/migrations/032_explainer.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "backend/mariadb/migrations/033_nestdutio.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/034_nestdutio_publishing.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/035_nestdutio_forms.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/036_nestdutio_domains.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/037_nestdutio_metering.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/038_credit_grants.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/mariadb/migrations/039_nestdutio_history.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/040_nestdutio_progress.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/041_nestdutio_checkpoints.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/042_model_profiles.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/mariadb/migrations/043_nestdutio_request_usage.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/mariadb/migrations/044_nestdutio_wechat.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/018_image_provider_balance.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/migrations/019_article_source_links.sql",
+      "git": "??",
+      "relation": "local-only",
+      "area": "news-hot-local"
+    },
+    {
+      "path": "backend/migrations/020_image_cloud_history.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/migrations/021_user_avatars.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/migrations/022_creator_page.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "backend/migrations/023_skills.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "skills"
+    },
+    {
+      "path": "backend/migrations/024_news_sync.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/migrations/025_assistant.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "backend/migrations/026_email_auth.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/migrations/027_credits.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/migrations/028_manual_recharge.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/migrations/029_first_purchase.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "backend/migrations/030_image_jobs_runtime.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/migrations/031_news_brief_images.sql",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/migrations/032_explainer.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "backend/migrations/033_nestdutio.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/034_nestdutio_publishing.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/035_nestdutio_forms.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/036_nestdutio_domains.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/037_nestdutio_metering.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/038_credit_grants.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/migrations/039_nestdutio_history.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/040_nestdutio_progress.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/041_nestdutio_checkpoints.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/042_model_profiles.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/migrations/043_nestdutio_request_usage.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/migrations/044_nestdutio_wechat.sql",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/model-discovery.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/model-profiles.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/artifact.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/browser.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/business-quality.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/checker.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/config.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/domain-policy.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/domain-worker.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/domains.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/export.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/form-runtime.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/form-schema.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/forms.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/generation-checkpoints.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/generation-manifest.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/generator.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/jobs.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/metering.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/native-artifact.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/native-preview-runtime.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/native-preview.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/preview.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/progress.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/projects.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/publications.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/request-accounting.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/routes.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/service.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/standalone-server.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/nestdutio/wechat-release.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "backend/news-briefing.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/news-feed-fetch.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/news-hot-ranking.mjs",
+      "git": "??",
+      "relation": "local-only",
+      "area": "news-hot-local"
+    },
+    {
+      "path": "backend/news-sync.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/newsletter-admin.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "backend/rate-limiter.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "backend/services/image-generation.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "backend/skills.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "skills"
+    },
+    {
+      "path": "backend/weekly-digest.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "deploy/nikai-db-backup.override.conf",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-mariadb-backup.service",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-mariadb-backup.timer",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-nestdutio-domains.nginx.conf",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-nestdutio-domains.override.conf",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-nestdutio-domains.service",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-nestdutio-domains.timer",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-nestdutio.nginx.conf",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "deploy/nikai-nestdutio.override.conf",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "docs/README.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/account-delete-release-evidence-20261020/public-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/account-delete-release-evidence-20261020/verify-mariadb-rollback.mjs",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/admin-email-exempt-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/admin-model-discovery-live-model-evidence-20261016.jsonl",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/admin-model-discovery-public-evidence-20261016.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/admin-model-discovery-verification-20261016.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-admin-style-20261012/design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-admin-style-20261012/desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-admin-style-20261012/mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-admin-style-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-design/chat-verified.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-design/desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-design/implemented-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-design/implemented-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-design/index.html",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-design/mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-endpoint-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-quota-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-release-manifest-20261012-2.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-save-20261012/design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-save-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-save-20261012/saved.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/assistant-stop-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/audit-interface-evidence-2026-10-08.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/README.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/admin-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/home-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/audit-screenshots-2026-10-08/home-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/button-audit-evidence-20261010-1.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/codex-chat-history-2026-10-08.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/codex-chat-transcripts-2026-10-08.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/compare-layout-20261020/desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/compare-layout-20261020/mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/compare-layout-20261020/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/creator-cover-release-manifest-20261014-1.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/database-schema-audit-2026-10-08.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-2026-10-15-hide-verified-email.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-20261016-backtotop.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-account-admin-entry-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-account-avatar-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-account-delete-20261020-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-account-image-button-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-account-image-history-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-email-exempt-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-model-discovery-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-model-discovery-20261016-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-nav-groups-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-nav-groups-20261016-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-nav-stable-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-provider-style-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-review-nav-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-route-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-spacing-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-unify-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-admin-unify-20261013-2.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-ai-interest-zine-20261008.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-analytics-clarity-20261020.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-anatomy-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-20261012-2.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-compact-20261014-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-endpoint-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-launcher-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-quota-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-reference-20261014-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-save-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-stop-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-assistant-style-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-button-audit-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-capacity-20261008.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-category-tabs-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-chart-hover-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-clean-routes-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-clear-key-layout-20261020.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-compare-layout-20261020-4.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-content-merge-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-content-tabs-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-creator-about-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-creator-cover-20261014-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-creator-layout-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-creator-page-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-credits-layout-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-daily-ai-briefs-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-detail-style-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-douyin-public-20261014-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-email-auth-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-engage-layout-20261020.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explain-errors-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explain-nav-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explain-placement-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explain-validation-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explainer-ai-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explainer-demo-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explainer-projects-20261019-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explainer-quality-20261019-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-explainer-video-20261019-2.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-feedback-email-20261014.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-first-creation-2026-10-14.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-first-purchase-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-frontend-foundation-20260929.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-frontend-unified-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-header-account-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-header-avatar-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-header-name-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-history-prompt-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-home-hero-20261020-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-homepage-reference-20261009-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-async-2026-10-09.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-cloud-history-20261008.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-credits-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-ipv4-20261008.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-job-reliability-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-no-local-save-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-preview-20260929.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-prompt-templates-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-prompt-usage-hint-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-cache-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-globalfix-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-wrap-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-toolbar-wrap-fix-20260930.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-image-transfer-2026-10-09.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-link-center-20261014-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-live-canvas-20261020-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-manual-recharge-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-mobile-nav-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-model-profiles-20261020.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nav-about-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nav-caret-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nav-games-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nav-group-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-20261016-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-data-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-data-20261016-2.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-data-20261016-2.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-header-20261016-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-native-20261021.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-native-preview-20261021.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-progress-20261019-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-provider-fix-20261019.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestdutio-resilient-20261019.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestudio-credits-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestudio-credits-20261016-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestudio-history-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestudio-history-20261016-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestudio-name-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-nestudio-name-20261016-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-news-auto-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-news-auto-20261012-2.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-news-delivery-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-news-latest8-20261021-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-newsletter-feedback-20261019-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-newsletter-style-20261019-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-ops-hardening-20261008.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-page-five-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-page-load-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-pricing-layout-route-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-recharge-jpeg-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-recharge-pack-links-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-recharge-pack-links-20261013-2.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-recharge-preview-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-recharge-save-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-reference-paste-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-reference-preview-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-reference-remove-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-remove-header-start-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-shared-navigation-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-skills-page-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-studio-credit-style-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-subscribers-image-20261019-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-sync-logs-10-20261012-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-tools-five-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-tools-page-10-20261010-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-user-credits-20261013-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-video-watermark-20261021-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-watermark-preview-fix-20261021-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-watermark-style-20261021-1.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/deployment-weekly-digest-20261014.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261013-admin-unify-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261013-admin-unify-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261013-daily-ai-briefs-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261013-studio-credit-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261013-studio-credit-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-assistant-compact-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-assistant-compact-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-assistant-conversation.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-assistant-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-assistant-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-creator-cover-live.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-creator-cover-preview.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-douyin-prototype-layout-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-douyin-prototype-layout-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-link-center-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/design-previews/20261014-link-center-wide.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/detail-style-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/douyin-public-acceptance-20261014-1.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/douyin-public-release-manifest-20261014-1.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/email-auth-20261012/register-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/email-auth-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-anatomy.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-projects-evidence-20261019/history-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-projects-evidence-20261019/history-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-projects-evidence-20261019/independent-review.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-projects-evidence-20261019/public-checks.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-projects-evidence-20261019/public-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-projects-evidence-20261019/public-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-projects-evidence-20261019/reviewed-files.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/independent-review.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/mechanical-real-dark.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/mechanical-real-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/mechanical-real-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/mechanical-real.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/natural-real-dark.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/natural-real-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/natural-real-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/natural-real.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/process-real-dark.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/process-real-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/process-real-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/process-real.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/production-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/production-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-quality-evidence-20261019/reviewed-files.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/exported-frame.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/independent-review.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/production-button-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/production-complete-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/production-complete-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/production-progress-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/production-心脏收缩泵血示意.mp4",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/reviewed-files.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/validation-notes.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/video-complete-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/video-complete-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/explainer-video-evidence-20261019/双齿轮如何传递运动.mp4",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/first-creation-image-provenance.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/fix-compare-layout-20261020.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/frontend-structure.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/full-audit-2026-10-08.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/github-optimization-research-2026-10-09.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/home-hero-dark-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/home-hero-desktop-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/home-hero-mobile-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/home-hero-release-evidence-20261020/public-dark-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/home-hero-release-evidence-20261020/public-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/home-reference-verification-20261009.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/link-center-release-manifest-20261014-1.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/live-canvas-release-evidence-20261020/changed-files.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/live-canvas-release-evidence-20261020/public-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/live-canvas-release-evidence-20261020/public-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/local-skills-inventory-20261010.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/local-skills-inventory-20261010.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/mobile-navigation-20261012/after.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/mobile-navigation-20261012/before.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/mobile-navigation-20261012/release-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/mobile-navigation-20261012/signed-in.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/mobile-navigation-20261012/verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/model-profile-library.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-benchmark-20261021.mjs",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-budget-evidence-20261019/independent-review.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-budget-evidence-20261019/public-checks.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-budget-evidence-20261019/public-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-budget-evidence-20261019/public-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-budget-evidence-20261019/reviewed-files.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-chat-scroll-desktop-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-chat-scroll-mobile-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-audit-20261020.mjs",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/admin-costs.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/focused-test-summary.txt",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/full-test-summary.txt",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/habits.artifact.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/mortgage-real-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/mortgage-real.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/mortgage-recheck.artifact.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/mortgage.artifact.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/real-model-first.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/real-model-mortgage-final.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/real-model-mortgage-recheck-2.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/real-model-mortgage-recheck.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-evidence-20261020/signup.artifact.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-cost-quality-verification-20261021.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-data-domains.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-live-canvas-evidence-20261020/generating-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-live-canvas-evidence-20261020/generating-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-benchmark-20261021.mjs",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/full-test-summary.txt",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/model-final.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/model-first.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/model-planning-recheck.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/model-structure-recheck.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/native-example.zip",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/native.artifact.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/ui-test-summary.txt",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/wechat-release-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/wechat-release.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-evidence-20261021/workbench.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-preview-verification-20261021.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-native-verification-20261021.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-progress-20261015.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-progress-evidence-20261019/failed-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-progress-evidence-20261019/failed-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-progress-evidence-20261019/generating.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-progress-evidence-20261019/reviewed-files.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-resilient-evidence-20261019/independent-review.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-resilient-evidence-20261019/public-checks.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-resilient-evidence-20261019/public-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-resilient-evidence-20261019/public-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-resilient-evidence-20261019/recoverable-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-resilient-evidence-20261019/recoverable-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-resilient-evidence-20261019/reviewed-files.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestdutio-wechat-devtools.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/nestudio-custom-domain-acceptance-20261016.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/news-latest8-release-evidence-20261021/local-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/news-latest8-release-evidence-20261021/local-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/news-latest8-release-evidence-20261021/public-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/news-latest8-release-evidence-20261021/public-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/news-latest8-release-evidence-20261021/public-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/news-latest8-release-evidence-20261021/verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/newsletter-style-evidence-20261019/desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/newsletter-style-evidence-20261019/mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/openapi-audit-2026-10-08.yaml",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/optimization-batch-1-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/optimization-batch-1-validation.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/optimization-plan.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/project-audit-2026-10-08.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/project-file-index-2026-10-14.txt",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-admin-unify-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-admin-unify-20261013-2.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-assistant-compact-20261014-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-assistant-launcher-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-assistant-reference-20261014-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-category-tabs-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-clean-routes-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-creator-layout-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-credits-layout-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-daily-ai-briefs-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-first-purchase-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-image-credits-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-image-job-reliability-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-manual-recharge-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-nestdutio-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-nestdutio-header-20261016-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-page-five-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-recharge-jpeg-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-recharge-pack-links-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-recharge-pack-links-20261013-2.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-recharge-preview-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-recharge-save-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-studio-credit-style-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-tools-five-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/release-user-credits-20261013-1.manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/analytics-devices-1440-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/analytics-devices-320-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/analytics-devices-390-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/analytics-sources-1440-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/analytics-sources-320-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/analytics-sources-390-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/engage-layout-20261020-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/engage-layout-20261020-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/model-profiles-1440-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/model-profiles-390-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/provider-assistant-1440-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/provider-assistant-390-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/provider-clear-key-fixed-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/provider-explainer-1440-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/provider-explainer-390-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/provider-nestdutio-1440-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/screenshots/provider-nestdutio-390-20261020.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/skills-content-upload-20261010.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/skills-jianying-upload-20261021.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/skills-voiceover-upload-20261010.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/subscribers-image-evidence-20261019/nikai-image-timeout.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/subscribers-image-evidence-20261019/nikai-subscribers-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/subscribers-image-evidence-20261019/nikai-subscribers-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-28-image-provider-balance.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-account-pages-redesign.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-admin-operations-workspace-redesign.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-ai-news-event-hot-ranking.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-creative-tools-workbench-redesign.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-frontend-foundation.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-game-directory-shell-redesign.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-29-main-site-editorial-redesign.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-30-image-cloud-history.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-30-image-prompt-templates.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-08-ai-community-editorial-redesign.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-08-project-remediation.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-09-home-reference.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-10-news-auto-update.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-12-email-auth.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-12-image-credits.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-admin-unify.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-assistant-launcher.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-canonical-pages.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-category-tabs.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-credits-layout.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-daily-ai-briefs.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-first-purchase.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-image-job-reliability.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-manual-recharge.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-release-prerequisites.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-13-user-credits.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-assistant-reference.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-douyin-prototype.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-feedback-email.md",
+      "git": "??",
+      "relation": "different",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-first-creation.md",
+      "git": "??",
+      "relation": "different",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-interactive-explainer-prototype.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-14-weekly-digest.md",
+      "git": "??",
+      "relation": "different",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-15-anatomy-integration.md",
+      "git": "??",
+      "relation": "different",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-15-explainer-ai-connection.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-15-nestdutio-publishing.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-16-admin-model-discovery.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-16-admin-navigation-groups.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-16-nestdutio-data-domains.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-16-nestudio-metered-billing.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-16-nestudio-project-history.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-explainer-projects.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-explainer-quality.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-explainer-video.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-nestdutio-progress.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-nestdutio-resilient-generation.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-19-subscribers-image.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-20-home-hero.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-20-nestdutio-quality-cost.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-21-native-preview.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-21-nestdutio-native.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-21-video-watermark.md",
+      "git": "??",
+      "relation": "different",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-28-image-provider-balance-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-account-pages-redesign-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-admin-operations-workspace-redesign-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-creative-tools-workbench-redesign-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-29-game-directory-shell-redesign-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-30-image-cloud-history-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-30-image-prompt-templates-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-09-home-reference-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-10-news-auto-update-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-12-assistant-stop-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-12-content-performance-tabs.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-12-email-auth-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-13-admin-unify-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-13-assistant-launcher-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-13-category-tabs-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-13-daily-ai-briefs-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-13-first-purchase-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-13-user-credits-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-assistant-reference-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-creator-cover-fix.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-douyin-prototype-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-feedback-email-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-first-creation-design.md",
+      "git": "??",
+      "relation": "different",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-interactive-explainer-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-link-extract-center.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-14-weekly-digest-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-16-admin-credit-grants-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-16-admin-model-discovery-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-16-admin-navigation-groups-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-16-nestdutio-metered-billing-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-16-nestudio-project-history-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-explainer-projects-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-explainer-quality-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-explainer-video-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-nestdutio-progress-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-nestdutio-provider-output-fix.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-nestdutio-resilient-generation-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-newsletter-style-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-19-subscribers-image-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-20-engage-layout-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-20-home-hero-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-20-model-profiles-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-20-nestdutio-quality-cost-design.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-21-native-preview-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-21-nestdutio-native-miniprogram-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-21-video-watermark-design.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/browser-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/change-manifest.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/desktop-final.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/media-check.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/mobile-final.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/production-desktop.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/production-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/public-browser-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/video-watermark-release-evidence-20261021/release-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-preview-fix-evidence-20261021/browser-checks.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-preview-fix-evidence-20261021/compatibility-preview.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-preview-fix-evidence-20261021/compatibility-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-preview-fix-evidence-20261021/public-chrome.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-preview-fix-evidence-20261021/public-health.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-preview-fix-evidence-20261021/public-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-preview-fix-evidence-20261021/release-scope.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/dark-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/empty-1440.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/layout.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/loaded-mobile.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/public-1440.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/public-verification.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/scope.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/watermark-style-evidence-20261021/wide-2560.png",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/workspace-audit-2026-10-14.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/workspace-closeout-2026-10-14.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/worktree-inventory-2026-10-14.json",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "docs/代码审查报告-2026-10-19.md",
+      "git": "??",
+      "relation": "local-only",
+      "area": "documentation-evidence"
+    },
+    {
+      "path": "public/admin-assistant.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "public/admin-creator.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "public/admin-creator.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "public/admin-explainer.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "public/admin-model-picker.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/admin-model-profiles.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "public/admin-nestdutio.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "public/admin-news-sync.css",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "news-delivery"
+    },
+    {
+      "path": "public/admin-news-sync.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "public/admin-provider.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/admin-recharge.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/admin-recharge.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/admin-skills.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "skills"
+    },
+    {
+      "path": "public/anatomy-renderer.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "public/anatomy-scene.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "public/anatomy.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "public/assets/css/site/site-catalog.css",
+      "git": "??",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/css/site/site-content.css",
+      "git": "??",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/css/site/site-homepage.css",
+      "git": "??",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/css/site/site-overlays.css",
+      "git": "??",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/css/site/site-responsive.css",
+      "git": "??",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/css/site/site-shell.css",
+      "git": "??",
+      "relation": "different",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/home/ai-companion.png",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/home/assistant-wave.png",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "public/assets/home/hero-scene-v2.webp",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/assets/image-generation/first-creation/chinese-illustration.webp",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/assets/image-generation/first-creation/editorial-cover.webp",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/assets/image-generation/first-creation/pet-avatar.webp",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/assets/image-generation/first-creation/product-background.webp",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/assets/image-generation/first-creation/product-display.webp",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/assets/image-generation/first-creation/video-cover.webp",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/assistant.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "public/assistant.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "public/auth-redirect.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/creator.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "public/creator.html",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "creator"
+    },
+    {
+      "path": "public/creator.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "public/credits-account.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/credits-admin.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/credits.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/explain-ai.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/explain-projects.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/explain-scene.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/explain-video.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/explain.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/explain.html",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/explain.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/first-creation-core.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/first-creation.js",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/free-city-3d/index.html",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/free-city-3d/main.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/free-city-3d/simulation.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/free-city-3d/style.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/games/free-city-3d/world.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/header-account.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/image-job-request.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "public/lucide.min.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/nestdutio.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "public/nestdutio.html",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "public/nestdutio.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "public/news-sync.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "public/recharge.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/recharge.html",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/recharge.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "public/safe-storage.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/site-header.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/site-header.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/skills.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "skills"
+    },
+    {
+      "path": "public/skills.html",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "skills"
+    },
+    {
+      "path": "public/skills.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "skills"
+    },
+    {
+      "path": "public/theme-init.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/vendor/anatomy/LICENSE",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "public/vendor/anatomy/UPSTREAM.md",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "public/vendor/anatomy/iso-kit.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "public/video-frame.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "public/video-watermark-core.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-watermark-worker.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-watermark.css",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-watermark.html",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "public/video-watermark.js",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "scripts/build-site-navigation.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "scripts/frontend/app-navigation-template.html",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "scripts/frontend/site-navigation.json",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "scripts/frontend/utility-navigation-template.html",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "scripts/nestdutio-wechat-devtools.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "scripts/production-operations.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "scripts/verify-image-jobs-mariadb.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "scripts/verify-nestudio-history-mariadb.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "governance-operations"
+    },
+    {
+      "path": "tests/accessibility-regressions.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/account-avatar-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/account-avatar-ui.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/account-deletion-credits.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/account-image-history.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/admin-assistant-save.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "tests/admin-chart-hover.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-content-tabs.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-layout-order.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-model-picker-browser.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-model-profiles-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/admin-navigation-groups.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-navigation.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-news-sync.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/admin-newsletter.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/admin-provider-layout.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-route.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/admin-user-credits.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/analytics-accuracy.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/analytics-device.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/analytics-layout.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/anatomy-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/anatomy-browser.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/anatomy-config.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/anatomy-generation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/anatomy-jobs.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/anatomy-rendering.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/anatomy-restore.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/anatomy-scene.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/assistant-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "assistant"
+    },
+    {
+      "path": "tests/assistant-endpoint.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "assistant"
+    },
+    {
+      "path": "tests/assistant-ui.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "assistant"
+    },
+    {
+      "path": "tests/assistant.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "assistant"
+    },
+    {
+      "path": "tests/auth-page-initialization.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/auth-redirect.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/canonical-pages.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/compare-layout-browser.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/creator-page.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "creator"
+    },
+    {
+      "path": "tests/credit-grants-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/credit-grants.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/credits-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/credits-ui.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/credits.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/douyin-proxy.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/douyin-public-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/douyin-public.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/email-auth.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/email-code-store.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/explain-ai-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/explain-ai.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/explain-errors.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/explain-navigation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/explainer-json-mode.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/explainer-output.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/explainer-page.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/explainer-projects-browser.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/explainer-projects.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/explainer-video-browser.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/explainer-video.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "explainer"
+    },
+    {
+      "path": "tests/feedback-email-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/feedback-email.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/first-creation-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/first-creation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/first-purchase.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/fixtures/nestdutio-forms.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/fixtures/nestdutio-native-mortgage.json",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/fixtures/nestdutio-native.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/free-city-3d-simulation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/free-city-routes.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/header-account.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/home-reference.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/image-cloud-history-store.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-job-recovery.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-job-request.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-job-restart-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-prompt-templates.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/image-provider-balance.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "image-tools"
+    },
+    {
+      "path": "tests/like-pattern.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/list-tools-batch-hydration.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/manual-recharge-api.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/manual-recharge.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/mariadb-backup-unit.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/mariadb-verification-guard.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/mobile-navigation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/model-discovery-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/model-discovery.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/model-profiles-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/model-profiles.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-artifact.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-business-quality.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-chat-layout.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-checker-text.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-checkpoints.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-config.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-cost-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-domain-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-domain-worker.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-domains.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-export.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-file-continuation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-fixed-usage.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-form-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-form-hosting.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-form-preview.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-form-runtime.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-form-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-forms.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-generation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-history-browser.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-history.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-http-error-usage.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-jobs.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-live-preview.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-metered-jobs.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-metered-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-metering.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-native-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-native-artifact.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-native-generation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-native-preview.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-native-target.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-native-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-preview.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-progress-jobs.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-progress-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-progress.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-projects.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-publishing.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-quality-plan.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-request-accounting.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-resilient-generation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-resilient-integration.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-resilient-progress.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-resilient-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-resume-jobs.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-standalone.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/nestdutio-wechat-release.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "nestdutio-models"
+    },
+    {
+      "path": "tests/news-briefing.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/news-cover-api.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/news-feed-fetch.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/news-frontend-refresh.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/news-latest-eight.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/news-sync-api.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/news-sync.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/newsletter-feedback.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/newsletter-unsubscribe.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    },
+    {
+      "path": "tests/production-operations.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/provider-clear-key-layout.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/rate-limiter.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/recharge-config-save.test.mjs",
+      "git": "??",
+      "relation": "line-endings-only",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/recharge-ui.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "accounts-credits"
+    },
+    {
+      "path": "tests/safe-storage.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/secondary-footer.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/seo-design-styles.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/shared-navigation.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "shared-or-manual-review"
+    },
+    {
+      "path": "tests/skills.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "skills"
+    },
+    {
+      "path": "tests/video-pricing-route.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "tests/video-watermark-compatibility.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "tests/video-watermark-page.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "tests/video-watermark.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "video-tools"
+    },
+    {
+      "path": "tests/weekly-digest.test.mjs",
+      "git": "??",
+      "relation": "identical",
+      "area": "news-delivery"
+    }
+  ]
+}

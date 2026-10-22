@@ -1,0 +1,14 @@
+{
+  "backend/explainer-jobs.mjs": "2bd1478db6e87a583e4da712410b5acd34110cf04287bb994e8da95631e61d0f",
+  "server.mjs": "b54dde8aef529aca033e35c30491defd56ecc6dfa5184d20b4f818ac69eaa7a1",
+  "public/explain-projects.mjs": "342d0d61a0cb550a9ecd992f78f67c7bd48ebe854741b7efdf96f05b80a8591d",
+  "public/explain.js": "c4c824bb6cf4bacc5501fc1e1b1ee2ed9feea69936727abbd901458cee07f4bc",
+  "public/explain.html": "6c1611bba8e5d71bc7cabdc80b4aa051f4d11b12d8bf2b11403798f1a65fc882",
+  "public/explain.css": "d8a6850f7d85b3f73b3dc61d9f585cc19ab34eb455158c7f1a6fc6005e6be778",
+  "tests/explainer-projects.test.mjs": "499a4b946c4c872be955be2805e60736ee9cccd7ad3e93eb4396621e8a5585d8",
+  "tests/explainer-projects-browser.test.mjs": "9f0e8754263b298e72f3bfa821be54b287a91fa5179cf7331a82c62447827de1",
+  "docs/superpowers/specs/2026-10-19-explainer-projects-design.md": "01b8608139d732826a5ceb16c9a618dddeaafdc1d96eb83c20036934c02347d9",
+  "docs/superpowers/plans/2026-10-19-explainer-projects.md": "f320d221bd734572416071dcebfcb1b144d42580afa1b097796f666cbb5222e1",
+  "tests/anatomy-restore.test.mjs": "ac52df0cd37eb7107075147c20f70785287918d3e5a04d1d778d7e6c90b5e641",
+  "tests/explain-errors.test.mjs": "81eea808e89286018be0f8fde8ba56c018c7a97dfb2a0d7ef34256262a054f24"
+}

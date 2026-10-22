@@ -1,0 +1,10 @@
+{
+  "changed": [
+    "public/video-watermark.js",
+    "public/video-watermark-worker.js",
+    "public/video-watermark.html"
+  ],
+  "added": [
+    "tests/video-watermark-compatibility.test.mjs"
+  ]
+}

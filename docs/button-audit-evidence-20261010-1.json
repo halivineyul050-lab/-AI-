@@ -1,0 +1,232 @@
+{
+  "toolsAndGames": [
+    {
+      "path": "/utilities/image-edit",
+      "count": 19,
+      "unbound": []
+    },
+    {
+      "path": "/utilities/image-erase",
+      "count": 19,
+      "unbound": []
+    },
+    {
+      "path": "/utilities/image-background",
+      "count": 14,
+      "unbound": []
+    },
+    {
+      "path": "/utilities/image-enhance",
+      "count": 14,
+      "unbound": []
+    },
+    {
+      "path": "/utilities/link-extract",
+      "count": 12,
+      "unbound": []
+    },
+    {
+      "path": "/utilities/video-to-gif",
+      "count": 11,
+      "unbound": []
+    },
+    {
+      "path": "/utilities/video-crop",
+      "count": 16,
+      "unbound": []
+    },
+    {
+      "path": "/utilities/video-mask",
+      "count": 18,
+      "unbound": []
+    },
+    {
+      "path": "/games/ironfront",
+      "count": 4,
+      "unbound": []
+    },
+    {
+      "path": "/games/yiren-buche",
+      "count": 80,
+      "unbound": [
+        {
+          "id": "medalCenterCloseBtn",
+          "text": "返回上一页",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "medalPostBtn",
+          "text": "发送小红书笔记",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "medalSaveBtn",
+          "text": "保存图片",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "medalShareCloseBtn",
+          "text": "返回勋章页",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "autoPerformanceBtn",
+          "text": "自动保护：开",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "minimapToggleBtn",
+          "text": "小地图：开",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "perfDiagBtn",
+          "text": "性能诊断：关",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "waveWarningSoundBtn",
+          "text": "倒计时声音：开",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "waveWarningFlashBtn",
+          "text": "红色闪屏：开",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "layoutEditSmaller",
+          "text": "－",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "layoutEditLarger",
+          "text": "＋",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "internalGameBackBtn",
+          "text": "‹ 返回游戏",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "inspectCloseBtn",
+          "text": "‹ 返回",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "inspectEquipBtn",
+          "text": "设为首发",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "inspectPrevBtn",
+          "text": "‹",
+          "visible": false,
+          "disabled": false
+        },
+        {
+          "id": "inspectNextBtn",
+          "text": "›",
+          "visible": false,
+          "disabled": false
+        }
+      ]
+    },
+    {
+      "path": "/games/never-retreat",
+      "count": 9,
+      "unbound": []
+    },
+    {
+      "path": "/games/snake",
+      "count": 14,
+      "unbound": []
+    },
+    {
+      "path": "/games/gomoku",
+      "count": 234,
+      "unbound": []
+    },
+    {
+      "path": "/games/flight",
+      "count": 10,
+      "unbound": []
+    },
+    {
+      "path": "/games/2048",
+      "count": 14,
+      "unbound": []
+    },
+    {
+      "path": "/games/memory",
+      "count": 25,
+      "unbound": []
+    },
+    {
+      "path": "/games/breakout",
+      "count": 12,
+      "unbound": []
+    },
+    {
+      "path": "/games/tank-air-war",
+      "count": 29,
+      "unbound": []
+    },
+    {
+      "path": "/games/free-city-3d",
+      "count": 9,
+      "unbound": []
+    }
+  ],
+  "mainViews": [
+    {
+      "path": "/discover",
+      "active": "discover-view",
+      "buttons": 20
+    },
+    {
+      "path": "/tutorials",
+      "active": "tutorials-view",
+      "buttons": 9
+    },
+    {
+      "path": "/news",
+      "active": "news-view",
+      "buttons": 186
+    },
+    {
+      "path": "/rankings",
+      "active": "rankings-view",
+      "buttons": 0
+    }
+  ],
+  "observations": {
+    "submitDialog": true,
+    "emptyCompareShowsPrompt": true,
+    "imageHistorySwitch": true,
+    "promptTemplate": true,
+    "authModeSwitch": true,
+    "pricingResolution": true,
+    "pricingCurrency": true,
+    "pricingExportModal": true,
+    "duplicatesRemoved": 1
+  },
+  "limitations": [
+    "未在真实用户账号上执行注销、清空历史、提交投稿或付费生图；这些操作核对事件绑定并由现有自动测试覆盖。"
+  ]
+}

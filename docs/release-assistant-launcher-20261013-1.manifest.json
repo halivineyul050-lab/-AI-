@@ -1,0 +1,15 @@
+{
+  "release": "assistant-launcher-20261013-1",
+  "sha256": "b7ece57b445a461fdf06804d6ab5d8140e10eb36f4a112166f751401b3715412",
+  "files": 707,
+  "changes": {
+    "server.mjs": "86968ae46d48dd5928a2916b2ec77fa2469dd47c6b32f99fb3e6fb8bfe2ecff3",
+    "public/assistant.css": "839167c0121104f1f3742eccfc62fa73d4a23700c38d6055011f4b3532391f94",
+    "public/assistant.js": "ecc4014f2171108304c727d27c211443a901be76838105d58dae480751d9e8eb",
+    "public/image-generation.css": "bbe3af3e1b2d8f6a068f31367a79fa1fecb2089f0a81e5a5cda306b005e411ba",
+    "public/image-generation.html": "5b2aad896cfdd5879a5e183efd826ba743de99766c36f703f236424b695daae7",
+    "tests/assistant-api.test.mjs": "a423b6ec4ac303beefdef91d4c7a6d431413cbe1d45bf7d0b15907e1bfe68e32",
+    "tests/assistant-ui.test.mjs": "f93c911c4ee972e57af48689c61b94994764e6338a7408e9bca9da3b6fb6b4db",
+    "tests/image-generation-placeholder.test.mjs": "b6f0d54ba59bbb1c47020b5a38f6a880400facdd3ec52f11a9cd80b0cb7531ad"
+  }
+}

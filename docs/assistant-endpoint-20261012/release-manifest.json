@@ -1,0 +1,10 @@
+{
+  "release": "assistant-endpoint-20261012-1",
+  "archiveSha256": "735376e3324417c58bac205de4323b46722ebfc40c02b09308557525abf6fff2",
+  "files": 680,
+  "changes": {
+    "backend/assistant.mjs": "75e683780b21ac5c559e6f0e36ba39ee73c39a3737be69279832afb5d99141ce",
+    "public/admin.html": "2861f04820a1a7d3c7feaba9b12d8fd218c8a3ded3465bc0821a7dccf7360015",
+    "tests/assistant-endpoint.test.mjs": "3639cc4b2f0854e62917fc4f79656bb030b75f4ae084e73276514f9b463603e5"
+  }
+}

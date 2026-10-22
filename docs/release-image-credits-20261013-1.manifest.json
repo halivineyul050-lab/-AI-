@@ -1,0 +1,32 @@
+{
+  "release": "image-credits-20261013-1",
+  "sha256": "fba488a8641a218096da147f449e544ca757a5064b767d3dcd76ff909188fc69",
+  "files": 690,
+  "changes": {
+    "backend/credits.mjs": "d158766da6374db1f98afa07bc46416ae301822a615c021d061e3e4fcbcc93db",
+    "backend/database.mjs": "4d5587323b3d7baf70f225b624b3b56888a74289697715b8dac857a089aa10ae",
+    "backend/image-generation-gateway.mjs": "a1133b9e65232375299d640e0c63e99ed4c61fa13af02e604f72ae4d243c07ae",
+    "backend/mariadb-compat.mjs": "3335043ae48cfbebafbebe9b3795403c404a91d9305b779b0ad0fc1900ec77ae",
+    "backend/mariadb/migrations/027_credits.sql": "c00b99b0b6b5eb5a3ce41fc09f710feb57ab11a165c99e054c6bbbd89320cf64",
+    "backend/migrations/027_credits.sql": "689dfd189e2932845e2a04237552f8d1a96dfdc43e3c1912e2f51bca6d26f097",
+    "public/admin.html": "b9b19647b6bd4f559854cb1afeeb25019c64396a8d0b30953e44feb0b4c02868",
+    "public/auth.html": "ed9598d9d54f6d236664bf2c652049352a6248bc11dca54c20ab3c4105b37467",
+    "public/credits-account.js": "f8a23e30f0378a24c3bf171b2a456133387fdf5ebb6c7f6a4d8fc412ca1f56ed",
+    "public/credits-admin.js": "b0f760102adcea306064b395eb11e5c40c98c7be96b6508ab8db4a5379563684",
+    "public/credits.css": "cbb9cf642a70d353794b7755603ec21793ce638b0cbf5b2782c7dd6a9ce03eab",
+    "public/image-generation.html": "8e23b51e97546af136ca0d83d5eb057c8a42d7c39dd720d0e80241fcf8b50f8d",
+    "public/image-generation.js": "dd9fcbb9c7f3a7a98ffc82ca13de949efbb090a0a2335f2ae8c6caa34bbf17b2",
+    "server.mjs": "86e2b182129e1d8f46224671df6e95bd611df3e4e924f51c196644707aa04891",
+    "tests/api.test.mjs": "934040b23f369050e8769b1bd2ea991d623ee5bb376d97f882f4e04d29874074",
+    "tests/credits-api.test.mjs": "b752d86cd28dad1747baf1b3130714d3456ea53ccb7482482cda67d07f3275a0",
+    "tests/credits-ui.test.mjs": "c84ef813fda3dc74c74b1605f78d5f25cffe70e1593d4f07789497ae06437905",
+    "tests/credits.test.mjs": "156d4c55d5c1e93a1dd5d4f5500c8267173a3391c3b226aff3be151d3d110e3e",
+    "tests/image-cloud-history-store.test.mjs": "2a37f6b0bd88369601b56c1fd912336b37fd406b601a067896db305278ce075a",
+    "tests/image-generation-api.test.mjs": "99610063ab7f9a836c1091ecad5bda0be13db46ea4beab2afba6e2dc024c4faf",
+    "tests/image-generation-placeholder.test.mjs": "538f938da099271d74d1bf197e73d015a9f51e8adc3a3a0dde8f2a64536781b3",
+    "tests/image-provider-store.test.mjs": "6269ea4226d35af0a47b0aaa06298d57dc78025ebb49b94b7a813b0f9fe5e949",
+    "tests/import.test.mjs": "af244ded348472c2bbf2dc28726b020ee07e0ad3dc1b2d7a84e7f7b1ccc8c17e",
+    "tests/mariadb-compat.test.mjs": "5fc044049d91b9e6c258404721ddb7442499226b2190dd4e21d3eeb36ddaf796",
+    "tests/site-announcements.test.mjs": "f49283fad9b214ee5524af0dfcb2611550c7bbcec255fa62b57226dff730f381"
+  }
+}

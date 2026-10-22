@@ -1,0 +1,18 @@
+{
+  "healthStatus": 200,
+  "health": {
+    "data": {
+      "status": "ok",
+      "database": true,
+      "version": 1
+    }
+  },
+  "unauthenticatedDeleteStatus": 401,
+  "unauthenticatedDelete": {
+    "type": "https://nike-ai.local/problems/not_authenticated",
+    "title": "请先登录",
+    "status": 401,
+    "code": "not_authenticated",
+    "requestId": "fed0439c-4144-4c27-9273-d9786b7e459b"
+  }
+}

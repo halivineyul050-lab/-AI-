@@ -1,0 +1,10 @@
+{
+  "release": "studio-credit-style-20261013-1",
+  "sha256": "8b63fc11747563740703888c9e59f7fa061ed3a3229b589de2949f3c76985db7",
+  "files": 707,
+  "changes": {
+    "public/image-generation.css": "f6a5d5da0bc3d21ee9802761d239663ac76a42e787b33f458ccb6882c2b5d6ca",
+    "public/image-generation.html": "93654d9dbc0f2e75b35f6ceffa9bb9316dd0e6e21aaae5318c8f1a2e4e6f9929",
+    "tests/image-generation-placeholder.test.mjs": "436ca1a6bf76bc4871cfdd0ef3f4844f31e0a86ebaa33035e296ff37e70af4ba"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "release": "recharge-pack-links-20261013-1",
+  "sha256": "5e9d575b7c4cda09bfe36e91a963a029414a6ef7a89a6d3f736ae558fd235837",
+  "files": 703,
+  "changes": {
+    "public/auth.html": "f98f873fee1970b0395c5d4345455e9d52c7c7be7fa009f4bcc65941f3d6ce87",
+    "public/credits-account.js": "a71aa42f64095b707748f03c5c17e4048fd6aa6f74167b2934425d10c688b8a7",
+    "public/credits.css": "10c0ee4708e47015983784c4b5842899efde568ac441422b94ccf8446b70bc9d",
+    "public/recharge.html": "03de6d28251d77795c5ea8df372d0b3c07fb008a673541c38df1ae34d79322c4",
+    "public/recharge.js": "74e6d4a5c3e307fbf9369d7220c62bbb2253c5625bb7da8807b5242ef6b70cc7",
+    "tests/recharge-ui.test.mjs": "077a2c0ffb1ba631a279994a99fb0dfd62550d55f7c0d185fb2970034cce0418"
+  }
+}

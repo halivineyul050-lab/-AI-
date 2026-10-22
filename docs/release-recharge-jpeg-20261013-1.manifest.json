@@ -1,0 +1,9 @@
+{
+  "release": "recharge-jpeg-20261013-1",
+  "sha256": "4ffde769139ec8c4de2b4a02e13f9e40e7e2f297e48c95c74b55624b34179159",
+  "files": 703,
+  "changes": {
+    "backend/manual-recharge.mjs": "e1110b70e9bd1bf3b79707e2390dcb2978323a0feb3bbbdab1189378e2d616a0",
+    "tests/manual-recharge.test.mjs": "a120c0a40a7942e8a1d4f57c190e32df2a3f5dfd72ba75a0dd495cdc15a0edbd"
+  }
+}

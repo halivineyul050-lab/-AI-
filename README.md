@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="brand-icon-192.png" width="96" height="96" alt="泥壳AI工具站图标">
+  <img src="public/brand-icon-192.png" width="96" height="96" alt="泥壳AI工具站图标">
 </p>
 
 <h1 align="center">泥壳AI工具站</h1>
@@ -20,13 +20,15 @@
 
 泥壳AI工具站是一个可以直接运行的全栈原型，不只是静态网址导航。项目围绕“发现工具 → 查看详情 → 访问官网”构建完整链路，并通过教程、资讯、专题、投稿和实时数据监控支持内容运营与商业化验证。
 
-生产内容保存在 MariaDB；仓库里的种子文件和历史统计只代表各自生成时的本地快照，不作为线上实时数量。功能与运维现状以本 README、`backend/README.md` 和 `docs/production-release.md` 为准。
+生产内容保存在 MariaDB；仓库里的种子文件和历史统计只代表各自生成时的本地快照，不作为线上实时数量。功能与运维现状以本 README、`backend/README.md` 和 `docs/production-release.md` 为准。文档入口见 [docs/README.md](docs/README.md)。
+
+本地与线上并非完全相同：2026-10-22 经 SSH 发布历史和公网接口核验，当前生产版本为 `watermark-style-20261021-1`（2026-10-21 发布），服务与数据库就绪。本地仍保留资讯事件聚合/热榜、部分页面样式及缓存版本等未集成差异，不能将整个工作区直接发布。逐文件分类、备份与后续集成顺序见 [当前工作区整理记录](docs/workspace-closeout-2026-10-22.md)。
 
 ## 核心功能
 
 ### 站内小工具：视频转 GIF
 
-小工具索引：`/utilities`，包含视频转 GIF、视频画面裁剪和视频马赛克与模糊。
+小工具索引：`/utilities`，包含视频转 GIF、视频画面裁剪、视频马赛克与模糊，以及视频图片水印（`/utilities/video-watermark`）。
 
 从桌面或手机导航「小工具」进入 `/utilities/video-to-gif`。选择或拖入视频，设置起止时间、最长边尺寸、帧率和播放速度，生成后预览并下载循环 GIF；支持进度显示和取消重试。
 
@@ -34,7 +36,7 @@
 - 输入上限 200MiB，每次截取最长 30 秒，尺寸最高 720px（最长边，不放大原视频）。默认前 5 秒、480px、10fps、原速。
 - 输出最多 600 帧，累计处理最多 120M 像素，GIF 输出最多 80MiB。超过预算时提示缩小尺寸、降低帧率或缩短片段。
 - 视频编码需浏览器支持，建议 MP4/H.264 或 WebM。GIF 不包含声音，最多 256 色；复杂渐变可能有色阶，转换速度取决于用户设备。
-- 本地固定版本编码库：`assets/vendor/gifenc/`，gifenc 1.0.3（MIT），保留许可证及来源记录。无需安装新 npm 依赖。
+- 本地固定版本编码库：`public/assets/vendor/gifenc/`，gifenc 1.0.3（MIT），保留许可证及来源记录。无需安装新 npm 依赖。
 
 ### 站内小工具：视频画面裁剪
 
@@ -42,11 +44,13 @@
 
 浏览器模块 Worker 使用本站固定版本 `@ffmpeg/core 0.12.10` 单线程 WASM，输出 H.264/AAC MP4，保留第一条音轨（若存在）和完整时长，不上传输入。导出会重新编码，音画质量和文件大小可能变化。支持进度、取消和重试；取消后销毁 Worker 释放编码内存。
 
-当前输入限制：100MiB、120 秒、显示尺寸最长边 1920px。首次导出需要加载约 31MiB 运行资源，实际耗时取决于设备。解码格式受浏览器支持限制，建议 MP4/H.264 或 WebM。内置编码器许可证、来源和文件哈希见 `assets/vendor/ffmpeg/NOTICE.txt` 与 `LICENSE.txt`（GPL-2.0-or-later）。
+当前输入限制：100MiB、120 秒、显示尺寸最长边 1920px。首次导出需要加载约 31MiB 运行资源，实际耗时取决于设备。解码格式受浏览器支持限制，建议 MP4/H.264 或 WebM。内置编码器许可证、来源和文件哈希见 `public/assets/vendor/ffmpeg/NOTICE.txt` 与 `public/assets/vendor/ffmpeg/LICENSE.txt`（GPL-2.0-or-later）。
 
-### 站内小工具：分享链接提取（本机版）
+### 站内小工具：分享链接提取
 
-访问 `/utilities/link-extract`，粘贴抖音或小红书的作品链接/分享文案，分别提取视频、视频音频、帖子文案和封面。音频导出 MP3；文案支持复制。优先读取同一视频的独立音轨，缺少独立音轨时从完整视频提取，不使用帖子的背景音乐地址。水印状态按来源标记显示，不去除画面中烧录的水印。小红书适配尚待真实分享链接验证。
+线上 `/utilities/link-extract` 当前为抖音公开视频解析原型：登录本站后解析单条可匿名播放的抖音视频，支持视频预览与下载、封面下载和文案复制。需要平台登录或验证时停止解析；线上模式不支持小红书或音频提取。详情见 [已验证发布记录](docs/deployment-douyin-public-20261014-1.md)。
+
+以下为保留的**本机模式**：粘贴抖音或小红书的作品链接/分享文案，分别提取视频、视频音频、帖子文案和封面。音频导出 MP3；文案支持复制。优先读取同一视频的独立音轨，缺少独立音轨时从完整视频提取，不使用帖子的背景音乐地址。水印状态按来源标记显示，不去除画面中烧录的水印。小红书适配尚待真实分享链接验证。
 
 此功能依赖本机 Chrome 远程调试和原生 FFmpeg（需在 PATH，或设置 `NIKE_FFMPEG_PATH`）。默认关闭，Windows 可显式启用：
 
@@ -74,7 +78,7 @@ npm start
 - 工具详情抽屉（含「快速判断」决策模块：适合场景 / 使用前注意 / 关键信息）
 - 工具收藏与多工具对比
 - 教程、资讯、专题和相关推荐
-- AI 生图工作台：模型切换、参考图、画幅与生成历史页面
+- AI 生图工作台：模型切换、参考图、画幅与账号云历史；创作框下方提供三类六个案例，生成前显示费用，等待中可查询原任务，失败按实际结算显示积分处理
 - 工具官网安全跳转与点击统计
 - 工具投稿、投稿状态查询和周报订阅
 - 桌面端、平板端和手机端响应式布局
@@ -120,7 +124,7 @@ flowchart LR
     EVENT --> DB
 ```
 
-项目不依赖前端框架或 Web 框架，页面与 API 由同一个 Node.js 进程提供。后端使用 `mysql2` 连接生产 MariaDB；项目还保留 SQLite 本地开发与测试后端。用户端通过 unpkg 加载 Lucide 图标脚本。
+项目不依赖前端框架或 Web 框架，页面与 API 由同一个 Node.js 进程提供。后端使用 `mysql2` 连接生产 MariaDB；项目还保留 SQLite 本地开发与测试后端。用户端图标由本站固定版本 `public/lucide.min.js` 提供。
 
 ## 技术栈
 
@@ -131,7 +135,7 @@ flowchart LR
 | HTTP 与 API | Node.js `node:http` |
 | 数据库 | 本地/测试：Node.js `node:sqlite`；生产：MariaDB 10.5、`mysql2` |
 | 测试 | Node.js 内置 Test Runner |
-| 图标 | 品牌图标本地托管、Lucide CDN |
+| 图标 | 品牌图标与 Lucide 本地托管 |
 
 ## 快速开始
 
@@ -235,7 +239,7 @@ npm run logos:sync
 npm run logos:verify
 ```
 
-完整字段、去重规则和合规边界见 [AI工具批量导入与合规说明-2026-07-14.md](AI工具批量导入与合规说明-2026-07-14.md)。
+完整字段、去重规则和合规边界见 [AI工具批量导入与合规说明-2026-07-14.md](docs/AI工具批量导入与合规说明-2026-07-14.md)。
 
 ## 常用 API
 
@@ -246,6 +250,7 @@ npm run logos:verify
 | `GET` | `/api/v1/tools` | 普通工具的搜索、筛选、排序和分页（默认24条） |
 | `GET` | `/api/v1/tools/:slug` | 工具详情 |
 | `GET` | `/api/v1/articles` | 教程与资讯列表 |
+| `GET` | `/api/v1/news/hot?limit=10` | 近 48 小时多来源资讯热点，limit 为 1–10 |
 | `GET` | `/api/v1/site-announcements` | 当前应显示的上线公告 |
 | `GET` | `/api/v1/image-models` | 对用户开放的图片模型 |
 | `GET` | `/api/v1/content/version` | 获取前端内容修订号 |
@@ -269,13 +274,15 @@ npm run logos:verify
 | `GET/POST/PATCH/DELETE` | `/api/admin/v1/site-announcements` | 管理上线公告 |
 | `GET/POST/PATCH/DELETE` | `/api/admin/v1/image-providers`、`/api/admin/v1/image-models` | 管理图片平台和模型 |
 
+`GET /api/v1/news/hot` 的 `limit` 默认为 10，取值为 1–10 的整数。成功响应的 `data` 包含 48 小时统计窗口、24 小时半衰期、生成时间和热点列表；列表按各来源站点的时间衰减信号排序，每条提供排名、文章摘要、来源站点数与名称、最新来源时间和“新 / 升温 / 突增”标记，不公开内部热度值。只有至少两个不同来源站点的资讯进入热榜。文章详情接口增加 `sources` 原文列表，同时保留 `source` 与 `sourceUrl` 兼容旧客户端。
+
 ### AI 资讯自动发布
 
-AI 资讯支持按计划自动收集和发布。服务会读取配置的官方 RSS 来源，使用 OpenAI 生成中文标题、摘要和正文，并直接写入已发布内容。默认关闭；部署时在环境变量中设置 `OPENAI_API_KEY` 和 `NIKE_AUTO_NEWS=true` 才会启用。
+AI 资讯支持按计划自动收集和发布。服务会读取配置的官方 RSS 来源，使用现有模型请求选择新事件或补充近期资讯的来源，并保存可追溯的原文链接；新事件会生成中文标题、摘要和正文。`/news` 页面另提供按近 48 小时来源站点与时间衰减排序的热点区。默认关闭；部署时在环境变量中设置 `OPENAI_API_KEY` 和 `NIKE_AUTO_NEWS=true` 才会启用。
 
 可选配置：`NIKE_NEWS_INTERVAL_MINUTES`（默认 360 分钟）、`NIKE_NEWS_AI_MODEL`（默认 `gpt-5.5`）、`NIKE_NEWS_BASE_URL`（默认 `https://lucen.cc`）、`NIKE_NEWS_REASONING_EFFORT`（默认 `xhigh`）、`NIKE_NEWS_DISABLE_RESPONSE_STORAGE`（默认 `true`）和 `NIKE_NEWS_FEEDS`（逗号分隔的 RSS 地址）。没有 API 密钥或开关未开启时，网站正常运行但不会执行采集任务。
 
-完整后端契约见 [backend/README.md](backend/README.md)，本地接口说明见 [泥壳AI工具站-后端地址与接口说明.md](泥壳AI工具站-后端地址与接口说明.md)。
+完整后端契约见 [backend/README.md](backend/README.md)，本地接口说明见 [泥壳AI工具站-后端地址与接口说明.md](docs/泥壳AI工具站-后端地址与接口说明.md)。
 
 ## 测试
 
@@ -304,35 +311,41 @@ npm test
 
 ```text
 泥壳AI工具站/
-├── index.html / styles.css / app.js       # 用户端
-├── admin.html / admin.css / admin.js      # 实时监控、内容管理与投稿审核后台
-├── admin-icons.js                         # 后台自托管图标渲染器
-├── brand-icon.svg                         # 品牌图标源文件裁切版
-├── brand-icon-192.png                     # 页面与设备使用的轻量图标
-├── server.mjs                             # HTTP、API、安全和静态文件服务
-├── assets/tool-logos/                     # 本地托管的工具 Logo 资产
-├── backend/
-│   ├── database.mjs                       # 数据访问、迁移与内容同步
-│   ├── mariadb/                           # MariaDB 数据访问适配
-│   ├── image-generation-gateway.mjs       # 上游生图代理和结果校验
-│   ├── site-announcements.mjs             # 上线公告接口
-│   ├── content-admin.mjs                  # CMS 校验、事务、审计与媒体上传
-│   ├── tool-import.mjs                    # 授权目录规范化、去重与入库
-│   ├── monitoring.mjs                     # 监控指标聚合
-│   ├── validation.mjs                     # 请求与 URL 校验
-│   ├── schema.sql                         # 数据库基础结构
-│   ├── seed-data.json                     # 工具与内容种子数据
-│   └── migrations/                        # 数据库迁移
-├── tests/                                 # API、监控和安全测试
-├── imports/                               # 本地授权目录导入模板
-├── scripts/                               # 数据维护、目录导入与 Logo 同步命令
-└── *.md                                   # 产品分析、接口与内容资料
+├── .env / .env.example                      # 本地环境配置 / 环境变量模板
+├── .gitignore / .gitattributes              # 忽略规则 / Git 行尾规则
+├── package.json / package-lock.json         # Node.js 项目与依赖锁定
+├── README.md / server.mjs                   # 项目说明 / HTTP、API 与静态服务入口
+├── .github/workflows/                       # CI 与发布流程
+├── public/                                  # 静态站点根目录（保持公开 URL 不变）
+│   ├── *.html / *.css / *.js / *.mjs        # 页面、浏览器模块与样式（共用根级 URL）
+│   ├── assets/                              # 品牌、工具 Logo、演示图、第三方资源
+│   │   ├── css/site/                        # 主站样式模块（styles.css 按序导入）
+│   │   └── vendor/{ffmpeg,gifenc,image-tools,lama}/
+│   └── games/                               # 游戏入口与独立资源
+│       ├── ironfront/assets/
+│       ├── tank-air-war/js/
+│       └── yiren-buche/
+├── backend/                                 # API 服务、数据库、内容与数据定义
+│   ├── catalog/                             # 导入目录及 Logo manifest
+│   ├── migrations/                          # SQLite 迁移
+│   └── mariadb/migrations/                  # MariaDB 迁移
+├── scripts/                                 # 发布、维护与静态主导航生成脚本
+├── tests/                                   # Node.js 与 Python 自动化测试
+├── docs/                                    # 运维、接口、历史说明及 superpowers 设计文档
+│   └── superpowers/{plans,specs}/
+├── examples/funai-design-cases/              # 未挂入主站路由的设计案例
+├── deploy/                                  # systemd 服务与定时器定义
+├── imports/                                 # 本地导入数据；模板纳入版本控制
+├── data/                                    # 本地运行数据，不提交版本控制
+└── node_modules/                            # npm 安装依赖，不纳入版本控制
 ```
+
+项目使用 Node.js 内置 HTTP 服务和原生 HTML/CSS/JavaScript，不使用 React、Vue 等前端框架；因此页面与浏览器模块直接放在 `public/`，没有额外创建未被使用的 `components/`、`hooks/` 或 `types/` 目录。`.git/` 是 Git 管理目录，不属于项目源码结构。
 
 ## 生产部署建议
 
 1. 生产当前为单机 Node.js + MariaDB 10.5 + Nginx；MariaDB 仅绑定本机 socket/回环地址。凭据只存服务器受限权限的环境文件，不进仓库。
-2. 发布通过 GitHub Actions `main` 流水线或受控 SSH 调用 `/opt/nikai-ai/scripts/release-production.sh`；发布前先按已配置数据库后端备份，再生成代码快照、跑测试、重启和健康检查。完整步骤见 [生产发布流程](docs/production-release.md)。
+2. 线上发布只走本机已授权 SSH + `/opt/nikai-ai/scripts/release-production.sh`；GitHub Actions 只运行 CI。完整步骤见唯一现行的[线上发布流程](docs/production-release.md)。
 3. 管理后台有账号会话和管理令牌两层入口；用户账号与高权限账号由后台配置。不要把任何凭据保存到浏览器可读存储或提交到仓库。
 4. 定期验证 MariaDB 备份恢复、磁盘空间、服务健康和线上页面；回滚代码不等同于回滚数据库数据。
 
@@ -365,4 +378,4 @@ npm test
 
 三种工具均支持 PNG/JPEG/WebP/BMP 输入，最大 20MiB、16Mi 像素，文件头先于解码验证。基础编辑不上传图片；另外两种工具使用本站 CPU 服务，任务结束清理临时图片。服务器两种新模型共用一个处理槽、60 秒超时，不需要用户 API Key。
 
-Python 3.11 环境安装 `scripts/image-tools-requirements.txt`，按 `assets/vendor/image-tools/NOTICE.md` 下载并核对两个模型；配置 `.env.example` 的三个 `NIKE_IMAGE_*` 路径后重启服务。状态接口为 `/api/utilities/image-tools/status`。部署验证与公网限制见 `docs/deployment-image-suite-20260909.md`。
+Python 3.11 环境安装 `scripts/image-tools-requirements.txt`，按 `public/assets/vendor/image-tools/NOTICE.md` 下载并核对两个模型；配置 `.env.example` 的三个 `NIKE_IMAGE_*` 路径后重启服务。状态接口为 `/api/utilities/image-tools/status`。部署验证与公网限制见 `docs/deployment-image-suite-20260909.md`。

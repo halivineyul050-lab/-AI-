@@ -1,0 +1,10 @@
+{
+  "release": "creator-layout-20261013-1",
+  "sha256": "5b99106e041f1fa9ffea3d11b08604024dd258f44dffcee27a10eb7fce00479c",
+  "files": 634,
+  "changes": {
+    "public/admin-creator.css": "2e244ad23fe121d581e144c83cae769ef85b20cb23463d7494c1e3e1cfdc42b9",
+    "public/admin-creator.js": "373528d8d4d5216059b9b479fd29a5218f1ef35ee9fcb3b22153124fb983c22e",
+    "public/admin.html": "847a119ba332ef704f70ac479511c2de3303c39f6ae088fb956f94daba7f465f"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "name": "等额本息房贷计算器",
+  "entry": "index.html",
+  "files": [
+    {
+      "path": "index.html",
+      "content": "<!DOCTYPE html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>等额本息房贷计算器</title>\n<style>\n  :root{\n    --bg: #f4f6fb;\n    --card: #ffffff;\n    --ink: #1f2937;\n    --muted: #6b7280;\n    --line: #e5e7eb;\n    --accent: #2563eb;\n    --accent-dark: #1d4ed8;\n    --ok: #059669;\n    --err: #dc2626;\n  }\n  *{box-sizing:border-box;}\n  html,body{margin:0;padding:0;}\n  body{\n    font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei\", sans-serif;\n    background: linear-gradient(160deg,#eef2ff 0%, #f4f6fb 45%, #f0fdfa 100%);\n    color: var(--ink);\n    min-height: 100vh;\n    -webkit-font-smoothing: antialiased;\n  }\n  .wrap{\n    max-width: 720px;\n    margin: 0 auto;\n    padding: 28px 18px 56px;\n  }\n  header{\n    text-align: center;\n    margin-bottom: 22px;\n  }\n  header h1{\n    font-size: clamp(20px, 4.6vw, 26px);\n    margin: 0 0 8px;\n    letter-spacing: .5px;\n  }\n  header p{\n    margin: 0;\n    color: var(--muted);\n    font-size: 14px;\n    line-height: 1.6;\n  }\n  .card{\n    background: var(--card);\n    border-radius: 16px;\n    box-shadow: 0 10px 30px rgba(30, 58, 138, .08), 0 2px 6px rgba(0,0,0,.04);\n    padding: 22px 20px;\n    border: 1px solid rgba(229,231,235,.8);\n  }\n  .field{\n    margin-bottom: 18px;\n  }\n  .field label{\n    display: flex;\n    justify-content: space-between;\n    align-items: baseline;\n    font-size: 14px;\n    font-weight: 600;\n    margin-bottom: 7px;\n  }\n  .field label .unit{\n    font-weight: 400;\n    font-size: 12px;\n    color: var(--muted);\n    background: #f1f5f9;\n    padding: 2px 8px;\n    border-radius: 999px;\n  }\n  .input-row{\n    position: relative;\n    display: flex;\n    align-items: center;\n  }\n  input[type=\"number\"]{\n    width: 100%;\n    font-size: 17px;\n    padding: 12px 14px;\n    border: 1.5px solid var(--line);\n    border-radius: 11px;\n    background: #fbfdff;\n    color: var(--ink);\n    transition: border-color .18s, box-shadow .18s, background .18s;\n    -moz-appearance: textfield;\n    appearance: textfield;\n  }\n  input[type=\"number\"]::-webkit-outer-spin-button,\n  input[type=\"number\"]::-webkit-inner-spin-button{\n    -webkit-appearance: none;\n    margin: 0;\n  }\n  input[type=\"number\"]:focus{\n    outline: none;\n    border-color: var(--accent);\n    background: #fff;\n    box-shadow: 0 0 0 4px rgba(37,99,235,.12);\n  }\n  button#calculate{\n    width: 100%;\n    margin-top: 6px;\n    border: none;\n    border-radius: 12px;\n    padding: 15px 18px;\n    font-size: 17px;\n    font-weight: 700;\n    letter-spacing: 1px;\n    color: #fff;\n    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);\n    cursor: pointer;\n    box-shadow: 0 8px 20px rgba(37,99,235,.28);\n    transition: transform .1s, box-shadow .18s, filter .18s;\n  }\n  button#calculate:hover{ filter: brightness(1.05); }\n  button#calculate:active{ transform: translateY(1px); box-shadow: 0 4px 12px rgba(37,99,235,.28); }\n  button#calculate:focus-visible{ outline: 3px solid rgba(37,99,235,.4); outline-offset: 2px; }\n\n  #error{\n    margin-top: 16px;\n    background: #fef2f2;\n    border: 1px solid #fecaca;\n    color: var(--err);\n    padding: 11px 14px;\n    border-radius: 11px;\n    font-size: 14px;\n    line-height: 1.5;\n  }\n  #error[hidden]{ display: none; }\n\n  .results{\n    margin-top: 24px;\n    padding-top: 20px;\n    border-top: 1px dashed var(--line);\n  }\n  .results h2{\n    font-size: 15px;\n    font-weight: 700;\n    color: var(--muted);\n    letter-spacing: 1px;\n    margin: 0 0 14px;\n    text-transform: uppercase;\n  }\n  .result-main{\n    background: linear-gradient(135deg,#eff6ff 0%, #eef2ff 100%);\n    border: 1px solid #dbeafe;\n    border-radius: 14px;\n    padding: 18px 16px;\n    text-align: center;\n    margin-bottom: 14px;\n  }\n  .result-main .label{\n    font-size: 14px;\n    color: #1e40af;\n    font-weight: 600;\n    margin-bottom: 6px;\n  }\n  .result-main .value{\n    font-size: clamp(26px, 7vw, 34px);\n    font-weight: 800;\n    color: #1e3a8a;\n    font-variant-numeric: tabular-nums;\n    word-break: break-all;\n  }\n  .result-main .value .cur{\n    font-size: .55em;\n    font-weight: 600;\n    margin-right: 4px;\n    color: #1e40af;\n  }\n  .result-grid{\n    display: grid;\n    grid-template-columns: repeat(2, minmax(0,1fr));\n    gap: 12px;\n  }\n  .result-item{\n    background: #f8fafc;\n    border: 1px solid var(--line);\n    border-radius: 12px;\n    padding: 13px 14px;\n  }\n  .result-item .label{\n    font-size: 12.5px;\n    color: var(--muted);\n    margin-bottom: 5px;\n  }\n  .result-item .value{\n    font-size: clamp(16px, 4.4vw, 20px);\n    font-weight: 700;\n    color: var(--ink);\n    font-variant-numeric: tabular-nums;\n    word-break: break-all;\n  }\n  .note{\n    margin-top: 16px;\n    font-size: 12.5px;\n    color: var(--muted);\n    line-height: 1.7;\n  }\n  @media (max-width: 420px){\n    .wrap{ padding: 18px 12px 40px; }\n    .card{ padding: 18px 14px; border-radius: 14px; }\n    .result-grid{ grid-template-columns: 1fr 1fr; gap: 10px; }\n    .result-item{ padding: 11px 12px; }\n  }\n</style>\n</head>\n<body>\n<main class=\"wrap\">\n  <header>\n    <h1>等额本息房贷计算器</h1>\n    <p>输入贷款本金、年利率与期限，计算每月月供、总利息与还款总额。</p>\n  </header>\n\n  <section class=\"card\" aria-label=\"计算输入\">\n    <div class=\"field\">\n      <label for=\"principal\">贷款本金 <span class=\"unit\">单位：元</span></label>\n      <div class=\"input-row\">\n        <input id=\"principal\" data-nest-check=\"principal\" type=\"number\" inputmode=\"decimal\" min=\"0\" step=\"any\" placeholder=\"例如 120000\" autocomplete=\"off\">\n      </div>\n    </div>\n\n    <div class=\"field\">\n      <label for=\"annual-rate\">年利率 <span class=\"unit\">单位：%（百分数）</span></label>\n      <div class=\"input-row\">\n        <input id=\"annual-rate\" data-nest-check=\"annual-rate\" type=\"number\" inputmode=\"decimal\" step=\"any\" placeholder=\"例如 6，零利率填 0\" autocomplete=\"off\">\n      </div>\n    </div>\n\n    <div class=\"field\">\n      <label for=\"months\">还款期限 <span class=\"unit\">单位：月</span></label>\n      <div class=\"input-row\">\n        <input id=\"months\" data-nest-check=\"months\" type=\"number\" inputmode=\"numeric\" min=\"1\" step=\"1\" placeholder=\"例如 12\" autocomplete=\"off\">\n      </div>\n    </div>\n\n    <button id=\"calculate\" data-nest-check=\"calculate\" type=\"button\">计算月供</button>\n\n    <div id=\"error\" data-nest-check=\"error\" role=\"alert\" hidden></div>\n\n    <div class=\"results\" id=\"results\">\n      <h2>计算结果</h2>\n      <div class=\"result-main\">\n        <div class=\"label\">每月月供</div>\n        <div class=\"value\"><span class=\"cur\">¥</span><span id=\"monthly-payment\" data-nest-check=\"monthly-payment\">--</span></div>\n      </div>\n      <div class=\"result-grid\">\n        <div class=\"result-item\">\n          <div class=\"label\">总利息（元）</div>\n          <div class=\"value\"><span id=\"total-interest\" data-nest-check=\"total-interest\">--</span></div>\n        </div>\n        <div class=\"result-item\">\n          <div class=\"label\">还款总额（元）</div>\n          <div class=\"value\"><span id=\"total-payment\">--</span></div>\n        </div>\n      </div>\n      <p class=\"note\">说明：等额本息按固定月供计算，月利率 = 年利率 ÷ 12 ÷ 100；零利率时月供 = 本金 ÷ 期数。金额四舍五入保留 2 位小数。</p>\n    </div>\n  </section>\n</main>\n\n<script>\n(function(){\n  'use strict';\n\n  var principalEl = document.getElementById('principal');\n  var rateEl = document.getElementById('annual-rate');\n  var monthsEl = document.getElementById('months');\n  var calcBtn = document.getElementById('calculate');\n  var errorEl = document.getElementById('error');\n  var monthlyEl = document.getElementById('monthly-payment');\n  var interestEl = document.getElementById('total-interest');\n  var totalEl = document.getElementById('total-payment');\n\n  function formatMoney(n){\n    if (!isFinite(n)) return '--';\n    return n.toLocaleString('zh-CN', {\n      minimumFractionDigits: 2,\n      maximumFractionDigits: 2,\n      useGrouping: false\n    });\n  }\n\n  function showError(msg){\n    errorEl.textContent = msg;\n    errorEl.hidden = false;\n    monthlyEl.textContent = '--';\n    interestEl.textContent = '--';\n    totalEl.textContent = '--';\n  }\n\n  function clearError(){\n    errorEl.textContent = '';\n    errorEl.hidden = true;\n  }\n\n  function parseNumber(el){\n    var raw = el.value;\n    if (raw === null || raw === undefined) return NaN;\n    raw = String(raw).trim();\n    if (raw === '') return NaN;\n    return Number(raw);\n  }\n\n  function calculate(){\n    clearError();\n\n    var P = parseNumber(principalEl);\n    var annualRate = parseNumber(rateEl);\n    var n = parseNumber(monthsEl);\n\n    if (!isFinite(P) || !isFinite(annualRate) || !isFinite(n) ||\n        P <= 0 || annualRate < 0 || n <= 0 || !Number.isInteger(n)){\n      showError('请输入有效数值');\n      return;\n    }\n\n    var monthlyRate = annualRate / 100 / 12;\n    var monthly, total, interest;\n\n    if (monthlyRate === 0){\n      monthly = P / n;\n      total = P;\n      interest = 0;\n    } else {\n      var pow = Math.pow(1 + monthlyRate, n);\n      monthly = P * monthlyRate * pow / (pow - 1);\n      total = monthly * n;\n      interest = total - P;\n      if (interest < 0) interest = 0;\n    }\n\n    monthlyEl.textContent = formatMoney(monthly);\n    interestEl.textContent = formatMoney(interest);\n    totalEl.textContent = formatMoney(total);\n  }\n\n  calcBtn.addEventListener('click', calculate);\n\n  [principalEl, rateEl, monthsEl].forEach(function(el){\n    el.addEventListener('keydown', function(e){\n      if (e.key === 'Enter'){\n        e.preventDefault();\n        calculate();\n      }\n    });\n  });\n})();\n</script>\n</body>\n</html>"
+    }
+  ],
+  "capabilities": [],
+  "acceptance": [
+    {
+      "kind": "fill",
+      "target": "#principal",
+      "input": "120000"
+    },
+    {
+      "kind": "fill",
+      "target": "#annual-rate",
+      "input": "0"
+    },
+    {
+      "kind": "fill",
+      "target": "#months",
+      "input": "12"
+    },
+    {
+      "kind": "clickText",
+      "target": "#calculate",
+      "output": "#monthly-payment",
+      "value": "10000"
+    },
+    {
+      "kind": "fill",
+      "target": "#principal",
+      "input": "120000"
+    },
+    {
+      "kind": "fill",
+      "target": "#annual-rate",
+      "input": "6"
+    },
+    {
+      "kind": "fill",
+      "target": "#months",
+      "input": "12"
+    },
+    {
+      "kind": "clickText",
+      "target": "#calculate",
+      "output": "#monthly-payment",
+      "value": "10328.14"
+    },
+    {
+      "kind": "fill",
+      "target": "#principal",
+      "input": "120000"
+    },
+    {
+      "kind": "fill",
+      "target": "#annual-rate",
+      "input": "-1"
+    },
+    {
+      "kind": "fill",
+      "target": "#months",
+      "input": "12"
+    },
+    {
+      "kind": "clickText",
+      "target": "#calculate",
+      "output": "#error",
+      "value": "请输入有效数值"
+    }
+  ]
+}

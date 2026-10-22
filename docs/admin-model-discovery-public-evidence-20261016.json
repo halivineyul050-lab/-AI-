@@ -1,0 +1,56 @@
+{
+  "homepageStatus": 200,
+  "health": {
+    "status": 200,
+    "database": true
+  },
+  "admin": {
+    "status": 200,
+    "modelPickerScript": true,
+    "currentVersion": true
+  },
+  "assets": [
+    {
+      "path": "public/admin.js",
+      "status": 200,
+      "hashMatches": true
+    },
+    {
+      "path": "public/admin-provider.css",
+      "status": 200,
+      "hashMatches": true
+    },
+    {
+      "path": "public/admin-model-picker.js",
+      "status": 200,
+      "hashMatches": true
+    },
+    {
+      "path": "public/admin-assistant.js",
+      "status": 200,
+      "hashMatches": true
+    },
+    {
+      "path": "public/admin-explainer.js",
+      "status": 200,
+      "hashMatches": true
+    },
+    {
+      "path": "public/admin-nestdutio.js",
+      "status": 200,
+      "hashMatches": true
+    },
+    {
+      "path": "public/admin-skills.js",
+      "status": 200,
+      "hashMatches": true
+    },
+    {
+      "path": "public/admin-news-sync.js",
+      "status": 200,
+      "hashMatches": true
+    }
+  ],
+  "unauthorizedDiscoveryStatus": 401,
+  "pageErrors": []
+}

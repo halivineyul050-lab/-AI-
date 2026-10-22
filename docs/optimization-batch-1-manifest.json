@@ -1,0 +1,73 @@
+{
+  "kind": "local-review-only",
+  "date": "2026-10-13",
+  "scope": "image-job-reliability-batch-1",
+  "productionRelease": false,
+  "note": "Current workspace contains pre-existing unrelated changes. This is a review scope manifest, not a production release package. Rebase reviewed changes onto verified production snapshot before release.",
+  "files": [
+    {
+      "path": "backend/credits.mjs",
+      "sha256": "2b00977a3d369fa11d858ff874636c6632ec1bebd6b04642e9924a6842e842d2"
+    },
+    {
+      "path": "backend/database.mjs",
+      "sha256": "b999be7f04263e6af3f120b87eb9652f4e6e6e5937153c072f877115638a4553"
+    },
+    {
+      "path": "backend/mariadb-compat.mjs",
+      "sha256": "cd68a7ef222a9f70530e49c5dccec18f2ead767835df327a1f3b955b2081da48"
+    },
+    {
+      "path": "backend/image-job-store.mjs",
+      "sha256": "a750f9540e862e7c3bc54fa3ca9910592dff2df5323a65ae8223a27d4b93034a"
+    },
+    {
+      "path": "backend/services/image-generation.mjs",
+      "sha256": "6ffccc7055dc43fd23f89edab6cb027f7c912f816651a2b2a65ce324c7fb127b"
+    },
+    {
+      "path": "backend/migrations/030_image_jobs_runtime.sql",
+      "sha256": "78e5ca5e4a01d42c17ddddae1ce8c3fe19c8ce985b4463699cb951595459c27f"
+    },
+    {
+      "path": "backend/mariadb/migrations/030_image_jobs_runtime.sql",
+      "sha256": "799aa79ee29573311df9cded70bffafcb28595945e325533c42d64a7a73ba027"
+    },
+    {
+      "path": "server.mjs",
+      "sha256": "6cefc027b5b9ed32991bc27f9d7c53d231e5564fc890b03fac182430716bc2e8"
+    },
+    {
+      "path": "tests/api.test.mjs",
+      "sha256": "12668369fdd1ba4d0f257813347f9cdbbb81e033f343adc2db8973e4042e0cbe"
+    },
+    {
+      "path": "tests/import.test.mjs",
+      "sha256": "e3c8bc52a19a87ffad6f772b39b8d6957ef87b4fda362e6f80ac5d5b0e7e22ee"
+    },
+    {
+      "path": "tests/site-announcements.test.mjs",
+      "sha256": "9a42332892de9c3d3b87727fcbde21d8c8739d26002560fbe447aa564b9ac0d8"
+    },
+    {
+      "path": "tests/mariadb-compat.test.mjs",
+      "sha256": "a07a7906dbc08334f09cd03490737773928ed0f065d9e93b42394de109fb7c53"
+    },
+    {
+      "path": "tests/image-cloud-history-store.test.mjs",
+      "sha256": "f46356ad19553ef484a5a95b690d9c30190c495a071663b3c955545a532f64cf"
+    },
+    {
+      "path": "tests/image-provider-store.test.mjs",
+      "sha256": "5ab385726dcbed5f8e4b5eb47aa02f46f48fcdb913dd3d52967329d0b622b26d"
+    },
+    {
+      "path": "tests/image-job-recovery.test.mjs",
+      "sha256": "0ca706f15b2822683150e951e4bfbf5ba6460c682eb6ed245978e0316c7dca16"
+    },
+    {
+      "path": "tests/image-job-restart-api.test.mjs",
+      "sha256": "832b68bb2e4d5955855735f576fae4fc8c11164abbaa2938410e90203a986b91"
+    }
+  ]
+}

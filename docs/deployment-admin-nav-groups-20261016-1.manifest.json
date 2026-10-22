@@ -1,0 +1,26 @@
+[
+  {
+    "path": "tests/admin-layout-order.test.mjs",
+    "sha256": "ff2ed6d9281f43391b80ea356a672fe285685944ebf426b5c6f74466eb24722a"
+  },
+  {
+    "path": "tests/admin-navigation-groups.test.mjs",
+    "sha256": "e87fcbc42a01eb2fd623befd9f3d3f4dbd4deb15cc227f305ce288324678ddf6"
+  },
+  {
+    "path": "tests/admin-session-bootstrap.test.mjs",
+    "sha256": "0ce448dda717c411529f6a2a13c127a029013efa5991c14f4bb5d833c4f8bcd1"
+  },
+  {
+    "path": "public/admin.css",
+    "sha256": "b1d107ebc0ca9085ebde3c641dc304b5e0ae959ad7e7be99c8304c684943b10b"
+  },
+  {
+    "path": "public/admin.html",
+    "sha256": "62215beb64e3b169248d9c9eb7d159e333117fc7212297ebe4f0e6a547bdec59"
+  },
+  {
+    "path": "public/admin.js",
+    "sha256": "87fa52128ac02bce57343fd30d2aa30aa20403c01008cc71f24ca3c3749232d9"
+  }
+]

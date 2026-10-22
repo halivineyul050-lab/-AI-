@@ -1,0 +1,12 @@
+{
+  "public/explain-video.mjs": "4c00771926fe8aa06fb85cfaa16800b7200ef262862dd718f3d6c0632eff0ba4",
+  "public/explain.js": "e47e65e76d329926ee256e388e4d350291b8f59734ee949cbfbcc7950627a7bf",
+  "public/explain.html": "fa77200f764eabd002599c91e9e0355cdd992da6e06d071a5a39a6c2b9f79a44",
+  "public/explain.css": "1eec48b1dcd55e18d7167e469b65399cbb477da78831846144b18cd94bca274b",
+  "public/anatomy-renderer.mjs": "10dc60289b8b08afdc3419772e7ca2bf0e0126f1a8e6a249d2b49244071b6b43",
+  "server.mjs": "ad647c4aa67be9968ca2e95e5c7fd77666054d026144a97d8294ba024b1fb845",
+  "tests/explainer-video.test.mjs": "14e245e51b90d4db9f5e543ba4b535d24d998a066c79352a125672dd8dd5b0a9",
+  "tests/explainer-video-browser.test.mjs": "fc1a1d8f73c0fe866bb13ac469a7158517c92f97e06bfcb19fa1b918e3f30ed9",
+  "docs/superpowers/specs/2026-10-19-explainer-video-design.md": "13864a2d97ad134b7168953629d150850bf8d49c39f549bea476fed7eefe3370",
+  "docs/superpowers/plans/2026-10-19-explainer-video.md": "34f5590451df28ac63e24420171456e9eabd69546c13e115782e9eaba0f607c6"
+}

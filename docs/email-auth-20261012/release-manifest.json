@@ -1,0 +1,31 @@
+{
+  "release": "email-auth-20261012-1",
+  "archiveSha256": "5bcf597928acce099c0138e664f784bfad646438d489a929f77f3a1fe4f322a9",
+  "files": 679,
+  "changes": {
+    ".env.example": "aa31dc81312d153b5e2aef556d5d1170738d4ed016395a358813aad681e2cc24",
+    "server.mjs": "5e6562621b2f1a8e383ca1100ca2d955bdb960a8a04bd3e9a4cb89e5de332315",
+    "backend/auth-email.mjs": "83f4ba324ebbb6227657f475885259a8a9d77e00bc9d41f70c735744a88d89d1",
+    "backend/auth.mjs": "b6dffc26f14f2cd731cc43ccae6530fa10a73ba9c0383d7e0fb065de97407bbd",
+    "backend/database.mjs": "50f31d57971e0a5696182328d3cf3fdb4a1e5a21b096756db877e7d85e45be80",
+    "backend/mariadb-compat.mjs": "045c96bb331d7f52fa19b408358f23d789de243d27544211e8f91fdb53ee78f2",
+    "public/auth.css": "fd17182a7f591dea7cc1808f9ac24524fd4532356d38bf79323c7e6c8e2c452a",
+    "public/auth.html": "540f1701fbeeb7a6ef5ec726a9f4f69da087cd6d06895bd83d9c17ffdeed9e24",
+    "public/auth.js": "09d0aab02e0ab08b2084d1e16850554474ba3e49c0c83b3608f4bc7ec6e333b7",
+    "tests/account-avatar-ui.test.mjs": "e2696a5c125b0a1011d4ff35d2db079132fb56e6d10a40bdde88476d0e4a5951",
+    "tests/account-image-history.test.mjs": "8307e105d45fc690a473fb22dd954334e4a3da8ac2a5eea5233fcd3c2f77b8ab",
+    "tests/api.test.mjs": "5efa5b0254de23d45bc79f942e8a9c083297967e8c56984e9ab90bc4e3b35ee4",
+    "tests/auth-page-initialization.test.mjs": "dfaf1fda2656e8a9f6f1b42966d09fc09227da385335004b1b8edcb18f370e99",
+    "tests/auth.test.mjs": "ec4eb4fca448541ea72953e422ea68cfe9f5de90d96aeef4c04e532d7868a03c",
+    "tests/email-auth.test.mjs": "b5cf73455c334b0fc3bb21424cc6e3e4a0c9b4cdfa132d4792a951ad044b3f6e",
+    "tests/email-code-store.test.mjs": "62a12083517ebf7746ff9c785fa4c8d1d313d7ced49ccc4ec7fc2507bc4d5239",
+    "tests/image-cloud-history-store.test.mjs": "d28c83de3ddfc66d336abaec88bef0d1c46ac3193da16dd08a0cd702fa14e3b5",
+    "tests/image-provider-store.test.mjs": "12a59c7bb73ac2cedc1850da87214b407062eb1a32b0ab4110c3145420d1eaf4",
+    "tests/import.test.mjs": "fc08cdb2e5c45023a012901d66b062ec4136ec7d677c58bbd26ff9bccaefd392",
+    "tests/mariadb-compat.test.mjs": "e32b1975cc426820d6f65fd50b0c5102003a7b50bf176b1367fb9faa6ae2b4ef",
+    "tests/news-sync-api.test.mjs": "9930d046cfc9633798ea91f349b560b5e551fa26986edb98031eb07d4cc6228b",
+    "tests/site-announcements.test.mjs": "6ea5c07a9e4f0932c7add063bf6792474197844d55e73add5cd5bd2f45b2f933",
+    "backend/migrations/026_email_auth.sql": "e61ad4ed7875442584addbdc8c220545807b43aea6b352ecabb2215c5f6ad186",
+    "backend/mariadb/migrations/026_email_auth.sql": "633e05224d39ac14f3ec1dbba7080731cc725b7312ebf6d290ebb0de261c271a"
+  }
+}

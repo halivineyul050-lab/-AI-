@@ -1,0 +1,35 @@
+{
+  "baseline": {
+    "browser": "Edge",
+    "file": "MPEG4 Part 2 MP4",
+    "status": "无法读取视频，请尝试 MP4/H.264 或 WebM。",
+    "previewAndExportDisabled": true
+  },
+  "fixed": {
+    "edge": {
+      "previewFramesChange": true,
+      "downloadSuccess": true,
+      "modes": [
+        "static",
+        "diagonal",
+        "patrol",
+        "internal"
+      ]
+    },
+    "chrome": {
+      "resolution": "1280x720",
+      "input": "MPEG4 AVI + MP3",
+      "output": "H264 MP4 + AAC",
+      "downloadSuccess": true
+    },
+    "cancellation": {
+      "duringConversion": true,
+      "duringConvertedVideoLoad": true
+    },
+    "mobileWidth": 390,
+    "noHorizontalOverflow": true
+  },
+  "review": {
+    "remainingBlockers": 0
+  }
+}

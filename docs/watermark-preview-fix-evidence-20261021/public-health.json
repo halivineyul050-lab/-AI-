@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "body": {
+    "data": {
+      "status": "ok",
+      "database": true,
+      "version": 1
+    }
+  }
+}

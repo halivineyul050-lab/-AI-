@@ -191,7 +191,7 @@ git commit -m "feat: add stable local favorites view"
 - Modify only if verification exposes a defect in the preceding files.
 - Read: `scripts/release-production.sh`
 - Read: `scripts/rollback-production.sh`
-- Read: `上线前检查清单.md`
+- Read: `docs/上线前检查清单.md`
 
 **Interfaces:**
 - Consumes: completed `/favorites` implementation and repository release workflow.

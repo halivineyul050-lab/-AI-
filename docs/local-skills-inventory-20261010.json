@@ -1,0 +1,954 @@
+[
+  {
+    "name": "imagegen",
+    "description": "Generate or edit raster images when the task benefits from AI-created bitmap visuals such as photos, illustrations, textures, sprites, mockups, or transparent-background cutouts. Use when Codex should create a brand-new image, transform an existing image, or derive visual variants from references, and the output should be a bitmap asset rather than repo-native code or vector. Do not use when the task is better handled by editing existing SVG/vector/code-native assets, extending an established icon or logo system, or building the visual directly in HTML/CSS/canvas.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\.system\\imagegen\\SKILL.md",
+    "chars": 19161,
+    "attachments": 11,
+    "sha256": "681ddb4ad6d06a2acc78a3535b583f8d0c1ea800ecda3d56370d3310fd2cd4ba"
+  },
+  {
+    "name": "openai-docs",
+    "description": "Use for Codex models/pricing, scheduled tasks, skills, settings, setup, troubleshooting, customization, automations, and self-knowledge—including 'you,' 'your,' 'this app,' or 'this coding agent' when they refer to Codex—and for OpenAI APIs/products and ChatGPT Work. Also use for model choice/migration, prompting, SDKs, Responses, Realtime, agents, evals, and Chat/Work/Codex comparisons. Do not use for generic app/software tasks that merely mention Codex.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\.system\\openai-docs\\SKILL.md",
+    "chars": 5433,
+    "attachments": 16,
+    "sha256": "aa6829e21df2223167c85d2e49b6337a7345c84c1033f1ec10182c7882b36d45"
+  },
+  {
+    "name": "review-agent",
+    "description": "Perform a read-only, defect-first review of a specified code change and return every actionable finding. Use when another agent delegates review of uncommitted changes, a base-branch diff, a commit, or custom review instructions.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\.system\\review-agent\\SKILL.md",
+    "chars": 2659,
+    "attachments": 1,
+    "sha256": "07079efd0dc76f05fade424e5dfb048dce1de2df7626e1a4f56292a4f3f92228"
+  },
+  {
+    "name": "skill-creator",
+    "description": "Create or update a Codex skill with appropriately scoped instructions and any needed supporting resources.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\.system\\skill-creator\\SKILL.md",
+    "chars": 15311,
+    "attachments": 8,
+    "sha256": "6656e54755638e8efcf275a472b9672eaa8a9a1b9e59dc210e275b03b59e1e66"
+  },
+  {
+    "name": "skill-installer",
+    "description": "Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos).",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\.system\\skill-installer\\SKILL.md",
+    "chars": 3367,
+    "attachments": 7,
+    "sha256": "d68b77e5bbb34dedab89d134da52855f140fc4b4299b80104f534e3b9e98f8ee"
+  },
+  {
+    "name": "aihot",
+    "description": "查询 AI HOT 的中文 AI 资讯、精选、当前热点和日报。用户询问今天或最近的 AI 新闻、AI 圈动态、大模型或产品发布、OpenAI／Anthropic／Google 最新消息、AI 论文、AI 日报、AI HOT 精选、当前最热事件，或需要同步当前全部精选时使用。必须通过 aihot.virxact.com 的匿名只读 API 获取当前数据，不凭训练记忆回答新闻；不需要 API Key 或 MCP server。",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\aihot\\SKILL.md",
+    "chars": 3974,
+    "attachments": 8,
+    "sha256": "4f5837b0c44d9a80d20198c8be505543509974ea6827ecd94eed54742ec4c982"
+  },
+  {
+    "name": "brainstorming",
+    "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\brainstorming\\SKILL.md",
+    "chars": 10005,
+    "attachments": 7,
+    "sha256": "4a54a4858b99807f3155ed1614b2f116e35ea5c1b788e793f565dd837fd3891f"
+  },
+  {
+    "name": "cangjie-skill",
+    "description": "Distill a book, long-video transcript, podcast, course, or interview into a coherent set of executable skills. Use when the user asks to \"拆书\" / \"蒸馏一本书\" / \"把 XX 书做成 skill\" / \"把这个视频/播客/课程蒸馏成 skill\" / \"turn a book or video into skills\" — i.e. wants the frameworks, principles, and methodologies in long-form content extracted into atomic, reusable Claude skills that an agent can invoke in real-world situations. NOT for simple summarization, book reviews, or role-playing as the author (that is nuwa-skill's job).",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\cangjie-skill\\SKILL.md",
+    "chars": 6174,
+    "attachments": 32,
+    "sha256": "bd2be12615967a5f3b56e9f6b1c9214f20c6b4328107c51ec4addb0db751527a"
+  },
+  {
+    "name": "dispatching-parallel-agents",
+    "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\dispatching-parallel-agents\\SKILL.md",
+    "chars": 6052,
+    "attachments": 0,
+    "sha256": "1968923066f3b707eb01d1992cdf4c42284c3855f70253b9cd5000ff45fca13c"
+  },
+  {
+    "name": "docx",
+    "description": "Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files) or Word templates (.dotx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', '.dotx', or requests to produce professional documents with formatting like tables of contents, headings, page numbers, or letterheads. Also use when extracting or reorganizing content from .docx or .dotx files, inserting or replacing images in documents, performing find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a 'report', 'memo', 'letter', 'template', or similar deliverable as a Word or .docx file, use this skill. Do NOT use for PDFs, spreadsheets, Google Docs, or general coding tasks unrelated to document generation.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\docx\\SKILL.md",
+    "chars": 6868,
+    "attachments": 60,
+    "sha256": "8017469ea95fb7d28225c62daf8e2f3492a7b516fc64c18c28977cbf8980b7fe"
+  },
+  {
+    "name": "executing-plans",
+    "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\executing-plans\\SKILL.md",
+    "chars": 2305,
+    "attachments": 0,
+    "sha256": "c4c3d8b628c51114cd165fb8246fe02744cd8be180032328391252e653028d9b"
+  },
+  {
+    "name": "figma-implement-design",
+    "description": "Translates Figma designs into production-ready application code with 1:1 visual fidelity. Use when implementing UI code from Figma files, when user mentions \"implement design\", \"generate code\", \"implement component\", provides Figma URLs, or asks to build components matching Figma specs. For Figma canvas writes via `use_figma`, use `figma-use`.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\figma-implement-design\\SKILL.md",
+    "chars": 11621,
+    "attachments": 5,
+    "sha256": "63f3d12d444547bbf68c10a12982b1f42e0f6e26fc074324564a13184d4b15ad"
+  },
+  {
+    "name": "finishing-a-development-branch",
+    "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\finishing-a-development-branch\\SKILL.md",
+    "chars": 6976,
+    "attachments": 0,
+    "sha256": "d0ac8360ed9d59121776ef95c84bcb38e9747de0d7ae7e227dca81e437593b9b"
+  },
+  {
+    "name": "fix-windows-audio",
+    "description": "Use when a Windows computer suddenly has no sound, headphones or speakers are silent, Realtek audio stops working, audio disappears after sleep or unplugging, or the user says \"电脑没声音\", \"耳机没声\", \"突然没有声音\", or similar. Diagnoses the complete Windows playback chain, measures real endpoint signal, and repairs a stuck Windows/Realtek audio endpoint with verification.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\fix-windows-audio\\SKILL.md",
+    "chars": 2536,
+    "attachments": 2,
+    "sha256": "1befef46ad54c0ac049d07cc7629b0296a02c48c29223340ee29e61a9457dc22"
+  },
+  {
+    "name": "frontend-app-builder",
+    "description": "Use for new frontend applications, dashboards, games, creative websites, hero sections, and visually driven UI from scratch, or when the user explicitly asks for a redesign/restyle/modernization. Builds from clean, airy, high-taste, readable image-generated concept design with section-specific references, faithful implementation, and browser testing.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\frontend-app-builder\\SKILL.md",
+    "chars": 31802,
+    "attachments": 2,
+    "sha256": "9273de02827b29534be28fb2b37154c1571ac38b4e20d3ef5482b7e22af67394"
+  },
+  {
+    "name": "frontend-design",
+    "description": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\frontend-design\\SKILL.md",
+    "chars": 8250,
+    "attachments": 1,
+    "sha256": "1608ea77fbb6fc30d13a97d12cfa8ebf31358d40f0dd97beed24829d6b3f45dd"
+  },
+  {
+    "name": "hv-analysis",
+    "description": "|",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\hv-analysis\\SKILL.md",
+    "chars": 8406,
+    "attachments": 2,
+    "sha256": "898f21b1f7b45456a54419b1b31765c896662a1e3f614d2c3413f809824de3a2"
+  },
+  {
+    "name": "karpathy-guidelines",
+    "description": "Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\karpathy-guidelines\\SKILL.md",
+    "chars": 2506,
+    "attachments": 0,
+    "sha256": "6e22cc54cb02a5e98ae42d06d9d7292db0c1b43894831b32879beb0166b2aea7"
+  },
+  {
+    "name": "khazix-writer",
+    "description": "|",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\khazix-writer\\SKILL.md",
+    "chars": 11789,
+    "attachments": 2,
+    "sha256": "081bfbf5bc0f0c9a2c5a6410eaaa9de18a0cc50f932a1195f45df04e30018602"
+  },
+  {
+    "name": "leader",
+    "description": "把一句话的想法拆成 AI agent 能独立跑完的目标任务书。用户说「帮我给 agent 写个目标」「帮我详细拆一下这个目标」「写个任务书/brief 给 agent」「写个 goal 提示词」「让 agent 自己跑这个项目」「把活分给几个 agent 并行」时使用。先进代码库实测、必要时联网调研，再一次性提问（≤5 个），产出一份 ≤4000 字符、直接粘进 /goal 就能跑的任务书，含实测数字、白名单地界、防作弊验收和断点续跑。执行型与探索型（调研/选型/找方案）自动分流。",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\leader\\SKILL.md",
+    "chars": 2892,
+    "attachments": 2,
+    "sha256": "58fc7e8c5038b3f795a52985a5cd81abb4bf51075bf64705a3eaebe33cf4391b"
+  },
+  {
+    "name": "meeting-notes-and-actions",
+    "description": "Turn meeting transcripts or rough notes into crisp summaries with decisions, risks, and owner-tagged action items; use for Zoom/Meet/Teams transcripts, call notes, or long meeting chats to generate share-ready outputs.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\meeting-notes-and-actions\\SKILL.md",
+    "chars": 1428,
+    "attachments": 0,
+    "sha256": "932eaf79198aba4322dca81bafe5fa0f1d00668b9b8b3f06918397b4a2d03f69"
+  },
+  {
+    "name": "neat-freak",
+    "description": ">-",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\neat-freak\\SKILL.md",
+    "chars": 7612,
+    "attachments": 95,
+    "sha256": "6c0ca2236d3518ccaad710f6db8e9c4aa7af67b685dc699ad347ae42186951e1"
+  },
+  {
+    "name": "pdf",
+    "description": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\pdf\\SKILL.md",
+    "chars": 8035,
+    "attachments": 11,
+    "sha256": "9f78b8359fbd4943ad260a7a1e436e5a96503406d6c34e99f69223d647d85b9c"
+  },
+  {
+    "name": "playwright-interactive",
+    "description": "Persistent browser and Electron interaction through `js_repl` for fast iterative UI debugging.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\playwright-interactive\\SKILL.md",
+    "chars": 31711,
+    "attachments": 5,
+    "sha256": "f6c1155d923e6ae3ccc12abfef2266f119f8e9546df2ddeee1f5eb369845a0a1"
+  },
+  {
+    "name": "pptx",
+    "description": "Use this skill any time a .pptx or .potx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx or .potx file (even if the extracted content will be used elsewhere, like in an email or summary); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates (.potx), layouts, speaker notes, or comments. Trigger whenever the user mentions \\\"deck,\\\" \\\"slides,\\\" \\\"presentation,\\\" or references a .pptx or .potx filename, regardless of what they plan to do with the content afterward. If a .pptx or .potx file needs to be opened, created, or touched, use this skill.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\pptx\\SKILL.md",
+    "chars": 20647,
+    "attachments": 64,
+    "sha256": "a7ff03e2c85b636f55232a6b1555f5dd90216b7a1a359ab289d8364e6acbc6a0"
+  },
+  {
+    "name": "pua",
+    "description": "Use for PUA/try-harder productivity coaching when the user expresses frustration, repeated failure, quality complaint, passive behavior, says retry/change approach/don't give up, asks for evidence/completion check/test before done, or wants Ding-style workplace reminders. Triggers include: try harder, stop giving up, figure it out, again??, why still failing, change approach, no evidence, run tests, done without proof, 换个方法, 再试试, 别摆烂, 别偷懒, 为什么还不行, 又错了, 证据呢, 没跑测试别说完成, 验收, 闭环, 自嗨, 置身钉外, 无招, 老板体感. Do not use for calm first-attempt requests.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\pua\\SKILL.md",
+    "chars": 18075,
+    "attachments": 29,
+    "sha256": "4521f3957261a26705e78c6b6ae5b2c46877de2ddce508732f40fb6e8450d3b8"
+  },
+  {
+    "name": "receiving-code-review",
+    "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\receiving-code-review\\SKILL.md",
+    "chars": 6165,
+    "attachments": 0,
+    "sha256": "091df1629510af1b92fc4abd6f96732ebedb4cb2c0f3457e8f2740b0504a2438"
+  },
+  {
+    "name": "requesting-code-review",
+    "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\requesting-code-review\\SKILL.md",
+    "chars": 2952,
+    "attachments": 1,
+    "sha256": "d71cc01ba56d2325cf8af5f7c11837819b63ecd57de0bfdb812f7f3ff7751df8"
+  },
+  {
+    "name": "storage-analyzer",
+    "description": ">",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\storage-analyzer\\SKILL.md",
+    "chars": 5591,
+    "attachments": 6,
+    "sha256": "4b41cc77494638ee0f010f5c50b8015e4dff82e522c9184d4bbeba14b776eae4"
+  },
+  {
+    "name": "subagent-driven-development",
+    "description": "Use when executing implementation plans with independent tasks in the current session",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\subagent-driven-development\\SKILL.md",
+    "chars": 27892,
+    "attachments": 6,
+    "sha256": "349a08ad8b59b19b86c13a7d2f34a1a38719bf88257004a863eefefa8d9f9e40"
+  },
+  {
+    "name": "systematic-debugging",
+    "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\systematic-debugging\\SKILL.md",
+    "chars": 9441,
+    "attachments": 10,
+    "sha256": "808fc5717aa88ad65efff312b11c186294d3e6ee301afb584e2f86599b137787"
+  },
+  {
+    "name": "test-driven-development",
+    "description": "Use when implementing any feature or bugfix, before writing implementation code",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\test-driven-development\\SKILL.md",
+    "chars": 8999,
+    "attachments": 1,
+    "sha256": "bf1b8216e523851a411e91d429a7c1c2a173e79d88957bc78e348218d50edd54"
+  },
+  {
+    "name": "ui-ux-pro-max",
+    "description": "UI/UX design intelligence for web and mobile. Searchable local database with 84 styles, 192 color palettes, 74 font pairings, 192 product types, 98 UX guidelines, 104 icon entries, 16 GSAP motion presets, and 25 chart types across 22 stacks (React, Next.js, Vue, Nuxt, Svelte, Astro, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, Jetpack Compose, Angular, Laravel, JavaFX, WPF, WinUI, Avalonia, Uno Platform, UWP, Three.js, and HTML/CSS). Use when designing, building, or reviewing UI: pages, components, color schemes, typography, layout, accessibility, animation, or data visualization.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\ui-ux-pro-max\\SKILL.md",
+    "chars": 13532,
+    "attachments": 45,
+    "sha256": "305a7527fcb2f5b6e4129ab22cd839b5172d26df7f14d3324bfdec8fc1763560"
+  },
+  {
+    "name": "using-git-worktrees",
+    "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - ensures an isolated workspace exists via native tools or git worktree fallback",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\using-git-worktrees\\SKILL.md",
+    "chars": 6803,
+    "attachments": 0,
+    "sha256": "8cfb86f121269e8f7f12361e6795c4f6738828340e28964c9229d365666c9edd"
+  },
+  {
+    "name": "using-superpowers",
+    "description": "Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response including clarifying questions",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\using-superpowers\\SKILL.md",
+    "chars": 3051,
+    "attachments": 4,
+    "sha256": "55379fe7c1c473a02c61961c822996bff30e1320d6921d9062509bc508482c05"
+  },
+  {
+    "name": "verification-before-completion",
+    "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\verification-before-completion\\SKILL.md",
+    "chars": 3598,
+    "attachments": 0,
+    "sha256": "2befe7fc55bcadaa3d97dd9e8efeb633d2561c0ebe74c5a8b17c4d9e7e4520b3"
+  },
+  {
+    "name": "video-shotcraft",
+    "description": "Create cinematic product videos from shot recipe cards, a validated template, and code/audio assets (Remotion + real page screenshots + 2.5D camera moves + beat-synced cuts + sound design). Use when the user asks to turn a frontend project or webpage into a product video, says \"use video-shotcraft to make a video/promo\", names the Ink Press template or asks to reproduce its effect, or wants a single shot card's motion. 用镜头配方卡 + 已验收模板 + 代码/音频资产制作电影感产品视频（Remotion + 真实页面截图 + 2.5D 运镜 + 节奏卡点 + 声音设计）。当用户要求\"用 video-shotcraft 做视频/宣传片\"、把前端项目/网页做成产品视频、点名 Ink Press 模板或要求复刻模板片效果，或要用镜头卡做单个动效镜头时使用。",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\video-shotcraft\\SKILL.md",
+    "chars": 7845,
+    "attachments": 854,
+    "sha256": "56f52470d2482dca8f097dc0f022e99dc996407711ba848f92bc2479cb4e178e"
+  },
+  {
+    "name": "web-access",
+    "description": "所有联网操作必须通过此 skill 处理，包括：搜索、网页抓取、登录后操作、网络交互等。",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\web-access\\SKILL.md",
+    "chars": 8561,
+    "attachments": 14,
+    "sha256": "3c8ec65ec6785c75eb37e3d0e207f2bc110b1f19af4a47431a24543c3a170c50"
+  },
+  {
+    "name": "wechat-article-html-publisher",
+    "description": "将中文科技、商业、AI行业长文整理为可直接复制到微信公众号编辑器的单文件 HTML 成稿，并完成标题层级、导语、重点信息卡、图片位置、图注、来源、事实边界和发布前检查。适用于“公众号排版”“HTML版本”“图文排版”“直接复制发布”等请求；不用于只修改一句话、纯事实问答或不需要成稿排版的任务。",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\wechat-article-html-publisher\\SKILL.md",
+    "chars": 2323,
+    "attachments": 11,
+    "sha256": "65e63567f913deafb4a7c9b9da5f4570dbbaf9fb754392f1b327150e2e9b37b4"
+  },
+  {
+    "name": "wechat-miniprogram-builder",
+    "description": "Build, modify, review, debug, and optimize native WeChat Mini Programs according to official Weixin framework, component, API, security, privacy, performance, compatibility, and release rules. Use for requests involving 微信小程序, 原生小程序, WXML, WXSS, app.json, Page, Component, wx APIs, Skyline, 分包, 微信开发者工具, 小程序审核, privacy authorization, or migrating a web/app design into a Mini Program.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\wechat-miniprogram-builder\\SKILL.md",
+    "chars": 4757,
+    "attachments": 5,
+    "sha256": "a743cc2b31dd070b87cfae2b21ebdfe8c3da58f64bdc1e14d481187208384de4"
+  },
+  {
+    "name": "writing-plans",
+    "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\writing-plans\\SKILL.md",
+    "chars": 6887,
+    "attachments": 1,
+    "sha256": "72190c88b2b5a67a96b91d66aa72b9161913e10e8769da3f28a226f4cc7b99d0"
+  },
+  {
+    "name": "writing-skills",
+    "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\writing-skills\\SKILL.md",
+    "chars": 26260,
+    "attachments": 6,
+    "sha256": "d34db5c8aed6a4e0440132bd0613aace70a693ec7819d5637ad77481d8e10d1b"
+  },
+  {
+    "name": "xlsx",
+    "description": "Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .xltx, .csv, or .tsv file (e.g., adding columns, computing formulas, formatting, charting, cleaning messy data); create a new spreadsheet from scratch or from other data sources; or convert between tabular file formats. Trigger especially when the user references a spreadsheet file by name or path — even casually (like \\\"the xlsx in my downloads\\\") — and wants something done to it or produced from it. Also trigger for cleaning or restructuring messy tabular data files (malformed rows, misplaced headers, junk data) into proper spreadsheets. The deliverable must be a spreadsheet file. Do NOT trigger when the primary deliverable is a Word document, HTML report, standalone Python script, database pipeline, or Google Sheets API integration, even if tabular data is involved.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\skills\\xlsx\\SKILL.md",
+    "chars": 8542,
+    "attachments": 52,
+    "sha256": "6712b39718fe815054abca9c3ee72f989613e6f771c8a5c58f30a65a6c905622"
+  },
+  {
+    "name": "ai-tool-selection-advisor",
+    "description": "Recommend the most suitable AI tools for business users based on task, budget, language preference, security needs, and team capability. Always provide reasons, official links, usage order, and caveats.",
+    "path": "C:\\Users\\zhanglian2\\.agents\\skills\\ai-tool-selection-advisor\\SKILL.md",
+    "chars": 4054,
+    "attachments": 14,
+    "sha256": "639e3a43dcf8f52e663568ad52a49408e07131450ab99382199c94d70006fb14"
+  },
+  {
+    "name": "frontend-design",
+    "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.",
+    "path": "C:\\Users\\zhanglian2\\.agents\\skills\\frontend-design\\SKILL.md",
+    "chars": 4273,
+    "attachments": 0,
+    "sha256": "4253ed840df4e621f7a7c19acb51bb64d14536239a1af7793cc2cb5b54cbb275"
+  },
+  {
+    "name": "memories-mcp",
+    "description": "MCP server integration for memories.sh — the persistent memory layer for AI agents. Use when: (1) Configuring the memories.sh MCP server for any client (Claude Code, Cursor, Windsurf, VS Code, v0, Claude Desktop, OpenCode, Factory), (2) Using MCP tools to store, search, retrieve memories, or manage reminder schedules, (3) Understanding get_context vs search_memories vs list_memories, (4) Working with streaming memory tools for SSE content, (5) Troubleshooting MCP connection issues, (6) Choosing between cloud MCP (HTTP) and local MCP (stdio) transports.",
+    "path": "C:\\Users\\zhanglian2\\.agents\\skills\\memories-mcp\\SKILL.md",
+    "chars": 5363,
+    "attachments": 2,
+    "sha256": "fbd34e2ce5bacd7752546fe06b9f271039b431445dd5fad05ab68931f9b16641"
+  },
+  {
+    "name": "reminder",
+    "description": "当用户提到需要记住的未来任务、约会或事件时创建提醒和日历事件。在诸如\"提醒我\"、\"设置提醒\"、\"我有个会\"、\"别忘了\"或任何提及未来基于时间的任务时触发。",
+    "path": "C:\\Users\\zhanglian2\\.agents\\skills\\reminder\\SKILL.md",
+    "chars": 6701,
+    "attachments": 1,
+    "sha256": "47cb957b5c1af70e79018f2e51db561444b67514716ceb05465862895862be39"
+  },
+  {
+    "name": "scheduler",
+    "description": "Schedule on-device reminders and local actions only. Use this skill to set personal reminders or run lightweight, local tasks at a specific time or interval (e.g., notifications, local scripts), on the user's computer or with platforms like Slack. Do NOT use for scheduling cloud agents, background agentic jobs, or Oz-managed workflows.",
+    "path": "C:\\Users\\zhanglian2\\.agents\\skills\\scheduler\\SKILL.md",
+    "chars": 7791,
+    "attachments": 0,
+    "sha256": "6092009de0c5fb2a0080d0854a17739fa72183e27326fd1ee5ed7c2789522454"
+  },
+  {
+    "name": "figma-code-connect",
+    "description": "Creates and maintains Figma Code Connect template files that map Figma components to code snippets. Use when the user mentions Code Connect, Figma component mapping, design-to-code translation, or asks to create/update .figma.ts or .figma.js files.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-code-connect\\SKILL.md",
+    "chars": 25481,
+    "attachments": 2,
+    "sha256": "d69cfc0e2080351f0182a8f3c2349349fb6696f63cede8972e12ca3b71bafe10"
+  },
+  {
+    "name": "figma-create-new-file",
+    "description": "**MANDATORY prerequisite** — you MUST invoke this skill BEFORE every `create_new_file` tool call. NEVER call `create_new_file` directly without loading this skill first. Trigger whenever the user wants a new blank Figma file — a new design, FigJam, or Slides file — or when you need a fresh file before calling `use_figma`. Usage — /figma-create-new-file [editorType] [fileName] (e.g. /figma-create-new-file figjam My Whiteboard, /figma-create-new-file slides Q3 Review)",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-create-new-file\\SKILL.md",
+    "chars": 3914,
+    "attachments": 0,
+    "sha256": "82e0a018692d3d009b5d2c83ecce9203a4ce7dfbdb98b7b13a4f7e5b11832bc2"
+  },
+  {
+    "name": "figma-design-to-code",
+    "description": "Use this skill when implementing a Figma design as code (design → code) — the read-FROM-Figma direction. Triggers: 'implement this Figma design', 'build this screen from Figma', 'turn this Figma into code', 'code this up from Figma', 'design to code', or a figma.com design URL provided alongside a codebase. Encodes the workflow for reading a node out of Figma with get_design_context and adapting its reference output to the target project — reusing existing components, tokens, and conventions, and honoring Code Connect mappings, component docs, design annotations, and design tokens by priority. Complements figma-code-connect (component mapping) and figma-generate-design / figma-use (the reverse, code → design direction).",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-design-to-code\\SKILL.md",
+    "chars": 3669,
+    "attachments": 0,
+    "sha256": "863d576bbe529c45da4b34f954240677919a79e02ade6e1adc16401833b4c9c7"
+  },
+  {
+    "name": "figma-generate-design",
+    "description": "Use this skill alongside figma-use when the task involves translating an application page, view, or multi-section layout into Figma. Triggers: 'write to Figma', 'create in Figma from code', 'push page to Figma', 'take this app/page and build it in Figma', 'create a screen', 'build a landing page in Figma', 'update the Figma screen to match code', 'convert this modal/dialog/drawer/panel to Figma'. This is the preferred workflow skill whenever the user wants to build or update a full page, modal, dialog, drawer, sidebar, panel, or any composed multi-section view in Figma from code or a description. Discovers design system components, variables, and styles from Code Connect files, existing screens, and library search, then imports them and assembles views incrementally section-by-section using design system tokens instead of hardcoded values.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-generate-design\\SKILL.md",
+    "chars": 33104,
+    "attachments": 2,
+    "sha256": "7d07e4f4f8fec7012cd82ab7b9e0e062595cf7dbc42fd5e3c7d2be19490d965c"
+  },
+  {
+    "name": "figma-generate-diagram",
+    "description": "MANDATORY prerequisite — load this skill BEFORE every `generate_diagram` tool call. NEVER call `generate_diagram` directly without loading this skill first. Trigger whenever the user asks to create, generate, draw, render, sketch, or build a diagram — flowchart, architecture diagram, sequence diagram, ERD or entity-relationship diagram, state diagram or state machine, gantt chart, or timeline. Also trigger when the user mentions Mermaid syntax or wants a system architecture, decision tree, dependency graph, API call flow, auth handshake, schema, or pipeline visualized in FigJam. Routes to type-specific guidance, sets universal Mermaid constraints, and tells you when to use a different diagram type or skip the tool entirely (mindmaps, pie charts, class diagrams, etc.).",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-generate-diagram\\SKILL.md",
+    "chars": 10211,
+    "attachments": 7,
+    "sha256": "7297638dbf2130d1b37bfd85df65d290a4dd0b11a11b54abafcf7d07565922b5"
+  },
+  {
+    "name": "figma-generate-library",
+    "description": "Build or update a professional-grade design system in Figma from a codebase. Use when the user wants to create variables/tokens, build component libraries, create individual components with proper variant sets and variable bindings, set up theming (light/dark modes), document foundations, or reconcile gaps between code and Figma. Also use when the user asks to create or generate any component in Figma — even a single one — since components require proper variable foundations, variant states, and design token bindings to be production-quality. This skill teaches WHAT to build and in WHAT ORDER — it complements the `figma-use` skill which teaches HOW to call the Plugin API. Both skills should be loaded together.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-generate-library\\SKILL.md",
+    "chars": 22679,
+    "attachments": 16,
+    "sha256": "38d9381d4fb089233eec0a9af829a6444fbe7c8413cfcfbb89d1992a5f08b7fc"
+  },
+  {
+    "name": "figma-implement-motion",
+    "description": "Translates Figma motion and animations into production-ready application code. Use when implementing animation/motion from a Figma design — user mentions \"implement this motion\", \"add animation from Figma\", \"animate this component\", provides a Figma URL whose node is animated, or when `get_design_context` returns motion data or instructs you to call `get_motion_context`.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-implement-motion\\SKILL.md",
+    "chars": 23170,
+    "attachments": 6,
+    "sha256": "2e26e67284d47c6a74aedf9dca7543f4c8817dafc59a11abb156d4f7feedb2c2"
+  },
+  {
+    "name": "figma-swiftui",
+    "description": "SwiftUI ↔ Figma translation. Use whenever the user mentions Swift, SwiftUI, iOS, iPhone, or iPad — in EITHER direction — translating a Figma design into SwiftUI (design → code), or pushing SwiftUI views / screens / tokens back into a Figma file (code → design). Triggers on phrases like 'implement this Figma design in SwiftUI', 'build this screen in Swift', 'push this SwiftUI view to Figma', 'mirror my Swift code in a Figma file', or whenever a Figma URL appears alongside `.swift` files / an `.xcodeproj`. Routes to a direction-specific reference doc; loads alongside `figma-use` for the code → design path.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-swiftui\\SKILL.md",
+    "chars": 4003,
+    "attachments": 2,
+    "sha256": "868c4defe2c0854f5a3e27594d3fa0f20347c86a9b15d103483b7488bfa8affe"
+  },
+  {
+    "name": "figma-use",
+    "description": "**MANDATORY prerequisite** — you MUST invoke this skill BEFORE every `use_figma` tool call. NEVER call `use_figma` directly without loading this skill first. Skipping it causes common, hard-to-debug failures. Trigger whenever the user wants to perform a write action or a unique read action that requires JavaScript execution in the Figma file context — e.g. create/edit/delete nodes, set up variables or tokens, build components and variants, modify auto-layout or fills, bind variables to properties, or inspect file structure programmatically.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-use\\SKILL.md",
+    "chars": 34078,
+    "attachments": 20,
+    "sha256": "6c0715d4947137d05318c7a862d159ce5011735842ad3b4f84dd98e12749d024"
+  },
+  {
+    "name": "figma-use-figjam",
+    "description": "This skill helps agents use Figma's use_figma MCP tool in the FigJam context. Can be used alongside figma-use which has foundational context for using the use_figma tool.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-use-figjam\\SKILL.md",
+    "chars": 7023,
+    "attachments": 13,
+    "sha256": "16b15da304f777e6bdc79bf425da73fa1ce0ea41af726cab8ddd6f40180acd74"
+  },
+  {
+    "name": "figma-use-motion",
+    "description": "Motion / animation context for the `use_figma` MCP tool — animating Figma nodes via manual keyframes, animation styles, easing, and timeline duration. Load alongside figma-use whenever a task involves adding, editing, or inspecting animation on a node.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-use-motion\\SKILL.md",
+    "chars": 6857,
+    "attachments": 2,
+    "sha256": "d74fa8c9435a5260f8a61e3a8fbf11c068f940ae3423e9be2efde8b5e785d78c"
+  },
+  {
+    "name": "figma-use-slides",
+    "description": "This skill helps agents use Figma's use_figma MCP tool in the Slides context. Can be used alongside figma-use which has foundational context for using the use_figma tool.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\figma\\11c74d6b\\skills\\figma-use-slides\\SKILL.md",
+    "chars": 21893,
+    "attachments": 6,
+    "sha256": "0a69a65e686dcc223581afb409a4d31cf318716e2c65cc9c926839a8737e71a4"
+  },
+  {
+    "name": "gh-address-comments",
+    "description": "Address actionable GitHub pull request review feedback. Use when the user wants to inspect unresolved review threads, requested changes, or inline review comments on a PR, then implement selected fixes. Use the GitHub app for PR metadata and flat comment reads, and use the bundled GraphQL script via `gh` whenever thread-level state, resolution status, or inline review context matters.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\github\\11c74d6b\\skills\\gh-address-comments\\SKILL.md",
+    "chars": 3536,
+    "attachments": 5,
+    "sha256": "c1ebc337357402f7faabafe712e0c463981a65f736453efe52abd305bcb74769"
+  },
+  {
+    "name": "gh-fix-ci",
+    "description": "Use when a user asks to debug or fix failing GitHub PR checks that run in GitHub Actions. Use the GitHub app from this plugin for PR metadata and patch context, and use `gh` for Actions check and log inspection before implementing any approved fix.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\github\\11c74d6b\\skills\\gh-fix-ci\\SKILL.md",
+    "chars": 4326,
+    "attachments": 5,
+    "sha256": "7621a3560d788fb221d25f9753233fe0c393c5cfe63167c88b11f027c277b1f8"
+  },
+  {
+    "name": "github",
+    "description": "Triage and orient GitHub repository, pull request, and issue work through the connected GitHub app. Use when the user asks for general GitHub help, wants PR or issue summaries, or needs repository context before choosing a more specific GitHub workflow.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\github\\11c74d6b\\skills\\github\\SKILL.md",
+    "chars": 4356,
+    "attachments": 3,
+    "sha256": "81dbdd90934fe86a79ddc4790fd211e5fca866302a74090ad153395f56f2bd42"
+  },
+  {
+    "name": "yeet",
+    "description": "Publish local changes to GitHub by confirming scope, committing intentionally, pushing the branch, and opening a draft PR through the GitHub app from this plugin, with `gh` used only as a fallback where connector coverage is insufficient.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\github\\11c74d6b\\skills\\yeet\\SKILL.md",
+    "chars": 4019,
+    "attachments": 4,
+    "sha256": "93a0bcbc834c9b3ad6a8965c1a273b237b6d226e870cd0c16e08e87bc8769814"
+  },
+  {
+    "name": "gsap",
+    "description": "GSAP animation reference for HyperFrames. Covers gsap.to(), from(), fromTo(), easing, stagger, defaults, timelines (gsap.timeline(), position parameter, labels, nesting, playback), and performance (transforms, will-change, quickTo). Use when writing GSAP animations in HyperFrames compositions.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\hyperframes\\11c74d6b\\skills\\gsap\\SKILL.md",
+    "chars": 6330,
+    "attachments": 3,
+    "sha256": "730476ba02cc56c8a59b3e4a897801923f463289cd386bccb56d01833be4441f"
+  },
+  {
+    "name": "hyperframes",
+    "description": "Create video compositions, animations, title cards, overlays, captions, voiceovers, audio-reactive visuals, and scene transitions in HyperFrames HTML. Use when asked to build any HTML-based video content, add captions or subtitles synced to audio, generate text-to-speech narration, create audio-reactive animation (beat sync, glow, pulse driven by music), add animated text highlighting (marker sweeps, hand-drawn circles, burst lines, scribble, sketchout), or add transitions between scenes (crossfades, wipes, reveals, shader transitions). Covers composition authoring, timing, media, and the full video production workflow. For CLI commands (init, lint, preview, render, transcribe, tts) see the hyperframes-cli skill.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\hyperframes\\11c74d6b\\skills\\hyperframes\\SKILL.md",
+    "chars": 21366,
+    "attachments": 39,
+    "sha256": "ce7dbbc9229a8fbf3e0dea8724bd8bbf8b059c031ac8be717a283a246b5355d8"
+  },
+  {
+    "name": "hyperframes-cli",
+    "description": "HyperFrames CLI tool — hyperframes init, lint, inspect, preview, render, transcribe, tts, doctor, browser, info, upgrade, compositions, docs, benchmark. Use when scaffolding a project, linting, validating, inspecting visual layout in compositions, previewing in the studio, rendering to video, transcribing audio, generating TTS, or troubleshooting the HyperFrames environment.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\hyperframes\\11c74d6b\\skills\\hyperframes-cli\\SKILL.md",
+    "chars": 6972,
+    "attachments": 1,
+    "sha256": "253ff75cd896b2290e5247c4ec63fc1341ac14d891fd5fb06ba04e59e49e4ab5"
+  },
+  {
+    "name": "hyperframes-registry",
+    "description": "Install and wire registry blocks and components into HyperFrames compositions. Use when running hyperframes add, installing a block or component, wiring an installed item into index.html, or working with hyperframes.json. Covers the add command, install locations, block sub-composition wiring, component snippet merging, and registry discovery.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\hyperframes\\11c74d6b\\skills\\hyperframes-registry\\SKILL.md",
+    "chars": 4256,
+    "attachments": 8,
+    "sha256": "0248bfb9968d53ea8f9e4b5f7f5a8eb9e72f21108022580f7eba2fba7e26b234"
+  },
+  {
+    "name": "website-to-hyperframes",
+    "description": "|",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-api-curated\\hyperframes\\11c74d6b\\skills\\website-to-hyperframes\\SKILL.md",
+    "chars": 6352,
+    "attachments": 9,
+    "sha256": "482afa42349ff391de892565334b17f68f7d52f4f32e5266c05065b574c860ee"
+  },
+  {
+    "name": "computer-use",
+    "description": "Control Windows apps from ChatGPT",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\computer-use\\26.1007.21434\\skills\\computer-use\\SKILL.md",
+    "chars": 1481,
+    "attachments": 0,
+    "sha256": "6fe86dbdd25a85dfe9fa20537554f06830c09385116f8ecf2d23dc9e952482de"
+  },
+  {
+    "name": "latex-compile",
+    "description": "Compile a TeX project from Codex, trying bundled Tectonic for simple projects and falling back to detected TeX Live or MacTeX when needed.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\latex\\0.2.4\\skills\\latex-compile\\SKILL.md",
+    "chars": 1518,
+    "attachments": 0,
+    "sha256": "7f75388cc330a4e6e63ad31c397bb5dad563e825abf9060f602e6dbeb2443d9d"
+  },
+  {
+    "name": "latex-doctor",
+    "description": "Detect bundled Tectonic plus TeX Live or MacTeX availability, report missing LaTeX tools, and run small compile smoke tests when possible.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\latex\\0.2.4\\skills\\latex-doctor\\SKILL.md",
+    "chars": 1224,
+    "attachments": 0,
+    "sha256": "efe5d17d731a49c5cbea4528e3773ea6ced8c03dd9b79fe1ff397c0627809f62"
+  },
+  {
+    "name": "texlive-runtime-installer",
+    "description": "Detect existing TeX Live or MacTeX first, then optionally install a Codex-managed full TeX Live runtime only when no existing TeX Live installation is detected.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\latex\\0.2.4\\skills\\texlive-runtime-installer\\SKILL.md",
+    "chars": 1443,
+    "attachments": 0,
+    "sha256": "c88de54e8b1370d9f04551e1bd4ba31c8bd7843143456bc78d2b05803751afa4"
+  },
+  {
+    "name": "control-chrome",
+    "description": "Control the user's Chrome browser for tasks that depend on existing Chrome state: tabs, logged-in sessions, or extensions. Prefer purpose-built connectors, APIs, or CLIs when available.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\plugin-backup-TYdx7v\\chrome\\26.818.21641\\skills\\control-chrome\\SKILL.md",
+    "chars": 12935,
+    "attachments": 0,
+    "sha256": "307e9b186efb3ce17b9ee1571b97b6247cd7d864607fdd3e5e263cbdbddebb81"
+  },
+  {
+    "name": "sites-building",
+    "description": "Use Sites to build websites, including landing pages, portfolios, dashboards, portals, trackers, hubs, and internal tools. Always use Sites when the project contains `.openai/hosting.json`.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\sites\\0.1.66\\skills\\sites-building\\SKILL.md",
+    "chars": 32006,
+    "attachments": 102,
+    "sha256": "695d87862d416c21dc31d2fc658d0ccc4d04bca24f063b5a32bcbf6983c88253"
+  },
+  {
+    "name": "sites-hosting",
+    "description": "Host websites with Sites. Always use after `sites-building`, and use for website publishing, deployment, hosting management, or projects containing `.openai/hosting.json`.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\sites\\0.1.66\\skills\\sites-hosting\\SKILL.md",
+    "chars": 8820,
+    "attachments": 3,
+    "sha256": "5b850d4ee17a0e4cbf8f13dcfac4d535c15fab1c399a2f20c59880667ee2add5"
+  },
+  {
+    "name": "visualize",
+    "description": "Create visualizations and interactive tools directly in conversation. Proactively use to show how something works; explore 'what happens when', 'what changes', or 'help me understand'; compare or inspect; create simulations, maps, charts, graphs, and mockups. Use standard tools for static scientific figures.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-bundled\\visualize\\1.0.49\\skills\\visualize\\SKILL.md",
+    "chars": 33364,
+    "attachments": 12,
+    "sha256": "37a648f231b3716956e5b534bff1eef36195b5f7261ccd78e913a9ad5c961f0f"
+  },
+  {
+    "name": "aiq-deploy",
+    "description": "|",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\aiq-deploy\\SKILL.md",
+    "chars": 13321,
+    "attachments": 18,
+    "sha256": "9bfad6034823422b564c0ff3ff7d462eef237fec129f4f5fb1c027f625bc2b9f"
+  },
+  {
+    "name": "aiq-research",
+    "description": "|",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\aiq-research\\SKILL.md",
+    "chars": 12821,
+    "attachments": 6,
+    "sha256": "a765670f3d460a7ef6849070b4a95a28d66c92eb678d720ca9fd1731f80189fc"
+  },
+  {
+    "name": "cuopt-user-rules",
+    "description": "Base rules for end users calling NVIDIA cuOpt (routing/LP/MILP/QP/install/server). Not for cuOpt internals — use cuopt-developer for those.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\cuopt-user-rules\\SKILL.md",
+    "chars": 8243,
+    "attachments": 5,
+    "sha256": "f642b4e8953c02c31e99ebe0289cd4ff9fbb64aede1f25c80ec4730e82740596"
+  },
+  {
+    "name": "dynamo-interconnect-check",
+    "description": "Validate that a Dynamo deployment's NIXL/UCX/NCCL interconnect is ready for disaggregated serving over RDMA/NVLink. Use after recipe-runner brings a deployment up (especially disagg/multi-node) to confirm the KV transport is correct; use troubleshoot for diagnosing already-failed pods.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\dynamo-interconnect-check\\SKILL.md",
+    "chars": 6395,
+    "attachments": 7,
+    "sha256": "55090c73dcd785d0661458b646d2d84381330ed163c13d2cd590c9c09d373884"
+  },
+  {
+    "name": "dynamo-router-starter",
+    "description": "Start or patch Dynamo router modes and run router endpoint smoke checks. Use for round-robin, KV-aware, least-loaded, or device-aware routing setup; use recipe-runner for recipe deployment and troubleshoot for failure diagnosis.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\dynamo-router-starter\\SKILL.md",
+    "chars": 5712,
+    "attachments": 7,
+    "sha256": "1274a47bcd28c5086c26ce1a10f2b2e6c4a28b1b3fa9599ad2c4d1cb6ba67728"
+  },
+  {
+    "name": "nemoclaw-user-get-started",
+    "description": "Installs NemoClaw, launches a sandbox, and runs the first agent prompt. Use when onboarding, installing, or launching a NemoClaw sandbox for the first time. Trigger keywords - nemoclaw quickstart, install nemoclaw openclaw sandbox, nemohermes quickstart, hermes agent nemoclaw, run hermes openshell sandbox, nemoclaw prerequisites, nemoclaw supported platforms, nemoclaw hardware software, nemoclaw windows wsl2 setup, nemoclaw install windows docker desktop.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\nemoclaw-user-get-started\\SKILL.md",
+    "chars": 10492,
+    "attachments": 9,
+    "sha256": "f0be3e455e3447a0bc1d253ce0f4eda45d8a42ffb4220188b00745be8fce2edd"
+  },
+  {
+    "name": "omniverse-cad-to-simready",
+    "description": "Coordinate the end-to-end CAD/source-asset to SimReady workflow. Use for broad requests such as CAD to SimReady, source asset to simulation-ready USD, or prop packaging that require conversion, material/physics assignment, SimReady conformance, validation, and optional package creation; deploy or verify Content Agents services first when property assignment is enabled; route single-stage work through nested references.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\omniverse-cad-to-simready\\SKILL.md",
+    "chars": 17961,
+    "attachments": 125,
+    "sha256": "8ff34f478610613bd37aa19ce0c3b0fdc2352226ca561b831799fce4db069531"
+  },
+  {
+    "name": "omniverse-realtime-viewer",
+    "description": "Use as the top-level router for Omniverse Realtime Viewer USD app requests and focused viewer reference documents.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\omniverse-realtime-viewer\\SKILL.md",
+    "chars": 7611,
+    "attachments": 99,
+    "sha256": "6e6a1f7ed10d152be12b7d210e8f7f399c203912985cc8ade684fb18645dc262"
+  },
+  {
+    "name": "omniverse-usd-performance-tuning",
+    "description": "Top-level workflow skill for USD performance diagnosis and optimization. Use for slow loading, high memory, low FPS, or 'optimize my scene' requests; delegates auth/runtime setup to Phase 0 owners.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\omniverse-usd-performance-tuning\\SKILL.md",
+    "chars": 17609,
+    "attachments": 135,
+    "sha256": "a1d9c582aed12c00711b6b9d3151ba24397cb73d899f4723aa2486098e1c5e5a"
+  },
+  {
+    "name": "physical-ai-infrastructure-setup-and-resilient-scaling",
+    "description": ">-",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\physical-ai-infrastructure-setup-and-resilient-scaling\\SKILL.md",
+    "chars": 11120,
+    "attachments": 68,
+    "sha256": "ee96598544cb3e7399c0e12c245e94104aea847bcb7d647a5b25bcb2320727ba"
+  },
+  {
+    "name": "physical-ai-neural-reconstruction",
+    "description": "Router for NVIDIA NuRec/NRE: USDZ rendering, NCore conversion, 3DGS, gRPC sensor sim, PhysicalAI HF datasets. Do NOT use for SimReady or infra setup.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated\\nvidia\\3f0def1b\\skills\\physical-ai-neural-reconstruction\\SKILL.md",
+    "chars": 16638,
+    "attachments": 11,
+    "sha256": "3f1a96b4d7753b2dbd1f6bb068be8901d14c05940e200fa2e10ce7dd9d1c0051"
+  },
+  {
+    "name": "artifact-template-analytics-dashboard",
+    "description": "Create a spreadsheet using the Analytics Dashboard template and its retained reference file. Use when the user selects or names Analytics Dashboard. Monitor acquisition, engagement, retention, revenue, and conversion funnel KPIs with charts.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-analytics-dashboard\\SKILL.md",
+    "chars": 1497,
+    "attachments": 4,
+    "sha256": "cf5360fd8b197673bb237c52c603c97fa319c875c3dfa2cd8efff52d4422f513"
+  },
+  {
+    "name": "artifact-template-business-review",
+    "description": "Create a presentation using the Business Review template and its retained reference file. Use when the user selects or names Business Review. Review business performance, KPIs, segment results, strategic priorities, decisions, and outlook.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-business-review\\SKILL.md",
+    "chars": 1475,
+    "attachments": 4,
+    "sha256": "27721fc1d67d1b41949caa75ac8f94f81952ff124406878af6524047929e60d2"
+  },
+  {
+    "name": "artifact-template-design-report",
+    "description": "Create a document using the Design Report template and its retained reference file. Use when the user selects or names Design Report. Produce design reports with an executive summary, key findings, implications, recommendations, and appendix.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-design-report\\SKILL.md",
+    "chars": 1437,
+    "attachments": 4,
+    "sha256": "563722f53854e606f8a9f87e37e72d7ef70a22d46d5836b8e4d6abfb1b79e9e0"
+  },
+  {
+    "name": "artifact-template-experiment-analysis",
+    "description": "Create a document using the Experiment Analysis template and its retained reference file. Use when the user selects or names Experiment Analysis. Analyze experiments with hypotheses, methodology, results, interpretation, limitations, and next steps.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-experiment-analysis\\SKILL.md",
+    "chars": 1456,
+    "attachments": 4,
+    "sha256": "0b05effc47df0a14f8e0c3e3597e6722224747435546385d38a2cae279bd20b9"
+  },
+  {
+    "name": "artifact-template-financial-budget",
+    "description": "Create a spreadsheet using the Financial Budget template and its retained reference file. Use when the user selects or names Financial Budget. Model actuals, budget and scenario forecasts, variances, cash runway, and departmental plans.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-financial-budget\\SKILL.md",
+    "chars": 1486,
+    "attachments": 4,
+    "sha256": "c0b6b7a62a15597aaf2b1ec679e21da48f533b756127f0aef957cdfe9f3da738"
+  },
+  {
+    "name": "artifact-template-investment-committee-memo",
+    "description": "Create a document using the Investment Committee Memo template and its retained reference file. Use when the user selects or names Investment Committee Memo. Prepare investment committee memos with the thesis, transaction details, financial analysis, risks, and recommendation.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-investment-committee-memo\\SKILL.md",
+    "chars": 1496,
+    "attachments": 4,
+    "sha256": "68abd08cfe5e073e3c446a3f675f44c5bf98f57434dba679e8acd8a763379a8b"
+  },
+  {
+    "name": "artifact-template-legal-memorandum",
+    "description": "Create a document using the Legal Memorandum template and its retained reference file. Use when the user selects or names Legal Memorandum. Draft legal memoranda with the issue, brief answer, relevant facts, analysis, and conclusion.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-legal-memorandum\\SKILL.md",
+    "chars": 1434,
+    "attachments": 4,
+    "sha256": "51fb9d21baf6119c4ccb1903638a6bac0e859210de63460fffa7025d52e997e0"
+  },
+  {
+    "name": "artifact-template-market-trends-report",
+    "description": "Create a presentation using the Market Trends Report template and its retained reference file. Use when the user selects or names Market Trends Report. Communicate market or industry trends, supporting evidence, implications, and recommended responses.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-market-trends-report\\SKILL.md",
+    "chars": 1498,
+    "attachments": 4,
+    "sha256": "d58d019b89cb6f292ac3ab991d561489eef477ff53ce05fb024a0c936f5af26a"
+  },
+  {
+    "name": "artifact-template-minimal-letterhead",
+    "description": "Create a document using the Minimal Letterhead template and its retained reference file. Use when the user selects or names Minimal Letterhead. Write professional business letters with sender, recipient, message, and signature fields in a minimal letterhead layout.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-minimal-letterhead\\SKILL.md",
+    "chars": 1470,
+    "attachments": 4,
+    "sha256": "880ef094d4d0c89a7bde5ce9bbe4086625c186651e9e6efc8ba8bdd7cc77f9d5"
+  },
+  {
+    "name": "artifact-template-operating-calendar",
+    "description": "Create a spreadsheet using the Operating Calendar template and its retained reference file. Use when the user selects or names Operating Calendar. Plan annual and monthly operating milestones, campaigns, launches, deadlines, and recurring events.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-operating-calendar\\SKILL.md",
+    "chars": 1500,
+    "attachments": 4,
+    "sha256": "33bb660791a0b9a21628a42c34934932220203b6aabd84e98cb1b45327d0384c"
+  },
+  {
+    "name": "artifact-template-operating-review",
+    "description": "Create a presentation using the Operating Review template and its retained reference file. Use when the user selects or names Operating Review. Run weekly operating reviews with scorecards, functional updates, risks, decisions, and action items.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-operating-review\\SKILL.md",
+    "chars": 1483,
+    "attachments": 4,
+    "sha256": "6d63c5cd025ffe936e7bab5db3023672bbaec26af55c2bb8b057d38c202c9c32"
+  },
+  {
+    "name": "artifact-template-project-kickoff",
+    "description": "Create a presentation using the Project Kickoff template and its retained reference file. Use when the user selects or names Project Kickoff. Align teams on project goals, scope, roles, milestones, risks, and the working model.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-project-kickoff\\SKILL.md",
+    "chars": 1463,
+    "attachments": 4,
+    "sha256": "aa893ebd89e7c8d1db4261d01cc2b1add35d78d00785871ccaaa5fc8db783ec9"
+  },
+  {
+    "name": "artifact-template-project-tracker",
+    "description": "Create a spreadsheet using the Project Tracker template and its retained reference file. Use when the user selects or names Project Tracker. Manage workstreams, tasks, owners, status, priority, dates, launch pulse, and a Gantt schedule.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-project-tracker\\SKILL.md",
+    "chars": 1484,
+    "attachments": 4,
+    "sha256": "d97d5be20189b7f53dd269b6e1c5f694eaf53e5a72f6559fcb1578911b7cda82"
+  },
+  {
+    "name": "artifact-template-sales-pipeline",
+    "description": "Create a spreadsheet using the Sales Pipeline template and its retained reference file. Use when the user selects or names Sales Pipeline. Track opportunities, stages, owners, deal sizes, probabilities, forecasts, next steps, and risks.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-sales-pipeline\\SKILL.md",
+    "chars": 1482,
+    "attachments": 4,
+    "sha256": "15cfeeedf440021f16ed3f3ad8c7c1ef6d48898b9447741e223d2fb41cfc9800"
+  },
+  {
+    "name": "artifact-template-simple-dark-mode",
+    "description": "Create a presentation using the Simple Dark Mode template and its retained reference file. Use when the user selects or names Simple Dark Mode. Create clean dark-mode presentations with bold typography, simple sections, charts, and imagery.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-simple-dark-mode\\SKILL.md",
+    "chars": 1478,
+    "attachments": 4,
+    "sha256": "b7c8d0c05f75878b9bc21e56a57c41ec1aa29700aca0a24822be0f9f1bd53207"
+  },
+  {
+    "name": "artifact-template-simple-light-mode",
+    "description": "Create a presentation using the Simple Light Mode template and its retained reference file. Use when the user selects or names Simple Light Mode. Create clean light-mode presentations with spacious typography, simple sections, charts, and imagery.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-simple-light-mode\\SKILL.md",
+    "chars": 1487,
+    "attachments": 4,
+    "sha256": "7c68430c6cf57b55b457d4735dbd1a46b889bef135a32222902dd0848b6e1752"
+  },
+  {
+    "name": "artifact-template-strategy-memorandum",
+    "description": "Create a document using the Strategy Memorandum template and its retained reference file. Use when the user selects or names Strategy Memorandum. Present strategic context, choices, rationale, risks, milestones, and a clear recommendation.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-strategy-memorandum\\SKILL.md",
+    "chars": 1446,
+    "attachments": 4,
+    "sha256": "51d7882ac94e8e57b323394825728c33925af878806e37277217c2dc12a912e5"
+  },
+  {
+    "name": "artifact-template-system-design",
+    "description": "Create a document using the System Design template and its retained reference file. Use when the user selects or names System Design. Document system architecture, requirements, components, data flows, APIs, tradeoffs, and operational considerations.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-system-design\\SKILL.md",
+    "chars": 1445,
+    "attachments": 4,
+    "sha256": "87f7b7ed1b0d8410f5e5971cd7f7db9a4165e2f37069e97e52dbfb469b75a57c"
+  },
+  {
+    "name": "artifact-template-team-alignment",
+    "description": "Create a presentation using the Team Alignment template and its retained reference file. Use when the user selects or names Team Alignment. Facilitate team offsites and planning with context, goals, priorities, decisions, and action items.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-team-alignment\\SKILL.md",
+    "chars": 1473,
+    "attachments": 4,
+    "sha256": "26d7cafdcd1899a937b325c5d02ac57c162d45002153be33a934d35f81eb6110"
+  },
+  {
+    "name": "artifact-template-three-statement-forecast",
+    "description": "Create a spreadsheet using the Three-Statement Forecast template and its retained reference file. Use when the user selects or names Three-Statement Forecast. Build an integrated income statement, balance sheet, and cash flow forecast with assumptions, checks, and an executive summary.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\openai-templates\\0.1.1\\skills\\artifact-template-three-statement-forecast\\SKILL.md",
+    "chars": 1552,
+    "attachments": 4,
+    "sha256": "74f4a5cccec0107b861548b157e04c51d9b58ec13a990c86394b4c529b8ecf41"
+  },
+  {
+    "name": "plugin-management",
+    "description": "Discover and suggest relevant plugins, inspect app permissions and dependencies, and manage plugin connections or removal. Use when the user asks about plugins or when a task would materially benefit from an external app, account, service, or data source that available tools cannot access.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\plugin-management\\0.1.0\\skills\\plugin-management\\SKILL.md",
+    "chars": 2983,
+    "attachments": 0,
+    "sha256": "653841cc21205269f08b0ce135891e1518dac616a766bcfb0b57d788d3f68b10"
+  },
+  {
+    "name": "sites",
+    "description": "Use Sites when the user wants a website built for them (including a landing page, portfolio, dashboard, portal, tracker, hub, game, event registration, or tool), requests changes to a website already built with Sites, wants to publish a website with Sites, or wants to manage Sites hosting.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\sites\\1.0.0\\skills\\sites\\SKILL.md",
+    "chars": 11890,
+    "attachments": 135,
+    "sha256": "5a942cda3c1a22a94b71f24ace3e3489b6e5dd72b1ec9da69d17fd400031647a"
+  },
+  {
+    "name": "create-pet",
+    "description": "Create, repair, validate, preview, upload, or activate an animated v2 pet in ChatGPT Work mode from a character idea, brand cue, or reference image. Use for new ChatGPT Pets, custom mascots, non-pixel styles, and unattached sprite sheets requiring nine animation states plus sixteen look directions. Preserve Library artifacts and Pets MCP lifecycle behavior. Exclude real pets, standalone images, and other-app pets; clarify before invoking.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\work-pets\\0.1.6\\skills\\create-pet\\SKILL.md",
+    "chars": 17353,
+    "attachments": 20,
+    "sha256": "841354fb8116f8fdfd3b643b30828f5180196c594d3fed9b669b948b88892af1"
+  },
+  {
+    "name": "pets",
+    "description": "List, inspect, select, download, or delete animated pets in ChatGPT Work mode. Use for an explicit pet in ChatGPT or established ChatGPT Pets context. Exclude real-world and other-app pets; clarify before invoking.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\work-pets\\0.1.6\\skills\\pets\\SKILL.md",
+    "chars": 3552,
+    "attachments": 1,
+    "sha256": "1bf5d45fd6a6390aab777229293fb05cef7cf898aac882f8955e40c378e52fcd"
+  },
+  {
+    "name": "update-pet",
+    "description": "Inspect, validate, preview, repair, or update a custom pet in ChatGPT Work mode, including its name, description, or sprite sheet. Use for a pet in ChatGPT or established ChatGPT Pets context. Exclude real-world and other-app pets; clarify before invoking.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-curated-remote\\work-pets\\0.1.6\\skills\\update-pet\\SKILL.md",
+    "chars": 4272,
+    "attachments": 1,
+    "sha256": "c63c98d67b6ad781a72a8f9837ba1fb5e2d2a8054a2562e4025890a97d8a0e67"
+  },
+  {
+    "name": "documents",
+    "description": "Create, edit, redline, and comment on `.docx`, Word, and Google Docs-targeted document artifacts inside the container, with a strict render-and-verify workflow. Use `render_docx.py` to generate page PNGs (and optional PDF) for visual QA, then iterate until layout is flawless before delivering the final document.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-primary-runtime\\documents\\26.1007.11041\\skills\\documents\\SKILL.md",
+    "chars": 41395,
+    "attachments": 79,
+    "sha256": "c9b9ba61ac15f20a600220bc10a380c7753992bbd3c323bfe33fae864adefc21"
+  },
+  {
+    "name": "pdf",
+    "description": "Read, create, inspect, render, and verify PDF files where visual layout matters, including fillable AcroForms. Use Poppler rendering plus Python tools such as reportlab, pdfplumber, and pypdf for generation and extraction.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-primary-runtime\\pdf\\26.1007.11041\\skills\\pdf\\SKILL.md",
+    "chars": 7809,
+    "attachments": 3,
+    "sha256": "a6e20f4ae66364a06d577dd51e0ce66ee2ef955be129cbe195e0a27f403daaf8"
+  },
+  {
+    "name": "Presentations",
+    "description": "Read, create or edit PowerPoint or Google Slides decks. Use for presentation, slide deck, PowerPoint, PPT, PPTX, or Google Slides requests.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-primary-runtime\\presentations\\26.1007.11041\\skills\\presentations\\SKILL.md",
+    "chars": 29098,
+    "attachments": 60,
+    "sha256": "bb3726eff35cb82241fd2c3b09fcdb18cc3bf3daefddf8df929d2e0bd4d2af2f"
+  },
+  {
+    "name": "excel-live-control",
+    "description": "Control an open or active Microsoft Excel workbook through the ChatGPT add-in or connected session. Use when the user tags the Microsoft Excel app in Codex or follows up on an established live Excel task. Do not use for standalone spreadsheet files or Google Sheets.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-primary-runtime\\spreadsheets\\26.1007.11041\\skills\\excel-live-control\\SKILL.md",
+    "chars": 71858,
+    "attachments": 12,
+    "sha256": "1c27488fa2a59ce2cc8925a12527ee9c7aa40ccf0701f3f2719ab17858586e8b"
+  },
+  {
+    "name": "Spreadsheets",
+    "description": "Use skill when user requests to create, modify, analyze, visualize, or work with spreadsheet files (`.xlsx`, `.xls`, `.csv`, `.tsv`) or Google Sheets with formulas, formatting, charts, tables, and recalculation. Do not use for live controlling Microsoft Excel app or a live Excel session.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-primary-runtime\\spreadsheets\\26.1007.11041\\skills\\spreadsheets\\SKILL.md",
+    "chars": 65980,
+    "attachments": 18,
+    "sha256": "dd22f4bae5bf3f76457c80eb1f079ba7a47b87db52b144edeb1e5f4585dc8f34"
+  },
+  {
+    "name": "template-creator",
+    "description": "Create or update a reusable personal Codex artifact-template skill. Use when the user invokes $template-creator or asks in natural language to create a reusable template from a reference document, presentation, spreadsheet, Google Docs, Slides, or Sheets link, ImageGen or Product Design image, email, Slack message, or Site project, or explicitly asks to edit or update a passed artifact-template skill. Do not use for one-off creation from an existing template.",
+    "path": "C:\\Users\\zhanglian2\\.codex\\plugins\\cache\\openai-primary-runtime\\template-creator\\26.1007.11041\\skills\\template-creator\\SKILL.md",
+    "chars": 19034,
+    "attachments": 5,
+    "sha256": "f1d14fd2847a2e879611a8b8f872f5dc4676a0607958d015274d2dc61e812deb"
+  }
+]

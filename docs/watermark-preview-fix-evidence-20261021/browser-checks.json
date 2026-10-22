@@ -1,0 +1,24 @@
+[
+  {
+    "mode": "static",
+    "failure": null
+  },
+  {
+    "mode": "diagonal",
+    "failure": null
+  },
+  {
+    "mode": "patrol",
+    "failure": null
+  },
+  {
+    "mode": "internal",
+    "failure": null
+  },
+  {
+    "cancel": "已取消视频读取，可重新选择视频。"
+  },
+  {
+    "mobile": true
+  }
+]

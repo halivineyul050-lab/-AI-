@@ -1,0 +1,18 @@
+{
+  "release": "creator-cover-20261014-1",
+  "baseline": "link-center-20261014-1",
+  "files": 646,
+  "sha256": "4ce9856c5f0bfe8227665176942e99e21a0a4523b773ab80d89e4dfd6c8f6daa",
+  "changes": [
+    {
+      "path": "public/creator.html",
+      "before": "e6b5fd747d5260f52eb17afb96445166b417771dc7d71bac4115f7ad8baa062c",
+      "after": "7793e5be43e28859fb4e40fc571c258fcbee75c67ff0e448ea7a15e5c1a70983"
+    },
+    {
+      "path": "public/creator.js",
+      "before": "8afbf2e74de1fc5ef3eb99039f07f346bcf90b76877094613cee9ebd9d11820f",
+      "after": "b32cbe00696728e8ce92e6a476a39d044eaa60190f37fae11dd031b0462fbb8e"
+    }
+  ]
+}

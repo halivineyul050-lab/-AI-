@@ -1,0 +1,13 @@
+{
+  "release": "assistant-reference-20261014-1",
+  "sha256": "8986cde99422f765161e0b6302cf746c9c8c20c458957391c606b8999d4a3d41",
+  "files": 641,
+  "changes": {
+    "public/assets/home/assistant-wave.png": "7d272815492be9fd22b36c44e9180dadab20ad4d503102f2b3857cb90caf2c20",
+    "public/assistant.css": "0976a8b1aae2e268f859e936ad99076fdfd61fbeb7d54481b6a19bf896594695",
+    "public/assistant.js": "1a9cff2a43ef6ed4ee7c32d80f7937e428bec1fbb51ec28b75168cbd3f1eac26",
+    "server.mjs": "c9f3923f6334bfe38b79a46a766937be7db6a93cf2b0532debf1b547d8808b98",
+    "tests/assistant-api.test.mjs": "b60165b6c93e7e1a05e26dc1e7873a480507b54982558b4653f381b7fa86fe7e",
+    "tests/assistant-ui.test.mjs": "317862e952854bfe5dfcfbd109e008549c25842b4be9e7c48cc0b5e9c9b58b50"
+  }
+}

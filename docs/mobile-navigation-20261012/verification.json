@@ -1,0 +1,47 @@
+{
+  "widths": [
+    320,
+    360,
+    390,
+    430,
+    768,
+    1024,
+    1100
+  ],
+  "pages": [
+    "/",
+    "/news",
+    "/image-generation",
+    "/creator",
+    "/skills",
+    "/video-pricing",
+    "/utilities",
+    "/games"
+  ],
+  "layoutAndToggleChecks": 56,
+  "allPassed": true,
+  "additionalChecks": [
+    "Destination link navigates and closes menu",
+    "News SPA selection closes menu and updates URL",
+    "Tap outside closes menu",
+    "Escape closes menu and synchronizes aria-expanded",
+    "Signed-in widths 320/360/390/430 fit without brand/actions overlap",
+    "Account dropdown closes when navigation opens",
+    "Desktop resize clears mobile state and restores desktop navigation"
+  ],
+  "before": {
+    "viewportWidth": 390,
+    "position": "static",
+    "flexDirection": "row",
+    "top": 3.28125
+  },
+  "after": {
+    "viewportWidth": 390,
+    "position": "absolute",
+    "flexDirection": "column",
+    "left": 12,
+    "top": 58,
+    "width": 366
+  },
+  "signedInAccount": "controlled browser API fixture, not production account"
+}

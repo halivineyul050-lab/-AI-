@@ -4,6 +4,8 @@
 
 项目由 Node.js 内置 HTTP 服务提供 API。SQLite 用于本地开发与自动化测试，生产环境使用 MariaDB 10.5，通过 `mysql2` 连接。数据库选择由 `NIKAI_DB_ENGINE` 控制；生产数据库凭据只能放在服务器受限权限的环境文件中。
 
+2026-10-22 核验生产版本为 `watermark-style-20261021-1`，服务与数据库就绪；生产快照不含 `article-source-links.mjs`、`news-hot-ranking.mjs` 和迁移019，公网热榜 API 返回404。当前本地/线上差异见 [工作区整理记录](../docs/workspace-closeout-2026-10-22.md)。
+
 生产当前为单机 Node.js + MariaDB + Nginx。迁移到其他数据库、对象存储或多实例架构属于未来扩展，不是当前上线前置条件。
 
 ## 公开 API
@@ -27,6 +29,7 @@
 - `GET /api/v1/tools/:idOrSlug`
 - `GET /api/v1/articles?kind=tutorial|news`
 - `GET /api/v1/articles/:idOrSlug`
+- `GET /api/v1/news/hot?limit=10`（本地待发布，当前生产未包含）
 
 `bootstrap` 只返回分类计数、文章、专题和单个推广工具，不再内嵌全量普通工具。工具首屏、搜索和筛选统一通过 `/api/v1/tools` 获取；该接口默认返回24条普通工具并使用 `limit` / `offset` 分页。
 
@@ -36,11 +39,13 @@
 
 `npm run catalog:import` 支持 CSV、JSON 和 NDJSON 文件，负责 URL 安全校验、来源分类映射、来源键幂等、官网地址去重和导入报告。新增记录默认进入 `review`，不会直接发布；命令不包含第三方网站抓取逻辑。
 
-来源和批次记录存储在 `tool_sources` 与 `catalog_import_batches`。字段与命令示例见根目录的 `AI工具批量导入与合规说明-2026-07-14.md`。
+来源和批次记录存储在 `tool_sources` 与 `catalog_import_batches`。字段与命令示例见 `docs/AI工具批量导入与合规说明-2026-07-14.md`。
 
 Logo 维护命令为 `npm run logos:sync`，校验命令为 `npm run logos:verify`。Logo 文件只从安全的 `/assets/tool-logos/<slug>.<ext>` 路由提供，Manifest 记录官方来源地址、来源类型、文件哈希、MIME 和核验日期；官网不可访问时会明确标记为域名 favicon 兜底。
 
-资讯记录额外返回 `source` 与 `sourceUrl`，前端详情页提供官方原始发布入口。当前内容同步会更新本轮策划工具和资讯，同时归档被替换的旧推广位与占位资讯。
+**本地待发布能力**：资讯记录额外返回 `source` 与 `sourceUrl`，本地详情响应增加 `sources` 文章来源列表，同时保留原字段兼容旧客户端。`GET /api/v1/news/hot` 返回近 48 小时热点，`limit` 默认为 10 且只接受 1–10 的整数；响应中的 `windowHours`、`halfLifeHours`、`generatedAt` 和 `items` 分别说明统计窗口、衰减半衰期、生成时间和排序后的文章。每条热点包含排名、来源站点数、来源名称、最新来源时间和 `new`、`rising`、`surge` 标记，不公开内部热度值。热榜要求至少两个规范化主机名不同的来源站点，同站点报道只计一次。详情来源只接受 HTTP/HTTPS 链接。
+
+当前内容同步会更新本轮策划工具和资讯，同时归档被替换的旧推广位与占位资讯。
 
 ### 投稿
 
@@ -68,7 +73,13 @@ Logo 维护命令为 `npm run logos:sync`，校验命令为 `npm run logos:verif
 GET /api/v1/tool-submissions/:trackingCode/status?token=:lookupToken
 ```
 
-### 周报
+### 交互讲解自由生成
+
+`POST /api/v1/explain/generate` 接收 `{ question, level, mode }`，需要登录；沿用运营中心AI助手的接口、模型、加密密钥与每日额度，并与助手并发互斥。问题上限1000字，成功占用1次，失败退回，最多自动修复一次且不重复计次，总调用时限60秒。按用户每分钟最多3次请求。
+
+模型输出经过 `public/explain-scene.mjs` 的结构、表达式及参数边界校验，由受控SVG渲染器显示；不运行模型返回的HTML或JavaScript。服务端请求上限12000输出token，Step 3.5/3.7 Flash及指定推理模型使用low推理档。模型知识内容仍需核验。最近一次结果可保存在本设备，显式分享链接包含演示场景和参数，不是账号云历史。
+
+### 周报订阅接口
 
 `POST /api/v1/newsletter/subscriptions`
 
@@ -82,7 +93,7 @@ GET /api/v1/tool-submissions/:trackingCode/status?token=:lookupToken
 }
 ```
 
-当前版本保存真实订阅记录，但尚未接入邮件发送和双重确认服务。
+当前版本保存真实订阅记录，使用服务器每周一09:15–09:30（北京时间）的现有定时任务发送周报。三个通知选项分别控制精选、新工具与收藏更新栏目；退订、压制、禁用账号及全部关闭不会发送。同一订阅每周成功发送一次，失败不记成功，可重跑补发。邮件提供无需登录的确认退订页（GET仅展示，POST取消）；尚未实现订阅双重确认。
 
 成功响应会返回 `unsubscribeToken`，退订接口为：
 
@@ -116,6 +127,18 @@ DELETE /api/v1/newsletter/subscriptions/:unsubscribeToken
 `GET /r/tools/:toolId?placement=detail_drawer`
 
 目标 URL 只从数据库读取，接口不接受任意外部 URL，因此不会成为开放重定向器。点击写入失败时仍优先完成跳转。
+
+### 反馈邮件通知
+
+有效反馈先写入后台记录，再异步发送通知。收件地址配置在服务器FEEDBACK_EMAIL_TO；发件地址优先FEEDBACK_EMAIL_FROM，未填时复用已验证AUTH_EMAIL_FROM。RESEND_API_KEY只存服务器配置。邮件包含反馈类型、提交时间、页面、联系邮箱与正文；通知失败不影响已存反馈，服务商返回消息ID后才记录发送接受成功。
+
+### 图片创作与恢复（已上线）
+
+- `GET /api/v1/image-creation-context`：登录后读取是否曾成功、本人待确认任务与具备至少20个成功样本的模型耗时范围；按账户隔离且禁止缓存。
+- `POST /api/v1/image-generations`：异步提交支持 `Prefer: respond-async`，202响应包含任务ID和预留积分；按实际成功图片数结算。
+- `GET /api/v1/image-generation-jobs/:id`：查询原任务，不重复提交。失败响应仅在结算已确认时提供 `details.settlement`。
+- 短期任务结果载荷15分钟过期，任务元数据保留7天；账号云历史是另一个持久化出口。任务查询过期后先核对云历史与积分。
+- 首次案例内容与文案见 [设计说明](../docs/superpowers/specs/2026-10-14-first-creation-design.md)。前端记录创作浏览、案例选择、提交、成功、失败和下载事件，事件不包含提示词或图片。
 
 ## 管理 API
 
@@ -177,6 +200,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 管理员监控响应的 `system.imageGenerationConfigured` 仅表示该主密钥是否可用，不表示已经配置并启用了可生成图片的模型。公开 `/api/v1/health` 与 `/api/v1/health/ready` 不包含这个能力状态或任何图片平台配置。
 
+后台图片平台支持按供应商配置可选余额查询路径及 JSON 字段，例如 `data.balance.remaining`。各 OpenAI 兼容平台没有统一的余额端点，须以对应供应商文档为准；解锁平台设置后会立即查询，并在后台页面可见时每 60 秒自动刷新，也可手动查询。余额不写入数据库，平台 API Key 不会返回浏览器。未配置路径的平台会显示“未配置余额接口”。此设置由数据库迁移 18 添加。
+
 临时生成结果在 15 分钟后清理；服务关闭时也会停止清理定时器并再次清理已过期目录。MariaDB 备份与恢复脚本导出和校验完整数据库，因此迁移 14（`image_generation_providers`）与其他业务表一起受到备份和恢复保护。
 
 #### 灾难恢复
@@ -187,4 +212,4 @@ MariaDB 备份只包含平台 API Key 的密文，不包含可用于解密的主
 
 1. 评估多实例需求后，再为会话、队列和媒体资源引入共享服务。
 2. 只有确认 MariaDB 无法满足实际负载时，再评估 PostgreSQL 等替代数据库。
-3. 周报邮件发送、后台授权细分和图片任务队列按真实需求逐步扩展。
+3. 周报已接入自动发送；后台授权细分和现有图片任务机制的多实例支持按真实需求逐步扩展。

@@ -1,0 +1,260 @@
+{
+  "release": "nestdutio-data-20261016-1",
+  "base": "nestdutio-header-20261016-1",
+  "changes": [
+    {
+      "file": "backend/database.mjs",
+      "sha256": "4b0329560d0695b81506e6b21e17c1ec1d3096a70ccd1015a46aac8bdedb1e9c",
+      "previous": "a4a386b4a0490887eb60a5e5f9e40c930d6819b754f12e4ec6e658bca44ce40a"
+    },
+    {
+      "file": "backend/mariadb-compat.mjs",
+      "sha256": "f52fe0883a90deda9c8c3653a50d793794335c04d5517bb59a7243d847f4328c",
+      "previous": "6cf78f33f53bc610965438d19580eb4655821fee1c50a87174781c566680144c"
+    },
+    {
+      "file": "deploy/nikai-nestdutio-domains.nginx.conf",
+      "sha256": "bc20f699c3b6c6ce84656bb47079197aac0ee12a5d57531af91632db9e660262",
+      "previous": null
+    },
+    {
+      "file": "deploy/nikai-nestdutio-domains.override.conf",
+      "sha256": "9e78db5718f65242386bf592fb36647333c3de7024c591c882fe48306abb9cda",
+      "previous": null
+    },
+    {
+      "file": "deploy/nikai-nestdutio-domains.service",
+      "sha256": "60a59d6f1f74cafb327c0227d2adee2e178f4d8fde9ffc682bcdec49dc65ce21",
+      "previous": null
+    },
+    {
+      "file": "deploy/nikai-nestdutio-domains.timer",
+      "sha256": "9ea7747166597dac9d3191d17e60ab34bbd28e97647789c19b3f97dd2b19d5bd",
+      "previous": null
+    },
+    {
+      "file": "deploy/nikai-nestdutio.nginx.conf",
+      "sha256": "de44da2654526025db5376acdc72b02dda3d64c214c23285635d341d92cdea81",
+      "previous": "ac4f3f13686f5a52356b679810b3dfe9d44cd9cb33bf0b278e1a22536ef2c958"
+    },
+    {
+      "file": "docs/nestdutio-data-domains.md",
+      "sha256": "b95afb2b770c3f257d2210436d75cf2240aa1e0efa011f9062226f41b0c427bc",
+      "previous": null
+    },
+    {
+      "file": "public/nestdutio.css",
+      "sha256": "8175b2311285e74c9f25a8ae51a13f28916676c43a70531c23038093258d9081",
+      "previous": "5c0c6c6a06bca0de5cd8eb6291147535f4a72ce7fcc5de7125343ccbdd915438"
+    },
+    {
+      "file": "public/nestdutio.html",
+      "sha256": "af0937fab5587fec37c569f2455c03320771a51e47271d8c6b007abfb34c1e3e",
+      "previous": "428d9cb5e6f06feb2b373f2d182ab92acaecf6f271e64864ee900651f43ad5d5"
+    },
+    {
+      "file": "public/nestdutio.js",
+      "sha256": "2c4c1873db19390de149f824e5f1ee7f487a360df37f44bc865e9525bbdca5ca",
+      "previous": "4bd2941f75f3ac7403dd0d5b2bb15a3be065defde48ae606e9904c51ac29ece4"
+    },
+    {
+      "file": "tests/api.test.mjs",
+      "sha256": "4273ef8e7918630db45db42877f104c296d69d3cd58b614ce3a85820ae430eb6",
+      "previous": "991c961296fd38ba465261d4c5fde3a47cb9d61913032120e547245d968765c4"
+    },
+    {
+      "file": "tests/image-cloud-history-store.test.mjs",
+      "sha256": "68dd22f18fdc7ad2b56ba2e7c28bb3fc46df69b31009a47f2719f9b9e6dc7e1c",
+      "previous": "0117d54803b3f2dc09aeb6303bebdb1711122b59a5073c9d2c30c2a35a442669"
+    },
+    {
+      "file": "tests/image-provider-store.test.mjs",
+      "sha256": "5c6a41837c48a6d1b36f0857b7eade2ddfa74294edee23956b147954e3246f7d",
+      "previous": "643ae39831e8f1bd88e7258edbfe488dde4ac832ea17d8812005518852460466"
+    },
+    {
+      "file": "tests/import.test.mjs",
+      "sha256": "71fb50aae69b77ca4c9e5e3ed05f0249ea7b97d27a7864b606732a848d7b373b",
+      "previous": "48dd057444787c8dd88c636dba8744d4a1ee6a9dc162370d4f71fbfd1ed7aa5f"
+    },
+    {
+      "file": "tests/mariadb-compat.test.mjs",
+      "sha256": "140d3d02b245fb63f5636e8726c965e0b3b46ba6f9279292ca0f31a5c4a183df",
+      "previous": "e89eecc8b1eeb06f9ed526932ecb01fa87d540c2825e7cbaa42d1d9d6b4cd2dc"
+    },
+    {
+      "file": "tests/nestdutio-domain-api.test.mjs",
+      "sha256": "92dd2f4aa81b33bcb4febfba85c5ec6bba5c2aa593566739f2efa56975419746",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-domain-worker.test.mjs",
+      "sha256": "db175030a0a59854c3edf940bd5c6aa48e122f9e1926b86e45b47fb302d4226b",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-domains.test.mjs",
+      "sha256": "16488b9f0d1e48ed915d50183b20c5ee783a5cd877b739a3dfa0b2c822781b10",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-form-api.test.mjs",
+      "sha256": "9a53acebf464eca5659e57525f1312e7c2ff73e987c42c1592b054d112ea4bcf",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-form-hosting.test.mjs",
+      "sha256": "44cbece4df32d4573850a1bcbe8798ecb82e01a3c476992a8432ebc0785d68f2",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-form-preview.test.mjs",
+      "sha256": "cdd2be3acce659cc88fcf0e66185e6ba406f120910d4ea6cfb07240f847a4c91",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-form-runtime.test.mjs",
+      "sha256": "9fe2c008f0aa48c1324ee9576a2e65278e9cf68d8a62219a79275bf65f95a550",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-form-ui.test.mjs",
+      "sha256": "26f6985192bf8fd72db7945232efd6019fc75ebe8e23986f82a45dac4d75c76a",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-forms.test.mjs",
+      "sha256": "9948df77ea2df1771380fc1a34749ebd2a5870a0cac6b77b06708f55115bc71e",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-generation.test.mjs",
+      "sha256": "296dcb16389f967f553a001c98ee44abae05060a0b860d637008ae3618a93303",
+      "previous": "76019d334757f3e35a3c06072fe1c614545ee1fd929d06bf801e9d4a8a3939a8"
+    },
+    {
+      "file": "tests/nestdutio-standalone.test.mjs",
+      "sha256": "4ca761f2233842b92308814f4c25403644517a53812aa3b3f887c5d5a6177971",
+      "previous": null
+    },
+    {
+      "file": "tests/nestdutio-ui.test.mjs",
+      "sha256": "54e318764aa7df367be006e84ecff004340dc2f6ebf40b3ff0befb7203746f13",
+      "previous": "81a1e2d6670282d46655503a914259129bf5451ab9d12d8aa1f7a6fcd992524c"
+    },
+    {
+      "file": "tests/site-announcements.test.mjs",
+      "sha256": "27e06a14a4a3a8f4e8d937ea4dba97119dc1dc33dff69c4cbeb8c5b64d0bd9e4",
+      "previous": "66d06ee6378784fe1a275bd0ebd801338773e9ebe7a7acf20ffe48fb18fbfe3e"
+    },
+    {
+      "file": "backend/migrations/035_nestdutio_forms.sql",
+      "sha256": "9789888dc9347360d8149347cf513e359ceb0c327529c70bf56e64e22987413e",
+      "previous": null
+    },
+    {
+      "file": "backend/migrations/036_nestdutio_domains.sql",
+      "sha256": "016261cd14299e1a663476e40a4fa90a569673c8be31fd0538ff53613d3a027e",
+      "previous": null
+    },
+    {
+      "file": "backend/nestdutio/artifact.mjs",
+      "sha256": "15353d6e6ad10428377038399185cadfa2784cefd69cecbf8b69f5be42eb3efe",
+      "previous": "81bf032f8184e477ccbcde66e917228e8ddaa1db9c1702b2dba8f030409b96c3"
+    },
+    {
+      "file": "backend/nestdutio/checker.mjs",
+      "sha256": "82d67be6d89e2ad8852c97e5775fbc0c2983fa628616e34f37acc8d81fbd9104",
+      "previous": "e17b7d365419dcf44bb45af07f70505701bb60769189424b7ea52871f832a3ba"
+    },
+    {
+      "file": "backend/nestdutio/domain-policy.mjs",
+      "sha256": "55f54403fbdc24624eb07ea5f6573bb12913f01ca059e4023808a8a38c2de765",
+      "previous": null
+    },
+    {
+      "file": "backend/nestdutio/domain-worker.mjs",
+      "sha256": "057da297e800f3252b8437554dd5618114d6dc249d98964ee8d1269ad4925391",
+      "previous": null
+    },
+    {
+      "file": "backend/nestdutio/domains.mjs",
+      "sha256": "135ba2a73c1e4bc874201047bee66af5080d91492f1d5a9e1f1d90ecfadd03a8",
+      "previous": null
+    },
+    {
+      "file": "backend/nestdutio/export.mjs",
+      "sha256": "ff28927e75e99efbcca82742e02aebd0369dcad86b09d91c4d0487c1ef889715",
+      "previous": "7dc4836d966a651de7dc74f93195b905524df0012e6f0778c32589abe6f49ae7"
+    },
+    {
+      "file": "backend/nestdutio/form-runtime.mjs",
+      "sha256": "b71d7ee6685fa517c2a78ff68660e261c79670b91b305d675a47b4545d12220a",
+      "previous": null
+    },
+    {
+      "file": "backend/nestdutio/form-schema.mjs",
+      "sha256": "367c73b3638d1b67dc2734f4b3b1329402ac9fdd4d979819ed38463e7bf45290",
+      "previous": null
+    },
+    {
+      "file": "backend/nestdutio/forms.mjs",
+      "sha256": "b16343a13fd41a5a0bed3ad6e3219e313830411496f23330b632c15876202fb9",
+      "previous": null
+    },
+    {
+      "file": "backend/nestdutio/generator.mjs",
+      "sha256": "6765b64914650fdc8cf1e579d576d9b14ad88cc9a10ba280b0fa2074a3e6941d",
+      "previous": "783687e0fb511bfce5cd6180bc944986b0ba2de689c3803c0f39e03276962fdb"
+    },
+    {
+      "file": "backend/nestdutio/preview.mjs",
+      "sha256": "f135fc7cdfe0810efc3e930d541e779b4dbf85fa512ed5b33370ed3fc817de4d",
+      "previous": "b5f70e5b66b5e3419670a94d179bc2a866a1ca0448b3dcbc3f93dc4641b4ce37"
+    },
+    {
+      "file": "backend/nestdutio/publications.mjs",
+      "sha256": "1e34c2ca0628f7e66581e9aa434dcf082f8d0d4c1492be9af0edb6590824983d",
+      "previous": "7f6f586df1a19768f6652d6d076debbe26a42f5cffa41346b57a3069c00b825f"
+    },
+    {
+      "file": "backend/nestdutio/routes.mjs",
+      "sha256": "415f7e57d12822cea8f854aa0058f815e7aa1485e3a64205832bb840eccdc711",
+      "previous": "56cbde5418851ac071587f9dd85927e97b87236d032ab7021fd5547bf8ce60ef"
+    },
+    {
+      "file": "backend/nestdutio/service.mjs",
+      "sha256": "b6bd1383a81662c985c7a69d65055d50de834685aeb0cd479839d272c6ea7b43",
+      "previous": "836a8efd707c6360380dbaa3bb79828726910f91e76eaf7c0cb509cf7788f26a"
+    },
+    {
+      "file": "backend/nestdutio/standalone-server.mjs",
+      "sha256": "e49c913ca4297c9c7abe7d8309352d9acbcfe623fd3db011ba813de11e44e860",
+      "previous": null
+    },
+    {
+      "file": "backend/mariadb/migrations/035_nestdutio_forms.sql",
+      "sha256": "fc3a85d2dbc7e40f9ad6cf9bb45c37ec84a184fd8b50e1b951fe66b34f8f9d36",
+      "previous": null
+    },
+    {
+      "file": "backend/mariadb/migrations/036_nestdutio_domains.sql",
+      "sha256": "0d51cd8e4d3325f13a2396beeb95bc285f8ec813e7320c4720976566a2260d85",
+      "previous": null
+    },
+    {
+      "file": "tests/fixtures/nestdutio-forms.mjs",
+      "sha256": "248684d160cecba26d59953b46f4b3971358af58757cdf2e8f3540c5d18507ec",
+      "previous": null
+    }
+  ],
+  "archiveSha256": "1a947a1cc2238841c0eefda070817b6b42939d7a3c9ba275d86d0d237afc65f5",
+  "files": 763,
+  "tests": {
+    "pass": 703,
+    "skipWindows": 3,
+    "fail": 0
+  },
+  "productionResult": "failed_preflight",
+  "failureReason": "Root preflight browser could not write to the root-owned Playwright download directory; no code switch or migration performed."
+}

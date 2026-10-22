@@ -1,0 +1,459 @@
+{
+  "budgetCny": 5,
+  "spentUpperCny": 0.162574,
+  "requests": 9,
+  "results": [
+    {
+      "name": "mortgage",
+      "ok": false,
+      "errorCode": "nestdutio_check_failed",
+      "durationMs": 63609,
+      "events": [
+        {
+          "sequence": 1,
+          "phase": "planning",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 863,
+            "completionTokens": 236,
+            "cachedInputTokens": 512,
+            "reasoningTokens": null,
+            "totalTokens": 1099
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 2,
+          "phase": "generating",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 780,
+            "completionTokens": 2721,
+            "cachedInputTokens": 256,
+            "reasoningTokens": null,
+            "totalTokens": 3501
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 3,
+          "phase": "repairing",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 3545,
+            "completionTokens": 2747,
+            "cachedInputTokens": 3328,
+            "reasoningTokens": null,
+            "totalTokens": 6292
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 4,
+          "phase": "repairing",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 6336,
+            "completionTokens": 2760,
+            "cachedInputTokens": 6144,
+            "reasoningTokens": null,
+            "totalTokens": 9096
+          },
+          "httpStatus": 200
+        }
+      ],
+      "reports": [
+        {
+          "ok": false,
+          "issues": [
+            {
+              "code": "interaction_failed",
+              "path": "acceptance[0]",
+              "phase": "result"
+            }
+          ],
+          "checks": [
+            {
+              "index": 0,
+              "ok": false
+            },
+            {
+              "index": 1,
+              "ok": true
+            },
+            {
+              "index": 2,
+              "ok": true
+            },
+            {
+              "index": 3,
+              "ok": true
+            },
+            {
+              "index": 4,
+              "ok": true
+            },
+            {
+              "index": 5,
+              "ok": true
+            },
+            {
+              "index": 6,
+              "ok": true
+            },
+            {
+              "index": 7,
+              "ok": true
+            },
+            {
+              "index": 8,
+              "ok": true
+            },
+            {
+              "index": 9,
+              "ok": true
+            },
+            {
+              "index": 10,
+              "ok": true
+            }
+          ],
+          "businessChecks": [
+            {
+              "name": "zero_rate",
+              "ok": true
+            },
+            {
+              "name": "nonzero_rate",
+              "ok": true
+            },
+            {
+              "name": "invalid_input",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": false,
+          "issues": [
+            {
+              "code": "interaction_failed",
+              "path": "acceptance[0]",
+              "phase": "result"
+            }
+          ],
+          "checks": [
+            {
+              "index": 0,
+              "ok": false
+            },
+            {
+              "index": 1,
+              "ok": true
+            },
+            {
+              "index": 2,
+              "ok": true
+            },
+            {
+              "index": 3,
+              "ok": true
+            },
+            {
+              "index": 4,
+              "ok": true
+            },
+            {
+              "index": 5,
+              "ok": true
+            },
+            {
+              "index": 6,
+              "ok": true
+            },
+            {
+              "index": 7,
+              "ok": true
+            },
+            {
+              "index": 8,
+              "ok": true
+            },
+            {
+              "index": 9,
+              "ok": true
+            },
+            {
+              "index": 10,
+              "ok": true
+            }
+          ],
+          "businessChecks": [
+            {
+              "name": "zero_rate",
+              "ok": true
+            },
+            {
+              "name": "nonzero_rate",
+              "ok": true
+            },
+            {
+              "name": "invalid_input",
+              "ok": true
+            }
+          ]
+        },
+        {
+          "ok": false,
+          "issues": [
+            {
+              "code": "interaction_failed",
+              "path": "acceptance[0]",
+              "phase": "result"
+            }
+          ],
+          "checks": [
+            {
+              "index": 0,
+              "ok": false
+            },
+            {
+              "index": 1,
+              "ok": true
+            },
+            {
+              "index": 2,
+              "ok": true
+            },
+            {
+              "index": 3,
+              "ok": true
+            },
+            {
+              "index": 4,
+              "ok": true
+            },
+            {
+              "index": 5,
+              "ok": true
+            },
+            {
+              "index": 6,
+              "ok": true
+            },
+            {
+              "index": 7,
+              "ok": true
+            },
+            {
+              "index": 8,
+              "ok": true
+            },
+            {
+              "index": 9,
+              "ok": true
+            },
+            {
+              "index": 10,
+              "ok": true
+            }
+          ],
+          "businessChecks": [
+            {
+              "name": "zero_rate",
+              "ok": true
+            },
+            {
+              "name": "nonzero_rate",
+              "ok": true
+            },
+            {
+              "name": "invalid_input",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "habits",
+      "ok": true,
+      "files": 1,
+      "bytes": 11459,
+      "durationMs": 16899,
+      "events": [
+        {
+          "sequence": 1,
+          "phase": "planning",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 831,
+            "completionTokens": 207,
+            "cachedInputTokens": 512,
+            "reasoningTokens": null,
+            "totalTokens": 1038
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 2,
+          "phase": "repairing",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 1064,
+            "completionTokens": 207,
+            "cachedInputTokens": 896,
+            "reasoningTokens": null,
+            "totalTokens": 1271
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 3,
+          "phase": "generating",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 719,
+            "completionTokens": 4197,
+            "cachedInputTokens": 256,
+            "reasoningTokens": null,
+            "totalTokens": 4916
+          },
+          "httpStatus": 200
+        }
+      ],
+      "reports": [
+        {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            {
+              "index": 0,
+              "ok": true
+            },
+            {
+              "index": 1,
+              "ok": true
+            },
+            {
+              "index": 2,
+              "ok": true
+            },
+            {
+              "index": 3,
+              "ok": true
+            },
+            {
+              "index": 4,
+              "ok": true
+            },
+            {
+              "index": 5,
+              "ok": true
+            },
+            {
+              "index": 6,
+              "ok": true
+            },
+            {
+              "index": 7,
+              "ok": true
+            }
+          ],
+          "businessChecks": [
+            {
+              "name": "add_independent_items",
+              "ok": true
+            },
+            {
+              "name": "check_in_persists",
+              "ok": true
+            },
+            {
+              "name": "delete_persists",
+              "ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "signup",
+      "ok": true,
+      "files": 1,
+      "bytes": 8590,
+      "durationMs": 11776,
+      "events": [
+        {
+          "sequence": 1,
+          "phase": "planning",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 751,
+            "completionTokens": 181,
+            "cachedInputTokens": 512,
+            "reasoningTokens": null,
+            "totalTokens": 932
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 2,
+          "phase": "generating",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 614,
+            "completionTokens": 3190,
+            "cachedInputTokens": 256,
+            "reasoningTokens": null,
+            "totalTokens": 3804
+          },
+          "httpStatus": 200
+        }
+      ],
+      "reports": [
+        {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            {
+              "index": 0,
+              "ok": true
+            },
+            {
+              "index": 1,
+              "ok": true
+            },
+            {
+              "index": 2,
+              "ok": true
+            },
+            {
+              "index": 3,
+              "ok": true
+            }
+          ],
+          "businessChecks": []
+        }
+      ]
+    }
+  ]
+}

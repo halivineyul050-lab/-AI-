@@ -1,0 +1,58 @@
+[
+  {
+    "worktree": "D:/资料收集/泥壳AI工具站",
+    "HEAD": "def1318caa17a36696ebb5e94739cc93e5be5012",
+    "branch": "refs/heads/cursor/restructure-public-docs-examples",
+    "exists": true,
+    "dirtyFileCount": 538,
+    "scope": "current"
+  },
+  {
+    "worktree": "C:/Users/zhanglian2/.codex/worktrees/aihot-production-release/泥壳AI工具站",
+    "HEAD": "4b9405c266c1b7cc994cfe19621e6fd53fb58a13",
+    "branch": "refs/heads/codex/aihot-production-release",
+    "exists": true,
+    "dirtyFileCount": 0,
+    "scope": "related-read-only"
+  },
+  {
+    "worktree": "C:/Users/zhanglian2/.codex/worktrees/catalog-mobile-optimization/泥壳AI工具站",
+    "HEAD": "944845951bee7ec92dcf12512d9a54be0e3dbe53",
+    "branch": "refs/heads/codex/catalog-mobile-optimization",
+    "exists": true,
+    "dirtyFileCount": 212,
+    "scope": "related-read-only"
+  },
+  {
+    "worktree": "C:/Users/zhanglian2/.codex/worktrees/ci-main-check/泥壳AI工具站",
+    "HEAD": "a71c22e19c694a0895329b89a7a19ad04350fadf",
+    "branch": "refs/heads/codex/ci-main-trigger-20261008",
+    "exists": true,
+    "dirtyFileCount": 0,
+    "scope": "related-read-only"
+  },
+  {
+    "worktree": "C:/Users/zhanglian2/.codex/worktrees/frontend-release/泥壳AI工具站",
+    "HEAD": "11b79538fd2f4910c9ac482e57e96cc6dda60a86",
+    "branch": "refs/heads/codex/frontend-foundation-current-main",
+    "exists": true,
+    "dirtyFileCount": 0,
+    "scope": "related-read-only"
+  },
+  {
+    "worktree": "C:/Users/zhanglian2/AppData/Local/Temp/nikai-release-37f82d1-2d08ee39",
+    "HEAD": "37f82d1ac93cc72a6f8671289a04d7168c693779",
+    "detached": true,
+    "prunable": "gitdir file points to non-existent location",
+    "exists": false,
+    "registrationStatus": "pruned-after-user-confirmation"
+  },
+  {
+    "worktree": "C:/Users/zhanglian2/AppData/Local/Temp/nikai-release-ed2ad66-5c57ac92",
+    "HEAD": "ed2ad664552fe0d9972806b731a6f9822db86ce9",
+    "detached": true,
+    "prunable": "gitdir file points to non-existent location",
+    "exists": false,
+    "registrationStatus": "pruned-after-user-confirmation"
+  }
+]

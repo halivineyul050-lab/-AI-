@@ -1,0 +1,219 @@
+{
+  "budgetCny": 1,
+  "spentUpperCny": 0.04449599999999998,
+  "requests": 4,
+  "results": [
+    {
+      "name": "mortgage",
+      "ok": true,
+      "files": 3,
+      "bytes": 11882,
+      "durationMs": 16085,
+      "events": [
+        {
+          "sequence": 1,
+          "phase": "planning",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 886,
+            "completionTokens": 511,
+            "cachedInputTokens": 640,
+            "reasoningTokens": null,
+            "totalTokens": 1397
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 2,
+          "phase": "generating",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 966,
+            "completionTokens": 822,
+            "cachedInputTokens": 256,
+            "reasoningTokens": null,
+            "totalTokens": 1788
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 3,
+          "phase": "generating",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 1945,
+            "completionTokens": 1967,
+            "cachedInputTokens": 0,
+            "reasoningTokens": null,
+            "totalTokens": 3912
+          },
+          "httpStatus": 200
+        },
+        {
+          "sequence": 4,
+          "phase": "generating",
+          "model": "deepseek-flash",
+          "status": "reported",
+          "usage": {
+            "status": "reported",
+            "promptTokens": 1947,
+            "completionTokens": 826,
+            "cachedInputTokens": 0,
+            "reasoningTokens": null,
+            "totalTokens": 2773
+          },
+          "httpStatus": 200
+        }
+      ],
+      "reports": [
+        {
+          "ok": true,
+          "issues": [],
+          "checks": [
+            {
+              "index": 0,
+              "ok": true
+            },
+            {
+              "index": 1,
+              "ok": true
+            },
+            {
+              "index": 2,
+              "ok": true
+            },
+            {
+              "index": 3,
+              "ok": true
+            },
+            {
+              "index": 4,
+              "ok": true
+            },
+            {
+              "index": 5,
+              "ok": true
+            },
+            {
+              "index": 6,
+              "ok": true
+            },
+            {
+              "index": 7,
+              "ok": true
+            },
+            {
+              "index": 8,
+              "ok": true
+            },
+            {
+              "index": 9,
+              "ok": true
+            },
+            {
+              "index": 10,
+              "ok": true
+            },
+            {
+              "index": 11,
+              "ok": true
+            },
+            {
+              "index": 12,
+              "ok": true
+            }
+          ],
+          "businessChecks": [
+            {
+              "name": "zero_rate",
+              "ok": true
+            },
+            {
+              "name": "nonzero_rate",
+              "ok": true
+            },
+            {
+              "name": "invalid_input",
+              "ok": true
+            }
+          ],
+          "acceptance": [
+            {
+              "kind": "fill",
+              "target": "#principal",
+              "input": "120000"
+            },
+            {
+              "kind": "fill",
+              "target": "#annual-rate",
+              "input": "0"
+            },
+            {
+              "kind": "fill",
+              "target": "#months",
+              "input": "12"
+            },
+            {
+              "kind": "clickText",
+              "target": "#calculate",
+              "output": "#monthly-payment",
+              "value": "10000"
+            },
+            {
+              "kind": "visible",
+              "target": "#total-interest"
+            },
+            {
+              "kind": "fill",
+              "target": "#principal",
+              "input": "100000"
+            },
+            {
+              "kind": "fill",
+              "target": "#annual-rate",
+              "input": "6"
+            },
+            {
+              "kind": "fill",
+              "target": "#months",
+              "input": "12"
+            },
+            {
+              "kind": "clickText",
+              "target": "#calculate",
+              "output": "#monthly-payment",
+              "value": "8606.64"
+            },
+            {
+              "kind": "fill",
+              "target": "#principal",
+              "input": "-1000"
+            },
+            {
+              "kind": "fill",
+              "target": "#annual-rate",
+              "input": "5"
+            },
+            {
+              "kind": "fill",
+              "target": "#months",
+              "input": "12"
+            },
+            {
+              "kind": "clickText",
+              "target": "#calculate",
+              "output": "#error",
+              "value": "本金必须大于0"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

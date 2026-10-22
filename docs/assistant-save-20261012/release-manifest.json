@@ -1,0 +1,11 @@
+{
+  "release": "assistant-save-20261012-1",
+  "archiveSha256": "ffcbc538d02102c5e14e5146a4fec1d7421073a05152511e6baf2cbb90d87d32",
+  "files": 674,
+  "changes": {
+    "public/admin-assistant.js": "2da3bbfa56ec0214555bfb701de5d8ffa7eac74aaf9acd970ded7cf77756b476",
+    "public/admin-creator.css": "185670b54aa9b7237ced3ff10b8080cad742e334ff6c6af95e07361cfbe36fa7",
+    "public/admin.html": "2a2a3053eb864f4ee3d9e984f493107dd6e8aaaf3f9b793531eeb9d9fc4974c6",
+    "tests/admin-assistant-save.test.mjs": "ad5be5ad334bef586b2cacab8a908733608f4fe0070d1cf66a0ff6747e5bb840"
+  }
+}

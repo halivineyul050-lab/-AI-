@@ -1,0 +1,153 @@
+{
+  "publicResult": {
+    "health": {
+      "data": {
+        "status": "ok",
+        "database": true,
+        "version": 1
+      }
+    },
+    "healthStatus": 200,
+    "previewWithoutLogin": 401,
+    "footer": false,
+    "panel": true,
+    "css": "/nestdutio.css?v=20261020-live-canvas-1",
+    "script": "/nestdutio.js?v=20261020-live-canvas-1"
+  },
+  "footerChecks": [
+    {
+      "path": "/explain.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/video-mask.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/video-pricing.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/nestdutio.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/snake.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/game-2048.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/games.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/video-crop.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/breakout.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/image-erase.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/creator.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/image-edit.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/gomoku.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/utilities.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/skills.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/memory-game.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/video-gif.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/link-extract.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/image-background.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/image-enhance.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/never-retreat.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/flight.html",
+      "status": 200,
+      "hasFooter": false
+    },
+    {
+      "path": "/image-generation.html",
+      "status": 200,
+      "hasFooter": false
+    }
+  ],
+  "layouts": [
+    {
+      "width": 1440,
+      "height": 900,
+      "docHeight": 900,
+      "composerBottom": 900,
+      "scrollable": true,
+      "scrollTop": 25651
+    },
+    {
+      "width": 390,
+      "height": 900,
+      "docHeight": 900,
+      "composerBottom": 900,
+      "scrollable": true,
+      "scrollTop": 21669
+    }
+  ],
+  "errors": []
+}

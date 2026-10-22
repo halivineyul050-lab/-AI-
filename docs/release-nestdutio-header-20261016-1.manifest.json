@@ -1,0 +1,10 @@
+[
+  {
+    "path": "public/nestdutio.html",
+    "sha256": "428d9cb5e6f06feb2b373f2d182ab92acaecf6f271e64864ee900651f43ad5d5"
+  },
+  {
+    "path": "tests/nestdutio-ui.test.mjs",
+    "sha256": "81a1e2d6670282d46655503a914259129bf5451ab9d12d8aa1f7a6fcd992524c"
+  }
+]

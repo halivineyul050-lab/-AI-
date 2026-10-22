@@ -1,0 +1,66 @@
+[
+  {
+    "path": "backend/database.mjs",
+    "sha256": "50ff025483a456c41e5ee6479fa420676117e0ca3c5f7b4174d6a16d3db7490c"
+  },
+  {
+    "path": "backend/mariadb-compat.mjs",
+    "sha256": "a7ade28aeeb7806f2d7ad9ea49cab37e7a4b7bea70556a5dee8f3ede328871d9"
+  },
+  {
+    "path": "backend/migrations/039_nestdutio_history.sql",
+    "sha256": "9a5d3f576a702a0612de45c7bf1edb7c790c8b0c9b26fae73b87ca52675c9d04"
+  },
+  {
+    "path": "backend/nestdutio/projects.mjs",
+    "sha256": "68deefc5f79e64da8f5b018e45b433441eceaca41f3b2272f0de111315fc9da4"
+  },
+  {
+    "path": "backend/nestdutio/routes.mjs",
+    "sha256": "ee5e41820503dead18493557acfb20ce362c3576525cefdeb22c4d68dd977e40"
+  },
+  {
+    "path": "backend/mariadb/migrations/039_nestdutio_history.sql",
+    "sha256": "11267fb807313f7bb6187eb1df5f398fbc5ba5145e2808c36ed26f66421edda8"
+  },
+  {
+    "path": "public/nestdutio.css",
+    "sha256": "5dcaaf2aa2793c27143764a6e8be688283f0e1b51e19fe087509f8b0887b9297"
+  },
+  {
+    "path": "public/nestdutio.html",
+    "sha256": "62520bc15377db5538f24851e8a9eafa3309c4ec82510e54198b0d192a022fb2"
+  },
+  {
+    "path": "public/nestdutio.js",
+    "sha256": "ab07edf384b1f0bc56f78c275378e0cc5b3c1417df29ec591ba363753390bfca"
+  },
+  {
+    "path": "tests/api.test.mjs",
+    "sha256": "cc321d214e3c0b79821f5cae4248096d1e6582a889e6102ce0d09e6c35800ce3"
+  },
+  {
+    "path": "tests/import.test.mjs",
+    "sha256": "297a91aa723ddca657413a19d18078893508cb64b6d24f9e144d91278d98781c"
+  },
+  {
+    "path": "tests/mariadb-compat.test.mjs",
+    "sha256": "067bd932aebcb47e985eabd2f0500179d5c47587a4e7345f492db15f013ab111"
+  },
+  {
+    "path": "tests/nestdutio-api.test.mjs",
+    "sha256": "ebd28bce45d363c307d2b0e0f3278fd28388821f3cc8da321a36b12799bb760c"
+  },
+  {
+    "path": "tests/nestdutio-history-browser.test.mjs",
+    "sha256": "422569462f737a4755f9e5ef88069c3a72123544f5c17871e163c0523b5766b1"
+  },
+  {
+    "path": "tests/nestdutio-history.test.mjs",
+    "sha256": "a70175f4f44b530be57dd504f3373a025c4145471b5f2b95e6abdba98a9c6033"
+  },
+  {
+    "path": "scripts/verify-nestudio-history-mariadb.mjs",
+    "sha256": "d701fd67fa05eb3a47ed6f12e8eb9daec69d856afb0633df0450ee69818973ba"
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "localBrowser": {
+    "pageErrors": [],
+    "moreVisible": false,
+    "news": 7,
+    "all": 8,
+    "mobileFit": true,
+    "tutorials": 5
+  },
+  "logos": {
+    "assets": 138,
+    "uniqueHashes": 138,
+    "records": 138
+  },
+  "releaseId": "news-latest8-20261021-1",
+  "addedFiles": [
+    "tests/news-latest-eight.test.mjs"
+  ],
+  "node": "22.18.0",
+  "changedFiles": [
+    "public/app.js",
+    "public/index.html"
+  ],
+  "archiveSha256": "4676b46e5098bc11ef0795c477f3c174f02505bef859e09f6b679029ebe25cf7",
+  "localTests": {
+    "passed": 879,
+    "failed": 0,
+    "total": 882,
+    "skipped": 3
+  },
+  "baselineFiles": 886,
+  "baselineSha256": "466aaa2f63ebbff03ed043da659c6d19a69521dff6999b3ecdcf2ee7ebcd5a70",
+  "production": {
+    "rollbackDirectory": "/opt/nikai-ai-backups/releases/previous-20261021-160155-news-latest8-20261021-1",
+    "databaseBackup": "/opt/nikai-ai-backups/mariadb/nikai-ai-20261021-160817-2562687.sql.gz",
+    "status": "success",
+    "failed": 0,
+    "service": "active",
+    "skipped": 0,
+    "tests": 882,
+    "releasedAt": "2026-10-21T16:08:33+08:00",
+    "passed": 882,
+    "database": true
+  }
+}
