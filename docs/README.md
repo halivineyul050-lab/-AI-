@@ -1,20 +1,23 @@
 # 项目文档入口
 
-更新：2026-10-22。经 SSH 发布历史、生产源码和公网就绪接口核验，当前生产发布为 `watermark-style-20261021-1`（2026-10-21 17:02:14 +08:00）；本地仍有未集成差异，不能整体发布。
+更新：2026-10-22。当前生产发布为news-persistence-20261022-1，服务器与公网已核验；当前状态以 [最终收尾记录](final-closeout-2026-10-22.md) 为准。
 
 ## 当前使用与维护
 
 - [项目介绍与启动](../README.md)
-- [后端接口与数据库](../backend/README.md)：资讯多信源与热榜明确标为本地待发布。
+- [后端接口与数据库](../backend/README.md)：资讯多信源与热榜API已发布，页面热榜保持隐藏。
 - [唯一正式发布流程](production-release.md)：完整包、已授权SSH、服务器现有发布脚本；CI不部署。
 - [前端页面与资源地图](frontend-structure.md)
 - [设计系统](design-system.md)
-- [当前工作区整理与待集成项](workspace-closeout-2026-10-22.md)
-- [本地/生产业务差异审阅与修复](business-difference-review-2026-10-22.md)：价格脚本、游戏入口和热榜排名已在本地修复，未发布。
-- [MariaDB最终验收与清理结果](mariadb-final-verification-2026-10-22.md)：真实数据库验证通过，三棵旧worktree已移除；临时运行时删除被自动审批阻止。
+- [最终收尾与正式发布](final-closeout-2026-10-22.md)
+- [首轮工作区整理记录](workspace-closeout-2026-10-22.md)
+- [本地/生产业务差异审阅与修复](business-difference-review-2026-10-22.md)：历史审阅与本地修复依据，最新上线状态见最终记录。
+- [MariaDB最终验收与清理结果](mariadb-final-verification-2026-10-22.md)：真实数据库验证通过，前三棵旧worktree已移除；catalog后续清理与最新测试见最终记录。
 - [关联worktree与资讯验证续查](worktree-followup-2026-10-22.md)：历史阶段清单和独有知识归档依据。
 
 ## 当前功能依据
+
+- [资讯来源后端与数据库兼容修复发布](deployment-news-persistence-20261022-1.md)
 
 - [视频水印样式发布](deployment-watermark-style-20261021-1.md)、[预览修复](deployment-watermark-preview-fix-20261021-1.md)
 - [资讯最新八条发布](deployment-news-latest8-20261021-1.md)

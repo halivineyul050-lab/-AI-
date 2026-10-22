@@ -1,0 +1,304 @@
+{
+  "completedAt": "2026-10-22T03:53:52.337Z",
+  "codeCommit": "bdd331fb9d36ccb4dd5bb33e1aaa0f04fa859dff",
+  "releaseId": "news-persistence-20261022-1",
+  "releaseTime": "2026-10-22T11:52:26+08:00",
+  "package": {
+    "sha256": "3b0835869d341c53b9655b6c8ecc16850b3d3297abc69d58564d56b05037de42",
+    "bytes": 27659354,
+    "files": 899,
+    "envExampleIncluded": true,
+    "realCredentialsOrUserDataIncluded": false
+  },
+  "tests": {
+    "local": {
+      "tests": 932,
+      "pass": 929,
+      "fail": 0,
+      "skipped": 3,
+      "cancelled": 0
+    },
+    "candidate": {
+      "tests": 932,
+      "pass": 929,
+      "fail": 0,
+      "skipped": 3,
+      "cancelled": 0
+    },
+    "server": {
+      "tests": 932,
+      "pass": 932,
+      "fail": 0,
+      "skipped": 0,
+      "cancelled": 0
+    }
+  },
+  "rankingBenchmark": {
+    "baselineMedianMs": 1287.4,
+    "optimized": [
+      {
+        "articles": 1001,
+        "sourceRows": 2005,
+        "medianMs": 38.07,
+        "maxMs": 43.33,
+        "samplesMs": [
+          39.68,
+          38.07,
+          43.33,
+          34.55,
+          37.44
+        ]
+      },
+      {
+        "articles": 10001,
+        "sourceRows": 20005,
+        "medianMs": 398.37,
+        "maxMs": 436.38,
+        "samplesMs": [
+          387.69,
+          389.06,
+          398.37,
+          436.38,
+          424.33
+        ]
+      }
+    ],
+    "platform": "Windows, MariaDB10.5.29, 64MiB buffer pool, sequential synthetic fixtures; not production P95"
+  },
+  "catalog": {
+    "sourceHead": "944845951bee7ec92dcf12512d9a54be0e3dbe53",
+    "dirtyItems": 212,
+    "sourceFilesVerified": 662,
+    "historyFiles": 11,
+    "removed": true,
+    "branchPreserved": true,
+    "backupSha256": "abe11d3336226cd2a320143b2d5f62337ee09c88d78a1d2bacffb1a0eb275e35"
+  },
+  "live": {
+    "verifiedAt": "2026-10-22T03:52:58.788Z",
+    "releaseId": "news-persistence-20261022-1",
+    "packageSha256": "3b0835869d341c53b9655b6c8ecc16850b3d3297abc69d58564d56b05037de42",
+    "server": {
+      "service": "active",
+      "ready": {
+        "data": {
+          "status": "ok",
+          "database": true,
+          "version": 1
+        }
+      },
+      "history": "2026-10-22T11:52:26+08:00\tnews-persistence-20261022-1\tsuccess\t/opt/nikai-ai-backups/releases/previous-20261022-114512-news-persistence-20261022-1",
+      "files": [
+        {
+          "path": "backend/article-source-links.mjs",
+          "sha256": "513d7ab4757765cc123fec9f6a97ab8e438c4dc9bc0390bc0e042d94d4e9ddb2"
+        },
+        {
+          "path": "backend/news-hot-ranking.mjs",
+          "sha256": "dcb061e3301214b100d44ddadde0b908637512b46948f02581d8050e8ad10ea6"
+        },
+        {
+          "path": "backend/database.mjs",
+          "sha256": "b3a6d332581f6740ddc085795c96405d86bbc1ec040548e992cdbacc777c6af9"
+        },
+        {
+          "path": "backend/content-admin.mjs",
+          "sha256": "4614fa93dca7a55d8fb4256783c4f9e5c0d7a60627acd97f58d9904ee4a9aec9"
+        },
+        {
+          "path": "backend/news-publisher.mjs",
+          "sha256": "b35c7d09bb27720d87f7d10e022b3d5ad05081bbdf60db94ffc3a77cf1deede8"
+        },
+        {
+          "path": "backend/mariadb-compat.mjs",
+          "sha256": "bcd09db4ead3a50cbb0cf6a12f993e5013abee9532345de2c486c9a57f98fc41"
+        },
+        {
+          "path": "backend/migrations/019_article_source_links.sql",
+          "sha256": "efa91ca9a61fd60e3ca8c1b5d51ac2e99d52142e9b69a4b8678068b7e34f3e2a"
+        },
+        {
+          "path": "backend/mariadb/migrations/019_article_source_links.sql",
+          "sha256": "9fdeadeff3b554b646513a6158c82c78176fbcae73f8f0014e65571c08b12f11"
+        },
+        {
+          "path": "server.mjs",
+          "sha256": "d3737fdf12c9605f63e5df07c0ee2aafb779d8079f108971904ea014d2cbc779"
+        },
+        {
+          "path": "tests/news-hot-ranking.test.mjs",
+          "sha256": "38195bd91cbdbab9233fbcda57a8c96f27590acd1edbfa09d343ff3037100cb9"
+        },
+        {
+          "path": "tests/news-event-integration.test.mjs",
+          "sha256": "b6b6562c42940b11a353e1c8d7e5a20cdc7b95f51d29885730659910d10b5de4"
+        },
+        {
+          "path": "tests/news-publisher.test.mjs",
+          "sha256": "f502f41893c38f680384756bf7ee358a3ff9fd4b7e6011914da0e16d2f22dcb1"
+        },
+        {
+          "path": "tests/mariadb-connection.test.mjs",
+          "sha256": "76d815e156c4cb18d5d675e310a9d35832629b586b936995bc2967b4da80c41a"
+        },
+        {
+          "path": "tests/mariadb-compat.test.mjs",
+          "sha256": "17f69b322d6cf4106e3d0c8b7396967454e466dd7c7e44dfbd3e00cf48d364f6"
+        },
+        {
+          "path": "tests/mariadb-verification-guard.test.mjs",
+          "sha256": "9c4abd1b905529d08d677a93ee4111f0bd3666eb3047a5c08f15fb86f205b8e1"
+        },
+        {
+          "path": "tests/inline-script-syntax.test.mjs",
+          "sha256": "e19ee41fa6088634e86df1d8b68257e5be3d3854ed4b5e424dbdcf6f2d725939"
+        },
+        {
+          "path": "tests/video-pricing-browser.test.mjs",
+          "sha256": "eca27a80333b98649b63df408e8ec181d96013d2d20f6eb5ca2d66a3fb73652d"
+        },
+        {
+          "path": "scripts/verify-news-events-mariadb.mjs",
+          "sha256": "9d75ef72456105134e77b5c90b5ae4a846eb504d0d2f85aab4812b083900bfd9"
+        },
+        {
+          "path": "tests/api.test.mjs",
+          "sha256": "ba897e7696a16ae14e2c46356d963b84118b8d37670b23e3019bda2fd5b28660"
+        },
+        {
+          "path": "tests/import.test.mjs",
+          "sha256": "907faf9ed99fbc58f728030a3c15f7aedff2c030373444da865b178cc352d440"
+        },
+        {
+          "path": "tests/sqlite-migration-gap.test.mjs",
+          "sha256": "1912b25b15ca39cc850cd2a3fa86f965a1ce5eca74ea06672f5798cae8f6c120"
+        },
+        {
+          "path": "public/app.js",
+          "sha256": "22c842d45a8559ebad52c6d4b261b9ce36ca2bea82c4d209a7dd682189171b07"
+        },
+        {
+          "path": "public/index.html",
+          "sha256": "cfa0ada336101551ac699291532869b7b6eb1ca5c4e3c230fc0cba7bf94facfb"
+        },
+        {
+          "path": "public/games.html",
+          "sha256": "7d972995fcc1014e8dfc2eb5dc769377e4105c470b9476895088c8124dc88ad9"
+        },
+        {
+          "path": "public/video-pricing.html",
+          "sha256": "6deee2c5a0c7c6adb8a60be89c076b3bfbe00fdc8f196b292918888e2a69447c"
+        }
+      ],
+      "databaseBackup": "/opt/nikai-ai-backups/mariadb/nikai-ai-20261022-115211-2605725.sql.gz",
+      "databaseBackupBytes": 50082990,
+      "databaseBackupSha256Verified": true,
+      "codeBackup": "/opt/nikai-ai-backups/releases/release-20261022-114512-news-persist.tgz",
+      "codeBackupBytes": 27782595
+    },
+    "publicApi": [
+      {
+        "route": "/api/v1/health/ready",
+        "status": 200,
+        "elapsedMs": 147.69
+      },
+      {
+        "route": "/api/v1/news/hot?limit=10",
+        "status": 200,
+        "elapsedMs": 43.22
+      },
+      {
+        "route": "/api/v1/news/hot?limit=0",
+        "status": 422,
+        "elapsedMs": 18.25
+      },
+      {
+        "route": "/api/v1/articles?kind=news",
+        "status": 200,
+        "elapsedMs": 105.48
+      },
+      {
+        "route": "/api/v1/articles/feed-58d4dc59d80a40e5e614682252135d83b0e78ac09ffcfb68",
+        "status": 200,
+        "elapsedMs": 18.58
+      }
+    ],
+    "hotItems": 0,
+    "articleDetailSources": 1,
+    "frontendUnchanged": true,
+    "pass": true
+  },
+  "browser": {
+    "phase": "after",
+    "checkedAt": "2026-10-22T03:52:47.318Z",
+    "errors": [],
+    "pages": [
+      {
+        "route": "/news",
+        "status": 200,
+        "cards": 8,
+        "hotVisible": false,
+        "detailOpened": true
+      },
+      {
+        "route": "/",
+        "status": 200,
+        "cards": 4
+      },
+      {
+        "route": "/games",
+        "status": 200,
+        "cards": 11
+      },
+      {
+        "route": "/video-pricing",
+        "status": 200,
+        "rows": 23,
+        "claritySwitchWorks": true
+      }
+    ],
+    "pass": true
+  },
+  "temporaryResidue": {
+    "measuredAt": "2026-10-22T03:53:52.226Z",
+    "cleanupBlockedByAutomaticReview": true,
+    "reason": "blocked by policy",
+    "noAlternativeDeletionAttempted": true,
+    "powershellDeletionCommandExecuted": false,
+    "directories": [
+      {
+        "role": "MariaDB validation runtime",
+        "path": "C:\\Users\\zhanglian2\\AppData\\Local\\Temp\\nikai-mariadb-20261022-HlP62A",
+        "blockedIn": "previous cleanup",
+        "stopped": true,
+        "exists": true,
+        "files": 974,
+        "logicalBytes": 1009934279
+      },
+      {
+        "role": "Tested release stage",
+        "path": "C:\\Users\\zhanglian2\\AppData\\Local\\Temp\\nikai-closeout-20261022-g7m6Yp",
+        "blockedIn": "current cleanup",
+        "stopped": true,
+        "exists": true,
+        "files": 1936,
+        "logicalBytes": 154120650
+      },
+      {
+        "role": "Release packaging and portable Node runtime",
+        "path": "C:\\Users\\zhanglian2\\AppData\\Local\\Temp\\nikai-release-20261022-1lNtPV",
+        "blockedIn": "current cleanup",
+        "stopped": true,
+        "exists": true,
+        "files": 5,
+        "logicalBytes": 140648285
+      }
+    ],
+    "totalLogicalBytes": 1304703214,
+    "totalMiB": 1244.26,
+    "summary": "自动审批阻止删除3个任务临时目录，合计约1244.26MiB逻辑文件；实例和测试进程已结束，未通过其他方式删除。"
+  },
+  "frontendChanged": false,
+  "hotPageEnabled": false,
+  "unrelatedLocalCosmeticDifferencesPublished": false
+}

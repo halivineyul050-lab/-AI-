@@ -4,7 +4,7 @@
 
 项目由 Node.js 内置 HTTP 服务提供 API。SQLite 用于本地开发与自动化测试，生产环境使用 MariaDB 10.5，通过 `mysql2` 连接。数据库选择由 `NIKAI_DB_ENGINE` 控制；生产数据库凭据只能放在服务器受限权限的环境文件中。
 
-2026-10-22 核验生产版本为 `watermark-style-20261021-1`，服务与数据库就绪；生产快照不含 `article-source-links.mjs`、`news-hot-ranking.mjs` 和迁移019，公网热榜 API 返回404。当前本地/线上差异见 [工作区整理记录](../docs/workspace-closeout-2026-10-22.md)。
+2026-10-22生产版本为news-persistence-20261022-1，服务与数据库就绪；迁移019已补入，详情sources与热榜只读API已核验上线。热榜页面保持隐藏。证据见 [最终收尾记录](../docs/final-closeout-2026-10-22.md)。
 
 生产当前为单机 Node.js + MariaDB + Nginx。迁移到其他数据库、对象存储或多实例架构属于未来扩展，不是当前上线前置条件。
 
@@ -29,7 +29,7 @@
 - `GET /api/v1/tools/:idOrSlug`
 - `GET /api/v1/articles?kind=tutorial|news`
 - `GET /api/v1/articles/:idOrSlug`
-- `GET /api/v1/news/hot?limit=10`（本地待发布，当前生产未包含）
+- `GET /api/v1/news/hot?limit=10`（已上线，页面热榜仍隐藏）
 
 `bootstrap` 只返回分类计数、文章、专题和单个推广工具，不再内嵌全量普通工具。工具首屏、搜索和筛选统一通过 `/api/v1/tools` 获取；该接口默认返回24条普通工具并使用 `limit` / `offset` 分页。
 
@@ -43,7 +43,7 @@
 
 Logo 维护命令为 `npm run logos:sync`，校验命令为 `npm run logos:verify`。Logo 文件只从安全的 `/assets/tool-logos/<slug>.<ext>` 路由提供，Manifest 记录官方来源地址、来源类型、文件哈希、MIME 和核验日期；官网不可访问时会明确标记为域名 favicon 兜底。
 
-**本地待发布能力**：资讯记录额外返回 `source` 与 `sourceUrl`，本地详情响应增加 `sources` 文章来源列表，同时保留原字段兼容旧客户端。`GET /api/v1/news/hot` 返回近 48 小时热点，`limit` 默认为 10 且只接受 1–10 的整数；响应中的 `windowHours`、`halfLifeHours`、`generatedAt` 和 `items` 分别说明统计窗口、衰减半衰期、生成时间和排序后的文章。每条热点包含排名、来源站点数、来源名称、最新来源时间和 `new`、`rising`、`surge` 标记，不公开内部热度值。热榜要求至少两个规范化主机名不同的来源站点，同站点报道只计一次。详情来源只接受 HTTP/HTTPS 链接。
+**已发布接口能力**：资讯记录额外返回 `source` 与 `sourceUrl`，详情响应增加 `sources` 文章来源列表，同时保留原字段兼容旧客户端。`GET /api/v1/news/hot` 返回近 48 小时热点，`limit` 默认为 10 且只接受 1–10 的整数；响应中的 `windowHours`、`halfLifeHours`、`generatedAt` 和 `items` 分别说明统计窗口、衰减半衰期、生成时间和排序后的文章。每条热点包含排名、来源站点数、来源名称、最新来源时间和 `new`、`rising`、`surge` 标记，不公开内部热度值。热榜要求至少两个规范化主机名不同的来源站点，同站点报道只计一次。详情来源只接受 HTTP/HTTPS 链接。
 
 当前内容同步会更新本轮策划工具和资讯，同时归档被替换的旧推广位与占位资讯。
 
