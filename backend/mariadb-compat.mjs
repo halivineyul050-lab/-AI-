@@ -112,7 +112,7 @@ export function translateMariaSql(sql) {
 
 function connectionOptions(env = process.env) {
   return {
-    socketPath: env.NIKAI_DB_SOCKET || '/var/lib/mysql/mysql.sock',
+    socketPath: env.NIKAI_DB_SOCKET || (env.NIKAI_DB_HOST ? undefined : '/var/lib/mysql/mysql.sock'),
     host: env.NIKAI_DB_HOST || undefined,
     port: Number(env.NIKAI_DB_PORT || 3306),
     user: env.NIKAI_DB_USER,
@@ -127,7 +127,8 @@ export class MariaDbCompat {
     this.backend = 'mariadb';
     this.worker = new Worker(new URL('./mariadb-worker.mjs', import.meta.url), { workerData: options });
     Object.assign(this, createMariaResponseBuffer());
-    this.call('ping');
+    try { this.call('ping'); }
+    catch (error) { this.worker.terminate(); throw error; }
   }
 
   call(type, payload = {}) {
