@@ -1,0 +1,946 @@
+openapi: 3.0.3
+info:
+  title: 泥壳 AI 工具站 API
+  version: 1.0.0
+  description: |
+    按当前 server.mjs、backend/database.mjs、backend/validation.mjs 整理。成功 JSON 为 {data, meta?}，错误为 Problem Details。
+    ID 使用字符串；时间戳 UTC ISO 8601；日期 YYYY-MM-DD；项目当前没有金额接口。生产数据库字段与管理员角色策略尚未在生产读取。
+servers:
+  - url: https://ontimo.cn
+    description: 生产域名（本轮未访问生产）
+  - url: http://127.0.0.1:4173
+    description: 本地开发
+security: []
+tags:
+  - {name: Health}
+  - {name: Content}
+  - {name: Auth}
+  - {name: Account}
+  - {name: Submissions}
+  - {name: Newsletter}
+  - {name: Feedback}
+  - {name: Analytics}
+  - {name: Image}
+  - {name: Utilities}
+  - {name: Admin}
+paths:
+  /api/v1/health:
+    get:
+      tags: [Health]
+      summary: 服务与数据库健康状态
+      responses:
+        '200':
+          description: 健康
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/HealthEnvelope'}
+              example: {data: {status: ok, database: true, version: 1}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/health/live:
+    get:
+      tags: [Health]
+      summary: 进程存活探针
+      responses:
+        '200': {description: 存活, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/health/ready:
+    get:
+      tags: [Health]
+      summary: 数据库就绪探针
+      responses:
+        '200': {description: 就绪, content: {application/json: {schema: {$ref: '#/components/schemas/HealthEnvelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/site/bootstrap:
+    get:
+      tags: [Content]
+      summary: 首页初始化分类、文章、专题与推广位
+      responses:
+        '200': {description: 初始化数据, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/site/growth:
+    get:
+      tags: [Content]
+      summary: 公开增长概览
+      responses:
+        '200': {description: 聚合统计, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/content/version:
+    get:
+      tags: [Content]
+      summary: 内容修订号
+      responses:
+        '200': {description: revision, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/site-announcements:
+    get:
+      tags: [Content]
+      summary: 当前可展示公告
+      responses:
+        '200': {description: 公告数组, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/categories:
+    get:
+      tags: [Content]
+      summary: 已发布分类
+      responses:
+        '200': {description: 分类数组, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/tools:
+    get:
+      tags: [Content]
+      summary: 工具搜索、筛选及 offset 分页
+      parameters:
+        - {name: q, in: query, schema: {type: string, maxLength: 100}}
+        - {name: category, in: query, schema: {type: string, default: all}}
+        - {name: price, in: query, schema: {type: string, enum: [all, free, freemium, paid]}}
+        - {name: platform, in: query, schema: {type: string, enum: [all, web, desktop, mobile, api]}}
+        - {name: language, in: query, schema: {type: string, enum: [all, zh, multi]}}
+        - {name: sort, in: query, schema: {type: string, enum: [recommended, popular, latest, newest, name]}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 24}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+      responses:
+        '200':
+          description: 工具数组；meta 包含 total、limit、offset
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Envelope'}
+              example: {data: [{id: doubao, slug: doubao, name: 豆包, category: chat, price: free, updated: '2026-07-07'}], meta: {total: 27, limit: 1, offset: 0}}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/tools/{toolId}:
+    parameters: [{$ref: '#/components/parameters/ToolId'}]
+    get:
+      tags: [Content]
+      summary: 按 ID 或 slug 读取已发布工具
+      responses:
+        '200': {description: 工具详情, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/tools/{toolId}/ratings:
+    parameters: [{$ref: '#/components/parameters/ToolId'}]
+    get:
+      tags: [Content]
+      summary: 评分汇总（当前用户评分可选登录）
+      security: [{cookieAuth: []}, {}]
+      responses:
+        '200': {description: 评分汇总, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    put:
+      tags: [Content]
+      summary: 设置当前用户评分
+      security: [{cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Rating'}, example: {rating: 5}}}}
+      responses:
+        '200': {description: 已保存, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      tags: [Content]
+      summary: 删除当前用户评分
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 已删除, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/articles:
+    get:
+      tags: [Content]
+      summary: 教程或资讯列表
+      parameters:
+        - {name: kind, in: query, schema: {type: string, enum: [tutorial, news]}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0}}
+      responses:
+        '200': {description: 文章列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/articles/{articleIdOrSlug}:
+    get:
+      tags: [Content]
+      summary: 文章正文及来源链接
+      parameters: [{name: articleIdOrSlug, in: path, required: true, schema: {type: string, maxLength: 160}}]
+      responses:
+        '200': {description: 文章详情, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/news/hot:
+    get:
+      tags: [Content]
+      summary: 近 48 小时多来源热点
+      parameters: [{name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 10, default: 10}}]
+      responses:
+        '200': {description: 热点列表与窗口信息, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: 注册并设置 HttpOnly 会话 Cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Register'}
+            example: {displayName: 审计用户, email: user@example.com, password: 'correct-horse-battery', consentVersion: '2026-07', consentAccepted: true, termsAccepted: true}
+      responses:
+        '201': {description: 用户资料与 Set-Cookie, headers: {Set-Cookie: {schema: {type: string}}}, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: 登录并创建会话
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Login'}
+            example: {email: user@example.com, password: 'correct-horse-battery'}
+      responses:
+        '200': {description: 用户资料与 Set-Cookie, headers: {Set-Cookie: {schema: {type: string}}}, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/auth/me:
+    get:
+      tags: [Auth]
+      summary: 当前登录用户
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 当前用户资料, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: 注销并清除会话
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 退出结果, headers: {Set-Cookie: {schema: {type: string}}}, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/favorites:
+    get:
+      tags: [Account]
+      summary: 列出当前用户收藏
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 当前用户 toolIds, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/favorites/{toolId}:
+    parameters: [{$ref: '#/components/parameters/ToolId'}]
+    put:
+      tags: [Account]
+      summary: 添加当前用户收藏
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 收藏结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}, example: {data: {toolId: chatgpt, favorite: true}}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      tags: [Account]
+      summary: 移除当前用户收藏
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 收藏结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/summary:
+    get:
+      tags: [Account]
+      summary: 当前账号统计
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 汇总, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/activity:
+    get:
+      tags: [Account]
+      summary: 当前用户收藏、评分、历史、投稿、反馈与偏好
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 活动列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/history:
+    delete:
+      tags: [Account]
+      summary: 清空当前用户浏览历史
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 删除数量, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/history/{toolId}:
+    put:
+      tags: [Account]
+      summary: 记录当前用户浏览工具
+      security: [{cookieAuth: []}]
+      parameters: [{$ref: '#/components/parameters/ToolId'}]
+      responses:
+        '200': {description: 已记录, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/newsletter:
+    delete:
+      tags: [Account]
+      summary: 退订当前用户周报
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 退订结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account/notifications:
+    patch:
+      tags: [Account]
+      summary: 更新通知偏好
+      security: [{cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Notifications'}, example: {weeklyDigest: true, newToolAlerts: true, favoriteUpdateAlerts: false}}}}
+      responses:
+        '200': {description: 已更新, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/account:
+    delete:
+      tags: [Account]
+      summary: 重新验证密码后注销账号
+      security: [{cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/DeleteAccount'}, example: {confirmation: DELETE, password: 'correct-horse-battery'}}}}
+      responses:
+        '200': {description: 已注销并清除 Cookie, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/tool-submissions:
+    post:
+      tags: [Submissions]
+      summary: 提交工具审核
+      parameters: [{name: Idempotency-Key, in: header, required: false, schema: {type: string, maxLength: 128}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Submission'}
+            example: {name: 示例工具, websiteUrl: 'https://example.com', categoryId: coding, summary: 提升日常编码效率的工具。, contactEmail: owner@example.com, declarationAccepted: true, termsAccepted: true, source: sidebar, company: ''}
+      responses:
+        '201': {description: trackingCode 与 lookupToken, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/tool-submissions/{trackingCode}/status:
+    get:
+      tags: [Submissions]
+      summary: 通过 trackingCode 与 lookupToken 查询状态
+      parameters:
+        - {name: trackingCode, in: path, required: true, schema: {type: string, maxLength: 64}}
+        - {name: token, in: query, required: true, schema: {type: string, minLength: 32, maxLength: 128}}
+      responses:
+        '200': {description: 审核状态, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/newsletter/subscriptions:
+    post:
+      tags: [Newsletter]
+      summary: 创建或更新周报订阅
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Newsletter'}
+            example: {email: reader@example.com, topicSlugs: [], consentVersion: '2026-07', consentAccepted: true, source: news_sidebar}
+      responses:
+        '201': {description: 订阅结果与退订 token, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/newsletter/subscriptions/{unsubscribeToken}:
+    delete:
+      tags: [Newsletter]
+      summary: 通过退订 token 退订
+      parameters: [{name: unsubscribeToken, in: path, required: true, schema: {type: string, minLength: 32, maxLength: 128}}]
+      responses:
+        '200': {description: 退订状态, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/feedback:
+    post:
+      tags: [Feedback]
+      summary: 提交问题、建议或纠错
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Feedback'}, example: {category: bug, message: 页面出现异常，请协助检查。, pageUrl: /, contactEmail: reader@example.com, consentAccepted: true}}}}
+      responses:
+        '201': {description: 已提交, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/events/batch:
+    post:
+      tags: [Analytics]
+      summary: 批量上报最多 50 条事件
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Events'}
+            example: {visitorId: visitor-uuid, sessionId: session-uuid, events: [{eventId: 00000000-0000-4000-8000-000000000001, eventName: page_view, clientTime: '2026-10-08T02:00:00.000Z', pageType: tools, path: '/', properties: {viewport: '1440x900'}}]}
+      responses:
+        '202': {description: 入库计数, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /r/tools/{toolId}:
+    get:
+      tags: [Content]
+      summary: 记录官网点击并跳转至数据库登记的 URL
+      parameters:
+        - {name: toolId, in: path, required: true, schema: {$ref: '#/components/schemas/ToolId'}}
+        - {name: placement, in: query, schema: {type: string, maxLength: 80}}
+      responses:
+        '302': {description: Location 为官方 URL}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/image-models:
+    get:
+      tags: [Image]
+      summary: 用户可用图片模型
+      responses:
+        '200': {description: 模型列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/image-generations:
+    post:
+      tags: [Image]
+      summary: 调用图片生成服务（需登录）
+      security: [{cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Generation'}, example: {model: example-model, prompt: 柔和自然光下的海边小屋, ratio: '1:1', count: 1, style: 清新}}}}
+      responses:
+        '200': {description: generationId 与限时图片 URL, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/image-history:
+    get:
+      tags: [Image]
+      summary: 当前用户生图历史游标分页
+      security: [{cookieAuth: []}]
+      parameters:
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 24}}
+        - {name: cursor, in: query, schema: {type: string, maxLength: 256}}
+      responses:
+        '200': {description: 图片历史, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      tags: [Image]
+      summary: 清空当前用户生图历史
+      security: [{cookieAuth: []}]
+      responses:
+        '200': {description: 删除数量, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/image-history/{imageId}:
+    delete:
+      tags: [Image]
+      summary: 删除当前用户一张图片
+      security: [{cookieAuth: []}]
+      parameters: [{name: imageId, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: 删除结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/v1/image-history/{imageId}/image:
+    get:
+      tags: [Image]
+      summary: 读取当前用户已保存图片
+      security: [{cookieAuth: []}]
+      parameters: [{name: imageId, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: 图片字节, content: {image/png: {schema: {type: string, format: binary}}, image/jpeg: {schema: {type: string, format: binary}}, image/webp: {schema: {type: string, format: binary}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/utilities/image-tools/status:
+    get:
+      tags: [Utilities]
+      summary: 本机图像服务能力
+      responses:
+        '200': {description: 状态, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/utilities/image-tools/background:
+    post:
+      tags: [Utilities]
+      summary: 本机抠图（JSON 最多 28 MiB）
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ImageTool'}, example: {image: <base64>, mode: background}}}}
+      responses:
+        '200': {description: 处理结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/utilities/image-tools/enhance:
+    post:
+      tags: [Utilities]
+      summary: 本地图像增强（JSON 最多 28 MiB）
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ImageTool'}, example: {image: <base64>, scale: 2}}}}
+      responses:
+        '200': {description: 处理结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/utilities/image-erase/status:
+    get:
+      tags: [Utilities]
+      summary: 本机图片消除服务状态
+      responses:
+        '200': {description: 服务状态, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/utilities/image-erase:
+    post:
+      tags: [Utilities]
+      summary: 本机图片消除
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ImageTool'}, example: {image: <base64 PNG>, mask: <base64 PNG>}}}}
+      responses:
+        '200': {description: 处理结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/utilities/link-extract/status:
+    get:
+      tags: [Utilities]
+      summary: 本机分享解析状态
+      responses:
+        '200': {description: enabled 与运行模式, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/utilities/link-extract:
+    post:
+      tags: [Utilities]
+      summary: 解析本机浏览器中的分享作品
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/LinkExtract'}, example: {text: 分享文案与作品链接}}}}
+      responses:
+        '200': {description: 媒体解析结果与下载票据, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/monitoring:
+    get:
+      tags: [Admin]
+      summary: 运营与系统监控（开发 loopback 可匿名只读，生产需要管理认证）
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters:
+        - {name: hours, in: query, schema: {type: integer, enum: [1, 6, 24, 72, 168], default: 24}}
+        - {name: start, in: query, schema: {type: string, format: date-time}}
+        - {name: end, in: query, schema: {type: string, format: date-time}}
+      responses:
+        '200': {description: 监控快照, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '429': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/summary:
+    get:
+      tags: [Admin]
+      summary: 后台总览统计
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 总览数据, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/users:
+    get:
+      tags: [Admin]
+      summary: 超级管理员列出用户
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 脱敏用户字段, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/users/{userId}:
+    patch:
+      tags: [Admin]
+      summary: 超级管理员更新用户角色/状态
+      security: [{cookieAuth: []}]
+      parameters: [{name: userId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/UserAccess'}, example: {role: member, status: active}}}}
+      responses:
+        '200': {description: 更新用户, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/feedback:
+    get:
+      tags: [Admin]
+      summary: 查询反馈列表
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: status, in: query, schema: {type: string, enum: [all, pending, reviewed, resolved]}}]
+      responses:
+        '200': {description: 反馈列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/feedback/{feedbackId}:
+    patch:
+      tags: [Admin]
+      summary: 更新反馈状态
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: feedbackId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/FeedbackStatus'}, example: {status: resolved}}}}
+      responses:
+        '200': {description: 更新结果, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/submissions:
+    get:
+      tags: [Admin]
+      summary: 投稿审核队列
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: status, in: query, schema: {type: string, enum: [pending, approved, rejected, duplicate], default: pending}}]
+      responses:
+        '200': {description: 投稿列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/submissions/{submissionId}:
+    patch:
+      tags: [Admin]
+      summary: 审核投稿
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: submissionId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Review'}, example: {status: approved, reviewNote: 信息已核验}}}}
+      responses:
+        '200': {description: 审核结果与审计记录, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/content/{type}:
+    parameters:
+      - {name: type, in: path, required: true, schema: {type: string, enum: [tools, categories, articles, collections]}}
+    get:
+      tags: [Admin]
+      summary: 内容列表分页
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters:
+        - {name: q, in: query, schema: {type: string, maxLength: 160}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 30}}
+        - {name: offset, in: query, schema: {type: integer, minimum: 0, default: 0}}
+      responses:
+        '200': {description: 内容分页, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    post:
+      tags: [Admin]
+      summary: 创建工具、分类、文章或专题
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Content'}, example: {name: 示例工具, slug: example-tool, categoryId: coding, summary: 示例摘要, status: draft}}}}
+      responses:
+        '201': {description: 新内容, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/content/{type}/{contentId}:
+    parameters:
+      - {name: type, in: path, required: true, schema: {type: string, enum: [tools, categories, articles, collections]}}
+      - {name: contentId, in: path, required: true, schema: {type: string, maxLength: 160}}
+    get:
+      tags: [Admin]
+      summary: 单条运营内容
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 内容与 revision, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    patch:
+      tags: [Admin]
+      summary: 带 revision 更新运营内容
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ContentPatch'}, example: {revision: 3, patch: {name: 新名称}}}}}
+      responses:
+        '200': {description: 已更新并返回新 revision, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      tags: [Admin]
+      summary: 归档运营内容
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: revision, in: query, required: true, schema: {type: integer, minimum: 1}}]
+      responses:
+        '200': {description: 已归档, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/content/media/logos:
+    post:
+      tags: [Admin]
+      summary: 上传 PNG、JPEG 或 WebP Logo（JSON ≤1.6 MiB）
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Logo'}, example: {name: logo.webp, mimeType: image/webp, data: <base64>}}}}
+      responses:
+        '201': {description: 已保存安全 Logo, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '413': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/site-announcements:
+    get:
+      tags: [Admin]
+      summary: 查询全部公告
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 公告列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    post:
+      tags: [Admin]
+      summary: 新建公告
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Announcement'}, example: {title: 服务更新, summary: 新功能已上线, body: 更新说明, availableAt: '2026-10-08T02:00:00.000Z', version: '2026-10-08', enabled: true}}}}
+      responses:
+        '201': {description: 已创建, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/site-announcements/{announcementId}:
+    parameters: [{name: announcementId, in: path, required: true, schema: {type: string, format: uuid}}]
+    get:
+      tags: [Admin]
+      summary: 查询单条公告
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 公告, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    patch:
+      tags: [Admin]
+      summary: 更新公告
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnnouncementPatch'}, example: {enabled: false}}}}
+      responses:
+        '200': {description: 已更新, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      tags: [Admin]
+      summary: 删除公告
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 已删除, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/image-providers:
+    get:
+      tags: [Admin]
+      summary: 查询脱敏图片平台
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 密钥仅返回末四位提示, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    post:
+      tags: [Admin]
+      summary: 新建图片平台
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Provider'}, example: {name: 示例平台, baseUrl: 'https://api.example.com', apiKey: <secret>, generationPath: /v1/images/generations, timeoutMs: 60000}}}}
+      responses:
+        '201': {description: 平台资料，不回传密钥, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/image-providers/{providerId}:
+    parameters: [{name: providerId, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch:
+      tags: [Admin]
+      summary: 按 revision 更新平台
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderPatch'}, example: {revision: 2, enabled: true}}}}
+      responses:
+        '200': {description: 已更新, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      tags: [Admin]
+      summary: 删除未被模型引用的平台
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: revision, in: query, required: true, schema: {type: integer, minimum: 1}}]
+      responses:
+        '200': {description: 已删除, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/image-providers/{providerId}/test:
+    post:
+      tags: [Admin]
+      summary: 执行一次平台连接测试
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: providerId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProviderTest'}, example: {revision: 2, modelRecordId: 00000000-0000-4000-8000-000000000001}}}}
+      responses:
+        '200': {description: 测试状态, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '502': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/image-providers/{providerId}/discover-models:
+    post:
+      tags: [Admin]
+      summary: 发现上游真实模型
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: providerId, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: 上游模型列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '502': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/image-providers/{providerId}/balance:
+    post:
+      tags: [Admin]
+      summary: 查询一次平台余额
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: providerId, in: path, required: true, schema: {type: string, format: uuid}}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Revision'}, example: {revision: 2}}}}
+      responses:
+        '200': {description: 余额状态, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '502': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/image-models:
+    get:
+      tags: [Admin]
+      summary: 查询全部图片模型
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      responses:
+        '200': {description: 模型列表, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    post:
+      tags: [Admin]
+      summary: 新建图片模型
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/Model'}, example: {providerId: 00000000-0000-4000-8000-000000000001, modelId: image-v1, displayName: 示例模型, enabled: true}}}}
+      responses:
+        '201': {description: 已创建, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+  /api/admin/v1/image-models/{modelId}:
+    parameters: [{name: modelId, in: path, required: true, schema: {type: string, format: uuid}}]
+    patch:
+      tags: [Admin]
+      summary: 按 revision 更新模型
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ModelPatch'}, example: {revision: 1, enabled: true}}}}
+      responses:
+        '200': {description: 已更新, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+    delete:
+      tags: [Admin]
+      summary: 删除图片模型
+      security: [{adminBearer: []}, {cookieAuth: []}]
+      parameters: [{name: revision, in: query, required: true, schema: {type: integer, minimum: 1}}]
+      responses:
+        '200': {description: 已删除, content: {application/json: {schema: {$ref: '#/components/schemas/Envelope'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        default: {$ref: '#/components/responses/Problem'}
+components:
+  securitySchemes:
+    cookieAuth: {type: apiKey, in: cookie, name: nikai_auth, description: HttpOnly SameSite=Lax；最长 30 天；Secure 依 HTTPS/可信代理而定}
+    adminBearer: {type: http, scheme: bearer, description: NIKE_ADMIN_TOKEN；生产默认关闭共享令牌模式}
+  parameters:
+    ToolId: {name: toolId, in: path, required: true, schema: {$ref: '#/components/schemas/ToolId'}}
+  schemas:
+    Envelope:
+      type: object
+      required: [data]
+      properties:
+        data: {description: 接口资源}
+        meta: {type: object, description: 分页/查询范围元数据}
+    HealthEnvelope:
+      type: object
+      properties:
+        data: {type: object, properties: {status: {type: string}, database: {type: boolean}, version: {type: integer}}}
+    Problem:
+      type: object
+      required: [type, title, status, code, requestId]
+      properties:
+        type: {type: string, format: uri}
+        title: {type: string}
+        status: {type: integer, minimum: 400, maximum: 599}
+        code: {type: string}
+        requestId: {type: string, format: uuid}
+        details: {type: object, additionalProperties: true}
+    ToolId: {type: string, pattern: '^[a-z0-9-]+$'}
+    Rating: {type: object, required: [rating], properties: {rating: {type: integer, minimum: 1, maximum: 5}}}
+    Register: {type: object, required: [displayName, email, password, consentAccepted, termsAccepted], properties: {displayName: {type: string, minLength: 2, maxLength: 40}, email: {type: string, format: email, maxLength: 254}, password: {type: string, format: password, minLength: 10, maxLength: 128}, consentVersion: {type: string, default: '2026-07'}, consentAccepted: {type: boolean, enum: [true]}, termsAccepted: {type: boolean, enum: [true]}}}
+    Login: {type: object, required: [email, password], properties: {email: {type: string, format: email}, password: {type: string, format: password, minLength: 10, maxLength: 128}}}
+    Notifications: {type: object, required: [weeklyDigest, newToolAlerts, favoriteUpdateAlerts], properties: {weeklyDigest: {type: boolean}, newToolAlerts: {type: boolean}, favoriteUpdateAlerts: {type: boolean}}}
+    DeleteAccount: {type: object, required: [confirmation, password], properties: {confirmation: {type: string, enum: [DELETE]}, password: {type: string, format: password, minLength: 10, maxLength: 128}}}
+    Submission: {type: object, required: [name, websiteUrl, categoryId, summary, contactEmail, declarationAccepted, termsAccepted], properties: {name: {type: string, minLength: 1, maxLength: 60}, websiteUrl: {type: string, format: uri, maxLength: 2048, description: HTTP(S) only; localhost/private IP rejected}, categoryId: {type: string, pattern: '^[a-z0-9-]{2,30}$'}, summary: {type: string, minLength: 10, maxLength: 500}, contactEmail: {type: string, format: email}, declarationAccepted: {type: boolean, enum: [true]}, termsAccepted: {type: boolean, enum: [true]}, source: {type: string, maxLength: 40}, company: {type: string}}}
+    Newsletter: {type: object, required: [email, consentVersion, consentAccepted], properties: {email: {type: string, format: email}, topicSlugs: {type: array, items: {type: string}}, consentVersion: {type: string}, consentAccepted: {type: boolean, enum: [true]}, source: {type: string, maxLength: 40}}}
+    Feedback: {type: object, required: [category, message, consentAccepted], properties: {category: {type: string, enum: [bug, content, feature, other]}, message: {type: string, minLength: 10, maxLength: 4000}, pageUrl: {type: string, maxLength: 2048}, contactEmail: {type: string, format: email}, consentAccepted: {type: boolean}}}
+    Events: {type: object, required: [visitorId, sessionId, events], properties: {visitorId: {type: string, minLength: 8, maxLength: 128}, sessionId: {type: string, minLength: 8, maxLength: 128}, events: {type: array, minItems: 1, maxItems: 50, items: {type: object, required: [eventId, eventName, clientTime, pageType, path], properties: {eventId: {type: string, format: uuid}, eventName: {type: string}, clientTime: {type: string, format: date-time}, pageType: {type: string}, path: {type: string, maxLength: 2048}, properties: {type: object}}}}}}
+    Generation: {type: object, required: [model, prompt], properties: {model: {type: string, maxLength: 160}, prompt: {type: string, minLength: 1, maxLength: 12000}, ratio: {type: string, enum: ['1:1', '3:2', '2:3', '4:3', '3:4', '16:9', '9:16']}, count: {type: integer, minimum: 1, maximum: 4}, style: {type: string, maxLength: 80}, referenceImage: {type: string, description: Base64 PNG/JPEG/WebP, max 10 MiB}}}
+    Announcement: {type: object, required: [title, summary, body, availableAt, version], properties: {title: {type: string, maxLength: 100}, summary: {type: string, maxLength: 300}, body: {type: string, maxLength: 2000}, availableAt: {type: string, format: date-time}, buttonLabel: {type: string, maxLength: 40}, buttonUrl: {type: string, maxLength: 2048}, version: {type: string, maxLength: 40}, enabled: {type: boolean}}}
+    ImageTool: {type: object, required: [image], properties: {image: {type: string, description: Base64 image}, mask: {type: string, description: Base64 PNG mask}, mode: {type: string}, scale: {type: integer, enum: [2, 3, 4]}}}
+    LinkExtract: {type: object, required: [text], properties: {text: {type: string, minLength: 8, maxLength: 32000}}}
+    UserAccess: {type: object, required: [role, status], properties: {role: {type: string, enum: [member, admin]}, status: {type: string, enum: [active, disabled]}}}
+    FeedbackStatus: {type: object, required: [status], properties: {status: {type: string, enum: [pending, reviewed, resolved]}}}
+    Review: {type: object, required: [status], properties: {status: {type: string, enum: [approved, rejected, duplicate]}, reviewNote: {type: string, maxLength: 1000}}}
+    Content: {type: object, additionalProperties: true, description: Per-type validation; unknown fields rejected}
+    ContentPatch: {type: object, required: [revision], properties: {revision: {type: integer, minimum: 1}, patch: {type: object, additionalProperties: true}}}
+    Logo: {type: object, required: [name, mimeType, data], properties: {name: {type: string, maxLength: 120}, mimeType: {type: string, enum: [image/png, image/jpeg, image/webp]}, data: {type: string, description: Base64 bytes}}}
+    AnnouncementPatch: {type: object, additionalProperties: true}
+    Provider: {type: object, required: [name, baseUrl, apiKey], properties: {name: {type: string, maxLength: 100}, baseUrl: {type: string, format: uri}, apiKey: {type: string, writeOnly: true}, generationPath: {type: string}, editPath: {type: string}, enabled: {type: boolean}, timeoutMs: {type: integer, minimum: 1000, maximum: 180000}}}
+    ProviderPatch: {type: object, required: [revision], properties: {revision: {type: integer}, name: {type: string}, baseUrl: {type: string, format: uri}, apiKey: {type: string, writeOnly: true}, enabled: {type: boolean}}}
+    ProviderTest: {type: object, required: [revision, modelRecordId], properties: {revision: {type: integer}, modelRecordId: {type: string, format: uuid}}}
+    Revision: {type: object, required: [revision], properties: {revision: {type: integer, minimum: 1}}}
+    Model: {type: object, required: [providerId, modelId, displayName], properties: {providerId: {type: string, format: uuid}, modelId: {type: string, maxLength: 180}, displayName: {type: string, maxLength: 120}, enabled: {type: boolean}, isDefault: {type: boolean}, sortOrder: {type: integer}}}
+    ModelPatch: {type: object, required: [revision], properties: {revision: {type: integer}, displayName: {type: string}, enabled: {type: boolean}, isDefault: {type: boolean}, sortOrder: {type: integer}}}
+  responses:
+    Problem:
+      description: |
+        统一 Problem Details。常见状态码：400 请求格式错误；401 未认证；403 越权/CSRF；404 不存在；409 幂等或 revision 冲突；
+        413 请求体过大；415 媒体类型错误；422 字段校验失败；429 限流；500/502/503 内部或上游错误。
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/Problem'}
+          example: {type: 'https://nike-ai.local/problems/invalid_limit', title: limit 必须是 1 到 10 之间的整数, status: 422, code: invalid_limit, requestId: 00000000-0000-4000-8000-000000000001, details: {field: limit}}

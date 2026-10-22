@@ -1,0 +1,86 @@
+{
+  "archivedAt": "2026-10-22T02:40:57.685Z",
+  "sourceWorktree": "catalog-mobile-optimization",
+  "sourceHead": "944845951bee7ec92dcf12512d9a54be0e3dbe53",
+  "includesUncommittedFiles": true,
+  "liveValidation": false,
+  "files": [
+    {
+      "sourcePath": "docs/audit-screenshots-2026-10-08/home-mobile-emulated.png",
+      "archivePath": "audit-screenshots-2026-10-08/home-mobile-emulated.png",
+      "role": "unique-history-or-correction",
+      "bytes": 59400,
+      "sha256": "0e1c3469c38e356b273ca2f8b7b8b77394f1c598163326bb1e21e2c93c0167ad"
+    },
+    {
+      "sourcePath": "docs/deployment-catalog-n1-20261008.md",
+      "archivePath": "deployment-catalog-n1-20261008.md",
+      "role": "unique-history-or-correction",
+      "bytes": 976,
+      "sha256": "df9f51695356ddb8031551aea07bfd7dc59c5d65003955ee8a3a81cba251b7b6"
+    },
+    {
+      "sourcePath": "docs/deployment-free-city-3d-20261008.md",
+      "archivePath": "deployment-free-city-3d-20261008.md",
+      "role": "unique-history-or-correction",
+      "bytes": 1576,
+      "sha256": "69eb1b5314e403c4b1886889a07d0e8e18282f169b35fe65ea6e1786cb98d844"
+    },
+    {
+      "sourcePath": "docs/superpowers/plans/2026-10-08-free-city-3d.md",
+      "archivePath": "superpowers/plans/2026-10-08-free-city-3d.md",
+      "role": "unique-history-or-correction",
+      "bytes": 10326,
+      "sha256": "2409d1e826770cd7c3411334fea74bf5667683446cad67a02f94def008d45b7c"
+    },
+    {
+      "sourcePath": "docs/superpowers/specs/2026-10-08-free-city-3d-design.md",
+      "archivePath": "superpowers/specs/2026-10-08-free-city-3d-design.md",
+      "role": "unique-history-or-correction",
+      "bytes": 4340,
+      "sha256": "688ac8cbbb03aa9151dd3b466d6cb19d9bfb22278168410963a08c09c5510d9b"
+    },
+    {
+      "sourcePath": "docs/full-audit-2026-10-08.md",
+      "archivePath": "full-audit-2026-10-08.md",
+      "role": "unique-history-or-correction",
+      "bytes": 24966,
+      "sha256": "e00beb13ef1228cf048a629f7a4000c7b30945bd27019fe1df6149d85b9403f8"
+    },
+    {
+      "sourcePath": "docs/audit-interface-evidence-2026-10-08.json",
+      "archivePath": "audit-interface-evidence-2026-10-08.json",
+      "role": "unique-history-or-correction",
+      "bytes": 6365,
+      "sha256": "83630c4114eee3c0beef4ec1e483b0e5511f14926cfcfa9d329159a9513f770b"
+    },
+    {
+      "sourcePath": "docs/audit-screenshots-2026-10-08/README.md",
+      "archivePath": "audit-screenshots-2026-10-08/README.md",
+      "role": "unique-history-or-correction",
+      "bytes": 731,
+      "sha256": "ff2c2b6a93fac3e084b8e67b9becddd5902333880ce158b3717d14ea00e4dab0"
+    },
+    {
+      "sourcePath": "docs/project-audit-2026-10-08.md",
+      "archivePath": "project-audit-2026-10-08.md",
+      "role": "linked-historical-context",
+      "bytes": 5498,
+      "sha256": "78f4f4ad740969eadbc98a4029bfba58607152dc3a5e9ca5f217817d6705e439"
+    },
+    {
+      "sourcePath": "docs/database-schema-audit-2026-10-08.json",
+      "archivePath": "database-schema-audit-2026-10-08.json",
+      "role": "linked-historical-context",
+      "bytes": 100615,
+      "sha256": "d09b9f9020cbbe1819a2a323b765225453affcfa674afcf822325ea6fa2e6a25"
+    },
+    {
+      "sourcePath": "docs/openapi-audit-2026-10-08.yaml",
+      "archivePath": "openapi-audit-2026-10-08.yaml",
+      "role": "linked-historical-context",
+      "bytes": 55762,
+      "sha256": "19cbedd2865dabe9b45b689f046a7c8233eece3b58855b183e419c1d4d63f1de"
+    }
+  ]
+}

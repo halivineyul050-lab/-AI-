@@ -1,0 +1,3575 @@
+{
+  "generatedFrom": "backend/schema.sql + backend/migrations/*.sql applied to a fresh in-memory SQLite database",
+  "notProductionDump": true,
+  "migrationFiles": [
+    "002_lookup_tokens.sql",
+    "003_article_sources.sql",
+    "004_tool_catalog_imports.sql",
+    "005_comic_category.sql",
+    "006_content_management.sql",
+    "007_feedback.sql",
+    "008_user_accounts.sql",
+    "009_user_favorites.sql",
+    "010_tool_ratings.sql",
+    "011_super_admin_controls.sql",
+    "012_account_activity.sql",
+    "013_analytics_visitors.sql",
+    "014_image_generation_providers.sql",
+    "015_image_provider_timeout.sql",
+    "016_site_announcements.sql",
+    "017_image_provider_edit_path.sql",
+    "018_image_provider_balance.sql",
+    "019_article_source_links.sql",
+    "020_image_cloud_history.sql"
+  ],
+  "tableCount": 32,
+  "schemas": [
+    {
+      "table": "analytics_events",
+      "createSql": "CREATE TABLE analytics_events (\n  event_id TEXT PRIMARY KEY,\n  event_name TEXT NOT NULL,\n  event_version INTEGER NOT NULL DEFAULT 1,\n  visitor_id TEXT NOT NULL,\n  session_id TEXT NOT NULL,\n  page_type TEXT NOT NULL,\n  path TEXT NOT NULL,\n  properties_json TEXT NOT NULL DEFAULT '{}',\n  client_time TEXT NOT NULL,\n  received_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  ip_hash TEXT NOT NULL\n)",
+      "columns": [
+        {
+          "name": "event_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "event_name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "event_version",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "visitor_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "session_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "page_type",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "path",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "properties_json",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'{}'",
+          "generated": false
+        },
+        {
+          "name": "client_time",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "received_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "ip_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_events_session_time",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "session_id",
+            "received_at"
+          ]
+        },
+        {
+          "name": "idx_events_name_time",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "event_name",
+            "received_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_analytics_events_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "event_id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "analytics_visitors",
+      "createSql": "CREATE TABLE analytics_visitors (\n  visitor_id TEXT PRIMARY KEY,\n  first_seen_at TEXT NOT NULL,\n  last_seen_at TEXT NOT NULL\n)",
+      "columns": [
+        {
+          "name": "visitor_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "first_seen_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "last_seen_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_analytics_visitors_first_seen",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "first_seen_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_analytics_visitors_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "visitor_id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "article_source_links",
+      "createSql": "CREATE TABLE article_source_links (\n  source_url_hash TEXT PRIMARY KEY CHECK (length(source_url_hash) = 64),\n  article_id TEXT NOT NULL REFERENCES articles(id) ON DELETE CASCADE,\n  source_url TEXT NOT NULL,\n  source_name TEXT NOT NULL DEFAULT '',\n  feed_url TEXT NOT NULL DEFAULT '',\n  source_title TEXT NOT NULL DEFAULT '',\n  source_published_at TEXT,\n  discovered_at TEXT NOT NULL,\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "source_url_hash",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "article_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "source_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "source_name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "feed_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "source_title",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "source_published_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "discovered_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_article_source_links_discovered",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "discovered_at"
+          ]
+        },
+        {
+          "name": "idx_article_source_links_published",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "source_published_at"
+          ]
+        },
+        {
+          "name": "idx_article_source_links_article",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "article_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_article_source_links_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "source_url_hash"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "article_id",
+          "referencesTable": "articles",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "articles",
+      "createSql": "CREATE TABLE articles (\n  id TEXT PRIMARY KEY,\n  slug TEXT NOT NULL UNIQUE,\n  kind TEXT NOT NULL CHECK (kind IN ('tutorial', 'news')),\n  topic TEXT NOT NULL,\n  title TEXT NOT NULL,\n  excerpt TEXT NOT NULL,\n  cover_url TEXT NOT NULL,\n  body_text TEXT NOT NULL DEFAULT '',\n  published_date TEXT NOT NULL,\n  read_time TEXT NOT NULL,\n  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'review', 'published', 'archived')),\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n, source_name TEXT NOT NULL DEFAULT '', source_url TEXT NOT NULL DEFAULT '', cms_managed_at TEXT, revision INTEGER NOT NULL DEFAULT 1)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "slug",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "kind",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "topic",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "excerpt",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "cover_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "body_text",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "published_date",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "read_time",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'published'",
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "source_name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "source_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "cms_managed_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_articles_cms_status",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "status",
+            "published_date"
+          ]
+        },
+        {
+          "name": "idx_articles_kind_date",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "kind",
+            "published_date"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_articles_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "slug"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_articles_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "audit_logs",
+      "createSql": "CREATE TABLE audit_logs (\n  id TEXT PRIMARY KEY,\n  actor TEXT NOT NULL,\n  action TEXT NOT NULL,\n  entity_type TEXT NOT NULL,\n  entity_id TEXT NOT NULL,\n  before_json TEXT,\n  after_json TEXT,\n  request_id TEXT NOT NULL,\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "actor",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "action",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "entity_type",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "entity_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "before_json",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "after_json",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "request_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_audit_logs_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "auth_sessions",
+      "createSql": "CREATE TABLE auth_sessions (\n  id TEXT PRIMARY KEY,\n  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  token_hash TEXT NOT NULL UNIQUE,\n  expires_at TEXT NOT NULL,\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  last_seen_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "token_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "expires_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "last_seen_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_auth_sessions_expiry",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "expires_at"
+          ]
+        },
+        {
+          "name": "idx_auth_sessions_user",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "expires_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_auth_sessions_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "token_hash"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_auth_sessions_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "catalog_import_batches",
+      "createSql": "CREATE TABLE catalog_import_batches (\n  id TEXT PRIMARY KEY,\n  provider TEXT NOT NULL,\n  source_file TEXT NOT NULL DEFAULT '',\n  status TEXT NOT NULL CHECK (status IN ('running', 'completed', 'failed', 'dry_run')),\n  discovered_count INTEGER NOT NULL DEFAULT 0,\n  inserted_count INTEGER NOT NULL DEFAULT 0,\n  updated_count INTEGER NOT NULL DEFAULT 0,\n  duplicate_count INTEGER NOT NULL DEFAULT 0,\n  rejected_count INTEGER NOT NULL DEFAULT 0,\n  error_count INTEGER NOT NULL DEFAULT 0,\n  manifest_hash TEXT NOT NULL DEFAULT '',\n  report_json TEXT NOT NULL DEFAULT '{}',\n  started_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  finished_at TEXT\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "provider",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "source_file",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "discovered_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "inserted_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "updated_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "duplicate_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "rejected_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "error_count",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "manifest_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "report_json",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'{}'",
+          "generated": false
+        },
+        {
+          "name": "started_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "finished_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_import_batches_provider_date",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "provider",
+            "started_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_catalog_import_batches_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "categories",
+      "createSql": "CREATE TABLE categories (\n  id TEXT PRIMARY KEY,\n  name TEXT NOT NULL,\n  icon TEXT NOT NULL,\n  description TEXT NOT NULL DEFAULT '',\n  sort_order INTEGER NOT NULL DEFAULT 0,\n  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published', 'archived')),\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n, cms_managed_at TEXT, revision INTEGER NOT NULL DEFAULT 1)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "icon",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "sort_order",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'published'",
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "cms_managed_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_categories_cms_status",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "status",
+            "sort_order"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_categories_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "collection_tools",
+      "createSql": "CREATE TABLE collection_tools (\n  collection_id TEXT NOT NULL REFERENCES collections(id) ON DELETE CASCADE,\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  position INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (collection_id, tool_id)\n)",
+      "columns": [
+        {
+          "name": "collection_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_collection_tools_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "collection_id",
+            "tool_id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        },
+        {
+          "column": "collection_id",
+          "referencesTable": "collections",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "collections",
+      "createSql": "CREATE TABLE collections (\n  id TEXT PRIMARY KEY,\n  title TEXT NOT NULL,\n  description TEXT NOT NULL,\n  icon TEXT NOT NULL,\n  accent TEXT NOT NULL,\n  sort_order INTEGER NOT NULL DEFAULT 0,\n  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published', 'archived'))\n, cms_managed_at TEXT, revision INTEGER NOT NULL DEFAULT 1)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "icon",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "accent",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "sort_order",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'published'",
+          "generated": false
+        },
+        {
+          "name": "cms_managed_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_collections_cms_status",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "status",
+            "sort_order"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_collections_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "content_state",
+      "createSql": "CREATE TABLE content_state (\n  id INTEGER PRIMARY KEY CHECK (id = 1),\n  revision INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [],
+      "foreignKeys": []
+    },
+    {
+      "table": "email_delivery_log",
+      "createSql": "CREATE TABLE email_delivery_log (\n  id TEXT PRIMARY KEY,\n  subscription_id TEXT NOT NULL REFERENCES newsletter_subscriptions(id) ON DELETE CASCADE,\n  digest_key TEXT NOT NULL,\n  provider_message_id TEXT,\n  sent_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  UNIQUE(subscription_id, digest_key)\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "subscription_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "digest_key",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "provider_message_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "sent_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_email_delivery_date",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "sent_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_email_delivery_log_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "subscription_id",
+            "digest_key"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_email_delivery_log_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "subscription_id",
+          "referencesTable": "newsletter_subscriptions",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "feedback_messages",
+      "createSql": "CREATE TABLE feedback_messages (\n  id TEXT PRIMARY KEY,\n  user_id TEXT REFERENCES users(id) ON DELETE SET NULL,\n  category TEXT NOT NULL CHECK (category IN ('content', 'bug', 'suggestion', 'cooperation', 'other')),\n  message TEXT NOT NULL,\n  contact_email TEXT,\n  page_url TEXT NOT NULL DEFAULT '',\n  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'resolved', 'replied', 'archived')),\n  consent_version TEXT NOT NULL,\n  submitted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "category",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "message",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "contact_email",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "page_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'pending'",
+          "generated": false
+        },
+        {
+          "name": "consent_version",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "submitted_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_feedback_user_date",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "submitted_at"
+          ]
+        },
+        {
+          "name": "idx_feedback_status_date",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "status",
+            "submitted_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_feedback_messages_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "SET NULL"
+        }
+      ]
+    },
+    {
+      "table": "image_cloud_history",
+      "createSql": "CREATE TABLE image_cloud_history (\r\n  id TEXT PRIMARY KEY,\r\n  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,\r\n  generation_id TEXT NOT NULL,\r\n  prompt TEXT NOT NULL,\r\n  model_name TEXT NOT NULL,\r\n  ratio TEXT NOT NULL,\r\n  style TEXT NOT NULL,\r\n  mime_type TEXT NOT NULL CHECK (mime_type IN ('image/png', 'image/jpeg', 'image/webp')),\r\n  byte_length INTEGER NOT NULL CHECK (byte_length BETWEEN 1 AND 10485760),\r\n  created_at TEXT NOT NULL\r\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "generation_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "prompt",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "model_name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "ratio",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "style",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "mime_type",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "byte_length",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_image_cloud_history_user_created",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "created_at",
+            "id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_image_cloud_history_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "image_cloud_history_chunks",
+      "createSql": "CREATE TABLE image_cloud_history_chunks (\r\n  image_id TEXT NOT NULL REFERENCES image_cloud_history(id) ON DELETE CASCADE,\r\n  chunk_index INTEGER NOT NULL,\r\n  image_bytes BLOB NOT NULL,\r\n  PRIMARY KEY (image_id, chunk_index)\r\n)",
+      "columns": [
+        {
+          "name": "image_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "chunk_index",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "image_bytes",
+          "type": "BLOB",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_image_cloud_history_chunks_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "image_id",
+            "chunk_index"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "image_id",
+          "referencesTable": "image_cloud_history",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "image_models",
+      "createSql": "CREATE TABLE image_models (\n  id TEXT PRIMARY KEY,\n  provider_id TEXT NOT NULL REFERENCES image_providers(id),\n  model_id TEXT NOT NULL,\n  display_name TEXT NOT NULL,\n  supported_ratios_json TEXT NOT NULL,\n  max_images INTEGER NOT NULL CHECK (max_images BETWEEN 1 AND 4),\n  sort_order INTEGER NOT NULL DEFAULT 0,\n  enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),\n  is_default INTEGER NOT NULL DEFAULT 0 CHECK (is_default IN (0, 1)),\n  revision INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1),\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  UNIQUE(provider_id, model_id)\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "provider_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "model_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "display_name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "supported_ratios_json",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "max_images",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "sort_order",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "is_default",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "uq_image_models_default",
+          "unique": true,
+          "origin": "c",
+          "partial": true,
+          "columns": [
+            "is_default"
+          ]
+        },
+        {
+          "name": "idx_image_models_available",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "enabled",
+            "is_default",
+            "sort_order"
+          ]
+        },
+        {
+          "name": "idx_image_models_provider",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "provider_id",
+            "sort_order"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_image_models_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "provider_id",
+            "model_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_image_models_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "provider_id",
+          "referencesTable": "image_providers",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "NO ACTION"
+        }
+      ]
+    },
+    {
+      "table": "image_providers",
+      "createSql": "CREATE TABLE image_providers (\n  id TEXT PRIMARY KEY,\n  name TEXT NOT NULL UNIQUE,\n  base_url TEXT NOT NULL UNIQUE,\n  generation_path TEXT NOT NULL DEFAULT '/v1/images/generations',\n  encrypted_api_key TEXT NOT NULL,\n  timeout_ms INTEGER NOT NULL DEFAULT 60000 CHECK (timeout_ms BETWEEN 10000 AND 180000),\n  enabled INTEGER NOT NULL DEFAULT 1 CHECK (enabled IN (0, 1)),\n  last_test_status TEXT NOT NULL DEFAULT 'untested' CHECK (last_test_status IN ('untested', 'success', 'failed')),\n  last_test_message TEXT NOT NULL DEFAULT '',\n  last_tested_at TEXT,\n  revision INTEGER NOT NULL DEFAULT 1 CHECK (revision >= 1),\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n, edit_path TEXT NOT NULL DEFAULT '/v1/images/edits', balance_path TEXT NOT NULL DEFAULT '', balance_value_field TEXT NOT NULL DEFAULT 'balance', balance_currency_field TEXT NOT NULL DEFAULT '')",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "base_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "generation_path",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'/v1/images/generations'",
+          "generated": false
+        },
+        {
+          "name": "encrypted_api_key",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "timeout_ms",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "60000",
+          "generated": false
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "last_test_status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'untested'",
+          "generated": false
+        },
+        {
+          "name": "last_test_message",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "last_tested_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "edit_path",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'/v1/images/edits'",
+          "generated": false
+        },
+        {
+          "name": "balance_path",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "balance_value_field",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'balance'",
+          "generated": false
+        },
+        {
+          "name": "balance_currency_field",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_image_providers_enabled",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "enabled",
+            "name"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_image_providers_3",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "base_url"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_image_providers_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "name"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_image_providers_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "newsletter_subscriptions",
+      "createSql": "CREATE TABLE newsletter_subscriptions (\n  id TEXT PRIMARY KEY,\n  email TEXT NOT NULL,\n  normalized_email TEXT NOT NULL UNIQUE,\n  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'unsubscribed', 'suppressed')),\n  topic_slugs_json TEXT NOT NULL DEFAULT '[]',\n  consent_version TEXT NOT NULL,\n  source TEXT NOT NULL DEFAULT 'news_sidebar',\n  consent_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  unsubscribed_at TEXT,\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n, unsubscribe_token_hash TEXT, user_id TEXT REFERENCES users(id) ON DELETE SET NULL)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "email",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "normalized_email",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'active'",
+          "generated": false
+        },
+        {
+          "name": "topic_slugs_json",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'[]'",
+          "generated": false
+        },
+        {
+          "name": "consent_version",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'news_sidebar'",
+          "generated": false
+        },
+        {
+          "name": "consent_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "unsubscribed_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "unsubscribe_token_hash",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_newsletter_user",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "updated_at"
+          ]
+        },
+        {
+          "name": "idx_newsletter_unsubscribe_token",
+          "unique": true,
+          "origin": "c",
+          "partial": true,
+          "columns": [
+            "unsubscribe_token_hash"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_newsletter_subscriptions_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "normalized_email"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_newsletter_subscriptions_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "SET NULL"
+        }
+      ]
+    },
+    {
+      "table": "outbound_clicks",
+      "createSql": "CREATE TABLE outbound_clicks (\n  id TEXT PRIMARY KEY,\n  tool_id TEXT NOT NULL REFERENCES tools(id),\n  placement TEXT NOT NULL,\n  session_id TEXT NOT NULL DEFAULT '',\n  ip_hash TEXT NOT NULL,\n  user_agent_family TEXT NOT NULL DEFAULT '',\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "placement",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "session_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "ip_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "user_agent_family",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_outbound_tool_time",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "tool_id",
+            "created_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_outbound_clicks_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "NO ACTION"
+        }
+      ]
+    },
+    {
+      "table": "site_announcements",
+      "createSql": "CREATE TABLE site_announcements (\n  id TEXT PRIMARY KEY,\n  title TEXT NOT NULL,\n  summary TEXT NOT NULL DEFAULT '',\n  body TEXT NOT NULL,\n  available_at TEXT NOT NULL,\n  button_label TEXT NOT NULL DEFAULT '',\n  button_url TEXT NOT NULL DEFAULT '',\n  version INTEGER NOT NULL CHECK (version BETWEEN 1 AND 1000000),\n  enabled INTEGER NOT NULL DEFAULT 0 CHECK (enabled IN (0, 1)),\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "summary",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "body",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "available_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "button_label",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "button_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "enabled",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_site_announcements_public",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "enabled",
+            "available_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_site_announcements_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    },
+    {
+      "table": "tool_badges",
+      "createSql": "CREATE TABLE tool_badges (\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  badge TEXT NOT NULL,\n  position INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (tool_id, badge)\n)",
+      "columns": [
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "badge",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_tool_badges_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "tool_id",
+            "badge"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "tool_features",
+      "createSql": "CREATE TABLE tool_features (\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  feature TEXT NOT NULL,\n  position INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (tool_id, feature)\n)",
+      "columns": [
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "feature",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_tool_features_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "tool_id",
+            "feature"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "tool_platforms",
+      "createSql": "CREATE TABLE tool_platforms (\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  platform TEXT NOT NULL CHECK (platform IN ('web', 'desktop', 'mobile', 'api')),\n  position INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (tool_id, platform)\n)",
+      "columns": [
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "platform",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_tool_platforms_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "tool_id",
+            "platform"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "tool_ratings",
+      "createSql": "CREATE TABLE tool_ratings (\n  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  PRIMARY KEY (user_id, tool_id)\n)",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "rating",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_tool_ratings_tool",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "tool_id",
+            "updated_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tool_ratings_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "tool_id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        },
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "tool_sources",
+      "createSql": "CREATE TABLE tool_sources (\n  id TEXT PRIMARY KEY,\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  provider TEXT NOT NULL,\n  source_key TEXT NOT NULL,\n  source_detail_url TEXT NOT NULL,\n  source_listing_url TEXT NOT NULL DEFAULT '',\n  source_category_key TEXT NOT NULL DEFAULT '',\n  source_category_name TEXT NOT NULL DEFAULT '',\n  content_hash TEXT NOT NULL DEFAULT '',\n  import_batch_id TEXT REFERENCES catalog_import_batches(id),\n  first_seen_at TEXT NOT NULL,\n  last_seen_at TEXT NOT NULL,\n  imported_at TEXT NOT NULL,\n  UNIQUE(provider, source_key),\n  UNIQUE(provider, source_detail_url)\n)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "provider",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "source_key",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "source_detail_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "source_listing_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "source_category_key",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "source_category_name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "content_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "import_batch_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "first_seen_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "last_seen_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "imported_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_tool_sources_batch",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "import_batch_id"
+          ]
+        },
+        {
+          "name": "idx_tool_sources_tool",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "tool_id"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tool_sources_3",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "provider",
+            "source_detail_url"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tool_sources_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "provider",
+            "source_key"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tool_sources_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "import_batch_id",
+          "referencesTable": "catalog_import_batches",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "NO ACTION"
+        },
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "tool_submissions",
+      "createSql": "CREATE TABLE tool_submissions (\n  id TEXT PRIMARY KEY,\n  tracking_code TEXT NOT NULL UNIQUE,\n  idempotency_key TEXT UNIQUE,\n  name TEXT NOT NULL,\n  website_url TEXT NOT NULL,\n  normalized_url TEXT NOT NULL,\n  category_id TEXT NOT NULL REFERENCES categories(id),\n  summary TEXT NOT NULL,\n  contact_email TEXT NOT NULL,\n  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'duplicate')),\n  source TEXT NOT NULL DEFAULT 'sidebar',\n  review_note TEXT NOT NULL DEFAULT '',\n  submitted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  reviewed_at TEXT\n, lookup_token_hash TEXT, user_id TEXT REFERENCES users(id) ON DELETE SET NULL)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "tracking_code",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "idempotency_key",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "website_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "normalized_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "category_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "summary",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "contact_email",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'pending'",
+          "generated": false
+        },
+        {
+          "name": "source",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'sidebar'",
+          "generated": false
+        },
+        {
+          "name": "review_note",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "submitted_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "reviewed_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "lookup_token_hash",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_submissions_user_date",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "submitted_at"
+          ]
+        },
+        {
+          "name": "idx_submission_lookup_token",
+          "unique": true,
+          "origin": "c",
+          "partial": true,
+          "columns": [
+            "lookup_token_hash"
+          ]
+        },
+        {
+          "name": "idx_submissions_status_date",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "status",
+            "submitted_at"
+          ]
+        },
+        {
+          "name": "idx_submission_active_url",
+          "unique": true,
+          "origin": "c",
+          "partial": true,
+          "columns": [
+            "normalized_url"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tool_submissions_3",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "idempotency_key"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tool_submissions_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "tracking_code"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tool_submissions_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "SET NULL"
+        },
+        {
+          "column": "category_id",
+          "referencesTable": "categories",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "NO ACTION"
+        }
+      ]
+    },
+    {
+      "table": "tool_use_cases",
+      "createSql": "CREATE TABLE tool_use_cases (\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  use_case TEXT NOT NULL,\n  position INTEGER NOT NULL DEFAULT 0,\n  PRIMARY KEY (tool_id, use_case)\n)",
+      "columns": [
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "use_case",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_tool_use_cases_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "tool_id",
+            "use_case"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "tools",
+      "createSql": "CREATE TABLE \"tools\" (\n  id TEXT PRIMARY KEY,\n  slug TEXT NOT NULL UNIQUE,\n  name TEXT NOT NULL,\n  domain TEXT NOT NULL,\n  official_url TEXT NOT NULL,\n  canonical_url TEXT NOT NULL DEFAULT '',\n  logo_url TEXT NOT NULL DEFAULT '',\n  category_id TEXT NOT NULL REFERENCES categories(id),\n  summary TEXT NOT NULL,\n  description TEXT NOT NULL,\n  pricing_type TEXT NOT NULL CHECK (pricing_type IN ('unknown', 'free', 'freemium', 'trial', 'paid', 'contact')),\n  language TEXT NOT NULL CHECK (language IN ('unknown', 'zh', 'multi')),\n  login_requirement TEXT NOT NULL DEFAULT '',\n  region TEXT NOT NULL DEFAULT '',\n  content_updated_date TEXT NOT NULL,\n  editor_score INTEGER NOT NULL DEFAULT 0 CHECK (editor_score BETWEEN 0 AND 100),\n  popularity INTEGER NOT NULL DEFAULT 0 CHECK (popularity BETWEEN 0 AND 100),\n  data_quality_status TEXT NOT NULL DEFAULT 'basic' CHECK (data_quality_status IN ('basic', 'enriched', 'verified')),\n  first_published_at TEXT,\n  last_verified_at TEXT,\n  imported_at TEXT,\n  is_sponsored INTEGER NOT NULL DEFAULT 0 CHECK (is_sponsored IN (0, 1)),\n  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'review', 'published', 'archived')),\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n, category_sort_order INTEGER NOT NULL DEFAULT 1000\nCHECK (category_sort_order >= 0), cms_managed_at TEXT, revision INTEGER NOT NULL DEFAULT 1)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "slug",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "domain",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "official_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "canonical_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "logo_url",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "category_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "summary",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "pricing_type",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "language",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "login_requirement",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "region",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "''",
+          "generated": false
+        },
+        {
+          "name": "content_updated_date",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "editor_score",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "popularity",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "data_quality_status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'basic'",
+          "generated": false
+        },
+        {
+          "name": "first_published_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "last_verified_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "imported_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "is_sponsored",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'published'",
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "category_sort_order",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1000",
+          "generated": false
+        },
+        {
+          "name": "cms_managed_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "revision",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_tools_category_order",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "category_id",
+            "category_sort_order",
+            "status"
+          ]
+        },
+        {
+          "name": "idx_tools_domain_name",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "domain",
+            "name"
+          ]
+        },
+        {
+          "name": "idx_tools_canonical_url",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "canonical_url"
+          ]
+        },
+        {
+          "name": "idx_tools_updated",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "content_updated_date"
+          ]
+        },
+        {
+          "name": "idx_tools_popularity",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "popularity",
+            "editor_score"
+          ]
+        },
+        {
+          "name": "idx_tools_category",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "category_id",
+            "status"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tools_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "slug"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_tools_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "category_id",
+          "referencesTable": "categories",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "NO ACTION"
+        }
+      ]
+    },
+    {
+      "table": "user_favorites",
+      "createSql": "CREATE TABLE user_favorites (\n  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  PRIMARY KEY (user_id, tool_id)\n)",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_user_favorites_user",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "created_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_user_favorites_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "tool_id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        },
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "user_notification_preferences",
+      "createSql": "CREATE TABLE user_notification_preferences (\n  user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,\n  weekly_digest INTEGER NOT NULL DEFAULT 1 CHECK (weekly_digest IN (0, 1)),\n  new_tool_alerts INTEGER NOT NULL DEFAULT 1 CHECK (new_tool_alerts IN (0, 1)),\n  favorite_update_alerts INTEGER NOT NULL DEFAULT 1 CHECK (favorite_update_alerts IN (0, 1)),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))\n)",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "weekly_digest",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "new_tool_alerts",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "favorite_update_alerts",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "1",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_user_notification_preferences_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "user_tool_history",
+      "createSql": "CREATE TABLE user_tool_history (\n  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,\n  tool_id TEXT NOT NULL REFERENCES tools(id) ON DELETE CASCADE,\n  viewed_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  PRIMARY KEY (user_id, tool_id)\n)",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "tool_id",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 2,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "viewed_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_user_history_user",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "viewed_at"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_user_tool_history_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "user_id",
+            "tool_id"
+          ]
+        }
+      ],
+      "foreignKeys": [
+        {
+          "column": "tool_id",
+          "referencesTable": "tools",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        },
+        {
+          "column": "user_id",
+          "referencesTable": "users",
+          "referencesColumn": "id",
+          "onUpdate": "NO ACTION",
+          "onDelete": "CASCADE"
+        }
+      ]
+    },
+    {
+      "table": "users",
+      "createSql": "CREATE TABLE users (\n  id TEXT PRIMARY KEY,\n  email TEXT NOT NULL,\n  normalized_email TEXT NOT NULL UNIQUE,\n  display_name TEXT NOT NULL,\n  password_hash TEXT NOT NULL,\n  password_salt TEXT NOT NULL,\n  role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('member', 'admin')),\n  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'disabled')),\n  consent_version TEXT NOT NULL,\n  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),\n  last_login_at TEXT\n, is_super_admin INTEGER NOT NULL DEFAULT 0)",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 1,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "email",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "normalized_email",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "display_name",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "password_hash",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "password_salt",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "role",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'member'",
+          "generated": false
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "'active'",
+          "generated": false
+        },
+        {
+          "name": "consent_version",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "strftime('%Y-%m-%dT%H:%M:%fZ', 'now')",
+          "generated": false
+        },
+        {
+          "name": "last_login_at",
+          "type": "TEXT",
+          "notNull": false,
+          "primaryKeyOrder": 0,
+          "default": null,
+          "generated": false
+        },
+        {
+          "name": "is_super_admin",
+          "type": "INTEGER",
+          "notNull": true,
+          "primaryKeyOrder": 0,
+          "default": "0",
+          "generated": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_users_super_admin",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "is_super_admin",
+            "status"
+          ]
+        },
+        {
+          "name": "idx_users_role_status",
+          "unique": false,
+          "origin": "c",
+          "partial": false,
+          "columns": [
+            "role",
+            "status"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_users_2",
+          "unique": true,
+          "origin": "u",
+          "partial": false,
+          "columns": [
+            "normalized_email"
+          ]
+        },
+        {
+          "name": "sqlite_autoindex_users_1",
+          "unique": true,
+          "origin": "pk",
+          "partial": false,
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "foreignKeys": []
+    }
+  ]
+}
