@@ -1,0 +1,28 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtempSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {buildApplication} from '../server.mjs';
+import {registerUser} from '../backend/auth.mjs';
+test('assistant API permissions, configuration, reply and daily quota work together',async t=>{
+ const dir=mkdtempSync(join(tmpdir(),'assistant-api-'));
+ const app=buildApplication({dbPath:join(dir,'test.db'),logger:false,environment:'test',autoSeed:false,adminToken:'assistant-api-test-only',imageConfigKey:'a'.repeat(64),assistantLookup:async()=>[{address:'93.184.216.34',family:4}],assistantFetch:async()=>new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({output:'测试回答',toolIds:[]})}}]}))});
+ const address=await app.listen(0,'127.0.0.1');
+ t.after(async()=>{await app.close();rmSync(dir,{recursive:true,force:true});});
+ const get=(path,options={})=>fetch(`http://127.0.0.1:${address.port}${path}`,options);
+ const initial=(await (await get('/api/v1/assistant/config')).json()).data;
+ assert.equal(initial.ready,false); assert.deepEqual(Object.keys(initial).sort(),['dailyLimit','enabled','ready','welcome']);
+ assert.equal((await get('/api/admin/v1/assistant/provider')).status,401);
+ assert.equal((await get('/api/v1/assistant/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:'{"messages":[{"role":"user","content":"你好"}]}'})).status,401);
+ const member=await registerUser(app.db,{displayName:'测试用户',email:'assistant@example.test',normalizedEmail:'assistant@example.test',password:'local-assistant-test-password',consentVersion:'2026-07'});
+ const headers={Cookie:`nikai_auth=${member.token}`,'Content-Type':'application/json'};
+ assert.equal((await get('/api/admin/v1/assistant/provider',{headers})).status,401);
+ const configure=await get('/api/admin/v1/assistant/provider',{method:'PUT',headers:{Authorization:'Bearer assistant-api-test-only','Content-Type':'application/json'},body:JSON.stringify({enabled:true,endpoint:'https://example.com',model:'test',apiKey:'local-test-key',dailyLimit:1})});
+ assert.equal(configure.status,200); assert.equal((await configure.json()).data.ready,true);
+ const response=await get('/api/v1/assistant/chat',{method:'POST',headers,body:JSON.stringify({messages:[{role:'user',content:'你好'}]})});assert.equal(response.status,200);assert.equal((await response.json()).data.output,'测试回答');
+ assert.equal((await get('/api/v1/assistant/chat',{method:'POST',headers,body:JSON.stringify({messages:[{role:'user',content:'你好'}]})})).status,429);
+ for(const page of ['/','/news','/skills','/creator','/image-generation'])assert.match(await (await get(page)).text(),/assistant\.js\?v=20261014-compact-1/);
+ assert.doesNotMatch(await (await get('/auth.html')).text(),/src="\/assistant\.js/);
+ for(const asset of ['/assistant.js','/assistant.css','/admin-assistant.js'])assert.equal((await get(asset)).status,200);
+});

@@ -1,0 +1,91 @@
+.nikai-assistant-root{font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif;color:#201c34;font-size:14px;line-height:1.5}
+.nikai-assistant-root *{box-sizing:border-box}
+.nikai-assistant-root button,.nikai-assistant-root textarea{font:inherit}
+.nikai-assistant-root button{cursor:pointer}
+.nikai-assistant-root button:focus-visible,.nikai-assistant-root a:focus-visible{outline:3px solid #b6a3ff;outline-offset:4px}
+.nikai-assistant-root [hidden]{display:none!important}
+.nikai-assistant-launcher{position:fixed;right:28px;bottom:26px;width:64px;height:64px;display:flex;align-items:center;border:0;background:none;padding:0;z-index:1001;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.nikai-assistant-launcher[data-dragging="true"]{cursor:grabbing}
+.nikai-assistant-launcher img{pointer-events:none}
+.nikai-assistant-hint{position:absolute;right:calc(100% + 12px);width:max-content;max-width:min(260px,calc(100vw - 96px));padding:12px 18px;background:#fff;border:1px solid #eee8ff;border-radius:24px;color:#77688e;box-shadow:0 8px 24px #6548bd0c;text-align:left;font-size:13px}
+.nikai-assistant-launcher[data-hint-side="right"] .nikai-assistant-hint{left:calc(100% + 12px);right:auto}
+.nikai-assistant-avatar{display:block;flex:none;width:64px;height:64px;position:relative;overflow:hidden;border-radius:50%;background:#f2efff;border:3px solid #fff;box-shadow:0 6px 22px #7853ed20}
+.nikai-assistant-avatar img{position:absolute;width:150%;height:150%;max-width:none;object-fit:contain;left:-27%;top:-14%}
+.nikai-assistant-panel{position:fixed;right:28px;bottom:106px;width:960px;height:520px;display:flex;flex-direction:column;border:1px solid #ede7fd;border-radius:32px;background:linear-gradient(145deg,#fff 0%,#fcfbff 55%,#f8f6ff 100%);box-shadow:0 24px 70px #7353cd1c;overflow:visible;isolation:isolate;z-index:1000}
+.nikai-assistant-head{display:flex;align-items:center;gap:15px;padding:26px 30px 10px;flex:none;min-width:0}
+.nikai-assistant-head .nikai-assistant-avatar{width:52px;height:52px;border-width:2px;box-shadow:0 3px 12px #7853ed0c}
+.nikai-assistant-title{min-width:0}
+.nikai-assistant-title strong{font-size:23px;line-height:1.4;font-weight:750;letter-spacing:-.6px}
+.nikai-assistant-sub{font-size:14px;color:#9386a6;margin-top:2px}
+.nikai-assistant-actions{display:flex;gap:12px;margin-left:auto;flex:none}
+.nikai-assistant-reset,.nikai-assistant-close{border:0;border-radius:50%;background:transparent;color:#8b7d9d;width:36px;height:36px;display:grid;place-items:center;padding:8px}
+.nikai-assistant-root svg{width:22px;height:22px;flex:none;display:block;pointer-events:none}
+.nikai-assistant-reset:hover,.nikai-assistant-close:hover{background:#eee8ff;color:#7853ed}
+.nikai-assistant-mascot{position:absolute;left:-157px;top:106px;width:252px;height:270px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 14px 24px #7853ed14);z-index:2}
+.nikai-assistant-messages{flex:1;min-height:0;overflow:auto;padding:28px 30px 14px;scrollbar-width:thin;scrollbar-color:#e4def4 transparent;overscroll-behavior:contain}
+.nikai-assistant-welcome{padding:36px 0 25px 100px;min-width:0}
+.nikai-assistant-welcome h2{font-size:33px;line-height:1.45;margin:0 0 12px;letter-spacing:-1px;font-weight:750;color:#201c34}
+.nikai-assistant-welcome p{font-size:17px;line-height:1.85;color:#8c7d9f;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.nikai-assistant-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:8px 0 0}
+.nikai-assistant-chip{display:flex;align-items:center;gap:8px;min-width:0;min-height:56px;border:1px solid #eee8fc;background:linear-gradient(135deg,#fff,#fbf9ff);text-align:left;padding:10px 13px;border-radius:30px;color:#4c435f;box-shadow:0 5px 12px #7050ce07;transition:border-color .15s,background .15s}
+.nikai-assistant-chip-icon{display:grid;place-items:center;background:#f3edff;color:#9b70ff;width:30px;height:30px;flex:none;border-radius:50%}
+.nikai-assistant-chip-icon svg{width:20px;height:20px}
+.nikai-assistant-chip-label{font-size:12px;flex:1;min-width:0;line-height:1.6;overflow-wrap:anywhere}
+.nikai-assistant-chip>svg{width:16px;height:16px;color:#aa99c3}
+.nikai-assistant-chip:hover{background:#f5f0ff;border-color:#d3c2ff;color:#7046d9}
+.nikai-assistant-panel[data-conversation="true"] .nikai-assistant-mascot,.nikai-assistant-panel[data-conversation="true"] .nikai-assistant-welcome,.nikai-assistant-panel[data-conversation="true"] .nikai-assistant-chips{display:none}
+.nikai-assistant-panel[data-conversation="true"] .nikai-assistant-messages{padding-top:14px}
+.nikai-assistant-reply{font-size:15px;line-height:1.9;color:#625570;white-space:pre-wrap;overflow-wrap:anywhere;margin:16px 0;max-width:92%}
+.nikai-assistant-user{background:linear-gradient(115deg,#8b60f5,#7853ed);color:#fff;padding:13px 18px;border-radius:20px 20px 5px 20px;font-size:15px;line-height:1.8;margin:14px 0 14px auto;width:fit-content;max-width:82%;white-space:pre-wrap;overflow-wrap:anywhere}
+.nikai-assistant-tool{display:flex;align-items:center;gap:14px;border:1px solid #ede7f7;background:#fff;border-radius:16px;padding:16px;margin-top:12px}
+.nikai-assistant-tool-info{flex:1;min-width:0;overflow-wrap:anywhere}
+.nikai-assistant-tool strong{font-size:14px;display:block}
+.nikai-assistant-tool small{font-size:12px;color:#92849f;display:block;line-height:1.7;margin-top:3px}
+.nikai-assistant-tool a{margin-left:auto;text-decoration:none;color:#8254e9;font-size:12px;white-space:nowrap}
+.nikai-assistant-status{padding:3px 34px 7px;color:#9d8fad;font-size:11px;flex:none;overflow-wrap:anywhere;min-height:24px}
+.nikai-assistant-login{margin-left:8px;color:#7853ed}
+.nikai-assistant-compose{padding:0 28px 17px;flex:none;margin:0;background:transparent;border:0}
+.nikai-assistant-inputbox{display:flex;align-items:center;gap:14px;border:1px solid #eee8fb;border-radius:38px;padding:9px 10px 9px 25px;background:#fff;box-shadow:0 4px 20px #7050ce04;min-height:76px}
+.nikai-assistant-inputbox:focus-within{border-color:#d8c7ff;box-shadow:0 0 0 3px #f3edff}
+.nikai-assistant-input{display:block;flex:1;width:100%;min-width:0;height:46px;min-height:46px;border:0;outline:none;resize:none;background:transparent;font-size:16px;color:#493d5c;line-height:1.6;padding:10px 0;box-shadow:none;border-radius:0}
+.nikai-assistant-input::placeholder{color:#afa3bc}
+.nikai-assistant-inputfoot{display:flex;flex:none;align-items:center;justify-content:center;gap:0}
+.nikai-assistant-inputfoot>span{display:none}
+.nikai-assistant-send,.nikai-assistant-stop{width:54px;height:54px;flex:none;border:0;border-radius:50%;background:linear-gradient(135deg,#a176ff,#7d48ed);color:#fff;display:grid;place-items:center;padding:0;box-shadow:inset 0 1px 1px #ffffff45,0 5px 12px #7853ed16;transition:box-shadow .15s,background .15s}
+.nikai-assistant-send svg{width:27px;height:27px}
+.nikai-assistant-send:hover,.nikai-assistant-stop:hover{box-shadow:0 5px 18px #7853ed38}
+.nikai-assistant-send:disabled{opacity:.4;cursor:not-allowed}
+.nikai-assistant-stop-icon{width:14px;height:14px;border-radius:3px;background:currentColor;display:block}
+.nikai-assistant-footer{font-size:10px;color:#b2a6be;text-align:center;margin-top:9px;line-height:1.5}
+@media(max-width:1099px){.nikai-assistant-mascot{display:none}.nikai-assistant-welcome{padding-left:0}.nikai-assistant-welcome h2{font-size:30px}.nikai-assistant-welcome p{font-size:16px}}
+@media(max-width:760px){.nikai-assistant-chips{gap:8px}.nikai-assistant-chip{padding:9px 10px;gap:6px}.nikai-assistant-chip-label{font-size:11px}.nikai-assistant-chip>svg{display:none}.nikai-assistant-chip-icon{width:26px;height:26px}}
+@media(max-width:600px){
+ .nikai-assistant-launcher{right:16px;bottom:18px}.nikai-assistant-hint{display:none}
+ .nikai-assistant-panel{border-radius:24px}.nikai-assistant-head{padding:20px 18px 8px;gap:10px}.nikai-assistant-head .nikai-assistant-avatar{width:43px;height:43px}.nikai-assistant-title strong{font-size:18px}.nikai-assistant-sub{font-size:11px}.nikai-assistant-actions{gap:3px}.nikai-assistant-reset,.nikai-assistant-close{width:32px;height:32px;padding:6px}
+ .nikai-assistant-messages{padding:14px 18px 10px}.nikai-assistant-welcome{padding:22px 0 18px}.nikai-assistant-welcome h2{font-size:25px;letter-spacing:-.7px}.nikai-assistant-welcome p{font-size:14px;line-height:1.8}
+ .nikai-assistant-chips{grid-template-columns:1fr;gap:9px;margin:4px 0 10px}.nikai-assistant-chip{min-height:46px;padding:9px 13px;gap:10px}.nikai-assistant-chip-label{font-size:12px}.nikai-assistant-chip>svg{display:block}.nikai-assistant-chip-icon{width:28px;height:28px}
+ .nikai-assistant-compose{padding:0 14px 13px}.nikai-assistant-inputbox{min-height:64px;padding:7px 8px 7px 16px;gap:8px;border-radius:28px}.nikai-assistant-input{font-size:16px;height:44px;min-height:44px;padding:8px 0}.nikai-assistant-send,.nikai-assistant-stop{width:46px;height:46px}.nikai-assistant-status{padding:3px 20px 7px}.nikai-assistant-footer{font-size:9px}.nikai-assistant-user{font-size:14px;max-width:88%}.nikai-assistant-reply{font-size:14px;max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){.nikai-assistant-root *{scroll-behavior:auto;transition:none}}
+.nikai-assistant-root .nikai-assistant-input:focus,.nikai-assistant-root .nikai-assistant-input:focus-visible{outline:none;border:0;box-shadow:none}
+/* Compact floating assistant: keep the reference look without covering the page. */
+.nikai-assistant-panel{width:520px;height:480px;border-radius:26px}
+.nikai-assistant-head{padding:18px 20px 8px;gap:10px}
+.nikai-assistant-head .nikai-assistant-avatar{width:40px;height:40px}
+.nikai-assistant-title strong{font-size:18px}.nikai-assistant-sub{font-size:11px}
+.nikai-assistant-actions{gap:4px}
+.nikai-assistant-mascot{left:auto;right:22px;top:85px;width:84px;height:100px;display:block}
+.nikai-assistant-messages{padding:12px 20px 10px}
+.nikai-assistant-welcome{padding:16px 86px 16px 0}
+.nikai-assistant-welcome h2{font-size:23px;line-height:1.45;letter-spacing:-.6px;margin-bottom:9px}
+.nikai-assistant-welcome p{font-size:13px;line-height:1.7}
+.nikai-assistant-chips{grid-template-columns:1fr;gap:7px;margin:2px 0 8px}
+.nikai-assistant-chip{min-height:38px;padding:6px 12px;gap:8px;box-shadow:none}
+.nikai-assistant-chip-icon{width:25px;height:25px}.nikai-assistant-chip-icon svg{width:17px;height:17px}
+.nikai-assistant-chip-label{font-size:12px}.nikai-assistant-chip>svg{display:block;width:14px;height:14px}
+.nikai-assistant-compose{padding:0 16px 12px}.nikai-assistant-inputbox{min-height:62px;padding:7px 8px 7px 16px;gap:8px}
+.nikai-assistant-input{height:44px;min-height:44px;font-size:14px;padding:9px 0}
+.nikai-assistant-send,.nikai-assistant-stop{width:44px;height:44px}.nikai-assistant-send svg{width:23px;height:23px}
+.nikai-assistant-status{padding:2px 22px 6px;min-height:20px}.nikai-assistant-footer{font-size:9px;margin-top:7px}
+.nikai-assistant-user,.nikai-assistant-reply{font-size:14px}
+@media(max-width:600px){.nikai-assistant-input{font-size:16px}.nikai-assistant-welcome h2{font-size:21px}.nikai-assistant-mascot{width:70px;height:86px;right:16px;top:82px}.nikai-assistant-welcome{padding-right:68px}.nikai-assistant-messages{padding-inline:16px}}
